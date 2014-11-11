@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="ch.ethz.isn.moblercards" version="3.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Mobler Cards</name>
+    <description>
+A simple training and practicing app that connects to your LMS
+    </description>
+    <author email="e-learning@sipo.gess.ethz.ch" href="http://www.isn.ethz.ch">
+        ISN/CSS?ETH Zürich
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="DisallowOverscroll" value="true" />
+</widget>
