@@ -376,7 +376,7 @@ return this.lmsData.previousServer;
 */
 LMSModel.prototype.register = function(servername) {
 	var self = this;
-	moblerlog("enters regsitration");
+	console.log("enters regsitration");
 	//phone gap property to get the id of a device
 	var deviceID = device.uuid;
 	var activeURL = self.getActiveServerURL();

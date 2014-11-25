@@ -42,7 +42,7 @@ function Controller() {
 
 	self.MoblerVersion = 2.0;
 
-	moblerlog("start controller");
+	console.log("start controller");
 	self.appLoaded = false;
 	self.clickOutOfStatisticsIcon=true;
 	var startTime= new Date().getTime();
@@ -214,14 +214,15 @@ var gestureHandler = jester(window, self.jesteroptions).swipe(
 moblerlog('core gestures done');
 
 // if device is an iPhone enable pinching
-moblerlog('platform' + device.platform);
-if (device.platform === 'iPhone') {
-
-
-	gestureHandler.pinched(function pinchCatcher(event) {
-		self.activeView.handlePinch(event);
-	});
-}
+//moblerlog('platform' + device.platform);
+    // FIXME device is not defined
+//if (device.platform === 'iPhone') {
+//
+//
+//	gestureHandler.pinched(function pinchCatcher(event) {
+//		self.activeView.handlePinch(event);
+//	});
+//}
 
 
 // set correct height of icon button

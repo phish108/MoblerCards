@@ -22,17 +22,16 @@ under the License.
 
 
 /** @author Isabella Nake
- * @author Evangelia Mitsopoulou
-
-*/
-
+ *  @author Evangelia Mitsopoulou
+ */
 
 //The starting point of the app
 
 /*jslint vars: true, sloppy: true */
 
 var controller;
-document.addEventListener("deviceready", init, false);
+console.log('appStart');
+document.addEventListener("deviceready", init(), false);
 	
 
 /**
@@ -40,5 +39,6 @@ document.addEventListener("deviceready", init, false);
  */
 function init() {
     controller = new Controller();
+    console.log("create new controller");
     $(document).trigger("trackingEventDetected",["appStart"]);
 }
