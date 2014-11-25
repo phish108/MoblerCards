@@ -1,0 +1,8 @@
+jquery.js 3
+    event.returnValue is deprecated. Please use the standard event.preventDefault() instead.
+
+vm70
+    exception firing pause event from native
+    
+vm71
+    exception firing destroy event from native 
