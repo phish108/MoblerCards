@@ -3,67 +3,15 @@
 <head>
 <title>Learning Cards</title>
 
-<meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" />
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" />
 
-<script type="text/javascript" charset="utf-8"
-    src="libs/cordova-2.5.0.js"></script>
+    <!--<script type="text/javascript" charset="utf-8" src="libs/cordova-2.5.0.js"></script>-->
+    <!--<script type="text/javascript" charset="utf-8" src="libs/cordova.ios.js"></script> -->
 
- <!--<script type="text/javascript" charset="utf-8"
- src="libs/cordova.ios.js"></script> -->
+    
 
-
-<script type="text/javascript" src="scripts/common.js"></script>
-<script type="text/javascript" src="libs/jquery.js"></script>
-<script type="text/javascript" src="libs/jquery-ui.js"></script>
-<script type="text/javascript" src="libs/jester.js"></script>
-<script type="text/javascript" src="libs/md5.js"></script>
-<script type="text/javascript"	src="libs/jquery.i18n.properties-1.0.9.js"></script>
-<script type="text/javascript" src="libs/sha1.js"></script>
-<script type="text/javascript" src="libs/oauth.js"></script>
-
-<script type="text/javascript" src="scripts/models/configuration.js"></script>
-<!-- <script type="text/javascript" src="scripts/models/authServiceModel.js"></script> -->
-<script type="text/javascript" src="scripts/models/connectionstate.js"></script>
-<script type="text/javascript" src="scripts/models/featuredContentModel.js"></script>
-<script type="text/javascript" src="scripts/models/lmsModel.js"></script>
-<script type="text/javascript" src="scripts/models/course.js"></script>
-<script type="text/javascript" src="scripts/models/questionpool.js"></script>
-<script type="text/javascript" src="scripts/models/answerModel.js"></script>
-<script type="text/javascript" src="scripts/models/statistics.js"></script>
-<script type="text/javascript" src="scripts/models/bestDayScoreModel.js"></script>
-<script type="text/javascript" src="scripts/models/handledCardsModel.js"></script>
-<script type="text/javascript" src="scripts/models/averageScoreModel.js"></script>
-<script type="text/javascript" src="scripts/models/progressModel.js"></script>
-<script type="text/javascript" src="scripts/models/averageSpeedModel.js"></script>
-<script type="text/javascript" src="scripts/models/stackHandlerModel.js"></script>
-<script type="text/javascript" src="scripts/models/cardBurnerModel.js"></script>
-<script type="text/javascript" src="scripts/models/trackingModel.js"></script>
-<script type="text/javascript" src="scripts/controllers/controller.js"></script>
-
-<script type="text/javascript" src="scripts/views/singleChoiceWidget.js"></script>
-<script type="text/javascript"
-    src="scripts/views/multipleChoiceWidget.js"></script>
-<script type="text/javascript" src="scripts/views/textSortWidget.js"></script>
-<script type="text/javascript" src="scripts/views/clozeQuestionType.js"></script>
-<script type="text/javascript" src="scripts/views/textHorizontalSortWidget.js"></script>
-<script type="text/javascript"
-    src="scripts/views/numericQuestionWidget.js"></script>
-<script type="text/javascript" src="scripts/views/answerView.js"></script>
-<script type="text/javascript" src="scripts/views/lmsView.js"></script>
-<script type="text/javascript" src="scripts/views/coursesListView.js"></script>
-<script type="text/javascript" src="scripts/views/feedbackView.js"></script>
-<script type="text/javascript" src="scripts/views/loginView.js"></script>
-<script type="text/javascript" src="scripts/views/landingView.js"></script>
-<script type="text/javascript" src="scripts/views/logoutView.js"></script>
-<script type="text/javascript" src="scripts/views/questionView.js"></script>
-<script type="text/javascript" src="scripts/views/settingsView.js"></script>
-<script type="text/javascript" src="scripts/views/statisticsView.js"></script>
-<script type="text/javascript" src="scripts/views/achievementsView.js"></script>
-<script type="text/javascript" src="scripts/views/aboutView.js"></script>
-<script type="text/javascript" src="scripts/views/splashScreen.js"></script>
-<script type="text/javascript" src="scripts/testModels.js"></script>
-<script type="text/javascript" src="scripts/main.js"></script>
 <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
 <link href="css/css2.0.css" rel="stylesheet" type="text/css">
 <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -771,5 +719,59 @@
     </div>
     <!--hidden html element that is used for cleaning html-tags for questionpool model -->
     <div id="modelHelperQuestionpool"></div>
-</body>
+
+    
+        <script type="text/javascript" src="js/common.js"></script>
+
+        <script type="text/javascript" src="libs/jquery.js"></script>
+        <script type="text/javascript" src="libs/jquery-ui.js"></script>
+        <script type="text/javascript" src="libs/jester.js"></script>
+        <script type="text/javascript" src="libs/md5.js"></script>
+        <script type="text/javascript" src="libs/jquery.i18n.properties-1.0.9.js"></script>
+        <script type="text/javascript" src="libs/sha1.js"></script>
+<!--        <script type="text/javascript" src="libs/oauth2.js"></script>-->
+
+        <!-- <script type="text/javascript" src="scripts/models/authServiceModel.js"></script> -->
+        <script type="text/javascript" src="js/models/configuration.js"></script>
+        <script type="text/javascript" src="js/models/connectionstate.js"></script>
+        <script type="text/javascript" src="js/models/featuredContentModel.js"></script>
+        <script type="text/javascript" src="js/models/lmsModel.js"></script>
+        <script type="text/javascript" src="js/models/course.js"></script>
+        <script type="text/javascript" src="js/models/questionpool.js"></script>
+        <script type="text/javascript" src="js/models/answerModel.js"></script>
+        <script type="text/javascript" src="js/models/statistics.js"></script>
+        <script type="text/javascript" src="js/models/bestDayScoreModel.js"></script>
+        <script type="text/javascript" src="js/models/handledCardsModel.js"></script>
+        <script type="text/javascript" src="js/models/averageScoreModel.js"></script>
+        <script type="text/javascript" src="js/models/progressModel.js"></script>
+        <script type="text/javascript" src="js/models/averageSpeedModel.js"></script>
+        <script type="text/javascript" src="js/models/stackHandlerModel.js"></script>
+        <script type="text/javascript" src="js/models/cardBurnerModel.js"></script>
+        <script type="text/javascript" src="js/models/trackingModel.js"></script>
+
+        <script type="text/javascript" src="js/controllers/controller.js"></script>
+
+        <script type="text/javascript" src="js/views/singleChoiceWidget.js"></script>
+        <script type="text/javascript" src="js/views/multipleChoiceWidget.js"></script>
+        <script type="text/javascript" src="js/views/textSortWidget.js"></script>
+        <script type="text/javascript" src="js/views/clozeQuestionType.js"></script>
+        <script type="text/javascript" src="js/views/textHorizontalSortWidget.js"></script>
+        <script type="text/javascript" src="js/views/numericQuestionWidget.js"></script>
+        <script type="text/javascript" src="js/views/answerView.js"></script>
+        <script type="text/javascript" src="js/views/lmsView.js"></script>
+        <script type="text/javascript" src="js/views/coursesListView.js"></script>
+        <script type="text/javascript" src="js/views/feedbackView.js"></script>
+        <script type="text/javascript" src="js/views/loginView.js"></script>
+        <script type="text/javascript" src="js/views/landingView.js"></script>
+        <script type="text/javascript" src="js/views/logoutView.js"></script>
+        <script type="text/javascript" src="js/views/questionView.js"></script>
+        <script type="text/javascript" src="js/views/settingsView.js"></script>
+        <script type="text/javascript" src="js/views/statisticsView.js"></script>
+        <script type="text/javascript" src="js/views/achievementsView.js"></script>
+        <script type="text/javascript" src="js/views/aboutView.js"></script>
+        <script type="text/javascript" src="js/views/splashScreen.js"></script>
+
+        <script type="text/javascript" src="js/testModels.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </body>
 </html>

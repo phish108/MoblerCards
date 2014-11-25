@@ -45,16 +45,17 @@ function ConnectionState(controller) {
 	var self = this;
 	this.controller = controller;
 //    if (device.platform === 'iPhone') {
-        var networkState = navigator.connection.type;
+    // TODO get the correct navigator feature
+//        var networkState = navigator.connection.type;
 //	    } else {
 //    var networkState = navigator.network.connection.type;
 //    }
     
-	if (networkState == Connection.NONE) {
-		self.state = false;
-	} else {
-		self.state = true;
-	}
+//	if (networkState == Connection.NONE) {
+//		self.state = false;
+//	} else {
+//		self.state = true;
+//	}
 
 	moblerlog("connection state during initialization: " + self.state);
 
