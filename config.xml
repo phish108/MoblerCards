@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="ch.ethz.isn.moblercards" version="3.0.0">
+<widget id="ch.ethz.isn.moblercards" version="3.0.1">
     <name>Mobler Cards</name>
     <description>
 A simple training and practicing app that connects to your LMS
@@ -7,7 +7,16 @@ A simple training and practicing app that connects to your LMS
     <author email="e-learning@sipo.gess.ethz.ch" href="http://www.isn.ethz.ch">
         ISN/CSS?ETH Zürich
     </author>
-    <content src="index.html" />
-    <access origin="*" />
-    <preference name="DisallowOverscroll" value="true" />
+    <content src="index.html"/>
+    <access origin="*"/>
+    <preference name="DisallowOverscroll" value="true"/>
+    <feature name="Network Information">
+        <param name="id" value="org.apache.cordova.network-information"/>
+    </feature>
+    <feature name="Device">
+        <param name="id" value="org.apache.cordova.device"/>
+    </feature>
+    <feature name="File">
+        <param name="id" value="org.apache.cordova.file"/>
+    </feature>
 </widget>
