@@ -40,7 +40,7 @@ under the License.
  * @param {Boolean} interactive
 */
 
-function ClozeQuestionType(interactive, controller){
+function ClozeQuestionTypeView(interactive, controller){
 	var self = this;
 	self.interactive = interactive;
 	self.didApologize = false;
@@ -64,7 +64,7 @@ function ClozeQuestionType(interactive, controller){
  * @prototype
  * @function cleanup
  **/ 
-ClozeQuestionType.prototype.cleanup = doNothing;
+ClozeQuestionTypeView.prototype.cleanup = doNothing;
 
 
 /**
@@ -73,7 +73,7 @@ ClozeQuestionType.prototype.cleanup = doNothing;
  * @prototype
  * @function showAnswer
  **/ 
-ClozeQuestionType.prototype.showAnswer = function(interactive) {
+ClozeQuestionTypeView.prototype.showAnswer = function(interactive) {
 //	$("#cardAnswerBody").empty();
 	var questionpoolModel = controller.models['questionpool'];
 	// Check if there is a question pool and if there are answers for a specific
@@ -101,7 +101,7 @@ ClozeQuestionType.prototype.showAnswer = function(interactive) {
  * @prototype
  * @function showFeedback
  **/ 
-ClozeQuestionType.prototype.showFeedback = function() {
+ClozeQuestionTypeView.prototype.showFeedback = function() {
 moblerlog("enter feedback view in cloze question");
 	
 	$("#feedbackBody").empty();
@@ -121,7 +121,7 @@ moblerlog("enter feedback view in cloze question");
  * @prototype
  * @function storeAnswers
  **/ 
-ClozeQuestionType.prototype.storeAnswers = function(){
+ClozeQuestionTypeView.prototype.storeAnswers = function(){
 	
 	moblerlog("store answers in cloze question view");
 	var questionpoolModel = controller.models["questionpool"];
@@ -143,7 +143,7 @@ ClozeQuestionType.prototype.storeAnswers = function(){
  * @prototype
  * @function setCorrectAnswerTickHeight
  **/ 
-ClozeQuestionType.prototype.setCorrectAnswerTickHeight = function() {
+ClozeQuestionTypeView.prototype.setCorrectAnswerTickHeight = function() {
 	
 };
 

@@ -29,7 +29,7 @@ under the License.
 /*jslint vars: true, sloppy: true */
 
 /**
- ** @class ConnectionState
+ ** @class ConnectionStateModel
  *  This model holds the current connection state (online = true, offline =
  * false). Every time an online or offline event is triggered, it updates its
  * connection state
@@ -40,37 +40,48 @@ under the License.
  * goOnline handlers are executed respectively.
  *  @param {String} controller 
  */
-function ConnectionState(controller) {
+function ConnectionStateModel(controller) {
 
 	var self = this;
 	this.controller = controller;
-//    if (device.platform === 'iPhone') {
-    // TODO get the correct navigator feature
-//        var networkState = navigator.connection.type;
-//	    } else {
-//    var networkState = navigator.network.connection.type;
-//    }
     
-//	if (networkState == Connection.NONE) {
-//		self.state = false;
-//	} else {
-//		self.state = true;
-//	}
-
+    this.checkConnection();
+    
 	moblerlog("connection state during initialization: " + self.state);
 
 	window.addEventListener("offline", self.goOffline, true);
 	window.addEventListener("online", self.goOnline, true);
 }
 
+ConnectionStateModel.prototype.update = function () {
+  this.checkConnection();
+};
 
+ConnectionStateModel.prototype.clear = function () {
+  this.goOffline();  
+};
+
+/*
+ * Check for the devices connection state.
+ * Maybe I will need to include a feature for IOS
+ */
+ConnectionStateModel.prototype.checkConnection = function () {
+    var networkState = navigator.connection.type;
+    
+    if (networkState === Connection.NONE) {
+        this.state = false;
+    }
+    else {
+        this.state = true;
+    }
+};
 
 /**
  * @prototype
  * @function isOffline
  * @return {Boolean} true if the connection state is offline, otherwise false
  */
-ConnectionState.prototype.isOffline = function() {
+ConnectionStateModel.prototype.isOffline = function() {
 	return !this.state;
 };
 
@@ -80,7 +91,7 @@ ConnectionState.prototype.isOffline = function() {
  * @prototype
  * @function goOnline
  */
-ConnectionState.prototype.goOnline = function() {
+ConnectionStateModel.prototype.goOnline = function() {
 	moblerlog("**online**");
 	this.state = true;
 	
@@ -91,6 +102,21 @@ ConnectionState.prototype.goOnline = function() {
 
 
 /**
+ * When an internet connectivity is lost then show the error message
+ * @prototype
+ * @function goOffline
+ */ 
+ConnectionStateModel.prototype.goOffline = function() {
+	console.log("**offline**");
+	this.state = false;
+	$(document).trigger("trackingEventDetected","offline");
+	// show no connection error message in login view
+	if (self.controller.views){
+	self.controller.views["login"].showErrorMessage(jQuery.i18n.prop('msg_network_message'));
+	}
+};
+
+/**
  * When online connection is detected any locally stored pending logout information is sent to the server.
  * Additionally, any pending courses and questions information are loaded from the server.
  * Any pending statistics and tracking data are sent to the server as well. 
@@ -99,7 +125,7 @@ ConnectionState.prototype.goOnline = function() {
  ** @prototype
  * @function synchronizeData
  */
-ConnectionState.prototype.synchronizeData = function() {
+ConnectionStateModel.prototype.synchronizeData = function() {
 	if (this.state) {
 		/** 
 		 * It it triggered when the connection state is online 
@@ -135,10 +161,15 @@ ConnectionState.prototype.synchronizeData = function() {
 
 		moblerlog('check synchronization - question pools');
 		// if a pending question pool exists, load the question pool from the server
-		if ( this.controller && this.controller.models && this.controller.models["course"] && this.controller.models["course"].courseList) {
-			moblerlog( 'got models ');
+        // FIXME improve /=void conditioning
+		if (this.controller && 
+            this.controller.models && 
+            this.controller.models["course"] &&
+            this.controller.models["course"].courseList) {
+			console.log( 'got models ');
 			var courseList = this.controller.models["course"].courseList;
-			if (courseList) {
+			
+            if (courseList) {
 				moblerlog( 'interate course list ' );
 				for ( var c in courseList) {
 					moblerlog( 'check course ' + c );
@@ -155,7 +186,10 @@ ConnectionState.prototype.synchronizeData = function() {
 		
 		moblerlog('check synchronization - featured question pools');
 		// if a pending featured content question pool exists, load the question pool from the server
-		if ( this.controller && this.controller.models && this.controller.models["featured"] && this.controller.models["featured"].featuredContentList) {
+		if (this.controller && 
+            this.controller.models && 
+            this.controller.models["featured"] && 
+            this.controller.models["featured"].featuredContentList) {
 			moblerlog( 'got models ');
 			var featuredContentList = this.controller.models["featured"].featuredContentList;
 			if (featuredContentList) {
@@ -182,7 +216,9 @@ ConnectionState.prototype.synchronizeData = function() {
 		}
 		// if statistics data wasn't sent to the server for more than 24 hours
 		// send the data to the server
-		if (this.controller && this.controller.models && this.controller.models["statistics"]) {
+		if (this.controller && 
+            this.controller.models && 
+            this.controller.models["statistics"]) {
 			if (!statisticsModel.lastSendToServer || statisticsModel.lastSendToServer < ((new Date()).getTime() - 60*60*1000)) { // it was 24*60*60*1000 (check once every day)
 				moblerlog("statistics need to be synchronized in connection state model");
 				statisticsModel.sendToServer();
@@ -208,18 +244,3 @@ ConnectionState.prototype.synchronizeData = function() {
 	}
 };
 
-
-/**
- * When an internet connectivity is lost then show the error message
- * @prototype
- * @function goOffline
- */ 
-ConnectionState.prototype.goOffline = function() {
-	moblerlog("**offline**");
-	this.state = false;
-	$(document).trigger("trackingEventDetected","offline");
-	// show no connection error message in login view
-	if (self.controller.views){
-	self.controller.views["login"].showErrorMessage(jQuery.i18n.prop('msg_network_message'));
-	}
-};
