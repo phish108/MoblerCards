@@ -1,55 +1,41 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true */
 
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+function MoblerCards() {
+    CoreApplication.call(this);
+    // init default values
+    this.appMode = 'achievements';
+    this.viewId = 'achievements';
 
-http://www.apache.org/licenses/LICENSE-2.0 or see LICENSE.txt
+    // avoid the delay for taps and ignore double tap events.
+    jester().options({
+        'avoidDoubleTap': true,
+        'tapTime': 1000
+    });
+}
 
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
- */
+Class.extend(MoblerCards, CoreApplication);
 
+MoblerCards.prototype.bindEvents = function () {
+    var self = this;
+    document.addEventListener('pause', function (ev) {self.onPause(ev);} , false);
+    document.addEventListener('resume', function (ev) {self.onResume(ev);}, false);
+    document.addEventListener('backbutton', function (ev) {self.onBack(ev);}, false);
 
-/** @author Isabella Nake
- * @author Evangelia Mitsopoulou
- */
+    // TODO - return button handling!
+};
 
-
-/*jslint vars: true, sloppy: true */
-
-/**
- * @class Controller
- * It facilitates the communication between views and models.It handles the display of the views.
- * @constructor 
- * it creates the controller, it initializes the  models, views and user interface language 
- * it specifies a timer of 3ms until the application reaches its starting point,
- * it handles general swipe and tap gestures that are applicable in each view of the application, 
- * it handles the change of height of specific buttons according to orientation change, 
- * it handles the transition to statistics view by listening to the event that is fired when all statistics calculations are done
- */
-
-function Controller() {
-	var self = this;
-
-	self.MoblerVersion = 2.0;
-
-	console.log("start controller");
-	self.appLoaded = false;
+MoblerCards.prototype.controller = function () {
+    var self = this;
+    
+    self.appLoaded = false;
 	self.clickOutOfStatisticsIcon=true;
 	var startTime= new Date().getTime();
 	var featuredContent_id = FEATURED_CONTENT_ID;
+    
+    orage.getItem("MoblerVersion");
 
-
-	var presentVersion = localStorage.getItem("MoblerVersion");
+    
+    var presentVersion = localStorage.getItem("MoblerVersion");
 
 	// test if we need to migrate 
 	if (!presentVersion || presentVersion !== self.MoblerVersion) {
@@ -115,13 +101,197 @@ function Controller() {
 			localStorage.setItem("configuration", JSON.stringify(configurationObject));
 		}
 	}
-
-
-
-
-	$.ajaxSetup({
-		cache : false
+    
+    $.ajaxSetup({
+        cache : false
 	});
+};
+
+MoblerCards.prototype.onPause = function () {
+
+};
+
+MoblerCards.prototype.onBack = function () {
+
+};
+
+/**
+ * @method setAppMode
+ * @param {String} appmode
+ */
+MoblerCards.prototype.setAppMode = function (appmode) {
+    console.log('new appmode ' + appmode);
+    var cssModes = {
+        "achievements": "appAchievements"
+        };
+
+    if (this.views[appmode]) {
+        console.log('app mode ok');
+        $("body").removeClass(cssModes[this.appMode]);
+        this.appMode = appmode;
+        this.changeView(appmode);
+        this.sourceView = null;
+        $("body").addClass(cssModes[this.appMode]);
+
+        // set object model to the new mode
+        var ommode = "achievements";
+        switch (appmode) {
+            case 'eventlist':
+                ommode = 'event';
+                break;
+            default:
+                break;
+        }
+
+        this.models.object.switchMode(ommode);
+    }
+    else {
+        console.log('bad appmode');
+    }
+};
+
+/**
+ * we need this function in order to stop an action, but since canceling can
+ * start from different origins we should return to them.
+ *
+ * @method cancelAction
+ */
+MoblerCards.prototype.cancelAction = function() {
+    this.changeView(this.appMode);
+};
+
+MoblerCards.prototype.initialize = function () {
+    this.initializeDatabase();
+
+    // activate initial view
+    this.setAppMode(this.appMode);
+};
+
+MoblerCards.prototype.initializeDatabase = function () {
+};
+
+
+/**
+ * Transition to achievements view
+ * @prototype
+ * @function transitionToAchievements 
+ **/
+MoblerCards.prototype.transitionToAchievements = function(courseID) {
+	this.transition('achievements',courseID);
+};
+
+/**
+ * Transition to about view
+ * @prototype
+ * @function transitionToAbout 
+ **/
+MoblerCards.prototype.transitionToAbout = function() {
+	this.transitionToAuthArea('about');
+};
+
+/**
+ * @prototype
+ * @function getLoginState
+ * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
+ **/
+MoblerCards.prototype.getLoginState = function() {
+	return this.models["authentication"].isLoggedIn();
+};
+
+
+/**
+ * @prototype
+ * @function isOffline
+ * @return {boolean} true if the connection state is offline, otherwise false
+ **/
+MoblerCards.prototype.isOffline = function() {
+	return this.models["connection"].isOffline();
+};
+
+
+/**
+ * @prototype
+ * @function getActiveClientKey
+ * @return {String} activeClientKey, the client key of the activated server
+ **/
+// TODO: Refactor all models to use the term RequestToken in the future
+MoblerCards.prototype.getActiveClientKey = function() {
+	return this.models["lms"].getActiveRequestToken();
+};
+
+
+/**
+ * @prototype
+ * @function getActiveURL
+ * @return {String} url, url of the active server
+ **/
+MoblerCards.prototype.getActiveURL = function() {
+	return this.models["lms"].getActiveServerURL();
+};
+
+/**
+ * @prototype
+ * @function getActiveLogo
+ * @return {String} url, url of the image of the active server
+ **/
+MoblerCards.prototype.getActiveLogo = function() {
+	return this.models["lms"].getActiveServerImage();
+};
+
+/**
+ * @prototype
+ * @function getActiveLabel
+ * @return {String} label, the label of the active server
+ **/
+MoblerCards.prototype.getActiveLabel = function() {
+	return this.models["lms"].getActiveServerLabel();
+};
+
+/**
+ * @prototype
+ * @function getConfigVariable
+ * @param {String} varname, the name of the 
+ * @return {String} It returns the name of the added property of the configuration object. 
+ **/
+MoblerCards.prototype.getConfigVariable = function(varname) {
+	return this.models["authentication"].configuration[varname];
+};
+
+/**
+ * It adds a property in the local storage for the configuration object and assigns a value to it.
+ * @prototype
+ * @function setConfigVariable
+ * @param {String} varname, {Boolean, String} varvalue
+ **/
+MoblerCards.prototype.setConfigVariable = function(varname, varvalue) {
+	if ( !this.models["authentication"].configuration ) {
+		this.models["authentication"].configuration = {};
+	}
+	this.models["authentication"].configuration[varname] = varvalue;
+	this.models["authentication"].storeData();
+};
+
+MoblerCards.prototype.resizeHandler = function() { 
+	//   new Orientation Layout
+	var orientationLayout = false; // e.g. Portrait mode
+	var w = $(window).width(), h= $(window).height();
+	if ( w/h > 1 ) {orientationLayout = true;
+	moblerlog("we are in landscape mode");} // e.g. Landscape mode
+	// window.width / window.height > 1 portrait
+	this.activeView.changeOrientation(orientationLayout, w, h ); 
+};
+
+
+/**
+ * @class Controller
+ * It facilitates the communication between views and models.It handles the display of the views.
+ * @constructor 
+ * it creates the controller, it initializes the  models, views and user interface language 
+ * it specifies a timer of 3ms until the application reaches its starting point,
+ * it handles general swipe and tap gestures that are applicable in each view of the application, 
+ * it handles the change of height of specific buttons according to orientation change, 
+ * it handles the transition to statistics view by listening to the event that is fired when all statistics calculations are done
+ */
 
 	this.models = {};
 	this.views = {};
@@ -129,19 +299,19 @@ function Controller() {
 	// initialize models
 
 	this.models.connection = new ConnectionStateModel(this);
-	// the lms model is initialized after the connection
-	// because it makes use of the isOffline function 
+//	 the lms model is initialized after the connection
+//	 because it makes use of the isOffline function 
 	this.models.lms = new LMSModel(this);
 	this.models.featured = new FeaturedContentModel(this);
-	//if the lms is configured to run on an old API(v==1) run the Configuration Model
+//	if the lms is configured to run on an old API(v==1) run the Configuration Model
 	
-	//if (this.models.lms.getActiveServerAPI() == "v1"){
+	if (this.models.lms.getActiveServerAPI() == "v1"){
 		this.models.authentication = new ConfigurationModel(this);
-	//}else{
-		//console.log("run the new authentication model");
-		//else run the new authentication model
-		//this.models.authentication = new AuthServiceModel(this);
-	//}
+	}else{
+		console.log("run the new authentication model");
+//		else run the new authentication model
+		this.models.authentication = new AuthServiceModel(this);
+	}
 this.models.course = new CourseModel(this);
 this.models.questionpool = new QuestionPoolModel(this);
 this.models.answers = new AnswerModel(this);
@@ -152,29 +322,29 @@ this.models.tracking = new TrackingModel(this);
 this.models.connection.synchronizeData();
 this.models.authentication.loadFromServer();
 
-moblerlog("models initialized in controller");
+//moblerlog("models initialized in controller");
 
 //initialize user interface language
 this.setupLanguage();
 
-moblerlog('languages are set up');
+//moblerlog('languages are set up');
 
 // initialize views
-this.views.splashScreen = new SplashScreen(this);
-this.views.landing = new LandingView(this);
-this.views.login = new LoginView(this);
-this.views.lms = new LMSView(this);
-this.views.logout = new LogoutView();
-this.views.coursesList = new CoursesListView(this);
-this.views.questionView = new QuestionView(this);
-this.views.answerView = new AnswerView(this);
-this.views.feedbackView = new FeedbackView(this);
-this.views.settings = new SettingsView(this);
-this.views.statisticsView = new StatisticsView(this);
-this.views.achievements = new AchievementsView(this);
-this.views.about = new AboutView();
+//this.views.splashScreen = new SplashScreen(this);
+//this.views.landing = new LandingView(this);
+//this.views.login = new LoginView(this);
+//this.views.lms = new LMSView(this);
+//this.views.logout = new LogoutView();
+//this.views.coursesList = new CoursesListView(this);
+//this.views.questionView = new QuestionView(this);
+//this.views.answerView = new AnswerView(this);
+//this.views.feedbackView = new FeedbackView(this);
+//this.views.settings = new SettingsView(this);
+//this.views.statisticsView = new StatisticsView(this);
+//this.views.achievements = new AchievementsView(this);
+//this.views.about = new AboutView();
 
-moblerlog('views initialized in controller');
+//moblerlog('views initialized in controller');
 
 this.activeView = this.views.splashScreen;
 
@@ -378,15 +548,13 @@ if (this.models['featured'].isFeaturedContentLocal){
 	moblerlog("transition start to end point when featured content is loaded locally");
 	self.transitionToEndpoint();
 }
-} // end of Controller
-
 
 /**
  * Initial Interface logic localization. Sets the correct strings depending on the language that is specified in the configuration model.
  * Make use of i18n jQuery plugin and apply its syntax for localization. 
  * @prototype setupLanguage 
  * */
-Controller.prototype.setupLanguage = function() {
+MoblerCards.prototype.setupLanguage = function() {
 	jQuery.i18n.properties({
 		name:'textualStrings', 
 		path:'translations/', 
@@ -445,7 +613,7 @@ Controller.prototype.setupLanguage = function() {
  * @function transition 
  * @param {String} viewname, the name of the specified target view
  **/
-Controller.prototype.transition = function(viewname, fd, achievementsFlag) {
+MoblerCards.prototype.transition = function(viewname, fd, achievementsFlag) {
 	moblerlog("transition start to " + viewname );
 	// Check if the current active view exists and either if it is different from the targeted view or if it is the landing view
 	if (this.views[viewname] && ( viewname === "landing" || this.activeView.tagID !== this.views[viewname].tagID)){
@@ -466,27 +634,25 @@ Controller.prototype.transition = function(viewname, fd, achievementsFlag) {
  * @prototype
  * @function transitionToEndpoint 
  **/
-Controller.prototype.transitionToEndpoint = function() {
+MoblerCards.prototype.transitionToEndpoint = function() {
 	moblerlog('initialize endpoint');
 	this.appLoaded = true;
 	this.transitionToAuthArea("coursesList");
 //	if (this.models['authentication'].isLoggedIn()) {
 //		moblerlog("is loggedIn");
 //		this.transition('coursesList');
-//	} else {
+//	} else { 
 //		moblerlog("transitionToEndpoint: is not loggedIn");
 //		this.transition('login');
 //	}
 };
-
-
 
 /**
  * Transition to login view.
  * @prototype
  * @function transitionToLogin 
  **/
-Controller.prototype.transitionToLogin = function() {
+MoblerCards.prototype.transitionToLogin = function() {
 	moblerlog("enter transitionToLogin in controller");
 	if ( this.appLoaded ) {
 		moblerlog("the app is loaded in transition to login in controller");
@@ -495,8 +661,7 @@ Controller.prototype.transitionToLogin = function() {
 	}
 };
 
-
-Controller.prototype.transitionToLanding = function() {
+MoblerCards.prototype.transitionToLanding = function() {
 	moblerlog("enter controller transition to landing view in controller");
 	this.transition('landing');
 };
@@ -506,7 +671,7 @@ Controller.prototype.transitionToLanding = function() {
  * @prototype
  * @function transitionToLogin 
  **/
-Controller.prototype.transitionToLMS = function() {
+MoblerCards.prototype.transitionToLMS = function() {
 	moblerlog("enter controller transition to LMS");
 	this.transition('lms');
 };
@@ -516,10 +681,9 @@ Controller.prototype.transitionToLMS = function() {
  * @prototype
  * @function transitionToLogout 
  **/
-Controller.prototype.transitionToLogout = function() {
+MoblerCards.prototype.transitionToLogout = function() {
 	this.transitionToAuthArea('logout');
 };
-
 
 /**
  * Helper function that handles the transition to the specified targeted view by firstly checking if the user is logged in. 
@@ -528,7 +692,7 @@ Controller.prototype.transitionToLogout = function() {
  * @function transitionToAuthArea 
  * @param {String} viewname, the name of the targeted view
  **/
-Controller.prototype.transitionToAuthArea = function(viewname,featuredContentFlag) {
+MoblerCards.prototype.transitionToAuthArea = function(viewname,featuredContentFlag) {
 	if (this.getLoginState()) {
 		this.transition(viewname);
 	}
@@ -548,7 +712,7 @@ Controller.prototype.transitionToAuthArea = function(viewname,featuredContentFla
  * @prototype
  * @function transitionToCourses 
  **/
-Controller.prototype.transitionToCourses = function() {
+MoblerCards.prototype.transitionToCourses = function() {
 	this.transitionToAuthArea('coursesList');
 };
 
@@ -557,7 +721,7 @@ Controller.prototype.transitionToCourses = function() {
  * @prototype
  * @function transitionToQuestion 
  **/
-Controller.prototype.transitionToQuestion = function() {
+MoblerCards.prototype.transitionToQuestion = function() {
 	moblerlog("enters transition to question in controller");
 	//this.transitionToAuthArea('questionView',fd);
 	this.transition('questionView');
@@ -568,7 +732,7 @@ Controller.prototype.transitionToQuestion = function() {
  * @prototype
  * @function transitionToAnswer 
  **/
-Controller.prototype.transitionToAnswer = function() {
+MoblerCards.prototype.transitionToAnswer = function() {
 	moblerlog("enters transition to answer view in controller");
 	this.transition('answerView');
 };
@@ -578,7 +742,7 @@ Controller.prototype.transitionToAnswer = function() {
  * @prototype
  * @function transitionToFeedback 
  **/
-Controller.prototype.transitionToFeedback = function() {
+MoblerCards.prototype.transitionToFeedback = function() {
 	this.transition('feedbackView');
 };
 
@@ -587,7 +751,7 @@ Controller.prototype.transitionToFeedback = function() {
  * @prototype
  * @function transitionToSettings 
  **/
-Controller.prototype.transitionToSettings = function() {
+MoblerCards.prototype.transitionToSettings = function() {
 	this.transitionToAuthArea('settings');
 };
 
@@ -596,7 +760,7 @@ Controller.prototype.transitionToSettings = function() {
  * @prototype
  * @function transitionToFeedbackMore 
  **/
-Controller.prototype.transitionToFeedbackMore = function() {
+MoblerCards.prototype.transitionToFeedbackMore = function() {
 	this.transition('feedbackMore');
 };
 
@@ -606,7 +770,7 @@ Controller.prototype.transitionToFeedbackMore = function() {
  * @prototype
  * @function transitionToStatistics 
  **/
-Controller.prototype.transitionToStatistics = function(courseID,achievementsFlag) {
+MoblerCards.prototype.transitionToStatistics = function(courseID,achievementsFlag) {
 	
 	// this.models['statistics'].setCurrentCourseId(courseID);
 	// if ( !this.models['statistics'].dataAvailable() ) {
@@ -640,7 +804,6 @@ Controller.prototype.transitionToStatistics = function(courseID,achievementsFlag
 //			}
 //		}
 	
-	
 	//set the statistics waiting flag
 	this.clickOutOfStatisticsIcon=false;
 	
@@ -659,126 +822,13 @@ Controller.prototype.transitionToStatistics = function(courseID,achievementsFlag
 };
 
 /**
- * Transition to achievements view
- * @prototype
- * @function transitionToAchievements 
- **/
-Controller.prototype.transitionToAchievements = function(courseID) {
-	this.transition('achievements',courseID);
-};
-
-/**
- * Transition to about view
- * @prototype
- * @function transitionToAbout 
- **/
-Controller.prototype.transitionToAbout = function() {
-	this.transitionToAuthArea('about');
-};
-
-/**
- * @prototype
- * @function getLoginState
- * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
- **/
-Controller.prototype.getLoginState = function() {
-	return this.models["authentication"].isLoggedIn();
-};
-
-
-/**
- * @prototype
- * @function isOffline
- * @return {boolean} true if the connection state is offline, otherwise false
- **/
-Controller.prototype.isOffline = function() {
-	return this.models["connection"].isOffline();
-};
-
-
-/**
- * @prototype
- * @function getActiveClientKey
- * @return {String} activeClientKey, the client key of the activated server
- **/
-// TODO: Refactor all models to use the term RequestToken in the future
-Controller.prototype.getActiveClientKey = function() {
-	return this.models["lms"].getActiveRequestToken();
-};
-
-
-/**
- * @prototype
- * @function getActiveURL
- * @return {String} url, url of the active server
- **/
-Controller.prototype.getActiveURL = function() {
-	return this.models["lms"].getActiveServerURL();
-};
-
-/**
- * @prototype
- * @function getActiveLogo
- * @return {String} url, url of the image of the active server
- **/
-Controller.prototype.getActiveLogo = function() {
-	return this.models["lms"].getActiveServerImage();
-};
-
-/**
- * @prototype
- * @function getActiveLabel
- * @return {String} label, the label of the active server
- **/
-Controller.prototype.getActiveLabel = function() {
-	return this.models["lms"].getActiveServerLabel();
-};
-
-
-
-/**
- * @prototype
- * @function getConfigVariable
- * @param {String} varname, the name of the 
- * @return {String} It returns the name of the added property of the configuration object. 
- **/
-Controller.prototype.getConfigVariable = function(varname) {
-	return this.models["authentication"].configuration[varname];
-};
-
-/**
- * It adds a property in the local storage for the configuration object and assigns a value to it.
- * @prototype
- * @function setConfigVariable
- * @param {String} varname, {Boolean, String} varvalue
- **/
-Controller.prototype.setConfigVariable = function(varname, varvalue) {
-	if ( !this.models["authentication"].configuration ) {
-		this.models["authentication"].configuration = {};
-	}
-	this.models["authentication"].configuration[varname] = varvalue;
-	this.models["authentication"].storeData();
-};
-
-Controller.prototype.resizeHandler = function() { 
-	//   new Orientation Layout
-	var orientationLayout = false; // e.g. Portrait mode
-	var w = $(window).width(), h= $(window).height();
-	if ( w/h > 1 ) {orientationLayout = true;
-	moblerlog("we are in landscape mode");} // e.g. Landscape mode
-	// window.width / window.height > 1 portrait
-	this.activeView.changeOrientation(orientationLayout, w, h ); 
-};
-
-
-/**
  * Checks if any other element of the view has been tapped/clicked
  * after the statistics icon  has been clicked in either the course list view or landing view.
  * @prototype
  * @function checkclickOutOfStatisticsIcon
  * @return {Boolean}, true or false.  It returns true if any other element has been clicked, and false if only the statistics icon has been clicked and the user is waiting.
  */
-Controller.prototype.checkclickOutOfStatisticsIcon = function() {
+MoblerCards.prototype.checkclickOutOfStatisticsIcon = function() {
 	moblerlog ("check click out of statistics icon is" +this.clickOutOfStatisticsIcon);
 	return this.clickOutOfStatisticsIcon;
 }
@@ -817,7 +867,7 @@ function setButtonHeight() {
  * @function setButtonWidth
  **/
 function setButtonWidth() {
-	moblerlog("setButtonWidth");
+	console.log("setButtonWidth");
 	var width, window_width = $(window).width();
 	
 	//The main content area has a top margin of 55px. 
@@ -831,7 +881,7 @@ function setButtonWidth() {
 }
 
 function injectStyle() {
-	moblerlog("enter inject Style");
+	console.log("enter inject Style");
     var h = $(window).height(), w= $(window).width();
 
     if ( h < w ) { // oops we are in ladscape mode
@@ -865,7 +915,8 @@ function injectStyle() {
  * 	@ param{string or number}, courseId, the id of the current course
  * */
 function selectCourseItem(courseId){
-	this.controller.models['questionpool'].reset();//add it within the loadData, similar with statistics (setcurrentCourseId function)...
+	this.controller.models['questionpool'].reset();
+    //add it within the loadData, similar with statistics (setcurrentCourseId function)...
 	this.controller.models['questionpool'].loadData(courseId);
 	if (this.controller.models.questionpool.dataAvailable()) {
 		this.controller.models['answers'].setCurrentCourseId(courseId);
@@ -876,3 +927,5 @@ function selectCourseItem(courseId){
 		// inform the user that something went wrong
 	}
 }
+
+var app = new MoblerCards();
