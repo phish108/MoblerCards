@@ -11,6 +11,8 @@ function CoreApplication()   {
 
 CoreApplication.prototype.start = function () {
     var self = this;
+    
+    console.log("coreApplication start");
 
     function initApplication() {
         self.ready();
@@ -55,15 +57,18 @@ CoreApplication.prototype.initTemplates = function () {
 };
 
 CoreApplication.prototype.initModels = function () {
+    console.log("init Models");
     for (var k in this.modelReg) {
         this.models[k.replace('Model', '').toLowerCase()] = new this.modelReg[k](this);
     }
 };
 
 CoreApplication.prototype.initViews = function () {
+    console.log("init views");
     var self = this;
     $('.screen, .menu, .actions, .infobar').each(function () {
         var tagid = this.id;
+        console.log(tagid + "initializing");
         this.className.split(' ').some(function (className) {
             var rv = false;
             if (window[className] && typeof window[className] === 'function') {

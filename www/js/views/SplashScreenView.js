@@ -35,7 +35,7 @@ under the License.
  * it sets the tag ID for the splash screen view
  * @param {String} controller
  */
-function SplashScreen(controller) {
+function SplashScreenView(controller) {
     var self = this;
     self.controller = controller;
     self.tagID = 'splashScreen';
@@ -47,7 +47,7 @@ function SplashScreen(controller) {
  * @prototype
  * @function handlePinch.
  **/
-SplashScreen.prototype.handlePinch = doNothing;
+SplashScreenView.prototype.handlePinch = doNothing;
 
  
 /**
@@ -55,7 +55,7 @@ SplashScreen.prototype.handlePinch = doNothing;
  * @prototype
  * @function handleTap.
  **/
-SplashScreen.prototype.handleTap = doNothing;
+SplashScreenView.prototype.handleTap = doNothing;
 
 
 /**
@@ -63,7 +63,7 @@ SplashScreen.prototype.handleTap = doNothing;
  * @prototype
  * @function handleSwipe
  **/
-SplashScreen.prototype.handleSwipe = doNothing;
+SplashScreenView.prototype.handleSwipe = doNothing;
 
 
 
@@ -73,7 +73,7 @@ SplashScreen.prototype.handleSwipe = doNothing;
  * @prototype
  * @function open
  **/
-SplashScreen.prototype.open = doNothing;
+SplashScreenView.prototype.open = doNothing;
 
 
 
@@ -82,7 +82,7 @@ SplashScreen.prototype.open = doNothing;
  * @prototype
  * @function closeDiv
  **/
-SplashScreen.prototype.closeDiv = closeView;
+SplashScreenView.prototype.closeDiv = closeView;
 
 
  
@@ -92,7 +92,7 @@ SplashScreen.prototype.closeDiv = closeView;
  * @prototype
  * @function close
  **/
-SplashScreen.prototype.close = function() {
+SplashScreenView.prototype.close = function() {
 	moblerlog("SplashScreen: close me!");
 	$("#loading").remove();
 	   if( this.controller.models["authentication"].isLoggedIn() ) {
@@ -106,9 +106,9 @@ SplashScreen.prototype.close = function() {
  * @prototype
  * @function showNoConnectionMessage
  **/ 
-SplashScreen.prototype.showNoConnectionMessage = function() {
+SplashScreenView.prototype.showNoConnectionMessage = function() {
 	$("#loginForm").text("Sorry, you need to be online to connect to your LMS");
 }
 
 
-SplashScreen.prototype.changeOrientation = doNothing;
+SplashScreenView.prototype.changeOrientation = doNothing;

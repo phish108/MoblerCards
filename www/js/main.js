@@ -29,7 +29,7 @@ under the License.
 
 /*jslint vars: true, sloppy: true */
 
-var controller;
+var MoblerCards;
 console.log('appStart');
 document.addEventListener("deviceready", init(), false);
 	
@@ -38,7 +38,7 @@ document.addEventListener("deviceready", init(), false);
  * starts the app
  */
 function init() {
-    controller = new Controller();
+    MoblerCards = new MoblerCards();
     console.log("create new controller");
     $(document).trigger("trackingEventDetected",["appStart"]);
 }
