@@ -8,10 +8,7 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" />
 
-    <meta name="app:models" content="AnswerModel, AuthServiceModel, AverageScoreModel, AverageSpeedModel, BestDayScoreModel,
-                                     CardBurnerModel, ConigurationModel, ConnectionstateModel, CourseModel, FeaturedContentModel,
-                                     HandledCardsModel, LMSModel, ProgressModel, QuestionpoolModel, StackHandlerModel, StatisticsModel,
-                                     TrackingModel" />
+    <meta name="app:models" content="ConnectionStateModel, LMSModel, FeaturedContentModel, FeaturedContentModel, AuthServiceModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel" />
 
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -22,7 +19,7 @@
 
 <body id="myDoc">
 
-    <div id="splashScreen" class="viewblock" data-view="SplashScreen" data-touch="touch">
+    <div id="splashScreen" class="viewblock" data-view="SplashScreenView" data-touch="touch">
         <div class="viewblock cover">
             <div class="viewblock cover">
                 <div id="loading">
@@ -33,7 +30,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="landingView" class="viewblock" data-view="LandingView">
         <div id="landingViewHeader" class="landingHeader">
             <div id="landingViewTitle" class="title landingTitle">
@@ -106,7 +103,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="loginView" class="viewblock" data-view="LoginView">
         <div class="viewblock cover">
             <div id="loginViewHeader" class="headerContainer">
@@ -115,11 +112,11 @@
                     <span class="icon-lock"></span>
                 </div>
             </div>
-            
+
             <div id="loginViewBackIcon" class="closeButton">
                 <span class="icon-cross"></span>
             </div>
-            
+
             <div id="loginBody" class="content">
                 <div id="loginForm">
                     <ul id="loginElements">
@@ -587,7 +584,7 @@
         </div>
     </div>
 
-    <div id="achievementsView" class="viewblock" data-view="AchievementsView">
+    <div id="achievementsView" class="viewblock" data-view="AchievementsView">d
         <div id="achievementsHeader" class=" headerContainer">
             <div id="closeAchievementsIcon" class="closeButton">
                 <span class="icon-cross"></span>
@@ -649,26 +646,29 @@
             <div id="loadingMessageAchievements" class="content">Card Burner and Stack Handler are beeing loaded</div>
         </div>
     </div>
-    
+
     <!--hidden html element that is used for cleaning html-tags for questionpool model -->
     <div id="modelHelperQuestionpool"></div>
 
+    <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/common.js"></script>
 
-    <script type="text/javascript" src="libs/CoreApplication.js"></script>
-    <script type="text/javascript" src="libs/CoreView.js"></script>
-    <script type="text/javascript" src="libs/Class.js"></script>
-    <script type="text/javascript" src="libs/jester2.js"></script>
-    <script type="text/javascript" src="libs/jquery.js"></script>
-    <script type="text/javascript" src="libs/jquery-ui.js"></script>
-    <!--    <script type="text/javascript" src="libs/jester.js"></script>-->
-    <script type="text/javascript" src="libs/md5.js"></script>
-    <script type="text/javascript" src="libs/jquery.i18n.properties-1.0.9.js"></script>
-    <script type="text/javascript" src="libs/sha1.js"></script>
-    <script type="text/javascript" src="libs/TmplFactory.js"></script>
+    <script type="text/javascript" src="js/contrib/jester2.js"></script>
+    <script type="text/javascript" src="js/contrib/jquery.js"></script>
+    <script type="text/javascript" src="js/contrib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/contrib/jquery.i18n.properties-1.0.9.js"></script>
+
+    <script type="text/javascript" src="js/contrib/md5.js"></script>
+    <script type="text/javascript" src="js/contrib/TmplFactory.js"></script>
+    <script type="text/javascript" src="js/contrib/Class.js"></script>
+    <script type="text/javascript" src="js/contrib/CoreApplication.js"></script>
+    <script type="text/javascript" src="js/contrib/CoreView.js"></script>
+    <script type="text/javascript" src="js/contrib/sha1.js"></script>
+
+    <script type="text/javascript" src="js/index.js"></script>
 
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
-    <script type="text/javascript" src="js/models/ConnectionstateModel.js"></script>
+    <script type="text/javascript" src="js/models/ConnectionStateModel.js"></script>
     <script type="text/javascript" src="js/models/FeaturedContentModel.js"></script>
     <script type="text/javascript" src="js/models/LMSModel.js"></script>
     <script type="text/javascript" src="js/models/CourseModel.js"></script>
@@ -683,8 +683,6 @@
     <script type="text/javascript" src="js/models/StackHandlerModel.js"></script>
     <script type="text/javascript" src="js/models/CardBurnerModel.js"></script>
     <script type="text/javascript" src="js/models/TrackingModel.js"></script>
-
-    <!--    <script type="text/javascript" src="js/controllers/controller.js"></script>-->
 
     <script type="text/javascript" src="js/views/SingleChoiceWidget.js"></script>
     <script type="text/javascript" src="js/views/MultipleChoiceWidget.js"></script>
@@ -704,21 +702,15 @@
     <script type="text/javascript" src="js/views/StatisticsView.js"></script>
     <script type="text/javascript" src="js/views/AchievementsView.js"></script>
     <script type="text/javascript" src="js/views/AboutView.js"></script>
-    <script type="text/javascript" src="js/views/SplashScreen.js"></script>
+    <script type="text/javascript" src="js/views/SplashScreenView.js"></script>
 
-    <script type="text/javascript" src="js/testModels.js"></script>
-    <!--    <script type="text/javascript" src="js/main.js"></script>-->
-
-    <script type="text/javascript" src="js/index.js"></script>
+<!--    <script type="text/javascript" src="js/main.js" /></script>-->
 
     <script type="text/javascript">
         app.start();
     </script>
-
-    <!-- unused scripts -->
-    <!-- <script type="text/javascript" src="libs/oauth2.js"></script>-->
-    <!--    <script type="text/javascript" charset="utf-8" src="libs/cordova.ios.js"></script> -->
-    <!-- <script type="text/javascript" src="scripts/models/authServiceModel.js"></script> -->
+    
+    <script type="text/javascript" src="js/testModels.js"></script>
 </body>
 
 </html>
