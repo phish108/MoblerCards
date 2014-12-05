@@ -10,6 +10,7 @@ A simple training and practicing app that connects to your LMS
     <content src="index.html"/>
     <access origin="*"/>
     <preference name="DisallowOverscroll" value="true"/>
+    
     <feature name="Network Information">
         <param name="id" value="org.apache.cordova.network-information"/>
     </feature>
