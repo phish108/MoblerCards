@@ -62,7 +62,9 @@ MoblerCards.prototype.onBack = function () {
 
 };
 
-MoblerCards.prototype.initializationFinished = function () {
+MoblerCards.prototype.openFirstView = function () {
+    this.models.connectionstate.synchronizeData();
+    this.models.configuration.loadFromServer();
     this.appLoaded = true;
     this.transitionToAuthArea("coursesList");
 };
