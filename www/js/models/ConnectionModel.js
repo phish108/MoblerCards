@@ -40,7 +40,7 @@ under the License.
  * goOnline handlers are executed respectively.
  *  @param {String} controller 
  */
-function ConnectionStateModel(controller) {
+function ConnectionModel(controller) {
 
 	var self = this;
 	this.controller = controller;
@@ -53,11 +53,11 @@ function ConnectionStateModel(controller) {
 	window.addEventListener("online", self.goOnline, true);
 }
 
-ConnectionStateModel.prototype.update = function () {
+ConnectionModel.prototype.update = function () {
   this.checkConnection();
 };
 
-ConnectionStateModel.prototype.clear = function () {
+ConnectionModel.prototype.clear = function () {
   this.goOffline();  
 };
 
@@ -65,7 +65,7 @@ ConnectionStateModel.prototype.clear = function () {
  * Check for the devices connection state.
  * Maybe I will need to include a feature for IOS
  */
-ConnectionStateModel.prototype.checkConnection = function () {
+ConnectionModel.prototype.checkConnection = function () {
     var networkState = navigator.connection.type;
     
     if (networkState === Connection.NONE) {
@@ -81,7 +81,7 @@ ConnectionStateModel.prototype.checkConnection = function () {
  * @function isOffline
  * @return {Boolean} true if the connection state is offline, otherwise false
  */
-ConnectionStateModel.prototype.isOffline = function() {
+ConnectionModel.prototype.isOffline = function() {
 	return !this.state;
 };
 
@@ -91,11 +91,11 @@ ConnectionStateModel.prototype.isOffline = function() {
  * @prototype
  * @function goOnline
  */
-ConnectionStateModel.prototype.goOnline = function() {
+ConnectionModel.prototype.goOnline = function() {
 	moblerlog("**online**");
 	this.state = true;
 	
-	 if (self.controller.appLopaded) {
+	 if (this.controller.appLoaded) {
 		 this.synchronizeData();
 	 }
 };
@@ -106,7 +106,7 @@ ConnectionStateModel.prototype.goOnline = function() {
  * @prototype
  * @function goOffline
  */ 
-ConnectionStateModel.prototype.goOffline = function() {
+ConnectionModel.prototype.goOffline = function() {
 	console.log("**offline**");
 	this.state = false;
 	$(document).trigger("trackingEventDetected","offline");
@@ -125,7 +125,7 @@ ConnectionStateModel.prototype.goOffline = function() {
  ** @prototype
  * @function synchronizeData
  */
-ConnectionStateModel.prototype.synchronizeData = function() {
+ConnectionModel.prototype.synchronizeData = function() {
 	if (this.state) {
 		/** 
 		 * It it triggered when the connection state is online 

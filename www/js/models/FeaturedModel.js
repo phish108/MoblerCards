@@ -67,7 +67,7 @@ var DEFAULT_SYNC_TIMEOUT = 6000;
  * means it listens when the authentication is ready, when the questionpool is ready and when internet connection is found
  * @param {String} controller 
  */
-function FeaturedContentModel(controller) {
+function FeaturedModel(controller) {
 	var self = this;
 
 	this.controller = controller;
@@ -120,7 +120,7 @@ function FeaturedContentModel(controller) {
  * we launch the app, everything is initialized and set to false, empty and get the current time.
  * @function loadData
  */
-FeaturedContentModel.prototype.loadData = function() {
+FeaturedModel.prototype.loadData = function() {
 	moblerlog("enter load data in featured model");
 	var featuredObject;
 	try {
@@ -150,7 +150,7 @@ FeaturedContentModel.prototype.loadData = function() {
  * @function storeData 
  * @param {string}, featuredCourseString
  */
-FeaturedContentModel.prototype.storeData = function(){
+FeaturedModel.prototype.storeData = function(){
 	var featuredString;
 	try {
 //		featuredString = "{" +
@@ -180,7 +180,7 @@ FeaturedContentModel.prototype.storeData = function(){
  * stores downloaded featured course data into the local storage 
  * @function loadFeaturedCourseFromServer 
  */
-FeaturedContentModel.prototype.loadFeaturedCourseFromServer = function(){
+FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 	moblerlog("loadFromServer-Featured Course is called");
 	var self = this;
 	var syncStateCache = [];
@@ -303,14 +303,14 @@ FeaturedContentModel.prototype.loadFeaturedCourseFromServer = function(){
  * @prototype
  * @function checkForTimeOut
  */
-FeaturedContentModel.prototype.checkForTimeOut = function(){};
+FeaturedModel.prototype.checkForTimeOut = function(){};
 
 /**
  * @prototype
  * @function getTitle
  * @return the title of the current course
  */
-FeaturedContentModel.prototype.getTitle = function() {
+FeaturedModel.prototype.getTitle = function() {
 	var self=this;
 	moblerlog("index of the current course is"+this.index);
 	moblerlog("length of featured content list in getTitle"+self.featuredContentList.length);
@@ -326,7 +326,7 @@ FeaturedContentModel.prototype.getTitle = function() {
  * @function getTitle
  * @return the title of the current course
  */
-FeaturedContentModel.prototype.getId = function() {
+FeaturedModel.prototype.getId = function() {
 	var self=this;
 		moblerlog("length of featured content list in getTitle"+self.featuredContentList.length);
 	
@@ -344,7 +344,7 @@ FeaturedContentModel.prototype.getId = function() {
  * @param {Number} featuredContentId, the id of the featured course
  * @return {Boolean} true if the course with the specified id is synchronized, otherwise false
  */
-FeaturedContentModel.prototype.isSynchronized = function(featuredContentId) {
+FeaturedModel.prototype.isSynchronized = function(featuredContentId) {
 	if (featuredContentId != "") {
 		moblerlog("featured content id is greater than zero");
 		var c;
@@ -366,7 +366,7 @@ FeaturedContentModel.prototype.isSynchronized = function(featuredContentId) {
  * @prototype
  * @function switchToOnline
  */
-FeaturedContentModel.prototype.switchToOnline = function() {
+FeaturedModel.prototype.switchToOnline = function() {
 	moblerlog("switch to online - load all not yet loaded courses");
 
 	this.checkForTimeOut();
@@ -391,7 +391,7 @@ FeaturedContentModel.prototype.switchToOnline = function() {
 // * @prototype
 // * @function reset
 // */
-FeaturedContentModel.prototype.reset = function() {
+FeaturedModel.prototype.reset = function() {
 	this.index = 0;
 };
 
