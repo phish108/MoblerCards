@@ -8,7 +8,7 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
 
-    <meta name="app:models" content="LMSModel, FeaturedContentModel, AuthServiceModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel, ConnectionStateModel" />
+    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, AuthenticationModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel " />
 
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -658,7 +658,7 @@
     <script type="text/javascript" src="js/contrib/jquery.i18n.properties-1.0.9.js"></script>
 
     <script type="text/javascript" src="js/contrib/md5.js"></script>
-    <script type="text/javascript" src="js/contrib/TmplFactory.js"></script>
+    <script type="text/javascript" src="js/contrib/TemplateFactory.js"></script>
     <script type="text/javascript" src="js/contrib/Class.js"></script>
     <script type="text/javascript" src="js/contrib/CoreApplication.js"></script>
     <script type="text/javascript" src="js/contrib/CoreView.js"></script>
@@ -667,8 +667,9 @@
     <script type="text/javascript" src="js/index.js"></script>
 
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
-    <script type="text/javascript" src="js/models/ConnectionStateModel.js"></script>
-    <script type="text/javascript" src="js/models/FeaturedContentModel.js"></script>
+    <script type="text/javascript" src="js/models/AuthenticationModel.js"></script>
+    <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
+    <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
     <script type="text/javascript" src="js/models/LMSModel.js"></script>
     <script type="text/javascript" src="js/models/CourseModel.js"></script>
     <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
@@ -706,7 +707,7 @@
     <!--    <script type="text/javascript" src="js/main.js" /></script>-->
 
     <script type="text/javascript">
-        app.start();
+        CoreApplication.start(MoblerCards);
     </script>
 
     <script type="text/javascript" src="js/testModels.js"></script>

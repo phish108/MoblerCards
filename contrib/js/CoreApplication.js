@@ -1,4 +1,10 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
+(function (a) {
+
+    var cordova = a.cordova;
+    var $ = a.$;
+    var TmplFactory = a.TemplateFactory;
 
 function CoreApplication()   {
     this.views = {};
@@ -7,16 +13,37 @@ function CoreApplication()   {
     this.modelReg = {};
     this.sourceView = null;
     this.sourceTrace = [];
+    this.viewId = "";
 }
 
-CoreApplication.prototype.start = function () {
-    var self = this;
+/**
+ * @static @method start(controller)
+ *
+ * This function links CoreApplication to the app's controller logic, so the controller
+ * can use all CoreApplication functions and properties as usual.
+ *
+ * For getting the application going one needs to call
+ *
+ *    CoreApplication.start(MyController);
+ *
+ * after all required modules are loaded.
+ */
+CoreApplication.start = function (controller) {
+    function AppHelper() {
+        CoreApplication.call(this);
+        controller.call(this);
+    };
+
+    Class.extend(AppHelper, controller);
+    Class.extend(AppHelper, CoreApplication);
 
     function initApplication() {
-        self.ready();
+        a.app = new AppHelper();
+        a.app.bindEvents();
+        a.app.ready();
     }
 
-    if (window.cordova) {
+    if (cordova) {
         // init for cordova applications
         document.addEventListener('deviceready', initApplication, false);
     }
@@ -24,8 +51,13 @@ CoreApplication.prototype.start = function () {
         // init for web applications
         $(document).ready(initApplication);
     }
+};
 
-    this.bindEvents();
+CoreApplication.prototype.setReadOnly = function (name, value) {
+    if (!(name in this) && !this[name]) {
+        var tmpVal = value;
+        Object.defineProperty(this, name, {get: function () {return tmpVal;}});
+    }
 };
 
 CoreApplication.prototype.ready = function () {
@@ -55,32 +87,39 @@ CoreApplication.prototype.initTemplates = function () {
 };
 
 CoreApplication.prototype.initModels = function () {
+    var meta = document.getElementsByTagName('META');
+    for (var i = 0; i < meta.length; i++) {
+        if (meta[i].getAttribute('name') === 'app:models') {
+            var rs = meta[i].content;
+            rs = rs.replace(/\s+/g, '');
+            var r = rs.split(/\,/);
+            this.modelReg = {};
+            for (var j = 0; j < r.length; j++) {
+                if (r[j] in window && typeof window[r[j]] === 'function') {
+                    this.modelReg[r[j]] = window[r[j]];
+                }
+            }
+            break; // we accept only one data tag
+        }
+    }
+
     for (var k in this.modelReg) {
         this.models[k.replace('Model', '').toLowerCase()] = new this.modelReg[k](this);
     }
+
 };
 
 CoreApplication.prototype.initViews = function () {
     var self = this;
-    $('.screen, .menu, .actions, .infobar').each(function () {
+    $('[data-view]').each(function () {
         var tagid = this.id;
-        this.className.split(' ').some(function (className) {
-            var rv = false;
-            if (window[className] && typeof window[className] === 'function') {
-                // make implicit view definition the default.
-                // As soon a view class is present in the global namespace, we will load it
-                // this may cause problems in some rare case of misguided class uses. In this case
-                // we may want to introduce some forbidden classes.
-                self.views[tagid] = new window[className](self, tagid);
-                rv = true;
+        var className = this.dataset.view;
+
+        if (className) {
+            if((className in window) && (typeof window[className] === 'function')) {
+                self.views[tagid] = new CoreView(self, tagid, window[className]);
             }
-            else if (self.viewReg[className]) {
-                // allow explicit view registration
-                self.views[tagid] = new self.viewReg[className](self, tagid);
-                rv = true;
-            }
-            return rv;
-        }); // end some()
+        }
     }); // end each()
 };
 
@@ -88,7 +127,7 @@ CoreApplication.prototype.isActiveView = function (viewObject) {
     return (this.views[this.viewId] === viewObject);
 };
 
-CoreApplication.prototype.changeView = function chView(viewname) {
+CoreApplication.prototype.changeView = function chView(viewname, viewData) {
     if (viewname &&
         typeof viewname === 'string' &&
         this.views[viewname] &&
@@ -100,12 +139,29 @@ CoreApplication.prototype.changeView = function chView(viewname) {
             this.sourceTrace.push(this.sourceView);
             this.sourceView = this.viewId; // this is used for back operations in CoreView
         }
-        this.views[this.viewId].close();
+        if (this.viewId && this.views[this.viewId]) {
+            this.views[this.viewId].close();
+        }
         this.viewId = viewname;
-        this.views[this.viewId].open();
+        this.views[this.viewId].open(viewData);
     }
 };
 
-CoreApplication.prototype.openFirstView = function() {};
+CoreApplication.prototype.reopenView = function (viewData) {
+    this.views[this.viewId].close();
+    this.views[this.viewId].open(viewData);
+};
+
+CoreApplication.prototype.openFirstView = function() {
+    if (this.viewId && this.viewId.length) {
+        this.views[this.viewId].open();
+    }
+};
 CoreApplication.prototype.initialize = function () {};
 CoreApplication.prototype.bindEvents = function () {};
+
+    // register the class to the target object
+    if (!('CoreApplication' in a)) {
+        a.CoreApplication = CoreApplication;
+    }
+})(window);

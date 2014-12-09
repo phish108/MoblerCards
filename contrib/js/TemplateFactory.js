@@ -26,7 +26,7 @@
  * The component is only present for abstracting the UI static elements using the same API
  * as for templates.
  */
-function TmplFactory() {
+function TemplateFactory() {
     this.templates = {};
 
     var nodes = document.querySelectorAll('template, component');
@@ -333,7 +333,7 @@ function TmplFactory() {
  *
  * returns a template class or undefined
  */
-TmplFactory.prototype.getTemplate = function (name) {
+TemplateFactory.prototype.getTemplate = function (name) {
     return this.templates[name];
 };
 
@@ -343,7 +343,7 @@ TmplFactory.prototype.getTemplate = function (name) {
  *
  * returns all templates that are associated with a targetid.
  */
-TmplFactory.prototype.getTargetTemplate = function (targetid) {
+TemplateFactory.prototype.getTargetTemplate = function (targetid) {
     var result = {};
     var k;
     for (k in this.templates) {

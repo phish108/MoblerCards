@@ -1,16 +1,12 @@
 function MoblerCards() {
-    CoreApplication.call(this);
-
     var self = this;
 
     self.viewId = "login";
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-
+    
     var startTime = new Date().getTime();
-    //    var featuredContent_id = FEATURED_CONTENT_ID;
-    var presentVersion = localStorage.getItem("MoblerVersion");
 
     jester().options({
         'avoidDoubleTap': true,
@@ -22,19 +18,9 @@ function MoblerCards() {
     $.ajaxSetup({
         cache: false
     });
-    
-    $(document).bind("click", function (e) {
-        moblerlog(" click in login view ");
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
-    if (!presentVersion || presentVersion !== self.MoblerVersion) {
-        self.migrate(presentVersion); //upgrade to the latest version
-    }
 }
 
-Class.extend(MoblerCards, CoreApplication);
+//Class.extend(MoblerCards, CoreApplication);
 
 MoblerCards.prototype.bindEvents = function () {
     var self = this;
@@ -42,12 +28,85 @@ MoblerCards.prototype.bindEvents = function () {
     document.addEventListener('pause', function (ev) {
         self.onPause(ev);
     }, false);
+    
     document.addEventListener('resume', function (ev) {
         self.onResume(ev);
     }, false);
+    
     document.addEventListener('backbutton', function (ev) {
         self.onBack(ev);
     }, false);
+    
+    $(document).bind("allstatisticcalculationsdone", function (featuredContent_id) {
+        console.log("all statistics calculations done is ready");
+        // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
+        if (!self.checkclickOutOfStatisticsIcon()) {
+            console.log("transition to statistics because all calculations have been done");
+            self.transition('statisticsView', featuredContent_id);
+        } else {
+            console.log("transition to statistics is not feasible because the user has clicked elsewhere else");
+        }
+    });
+
+    /**
+     * This event is triggered  when statistics are sent to the server during
+     * a)loggout b)synchronization.
+     * When are not LOGGED IN (=logged out) and have open the login form and listen to this
+     * event, we want to stay in the login form.
+     * @event statisticssenttoserver
+     * @param a callback function that loads the login form
+     */
+    $(document).bind("statisticssenttoserver", function () {
+        if (!self.getLoginState()) {
+            console.log("stays in login view, despite the synchronization of sent statistics");
+            //	self.transitionToLogin();
+        }
+    });
+
+    /**
+     * This event is triggered  when questions are loaded from the server. It is
+     * binded also in courses list view and we want to avoid loading that view.
+     * For that reason we check IF WE ARE  not LOGGED IN(=logged out) in order to show the login form.
+     * @event questionpoolready
+     * @param a callback function that loads the login form
+     */
+    $(document).bind("questionpoolready", function () {
+        if (!self.getLoginState()) {
+            console.log("stays in login view, despite the synchronization of questionpool ready");
+            self.transitionToLogin(); // or we can stay on the current view i.e. lms view, landing view or login view
+        }
+    });
+
+    /**
+     * This event is triggered  when courses are loaded from the server. It is
+     * binded also in courses list view and we want to avoid loading of that view.
+     * For that reason we check IF WE ARE not LOGGED IN (=logged out)in order to show the login form.
+     * @event courselistupdate
+     * @param a callback function that loads the login form
+     */
+    $(document).bind("courselistupdate", function () {
+        if (!self.getLoginState()) {
+            console.log("stays in login view, despite the courses synchronization updates");
+            //self.transitionToLogin();
+            // or we can stay on the current view i.e. lms view, landing view or login view
+        }
+    });
+
+    $(document).bind("activeServerReady", function () {
+        if (self.appLoaded && self.activeView === self.views.lms) {
+            console.log("transition to login view after selecting server in lms view");
+            self.transitionToLogin();
+        } else if (self.appLoaded && self.activeView === self.views.splashScreen) {
+            console.log("transition to login view after the default server has been registered");
+            self.transitionToLanding();
+        }
+    });
+    
+    $(document).bind("click", function (e) {
+        console.log(" click in login view ");
+        e.preventDefault();
+        e.stopPropagation();
+    });
 };
 
 MoblerCards.prototype.onPause = function () {
@@ -63,10 +122,23 @@ MoblerCards.prototype.onBack = function () {
 };
 
 MoblerCards.prototype.openFirstView = function () {
-    this.models.connectionstate.synchronizeData();
-    this.models.configuration.loadFromServer();
+    this.initBasics();
+    
     this.appLoaded = true;
     this.transitionToAuthArea("coursesList");
+};
+
+MoblerCards.prototype.initBasics = function () {
+    this.featuredContentId = FEATURED_CONTENT_ID;
+    this.models.connectionstate.synchronizeData();
+    this.models.configuration.loadFromServer();
+};
+
+MoblerCards.prototype.checkVersion = function () {
+    var presentVersion = localStorage.getItem("MoblerVersion");
+    if (!presentVersion || presentVersion !== self.MoblerVersion) {
+        this.migrate(presentVersion); //upgrade to the latest version
+    }
 };
 
 MoblerCards.prototype.migrate = function (thisVersion) {
@@ -90,12 +162,12 @@ MoblerCards.prototype.migrateTo2 = function () {
             var configuration = JSON.parse(configurationObject);
         }
     } catch (err) {
-        moblerlog("error! while loading configuration in migration");
+        console.log("error! while loading configuration in migration");
     }
     var language = navigator.language.split("-");
     var language_root = (language[0]);
     if (configuration && configuration.appAuthenticationKey) {
-        moblerlog("app authentication key exists in configuration object");
+        console.log("app authentication key exists in configuration object");
         //create the new structure for the lms object
         var lmsObject = {
             "activeServer": "hornet",
@@ -117,7 +189,7 @@ MoblerCards.prototype.migrateTo2 = function () {
     }
 
     if (!configuration) {
-        moblerlog("configuration object didn't exist during the migration");
+        console.log("configuration object didn't exist during the migration");
         var configurationObject = {
             loginState: "loggedOut",
             statisticsLoaded: "false"
