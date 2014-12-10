@@ -29,16 +29,16 @@ function CoreApplication()   {
  * after all required modules are loaded.
  */
 CoreApplication.start = function (controller) {
-    function AppHelper() {
+    function CoreApplicationHelper() {
         CoreApplication.call(this);
         controller.call(this);
     };
 
-    Class.extend(AppHelper, controller);
-    Class.extend(AppHelper, CoreApplication);
+    Class.extend(controller, CoreApplication);
+    Class.extend(CoreApplicationHelper, controller);
 
     function initApplication() {
-        a.app = new AppHelper();
+        a.app = new CoreApplicationHelper();
         a.app.bindEvents();
         a.app.ready();
     }
