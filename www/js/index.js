@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 function MoblerCards() {
     var self = this;
 
@@ -5,7 +7,7 @@ function MoblerCards() {
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    
+
     var startTime = new Date().getTime();
 
     jester().options({
@@ -14,7 +16,7 @@ function MoblerCards() {
         'swipeDistance': 100,
         'avoidFlick': true
     });
-    
+
     $.ajaxSetup({
         cache: false
     });
@@ -25,18 +27,12 @@ function MoblerCards() {
 MoblerCards.prototype.bindEvents = function () {
     var self = this;
 
-    document.addEventListener('pause', function (ev) {
-        self.onPause(ev);
-    }, false);
-    
-    document.addEventListener('resume', function (ev) {
-        self.onResume(ev);
-    }, false);
-    
-    document.addEventListener('backbutton', function (ev) {
-        self.onBack(ev);
-    }, false);
-    
+    document.addEventListener('pause', function (ev) {self.onPause(ev);}, false);
+
+    document.addEventListener('resume', function (ev) {self.onResume(ev);}, false);
+
+    document.addEventListener('backbutton', function (ev) {self.onBack(ev);}, false);
+
     $(document).bind("allstatisticcalculationsdone", function (featuredContent_id) {
         console.log("all statistics calculations done is ready");
         // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
@@ -101,7 +97,7 @@ MoblerCards.prototype.bindEvents = function () {
             self.transitionToLanding();
         }
     });
-    
+
     $(document).bind("click", function (e) {
         console.log(" click in login view ");
         e.preventDefault();
@@ -123,25 +119,26 @@ MoblerCards.prototype.onBack = function () {
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
-    
     this.appLoaded = true;
     this.transitionToAuthArea("coursesList");
 };
 
 MoblerCards.prototype.initBasics = function () {
     this.featuredContentId = FEATURED_CONTENT_ID;
-    this.models.connectionstate.synchronizeData();
+    this.models.connection.synchronizeData();
     this.models.configuration.loadFromServer();
 };
 
 MoblerCards.prototype.checkVersion = function () {
     var presentVersion = localStorage.getItem("MoblerVersion");
-    if (!presentVersion || presentVersion !== self.MoblerVersion) {
+    if (!presentVersion || presentVersion !== this.MoblerVersion) {
         this.migrate(presentVersion); //upgrade to the latest version
     }
 };
 
 MoblerCards.prototype.migrate = function (thisVersion) {
+    var self = this;
+
     if (!thisVersion) {
         thisVersion = 1;
     }
@@ -254,6 +251,8 @@ MoblerCards.prototype.setupLanguage = function () {
     });
 };
 
+// TODO replace transition functions with given features from basic contribs.
+
 /**
  * Closes the current view and opens the specified one
  * @prototype
@@ -262,6 +261,7 @@ MoblerCards.prototype.setupLanguage = function () {
  **/
 MoblerCards.prototype.transition = function (viewname, fd, achievementsFlag) {
     console.log("transition start to " + viewname);
+    
     // Check if the current active view exists and either if it is different from the targeted view or if it is the landing view
     if (this.views[viewname] && (viewname === "landing" || this.activeView.tagID !== this.views[viewname].tagID)) {
         console.log("transition: yes we can!");
@@ -294,7 +294,7 @@ MoblerCards.prototype.transitionToEndpoint = function () {
 MoblerCards.prototype.transitionToLogin = function () {
     console.log("enter transitionToLogin in controller");
     if (this.appLoaded) {
-        moblerlog("the app is loaded in transition to login in controller");
+        console.log("the app is loaded in transition to login in controller");
         this.transition('login');
 
     }
@@ -335,7 +335,7 @@ MoblerCards.prototype.transitionToAuthArea = function (viewname, featuredContent
     if (this.getLoginState()) {
         this.transition(viewname);
     } else {
-//        stay on the current view if we are not logged in 0
+        //        stay on the current view if we are not logged in 0
         this.transitionToLanding();
     }
 };
@@ -411,8 +411,8 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
     //In this case a courseID is assigned for the clicked option.
 
     if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
-        this.models['statistics'].setCurrentCourseId(courseID);
-        if (!this.models['statistics'].dataAvailable()) {
+        this.models.statistics.setCurrentCourseId(courseID);
+        if (!this.models.statistics.dataAvailable()) {
             this.transition("landing");
         }
     } else if (achievementsFlag) {
@@ -453,7 +453,7 @@ MoblerCards.prototype.getLoginState = function () {
  * @return {boolean} true if the connection state is offline, otherwise false
  **/
 MoblerCards.prototype.isOffline = function () {
-    return this.models.connectionstate.isOffline();
+    return this.models.connection.isOffline();
 };
 
 /**
@@ -463,7 +463,7 @@ MoblerCards.prototype.isOffline = function () {
  **/
 // TODO: Refactor all models to use the term RequestToken in the future
 MoblerCards.prototype.getActiveClientKey = function () {
-    return this.models["lms"].getActiveRequestToken();
+    return this.models.lms.getActiveRequestToken();
 };
 
 /**
@@ -472,7 +472,7 @@ MoblerCards.prototype.getActiveClientKey = function () {
  * @return {String} url, url of the active server
  **/
 MoblerCards.prototype.getActiveURL = function () {
-    return this.models["lms"].getActiveServerURL();
+    return this.models.lms.getActiveServerURL();
 };
 
 /**
@@ -481,7 +481,7 @@ MoblerCards.prototype.getActiveURL = function () {
  * @return {String} url, url of the image of the active server
  **/
 MoblerCards.prototype.getActiveLogo = function () {
-    return this.models["lms"].getActiveServerImage();
+    return this.models.lms.getActiveServerImage();
 };
 
 /**
@@ -490,7 +490,7 @@ MoblerCards.prototype.getActiveLogo = function () {
  * @return {String} label, the label of the active server
  **/
 MoblerCards.prototype.getActiveLabel = function () {
-    return this.models["lms"].getActiveServerLabel();
+    return this.models.lms.getActiveServerLabel();
 };
 
 /**
@@ -500,7 +500,7 @@ MoblerCards.prototype.getActiveLabel = function () {
  * @return {String} It returns the name of the added property of the configuration object.
  **/
 MoblerCards.prototype.getConfigVariable = function (varname) {
-    return this.models["authentication"].configuration[varname];
+    return this.models.authentication.configuration[varname];
 };
 
 /**
@@ -510,11 +510,11 @@ MoblerCards.prototype.getConfigVariable = function (varname) {
  * @param {String} varname, {Boolean, String} varvalue
  **/
 MoblerCards.prototype.setConfigVariable = function (varname, varvalue) {
-    if (!this.models["authentication"].configuration) {
-        this.models["authentication"].configuration = {};
+    if (!this.models.authentication.configuration) {
+        this.models.authentication.configuration = {};
     }
-    this.models["authentication"].configuration[varname] = varvalue;
-    this.models["authentication"].storeData();
+    this.models.authentication.configuration[varname] = varvalue;
+    this.models.authentication.storeData();
 };
 
 MoblerCards.prototype.resizeHandler = function () {
@@ -524,7 +524,7 @@ MoblerCards.prototype.resizeHandler = function () {
         h = $(window).height();
     if (w / h > 1) {
         orientationLayout = true;
-        moblerlog("we are in landscape mode");
+        console.log("we are in landscape mode");
     } // e.g. Landscape mode
     // window.width / window.height > 1 portrait
     this.activeView.changeOrientation(orientationLayout, w, h);
@@ -538,8 +538,6 @@ MoblerCards.prototype.resizeHandler = function () {
  * @return {Boolean}, true or false.  It returns true if any other element has been clicked, and false if only the statistics icon has been clicked and the user is waiting.
  */
 MoblerCards.prototype.checkclickOutOfStatisticsIcon = function () {
-    moblerlog("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
+    console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
     return this.clickOutOfStatisticsIcon;
-}
-
-var app = new MoblerCards();
+};
