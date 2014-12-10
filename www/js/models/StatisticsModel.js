@@ -25,9 +25,7 @@ under the License.
  * @author Christian Glahn
  */
 
-/*jslint vars: true, sloppy: true */
-
-
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  *Global properties/variables that show the number of values
@@ -77,22 +75,13 @@ function StatisticsModel(controller) {
 
     self.controller = controller;
     //initialization of model's variables
-    self.lastSendToServer;
-    self.clickOutOfStatisticsIcon;
-    self.db = openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
-    self.currentCourseId = -1;
-    self.firstActiveDay;
-    self.lastActiveDay;
-
-    console.log("statistics are loaded? " + (self.controller.getConfigVariable("statisticsLoaded") ? "yes1" : "no1"));
-
-    // check the localstorage if the the data is already loaded
-    // if the the data is not loaded but the user is logged in, then loadFromServer 
-
-    if (self.controller.getConfigVariable("statisticsLoaded") == false && self.controller.getLoginState()) {
-        moblerlog("statistics to be loaded from server");
-        self.loadFromServer();
-    }
+    this.lastSendToServer;
+    this.clickOutOfStatisticsIcon;
+    this.db = openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
+    this.currentCourseId = -1;
+    this.firstActiveDay;
+    this.lastActiveDay;
+    this.checkLocalStorage();
 
     /**
      * Check if time dependent achievements have been accomplished.
@@ -112,6 +101,17 @@ function StatisticsModel(controller) {
 
 }
 
+/**
+ * check the localstorage if the the data is already loaded
+ * if the the data is not loaded but the user is logged in, then loadFromServer
+ */
+StatisticsModel.prototype.checkLocalStorage = function () {
+    var self = this;
+    if (self.controller.getConfigVariable("statisticsLoaded") === false && self.controller.getLoginState()) {
+        console.log("statistics to be loaded from server");
+        self.loadFromServer();
+    }
+};
 
 /**
  * Sets the current course id and starts the calculations if the statistics are
@@ -129,18 +129,18 @@ StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
         // OR if the authenticated user has access to the course id
 
         this.currentCourseId = courseId;
-        moblerlog("course-id: " + courseId);
+        console.log("course-id: " + courseId);
 
         // uncomment the following line for debugging purposes
         // this.getAllDBEntries(); 
 
         // WHY IS THE FOLLOWING LINE
-        this.controller.models['questionpool'].loadData(courseId);
+        this.controller.models.questionpool.loadData(courseId);
 
-        moblerlog("statistics are loaded? " + (this.controller.getConfigVariable("statisticsLoaded") ? "yes2" : "no2"));
+        console.log("statistics are loaded? " + (this.controller.getConfigVariable("statisticsLoaded") ? "yes2" : "no2"));
 
         //if statistics are loaded
-        if ((this.controller.getConfigVariable("statisticsLoaded") == true) || this.currentCourseId == "fd") {
+        if ((this.controller.getConfigVariable("statisticsLoaded") === true) || this.currentCourseId === "fd") {
             this.getFirstActiveDay(courseId);
         } else {
             // this case is only used if the statistics are not yet loaded from the server
@@ -175,18 +175,19 @@ StatisticsModel.prototype.dataAvailable = function () {
  * @function getFirstActiveDay
  */
 StatisticsModel.prototype.getFirstActiveDay = function (courseId) {
-    moblerlog("enters first active day");
+    console.log("enters first active day");
     var self = this;
+    var row;
     this.queryDB('SELECT min(day) as firstActivity FROM statistics WHERE course_id=? AND duration != -100', [self.currentCourseId],
         function dataSelectHandler(transaction, results) {
             // if we retrieve statistics data for a specific course,
             // for the earliest(min) day on which these data were tracked
             if (results.rows.length > 0) {
                 row = results.rows.item(0);
-                moblerlog("first active day: " + JSON.stringify(row));
-                if (row['firstActivity']) {
-                    moblerlog("do we enter with null?");
-                    self.firstActiveDay = row['firstActivity'];
+                console.log("first active day: " + JSON.stringify(row));
+                if (row.firstActivity) {
+                    console.log("do we enter with null?");
+                    self.firstActiveDay = row.firstActivity;
                 } else {
                     self.firstActiveDay = (new Date()).getTime();
                 }
@@ -197,7 +198,7 @@ StatisticsModel.prototype.getFirstActiveDay = function (courseId) {
             // so we set the current time to be the first active day	
             else {
                 self.firstActiveDay = (new Date()).getTime();
-                moblerlog("get a new first active day");
+                console.log("get a new first active day");
             }
             //check if there was any activity until one day(=24hours) 
             //before  the current time
@@ -222,8 +223,8 @@ StatisticsModel.prototype.checkActivity = function (day, courseId) {
         this.queryDB('SELECT count(id) as counter FROM statistics WHERE course_id=? AND duration != -100 AND day>=? AND day<=?', [self.currentCourseId, (day - TWENTY_FOUR_HOURS), day],
             function dataSelectHandler(transaction, results) {
                 //if statistics data are retrieved from the last 24 hours before this day
-                if (results.rows.length > 0 && results.rows.item(0)['counter'] !== 0) {
-                    moblerlog("active day: " + day);
+                if (results.rows.length > 0 && results.rows.item(0).counter !== 0) {
+                    console.log("active day: " + day);
                     // then set this day to be the last active day
                     self.lastActiveDay = day;
                     self.calculateValues(courseId);
@@ -273,7 +274,6 @@ StatisticsModel.prototype.getCurrentValues = function (val) {
     case 3:
         retval = [this.currentCourseId, time24hAgo, timeNow];
         break;
-    case 4:
     default:
         retval = [this.currentCourseId, 1, time24hAgo, timeNow];
         break;
@@ -341,7 +341,7 @@ StatisticsModel.prototype.calculateValues = function (courseId) {
  *
  */
 StatisticsModel.prototype.allCalculationsDone = function (courseId) {
-    moblerlog(" finished n=" + this.boolAllDone + " calculations");
+    console.log(" finished n=" + this.boolAllDone + " calculations");
     if (this.boolAllDone === 6) {
         $(document).trigger("allstatisticcalculationsdone", courseId);
     }
@@ -388,7 +388,7 @@ StatisticsModel.prototype.checkAchievements = function (courseId) {
  * @param e - error object
  */
 StatisticsModel.prototype.dbErrorFunction = function (tx, e) {
-    moblerlog("DB Error: " + e.message);
+    console.log("DB Error: " + e.message);
 };
 
 
@@ -398,26 +398,26 @@ StatisticsModel.prototype.dbErrorFunction = function (tx, e) {
  * @function dbErrorFunction
  */
 StatisticsModel.prototype.loadFromServer = function () {
-    moblerlog("enter load statistis");
+    console.log("enter load statistis");
     var self = this;
     var activeURL = self.controller.getActiveURL();
-    if (self.controller.models['authentication'].isLoggedIn()) {
+    if (self.controller.models.configuration.isLoggedIn()) {
         $
             .ajax({
                 url: activeURL + '/statistics.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    moblerlog("success");
+                    console.log("success");
 
                     turnOffDeactivate();
-                    moblerlog("JSON: " + data);
+                    console.log("JSON: " + data);
                     var i, statisticsObject;
                     try {
                         statisticsObject = data;
-                        moblerlog("statistics data from server: " + JSON.stringify(statisticsObject));
+                        console.log("statistics data from server: " + JSON.stringify(statisticsObject));
                     } catch (err) {
-                        moblerlog("Error: Couldn't parse JSON for statistics");
+                        console.log("Error: Couldn't parse JSON for statistics");
                     }
 
                     if (!statisticsObject) {
@@ -428,12 +428,12 @@ StatisticsModel.prototype.loadFromServer = function () {
                         self.insertStatisticItem(statisticsObject[i]);
                         //moblerlog("i is "+i+" and the length of statistics object is "+statisticsObject.length);
                     }
-                    moblerlog("after inserting statistics from server");
+                    console.log("after inserting statistics from server");
                     // trigger event statistics are loaded from server
 
                     // Store a flag into the local storage that the data is loaded.
                     self.controller.setConfigVariable("statisticsLoaded", true);
-                    moblerlog("config variable is set to true");
+                    console.log("config variable is set to true");
                     $(document).trigger("loadstatisticsfromserver");
                 },
                 error: function (xhr, err, errorString, request) {
@@ -442,19 +442,19 @@ StatisticsModel.prototype.loadFromServer = function () {
                     if (request.status === 403) {
                         if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
                             turnOnDeactivate();
-                            moblerlog("Error while getting statistics data from server: " + errorString);
+                            console.log("Error while getting statistics data from server: " + errorString);
                             showErrorResponses(request);
                         }
                     }
 
                     if (request.status === 404) {
-                        moblerlog("Error while getting statistics data from server: " + errorString);
+                        console.log("Error while getting statistics data from server: " + errorString);
                         showErrorResponses(request);
                     }
                 },
                 beforeSend: function setHeader(xhr) {
                     xhr.setRequestHeader('sessionkey',
-                        self.controller.models['authentication'].getSessionKey());
+                        self.controller.models.configuration.getSessionKey());
                 }
             });
     }
@@ -510,7 +510,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
     var self = this;
     var activeURL = self.controller.getActiveURL();
     //if (self.controller.getLoginState()) {
-    if (self.controller.models["authentication"].configuration.userAuthenticationKey && self.controller.models["authentication"].configuration.userAuthenticationKey !== "") {
+    if (self.controller.models.configuration.configuration.userAuthenticationKey && self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
         moblerlog("we enter the get login state in sendToServer");
         //var url = self.controller.models['authentication'].urlToLMS + '/statistics.php';
         var url = activeURL + '/statistics.php';
@@ -561,7 +561,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     statistics.push(row);
                     // moblerlog("sending " + i + ": " + JSON.stringify(row));
                 }
-                sessionkey = self.controller.models['authentication'].getSessionKey();
+                sessionkey = self.controller.models.configuration.getSessionKey();
                 uuid = device.uuid;
             }
 
