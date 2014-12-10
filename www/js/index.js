@@ -7,6 +7,7 @@ function MoblerCards() {
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
+    self.bindEvents();
 
     var startTime = new Date().getTime();
 
@@ -22,16 +23,20 @@ function MoblerCards() {
     });
 }
 
-//Class.extend(MoblerCards, CoreApplication);
-
 MoblerCards.prototype.bindEvents = function () {
     var self = this;
 
-    document.addEventListener('pause', function (ev) {self.onPause(ev);}, false);
+    document.addEventListener('pause', function (ev) {
+        self.onPause(ev);
+    }, false);
 
-    document.addEventListener('resume', function (ev) {self.onResume(ev);}, false);
+    document.addEventListener('resume', function (ev) {
+        self.onResume(ev);
+    }, false);
 
-    document.addEventListener('backbutton', function (ev) {self.onBack(ev);}, false);
+    document.addEventListener('backbutton', function (ev) {
+        self.onBack(ev);
+    }, false);
 
     $(document).bind("allstatisticcalculationsdone", function (featuredContent_id) {
         console.log("all statistics calculations done is ready");
@@ -105,22 +110,16 @@ MoblerCards.prototype.bindEvents = function () {
     });
 };
 
-MoblerCards.prototype.onPause = function () {
+MoblerCards.prototype.onPause = function () {};
 
-};
+MoblerCards.prototype.onResume = function () {};
 
-MoblerCards.prototype.onResume = function () {
-
-};
-
-MoblerCards.prototype.onBack = function () {
-
-};
+MoblerCards.prototype.onBack = function () {};
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
-    this.appLoaded = true;
-    this.transitionToAuthArea("coursesList");
+//    this.appLoaded = true;
+//    this.transitionToAuthArea("coursesList");
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -156,7 +155,7 @@ MoblerCards.prototype.migrateTo2 = function () {
         //configuration=JSON.parse(localStorage.getItem("configuration"));
         var configurationObject = localStorage.getItem("configuration");
         if (configurationObject) {
-            var configuration = JSON.parse(configurationObject);
+            configuration = JSON.parse(configurationObject);
         }
     } catch (err) {
         console.log("error! while loading configuration in migration");
@@ -205,7 +204,7 @@ MoblerCards.prototype.setupLanguage = function () {
         name: 'textualStrings',
         path: 'translations/',
         mode: 'both',
-        language: this.models.authentication.getLanguage(),
+        language: this.models.configuration.getLanguage(),
         callback: function () { // initialize the static strings on all views
             $("#usernameInput").attr("placeholder", msg_placeholder_username);
             $("#numberInput").attr("placeholder", msg_placeholder_numberinput);
@@ -261,7 +260,7 @@ MoblerCards.prototype.setupLanguage = function () {
  **/
 MoblerCards.prototype.transition = function (viewname, fd, achievementsFlag) {
     console.log("transition start to " + viewname);
-    
+
     // Check if the current active view exists and either if it is different from the targeted view or if it is the landing view
     if (this.views[viewname] && (viewname === "landing" || this.activeView.tagID !== this.views[viewname].tagID)) {
         console.log("transition: yes we can!");
@@ -500,7 +499,7 @@ MoblerCards.prototype.getActiveLabel = function () {
  * @return {String} It returns the name of the added property of the configuration object.
  **/
 MoblerCards.prototype.getConfigVariable = function (varname) {
-    return this.models.authentication.configuration[varname];
+    return this.models.configuration.configuration[varname];
 };
 
 /**
@@ -510,11 +509,11 @@ MoblerCards.prototype.getConfigVariable = function (varname) {
  * @param {String} varname, {Boolean, String} varvalue
  **/
 MoblerCards.prototype.setConfigVariable = function (varname, varvalue) {
-    if (!this.models.authentication.configuration) {
-        this.models.authentication.configuration = {};
+    if (!this.models.configuration.configuration) {
+        this.models.configuration.configuration = {};
     }
-    this.models.authentication.configuration[varname] = varvalue;
-    this.models.authentication.storeData();
+    this.models.configuration.configuration[varname] = varvalue;
+    this.models.configuration.storeData();
 };
 
 MoblerCards.prototype.resizeHandler = function () {
