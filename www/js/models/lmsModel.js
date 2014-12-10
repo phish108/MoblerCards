@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 
 
@@ -24,11 +26,6 @@ under the License.
 /**
  *  @author Evangelia Mitsopoulou
  */
-
-/*jslint vars: true, sloppy: true */
-
-
-
 
 /**
  * @class LMSModel
@@ -87,7 +84,7 @@ LMSModel.prototype.loadData = function () {
         try {
             lmsObject = JSON.parse(lmsString);
         } catch (err) {
-            moblerlog("error! while loading");
+            console.log("error! while loading");
         }
     } else {
         //create a data structure for storing lms info in the local storage
@@ -100,7 +97,7 @@ LMSModel.prototype.loadData = function () {
         };
         localStorage.setItem("urlsToLMS", JSON.stringify(lmsObject));
     }
-    moblerlog("lmsObject in localstorage: " + JSON.stringify(lmsObject));
+    console.log("lmsObject in localstorage: " + JSON.stringify(lmsObject));
     this.lmsData = lmsObject;
 };
 
@@ -118,11 +115,11 @@ LMSModel.prototype.storeData = function () {
         lmsString = JSON.stringify(this.lmsData);
     } catch (err) {
         lmsString = "";
-        moblerlog("error while storing");
+        console.log("error while storing");
     }
-    moblerlog("lms string" + lmsString);
+    console.log("lms string" + lmsString);
     localStorage.setItem("urlsToLMS", lmsString);
-    moblerlog("LMS Storage after storeData: " + localStorage.getItem("urlsToLMS"));
+    console.log("LMS Storage after storeData: " + localStorage.getItem("urlsToLMS"));
 };
 
 
@@ -167,7 +164,7 @@ LMSModel.prototype.getActiveServerLabel = function () {
 LMSModel.prototype.getActiveServerURL = function () {
     //http://yellowjacket.ethz.ch/ilias_4_2/restservice/learningcards
     var api = this.getActiveServerAPI();
-    if (api == "v1") {
+    if (api === "v1") {
         console.log("calculate activer server url for v1");
         return this.activeServerInfo.url;
     } else {
@@ -233,7 +230,6 @@ LMSModel.prototype.getDefaultLanguage = function () {
  * THIS FUNCTION IS ONLY USED BY THE LMSVIEW or the constructor
  */
 LMSModel.prototype.setActiveServer = function (servername) {
-    //moblerlog("just enter setActive Server, previousLMS is "+previousLMS);
     var self = this;
     var urlsToLMS, lmsObject;
     this.activeServerInfo = this.findServerInfo(servername);
@@ -244,11 +240,11 @@ LMSModel.prototype.setActiveServer = function (servername) {
     var lastRegister;
     var deactivate;
     var lmsObject = self.lmsData.ServerData;
-    moblerlog("setActiveServer: where is the serverdata? " + lmsObject);
+    console.log("setActiveServer: where is the serverdata? " + lmsObject);
     // a sanity check if the selected lms exists in the local storage
     // in order to get its client key only in this case
     if (lmsObject[servername]) {
-        moblerlog("the current lms has already a client key");
+        console.log("the current lms has already a client key");
         // then get this client key from the local storage 
         requestToken = lmsObject[servername].requestToken;
     }
@@ -259,7 +255,7 @@ LMSModel.prototype.setActiveServer = function (servername) {
             console.log("offline and cannot click and register");
             $(document).trigger("lmsOffline", servername);
         } else { // we are online 
-            moblerlog("will try to do a registration because we are online");
+            console.log("will try to do a registration because we are online");
             if (lmsObject[servername]) {
                 lastRegister = lmsObject[servername].lastRegister;
             }
@@ -268,16 +264,16 @@ LMSModel.prototype.setActiveServer = function (servername) {
             // then display to the user the lms registation message 
             //if	(self.lastTryToRegister[servername] > ((new Date()).getTime() - 24*60*60*1000)){
             if (lastRegister > ((new Date()).getTime() - 60 * 60 * 1000) && DEACTIVATE) { //it was 24*60*60*1000 once every day
-                moblerlog("less than 24 hours have passed for server" + servername);
+                console.log("less than 24 hours have passed for server" + servername);
 
                 $(document).trigger("lmsNotRegistrableYet", [servername]);
             } else {
-                moblerlog("do the registration for server" + servername);
+                console.log("do the registration for server" + servername);
                 $(document).trigger("registrationIsStarted", servername);
                 var api = this.getActiveServerAPI(servername);
                 //TODO:based on the value of the API of the lms run either the (old) register function of this model
                 // or run a the new register function that will call the new backend. This new function will be created here, in the lms model.
-                if (api == "v1") {
+                if (api === "v1") {
                     self.register(servername);
                     //we will get a client key
                 } else {
@@ -320,10 +316,10 @@ LMSModel.prototype.storeActiveServer = function (servername) {
     this.loadData();
     this.activeServerInfo = this.findServerInfo(servername);
     this.lmsData.activeServer = servername;
-    moblerlog("active server set ");
+    console.log("active server set ");
     this.storeData();
 
-}
+};
 
 /**
  *
@@ -337,7 +333,8 @@ LMSModel.prototype.getActiveServer = function (servername) {
     //this.lmsData.activeServer=servername;
     return this.activerServer;
 
-}
+};
+
 /**
  * Stores in the local storage the previous selected lms
  * @prototype
@@ -348,10 +345,10 @@ LMSModel.prototype.storePreviousServer = function (servername) {
 
     this.loadData();
     this.lmsData.previousServer = servername;
-    moblerlog("previous server ");
+    console.log("previous server ");
     this.storeData();
 
-}
+};
 
 /**
  * Returns the previously selected LMS
@@ -363,7 +360,7 @@ LMSModel.prototype.getPreviousServer = function () {
 
     return this.lmsData.previousServer;
 
-}
+};
 
 /**
  * Sends the registration request (appId ,device id) to the server and waiting to get back the app key
@@ -378,7 +375,7 @@ LMSModel.prototype.register = function (servername) {
     //phone gap property to get the id of a device
     var deviceID = device.uuid;
     var activeURL = self.getActiveServerURL();
-    moblerlog("active url in register function is " + activeURL);
+    console.log("active url in register function is " + activeURL);
 
     $
         .ajax({
@@ -402,7 +399,7 @@ LMSModel.prototype.register = function (servername) {
                         self.storeData();
                         var previousLMS = self.lmsData.ServerData[servername].previousServer;
                         showErrorResponses(request);
-                        moblerlog("Error while registering the app with the backend");
+                        console.log("Error while registering the app with the backend");
                     }
                     $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
                 }
@@ -422,7 +419,7 @@ LMSModel.prototype.register = function (servername) {
     function setHeaders(xhr) {
         xhr.setRequestHeader('AppID', APP_ID);
         xhr.setRequestHeader('UUID', deviceID);
-        moblerlog("register uuid:" + deviceID);
+        console.log("register uuid:" + deviceID);
     }
 
 
@@ -441,7 +438,7 @@ LMSModel.prototype.register = function (servername) {
         language = navigator.language.split("-");
         language_root = (language[0]);
 
-        moblerlog("in app registration");
+        console.log("in app registration");
         // load server data from local storage
         self.loadData();
 
@@ -449,7 +446,7 @@ LMSModel.prototype.register = function (servername) {
         self.lmsData.ServerData[servername] = {};
         // store server data in local storage
         // requestToken refers to OAuth terminology
-        moblerlog("data in register is " + data);
+        console.log("data in register is " + data);
         self.lmsData.ServerData[servername].requestToken = data.ClientKey;
         self.lmsData.ServerData[servername].defaultLanguage = data.defaultLanguage || language_root;
         self.lmsData.ServerData[servername].deactivateFlag = false;
@@ -468,11 +465,11 @@ LMSModel.prototype.register = function (servername) {
 
 LMSModel.prototype.registerApi2 = function (servername) {
     var self = this;
-    moblerlog("enters regsitration in API 2");
+    console.log("enters regsitration in API 2");
     //phone gap property to get the id of a device
     var deviceID = device.uuid;
     var activeURL = self.getActiveServerURL();
-    moblerlog("active url in register 2 function is " + activeURL)
+    console.log("active url in register 2 function is " + activeURL);
     var method = "PUT";
     var data = {
         "APPID": APP_ID,
@@ -502,7 +499,7 @@ LMSModel.prototype.registerApi2 = function (servername) {
                         self.storeData();
                         var previousLMS = self.lmsData.ServerData[servername].previousServer;
                         showErrorResponses(request);
-                        moblerlog("Error while registering2 the app with the backend");
+                        console.log("Error while registering2 the app with the backend");
                     }
                     $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
                 }
@@ -541,7 +538,7 @@ LMSModel.prototype.registerApi2 = function (servername) {
         language = navigator.language.split("-");
         language_root = (language[0]);
 
-        moblerlog("in app registration");
+        console.log("in app registration");
         // load server data from local storage
         self.loadData();
 
@@ -549,7 +546,7 @@ LMSModel.prototype.registerApi2 = function (servername) {
         self.lmsData.ServerData[servername] = {};
         // store server data in local storage
         // requestToken refers to OAuth terminology
-        moblerlog("data in register is " + data);
+        console.log("data in register is " + data);
 
         //stote consumer credentials (key and secret) in the local storage
         self.lmsData.ServerData[servername].consumerKey = data.consumerKey;
@@ -571,7 +568,7 @@ LMSModel.prototype.registerApi2 = function (servername) {
  * @param {string} servername, the name of the currently selected lms
  */
 LMSModel.prototype.setSelectedLMS = function (selectedLMS) {
-    moblerlog("set selected lms");
+    console.log("set selected lms");
     this.selectedLMSList = selectedLMS;
 };
 
@@ -592,30 +589,34 @@ LMSModel.prototype.getSelectedLMS = function () {
  * @param{string} servername, the name of the activated server
  */
 LMSModel.prototype.isRegistrable = function (servername) {
-    moblerlog("enterisRegistrable for server" + servername);
+    console.log("enterisRegistrable for server" + servername);
     var self = this;
-    self.loadData();
+    var i = 0;
     var lastRegister;
     var lmsObject = self.lmsData.ServerData;
+    
+    self.loadData();
+    
     if (lmsObject[servername]) {
         lastRegister = lmsObject[servername].lastRegister;
     }
+    
     for (i = 0; i < URLS_TO_LMS.length; i++) {
-        moblerlog("enter in for loop");
+        console.log("enter in for loop");
         if (lmsObject[servername] && lmsObject[servername].lastRegister) {
             if (lastRegister > (new Date()).getTime() - 24 * 60 * 60 * 1000) {
-                moblerlog("lms is not registrable yet");
+                console.log("lms is not registrable yet");
                 return false;
                 //}else if (lastRegister < (new Date()).getTime() - 24*60*60*1000 || (lmsObject[servername] && !lmsObject[servername].deactivateFlag)){
             } else {
                 $("#selectLMSitem" + servername).prop("disabled", false);
-                moblerlog("lms is registrable for server" + servername);
+                console.log("lms is registrable for server" + servername);
                 return true;
             }
         }
 
         if (lmsObject[servername] && lmsObject[servername].deactivateFlag) { //if the specific lms item was inactive because of an 403 error
-            moblerlog("already 403 for server" + servername);
+            console.log("already 403 for server" + servername);
             //try to send a registration request
             self.models.lms.storeActiveServer(servername);
             self.register(servername);
@@ -623,14 +624,14 @@ LMSModel.prototype.isRegistrable = function (servername) {
             // this case should be handled in the success handler of the register request.
             if (!lmsObject[servername].deactivateFlag) {
                 $("#selectLMSitem" + servername).prop("disabled", false);
-                moblerlog("specific lms is active again ");
+                console.log("specific lms is active again ");
                 return true;
             }
 
-            moblerlog("specific lms is still deactivate");
+            console.log("specific lms is still deactivate");
             return false;
         }
-        return true;
+//        return true;
     } //end for
 
 };
