@@ -122,7 +122,7 @@ StatisticsModel.prototype.checkLocalStorage = function () {
  * @function setCurrentCourseId
  */
 StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
-    if (this.currentCourseId !== courseId) {
+    if (this.currentCourseId != courseId) {
         this.currentCourseId = undefined;
 
         // if the course id is one of the free content
@@ -437,7 +437,7 @@ StatisticsModel.prototype.loadFromServer = function () {
                     $(document).trigger("loadstatisticsfromserver");
                 },
                 error: function (xhr, err, errorString, request) {
-                    var lmsModel = self.controller.models['lms'];
+                    var lmsModel = self.controller.models.lms;
                     var servername = lmsModel.lmsData.activeServer;
                     if (request.status === 403) {
                         if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
@@ -506,16 +506,16 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
  * @function sendToServer
  * */
 StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
-    moblerlog("enter sendToServer in statistics model");
+    console.log("enter sendToServer in statistics model");
     var self = this;
     var activeURL = self.controller.getActiveURL();
     //if (self.controller.getLoginState()) {
     if (self.controller.models.configuration.configuration.userAuthenticationKey && self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
-        moblerlog("we enter the get login state in sendToServer");
+        console.log("we enter the get login state in sendToServer");
         //var url = self.controller.models['authentication'].urlToLMS + '/statistics.php';
         var url = activeURL + '/statistics.php';
-        var courseList = self.controller.models["course"].getCourseList();
-        moblerlog("url statistics: " + url);
+        var courseList = self.controller.models.course.getCourseList();
+        console.log("url statistics: " + url);
         // select all statistics data from the local table "statistics"
         // and then execute the code in sendStatistics function
         //self.queryDB('SELECT * FROM statistics where course_id != ?', [featuredContent_id], function(t,r) {sendStatistics(t,r);});
@@ -529,6 +529,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
         });
 
         function sendStatistics(transaction, results) {
+            var row;
             statistics = [];
             numberOfStatisticsItems = 0;
             uuid = "";
@@ -542,7 +543,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 try {
                     pendingStatistics = JSON.parse(localStorage.getItem("pendingStatistics"));
                 } catch (err) {
-                    moblerlog("error! while loading pending statistics");
+                    console.log("error! while loading pending statistics");
                 }
                 //
                 sessionkey = pendingStatistics.sessionkey;
