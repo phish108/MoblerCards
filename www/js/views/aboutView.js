@@ -25,7 +25,7 @@ under the License.
    
 */
 
-/*jslint vars: true, sloppy: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class AboutView
@@ -36,17 +36,21 @@ under the License.
  *  @constructor
  *  - it sets the tag ID for the settings view
  *  - assigns event handler when taping on close button
- * 
+ *
  **/
 function AboutView() {
     var self = this;
-    
-    self.tagID = 'aboutView';
-    
-    jester($('#closeAboutIcon')[0]).tap(function(){ self.closeAbout(); } );
-    
-} 
 
+    jester($('#closeAboutIcon')[0]).tap(function () {
+        self.closeAbout();
+    });
+
+}
+
+AboutView.prototype.prepare = function () {
+    this.loadData();
+    this.controller.models.configuration.loadFromServer();
+};
 
 /**
  * Pinch leads to course list
@@ -54,97 +58,41 @@ function AboutView() {
  * @prototype
  * @function handlePinch
  **/
-AboutView.prototype.handlePinch = function() {
-    controller.transitionToSettings();
+AboutView.prototype.pinch = function () {
+    console.log("pinch in AboutView");
+    this.controller.changeView("settings");
 };
-
-
-/**
- * Tap does nothing
- * @prototype
- * @function handleTap
- **/
-AboutView.prototype.handleTap = doNothing;
-
-
-/**
- * swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-AboutView.prototype.handleSwipe = doNothing;
-
-
-/**
- * opens the view
- * @prototype
- * @function openDiv
- **/ 
-AboutView.prototype.openDiv = openView;
-
-/**
- * Opens the view after firstly
- * loading the data
- * @prototype
- * @function open
- **/ 
- AboutView.prototype.open = function() {
-	this.loadData();
-	this.openDiv();
-	controller.models['authentication'].loadFromServer();	
-};
-
-
-/**
- * closes the view
- * @prototype
- * @function close
- **/ 
-AboutView.prototype.close = closeView;
-
 
 /**
  * When user clicks on the close button
  * it leads to the courses list
  * @prototype
  * @function closeAbout
- **/  
-AboutView.prototype.closeAbout = function() {
-	moblerlog("close settings button clicked");
-	controller.transitionToSettings();
+ **/
+AboutView.prototype.closeAbout = function () {
+    console.log("close settings button clicked");
+    this.controller.changeView('settings');
 };
-
 
 /**
  * leads to logout confirmation view
  * @prototype
  * @function logout
  **/
-AboutView.prototype.logout = function() {
-	controller.transitionToLogout();
+AboutView.prototype.logout = function () {
+    this.controller.changeView("logout");
 };
 
-
 /**
- * Loads the data of the about view. Most of its 
- * content has been initialized in the localization in 
+ * Loads the data of the about view. Most of its
+ * content has been initialized in the localization in
  * the controller. 	In this function, the data  that are
  * loaded are the logos.
  * @prototype
  * @function loadData
  **/
-AboutView.prototype.loadData = function() {
-	var config = controller.models['authentication'];
+AboutView.prototype.loadData = function () {
+    var config = this.controller.models.configuration;
 
-	$("#logos").show();
+    $("#logos").show();
 };
-
-
-/**
-* handles dynamically any change that should take place on the layout
-* when the orientation changes.
-* (the distance between the cards and the title should be calculated dynamically) 
-* @prototype
-* @function changeOrientation
-**/ 
-AboutView.prototype.changeOrientation = doNothing;
