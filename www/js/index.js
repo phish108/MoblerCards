@@ -3,7 +3,7 @@
 function MoblerCards() {
     var self = this;
 
-    self.viewId = "login";
+    self.viewId = "splash";
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
@@ -103,11 +103,11 @@ MoblerCards.prototype.bindEvents = function () {
         }
     });
 
-    $(document).bind("click", function (e) {
-        console.log(" click in login view ");
-        e.preventDefault();
-        e.stopPropagation();
-    });
+    //    $(document).bind("click", function (e) {
+    //        console.log(" click in login view ");
+    //        e.preventDefault();
+    //        e.stopPropagation();
+    //    });
 };
 
 MoblerCards.prototype.onPause = function () {};
@@ -118,8 +118,8 @@ MoblerCards.prototype.onBack = function () {};
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
-//    this.appLoaded = true;
-//    this.transitionToAuthArea("coursesList");
+    //    this.appLoaded = true;
+    //    this.transitionToAuthArea("coursesList");
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -279,49 +279,25 @@ MoblerCards.prototype.transition = function (viewname, fd, achievementsFlag) {
  * @prototype
  * @function transitionToEndpoint
  **/
-MoblerCards.prototype.transitionToEndpoint = function () {
-    console.log('initialize endpoint');
-    this.appLoaded = true;
-    this.transitionToAuthArea("coursesList");
-};
+//MoblerCards.prototype.transitionToEndpoint = function () {
+//    console.log('initialize endpoint');
+//    this.appLoaded = true;
+//    this.transitionToAuthArea("course");
+//};
 
 /**
  * Transition to login view.
  * @prototype
  * @function transitionToLogin
  **/
-MoblerCards.prototype.transitionToLogin = function () {
-    console.log("enter transitionToLogin in controller");
-    if (this.appLoaded) {
-        console.log("the app is loaded in transition to login in controller");
-        this.transition('login');
-
-    }
-};
-
-MoblerCards.prototype.transitionToLanding = function () {
-    console.log("enter controller transition to landing view in controller");
-    this.transition('landing');
-};
-
-/**
- * Transition to lms view.
- * @prototype
- * @function transitionToLogin
- **/
-MoblerCards.prototype.transitionToLMS = function () {
-    console.log("enter controller transition to LMS");
-    this.transition('lms');
-};
-
-/**
- * Transition to logout view
- * @prototype
- * @function transitionToLogout
- **/
-MoblerCards.prototype.transitionToLogout = function () {
-    this.transitionToAuthArea('logout');
-};
+//MoblerCards.prototype.transitionToLogin = function () {
+//    console.log("enter transitionToLogin in controller");
+//    if (this.appLoaded) {
+//        console.log("the app is loaded in transition to login in controller");
+//        //        this.transition('login');
+//        this.controller.changeView('login');
+//    }
+//};
 
 /**
  * Helper function that handles the transition to the specified targeted view by firstly checking if the user is logged in.
@@ -332,68 +308,12 @@ MoblerCards.prototype.transitionToLogout = function () {
  **/
 MoblerCards.prototype.transitionToAuthArea = function (viewname, featuredContentFlag) {
     if (this.getLoginState()) {
-        this.transition(viewname);
+        //        this.transition(viewname);
+        this.controller.changeView(viewname);
     } else {
         //        stay on the current view if we are not logged in 0
         this.transitionToLanding();
     }
-};
-
-/**
- * Transition to courses list view
- * @prototype
- * @function transitionToCourses
- **/
-MoblerCards.prototype.transitionToCourses = function () {
-    this.transitionToAuthArea('coursesList');
-};
-
-/**
- * Transition to question view
- * @prototype
- * @function transitionToQuestion
- **/
-MoblerCards.prototype.transitionToQuestion = function () {
-    console.log("enters transition to question in controller");
-    //this.transitionToAuthArea('questionView',fd);
-    this.transition('questionView');
-};
-
-/**
- * Transition to answer view
- * @prototype
- * @function transitionToAnswer
- **/
-MoblerCards.prototype.transitionToAnswer = function () {
-    console.log("enters transition to answer view in controller");
-    this.transition('answerView');
-};
-
-/**
- * Transition to feedback view
- * @prototype
- * @function transitionToFeedback
- **/
-MoblerCards.prototype.transitionToFeedback = function () {
-    this.transition('feedbackView');
-};
-
-/**
- * Transition to settings view
- * @prototype
- * @function transitionToSettings
- **/
-MoblerCards.prototype.transitionToSettings = function () {
-    this.transitionToAuthArea('settings');
-};
-
-/**
- * Transition to feedback more view, which is the view that contains any extra tips about the feedback.
- * @prototype
- * @function transitionToFeedbackMore
- **/
-MoblerCards.prototype.transitionToFeedbackMore = function () {
-    this.transition('feedbackMore');
 };
 
 /**
@@ -417,24 +337,6 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
     } else if (achievementsFlag) {
         this.transition("statisticsView", achievementsFlag);
     }
-};
-
-/**
- * Transition to achievements view
- * @prototype
- * @function transitionToAchievements
- **/
-MoblerCards.prototype.transitionToAchievements = function (courseID) {
-    this.transition('achievements', courseID);
-};
-
-/**
- * Transition to about view
- * @prototype
- * @function transitionToAbout
- **/
-MoblerCards.prototype.transitionToAbout = function () {
-    this.transitionToAuthArea('about');
 };
 
 /**
