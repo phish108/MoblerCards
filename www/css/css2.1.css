@@ -294,6 +294,15 @@ li {
 }
 /*********************** Views ***********************/
 
+.screen {
+    display: none;
+}
+.screen.active {
+    display: block;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
 #coursesListView {
     display: none;
 }
@@ -319,9 +328,9 @@ li {
     /*display: none;*/
 }
 .viewblock {
+    width: 100%;
     margin: 0px;
     padding: 0px;
-    width: 100%;
 }
 /*
 .backgroundImageLanding{
@@ -449,9 +458,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 #landingForm {
     /*display: none;*/
     width: 100%;
-}
-#landingView {
-    display: none;
 }
 /*********************** Login ***********************/
 
