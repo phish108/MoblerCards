@@ -13,12 +13,12 @@
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
 
-    <link href="css/css2.0.css" rel="stylesheet" type="text/css">
+    <link href="css/css2.1.css" rel="stylesheet" type="text/css">
     <link href="libs/icomoon/style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body id="myDoc">
-    <div id="splashScreen" class="viewblock" data-view="SplashScreenView" data-touch="touch">
+    <div id="splash" class="screen" data-view="SplashView" data-touch="touch">
         <div class="viewblock cover">
             <div class="viewblock cover">
                 <div id="loading">
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div id="landingView" class="viewblock" data-view="LandingView">
+    <div id="landing" class="screen" data-view="LandingView" data-touch="touch">
         <div id="landingViewHeader" class="landingHeader">
             <div id="landingViewTitle" class="title landingTitle">
                 <span class="title1">Mobler </span>
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <div id="loginView" class="viewblock" data-view="LoginView">
+    <div id="login" class="screen" data-view="LoginView">
         <div class="viewblock cover">
             <div id="loginViewHeader" class="headerContainer">
                 <div id="loginViewTitle" class="title">Login</div>
@@ -184,7 +184,7 @@
         </div>
     </div>
 
-    <div id="lmsView" class="viewblock" data-view="LMSView">
+    <div id="lms" class="screen" data-view="LMSView">
         <div id="lmsListHeader" class="headerContainer">
             <div class="titleicon" id="lmsIcon">
                 <span class="icon-lms"></span>
@@ -203,7 +203,7 @@
         <div></div>
     </div>
 
-    <div id="coursesListView" class="viewblock" data-view="CoursesListView">
+    <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
         <div id="coursesListHeader" class="headerContainer">
             <div id="coursesTitleIcon" class="titleicon">
                 <span class="icon-courses"></span>
@@ -219,7 +219,7 @@
         <div></div>
     </div>
 
-    <div id="settingsView" class="viewblock" data-view="SettingsView">
+    <div id="settings" class="screen" data-view="SettingsView">
         <div id="settingsHeader" class="headerContainer">
             <div id="settingsIcon" class="titleicon">
                 <span class="icon-settings"></span>
@@ -287,7 +287,7 @@
         </div>
     </div>
 
-    <div id="aboutView" class="viewblock" data-view="AboutView">
+    <div id="about" class="screen" data-view="AboutView">
         <div id="aboutHeader" class=" headerContainer">
             <!-- <div id="aboutIcon" class="titleicon left">
                 <span class="icon-cog"></span>
@@ -337,7 +337,7 @@
         </div> -->
     </div>
 
-    <div id="logoutConfirmationView" class="viewblock" data-view="LogoutView">
+    <div id="logout" class="screen" data-view="LogoutView">
         <div class="headerContainer">
             <div id="logoutConfirmationTitle" class="title"></div>
         </div>
@@ -362,7 +362,7 @@
         </div>
     </div>
 
-    <div id="cardQuestionView" class="viewblock" data-view="QuestionView">
+    <div id="question" class="screen" data-view="QuestionView">
         <div id="cardQuestionHeader" class="headerContainer">
             <div class="titleicon">
                 <span id="questionIcon"></span>
@@ -396,7 +396,7 @@
         </div>
     </div>
 
-    <div id="cardAnswerView" class="viewblock" data-view="AnswerView">
+    <div id="answer" class="screen" data-view="AnswerView" data-touch="pinch">
         <div id="cardAnswerHeader" class="headerContainer">
             <div id="cardAnswerIcon" class="titleicon">
                 <span id="answerIcon"></span>
@@ -417,7 +417,7 @@
         </div>
     </div>
 
-    <div id="cardFeedbackView" class="viewblock" data-view="FeedbackView">
+    <div id="feedback" class="screen" data-view="FeedbackView">
         <div id="cardFeedbackHeader" class="headerContainer">
             <div class="titleicon" id="cardFeedbackIcon">
                 <span id="feedbackIcon"></span>
@@ -454,7 +454,7 @@
         </div>
     </div>
 
-    <div id="statisticsView" class="viewblock" data-view="StatisticsView">
+    <div id="statistics" class="screen" data-view="StatisticsView">
         <div id="statisticsHeader" class="headerContainer">
             <div id="statisticsIcon" class="titleicon">
                 <span class="icon-bars"></span>
@@ -583,7 +583,7 @@
         </div>
     </div>
 
-    <div id="achievementsView" class="viewblock" data-view="AchievementsView">d
+    <div id="achievements" class="screen" data-view="AchievementsView" data-touch="tap swipe pinch">
         <div id="achievementsHeader" class=" headerContainer">
             <div id="closeAchievementsIcon" class="closeButton">
                 <span class="icon-cross"></span>
@@ -667,7 +667,7 @@
     <script type="text/javascript" src="js/index.js"></script>
 
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
-<!--<script type="text/javascript" src="js/models/AuthenticationModel.js"></script>-->
+    <!--<script type="text/javascript" src="js/models/AuthenticationModel.js"></script>-->
     <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
     <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
     <script type="text/javascript" src="js/models/LMSModel.js"></script>
@@ -692,7 +692,7 @@
     <script type="text/javascript" src="js/views/NumericQuestionWidget.js"></script>
     <script type="text/javascript" src="js/views/AnswerView.js"></script>
     <script type="text/javascript" src="js/views/LMSView.js"></script>
-    <script type="text/javascript" src="js/views/CoursesListView.js"></script>
+    <script type="text/javascript" src="js/views/CourseView.js"></script>
     <script type="text/javascript" src="js/views/FeedbackView.js"></script>
     <script type="text/javascript" src="js/views/LoginView.js"></script>
     <script type="text/javascript" src="js/views/LandingView.js"></script>
@@ -702,7 +702,7 @@
     <script type="text/javascript" src="js/views/StatisticsView.js"></script>
     <script type="text/javascript" src="js/views/AchievementsView.js"></script>
     <script type="text/javascript" src="js/views/AboutView.js"></script>
-    <script type="text/javascript" src="js/views/SplashScreenView.js"></script>
+    <script type="text/javascript" src="js/views/SplashView.js"></script>
 
     <script type="text/javascript">
         CoreApplication.start(MoblerCards);
