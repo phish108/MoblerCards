@@ -297,57 +297,18 @@ li {
 .screen {
     display: none;
 }
+
 .screen.active {
     display: block;
     width: 100%;
     margin: 0px;
     padding: 0px;
 }
-#coursesListView {
-    display: none;
-}
-#settingsView {
-    display: none;
-}
-#logoutConfirmationView {
-    display: none;
-}
-#cardQuestionView {
-    display: none;
-}
-#cardAnswerView {
-    display: none;
-}
-#cardFeedbackView {
-    display: none;
-}
-#statisticsView {
-    display: none;
-}
-#splashScreen {
-    /*display: none;*/
-}
 .viewblock {
     width: 100%;
     margin: 0px;
     padding: 0px;
 }
-/*
-.backgroundImageLanding{
-	background-image:url("resources/app_background.png"");
-	background-repeat:no-repeat;
-	background-attachement:fixed;
-	background-position:bottom; 
- }
-*/
-
-/*
-.backgroundImage{
-	background-image:url('resources/app_background.png');
-	background-repeat:no-repeat;
-	background-attachement:absolute;
-	background-position:bottom; 
-}*/
 
 /*********************** Splash Screen ***********************/
 
@@ -456,13 +417,11 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     /*there was a z-index before, but we took it out in order to display the cards positively*/
 }
 #landingForm {
-    /*display: none;*/
     width: 100%;
 }
 /*********************** Login ***********************/
 
 #loginForm {
-    /*display: none;*/
     width: 100%;
 }
 #loginViewHeader {
@@ -472,10 +431,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     display: none;
 }
 .inputBorder {
-    /*border:1px solid green;
-	 padding: 10px;
-	 height: 33px;
-	 */
     padding: 5px;
     padding-bottom: 10px;
     border-right: 0px solid white;
@@ -488,17 +443,10 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 }
 .inputBorderCloze {
     padding: 10px;
-    /*border-right: 0px solid white;
-	border-left: 0px solid white;
-	/*border:1px solid green;*/
     height: 33px;
     margin-right: 0px;
 }
 .loginInput {
-    /*box-shadow: none;
-	-webkit-appearance: none;
-	 border-radius: 0;
-	*/
     outline: none;
     border: none;
     border-width: 0px;
@@ -509,12 +457,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     background-color: transparent;
 }
 .loginInputCloze {
-    /*box-shadow: none;
-	-webkit-appearance: none;
-	 border-radius: 0;
-	
-	
-	border-width: 0px;*/
     outline: none;
     border: none;
     font-size: 12pt;
@@ -563,24 +505,16 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 }
 .green {
     color: #33CC33;
-    /*width: 30px;
-	text-align: center;
-	margin:0px;*/
 }
 .red {
     color: #EC2F2D;
     font-size: 22px;
-    /*width: 30px;
-	text-align: center;
-	margin:0px;*/
 }
 .lightgrey {
     color: #BEBEBE;
 }
 .glowRed {
     text-shadow: -1px -1px 1px #682627, 1px 1px 2px #C04A4A;
-    /*-webkit-text-stroke-color: grey;
-	-webkit-text-stroke-width: 3px;*/
 }
 .partiallyCorrectAnswer {
     background-color: #EEEEEE;
@@ -616,7 +550,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     margin-left: 20px;
     margin-right: 10px;
     clear: both;
-    /*width: 100%;*/
     height: 53px;
     background-color: white;
     border: 1px solid blue;
@@ -639,7 +572,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     width: 100%;
     height: 53px;
     background-color: white;
-    /*content: url(../resources/logos_small.png);*/
 }
 #ISNlogo {
     float: left;
@@ -655,7 +587,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 }
 .currentSortedItem {
     border: 1px solid white;
-    /*background-color: #ddd;*/
 }
 .placeholder {
     height: 1.5em;
@@ -682,7 +613,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     padding: 0px;
 }
 .text {
-    /* margin-right: 35px;*/
     padding: 15px;
     padding-left: 10px;
     padding-right: 0px;
@@ -693,9 +623,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 }
 .marginClozeLi {
     padding: 9px 9px 9px 20px;
-    /*padding-left:15px;
-	padding-bottom:4px;
-	border:1px solid red;*/
 }
 .internalPadding {
     padding: 7px;
@@ -742,13 +669,10 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 .courseListIcon {
     border-left: 0px solid red;
     width: 30px;
-    /*it was 41 and then 34*/
     line-height: 40px;
     font-size: 24px;
-    /*it was 32, and then 26*/
     color: white;
     text-align: center;
-    /*vertical-align: middle;*/
 }
 .white {
     color: white;
@@ -756,7 +680,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 .courseListIconLMS {
     border-left: 1px solid red;
     width: 34px;
-    /*it was 41*/
     font-size: 32px;
     text-align: center;
     vertical-align: middle;
@@ -770,7 +693,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     text-align: center;
     position: relative;
     right: 10px;
-    /*vertical-align: middle;*/
 }
 .marginForCourseList {
     margin-right: 54px;
@@ -815,9 +737,7 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 #lmsLabelSet {
     height: 38px;
     width: 38px;
-    /*content: url(../resources/pfpLogo.png);*/
     float: left;
-    /*margin-right:10px;*/
     margin-top: 7px;
     margin: auto 10px auto 0px;
 }
@@ -842,21 +762,16 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     font-size: 15px;
     font-weight: bold;
     z-index: -1;
-    /*border: 1px solid green;*/
 }
 #aboutMainTitle {
     font-size: 20pt;
     margin: 80px auto 10px 10px;
 }
 ul#aboutData {
-    /*margin-top:10px;*/
     margin-left: 0px;
     margin-right: 0px;
     font-size: 12px;
-    /*margin-bottom: 66px;*/
     z-index: 10;
-    /*border: 1px solid red;
-	padding-top:15px;*/
 }
 .aboutLabel {
     font-size: 18px;
@@ -880,13 +795,9 @@ ul#aboutData {
     overflow: hidden;
 }
 #loginElements {} .selectWidget {
-    /*display:inline-block;*/
     padding-left: 0px;
-    /*border: 1px solid black;*/
-    /*border-bottom: 1px solid white;*/
     border-right: 1px solid white;
     border-left: 1px solid white;
-    /*background-color: #c6c6c6;*/
     margin-right: 0px;
     height: 51px;
 }
@@ -894,9 +805,6 @@ li#selectlms {
     border-bottom: 0px solid white;
 }
 .selectWidget2 {
-    /*display:inline-block;*/
-    /*padding: 5px;*/
-    /*border-bottom: 1px solid white;*/
     border-right: 1px solid white;
     border-left: 1px solid white;
     background-color: #c6c6c6;
@@ -915,9 +823,6 @@ ul#loginElements {
 #lmsView {
     display: none;
 }
-ul#lmsList {
-    /*border:solid white 1px;*/
-}
 .lmsListItem {
     border-left: 1px solid white;
     height: 65px;
@@ -926,24 +831,15 @@ ul#lmsList {
 }
 .labelContainerOld {
     float: left;
-    /*display:inline-block;*/
     padding-top: 15px;
     padding-left: 0px;
     border: 0px solid orange;
-    /*word-wrap:break-word;*/
-    /*margin-right:113px;
-	width:180px;*/
 }
 .lmslabel {
-    /* height:49px; */
-    /* line-height:49px; */
-    /* width:50px;*/
     font-weight: bold;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    /* try this temporarily */
-    /*vertical-align: bottom;*/
 }
 #loginLmsLabel {
     border: solid 0px blue;
@@ -966,8 +862,6 @@ ul#lmsList {
     margin-left: 20px;
     margin-right: 10px;
     clear: both;
-    /*width: 100%;
-	height:53px;*/
     background-color: white;
     border: 1px solid white;
     float: left;
@@ -983,7 +877,6 @@ ul#lmsList {
     margin-left: 0px;
     margin-top: auto;
     overflow: hidden;
-    /* border: 1px solid red;*/
 }
 .notClickable {
     color: red;
@@ -995,28 +888,13 @@ ul#lmsList {
 .lmsmessage {
     display: none;
     color: white;
-    /*margin-right:55px;
-	margin-left:38px;*/
     padding: 10px;
 }
 .hidden {
     display: none;
 }
-/*
-#lmserrormessage {
-	display: none;
-	margin-top:70px;
-	margin-top:-70px;
-	color:weight;
-	margin-right:20px;
-	margin-left:20px;
-	padding:10px;
-	}
-*/
-
 #lmsregistrationmessage {
     display: none;
-    /*margin-top:-70px;*/
     margin-right: 50px;
     margin-left: 50px;
     padding: 10px;
@@ -1037,13 +915,11 @@ ul#lmsList {
     left: 0;
     background: #000000;
     border: 1px solid #cecece;
-    /*z-index:1;*/
 }
 #popupContact {
     display: none;
     position: fixed;
     _position: absolute;
-    /* hack for internet explorer 6*/
     height: 150px;
     width: 160px;
     background: #FFFFFF;
