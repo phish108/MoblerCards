@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -17,9 +14,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
-
-
+under the License.
 */
 
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
@@ -27,7 +22,6 @@ under the License.
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
-
 
 /**
  * @Class AchievementsView
@@ -41,11 +35,12 @@ under the License.
  *    the loading of statistics and the calculation of all the statistics metrics.
  *  @param {String} controller
  **/
+// TODO templates
 function AchievementsView(controller) {
     var self = this;
     self.controller = controller;
     self.tagID = self.controller.views.id;
-    var featuredContent_id = FEATURED_CONTENT_ID;
+    self.featuredContentId = FEATURED_CONTENT_ID;
     var achievementsFlag = true;
 
     /**It is triggered after statistics loaded locally from the server. This happens during the
@@ -54,8 +49,10 @@ function AchievementsView(controller) {
      * @param: a callback function that gets the first active day in order to start the calculation
      *         of all thedifferent statistics metrics.
      */
+    // TODO make loginState a boolean if possible
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.controller.activeView.id) && 
+            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done");
             self.controller.models.statistics.getFirstActiveDay();
         }
@@ -68,12 +65,13 @@ function AchievementsView(controller) {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done 1 ");
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.controller.activeView.id) &&
+            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done 2 ");
             self.showAchievementsBody();
         }
     });
-};
+}
 
 /**
  * When the view opens it checks whether the statistics
@@ -83,17 +81,17 @@ function AchievementsView(controller) {
  * @prototype
  * @function open
  **/
-AchievementsView.prototype.prepare = function (featuredContent_id) {
+AchievementsView.prototype.prepare = function () {
     var self = this;
-    if (featuredContent_id) {
+    
+    if (self.featuredContentId) {
         self.showAchievementsBody();
-    } else {
-
-        if (this.controller.getConfigVariable("statisticsLoaded") == true) {
-            this.showAchievementsBody();
-        } else {
-            self.showLoadingMessage();
-        }
+    } 
+    else if (self.controller.getConfigVariable("statisticsLoaded")) {
+        self.showAchievementsBody();
+    }
+    else {
+        self.showLoadingMessage();
     }
 };
 
@@ -102,7 +100,6 @@ AchievementsView.prototype.tap = function (event) {
     
     if (id === "closeAchievementsIcon") {
         this.controller.changeView("statistics", 1);
-        event.stopPropagation();
     }
 };
 
@@ -115,7 +112,6 @@ AchievementsView.prototype.tap = function (event) {
 AchievementsView.prototype.pinch = function (event) {
     console.log("pinch in AchievementsView");
     this.controller.changeView("statistics", 1);
-    //    this.closeAchievements();
 };
 
 /**
@@ -126,7 +122,6 @@ AchievementsView.prototype.pinch = function (event) {
 AchievementsView.prototype.swipe = function (event) {
     console.log("swipe in AchievementsView");
     this.controller.changeView("statistics", 1);
-    //    this.closeAchievements();
 };
 
 // TODO TEMPLATES
@@ -149,19 +144,19 @@ AchievementsView.prototype.showAchievementsBody = function () {
     $("#cardBurnerIcon").removeClass("blue");
     $("#valueStackHandler").text(statisticsModel.stackHandler.achievementValue + "%");
 
-    if (statisticsModel.stackHandler.achievementValue == 100) {
+    if (statisticsModel.stackHandler.achievementValue === 100) {
         $("#stackHandlerIcon").addClass("blue");
         $("#stackHandlerDash").removeClass("dashGrey");
         $("#stackHandlerDash").addClass("select");
-    };
+    }
 
     $("#valueCardBurner").text(statisticsModel.cardBurner.achievementValue + "%");
 
-    if (statisticsModel.cardBurner.achievementValue == 100) {
+    if (statisticsModel.cardBurner.achievementValue === 100) {
         $("#cardBurnerIcon").addClass("blue");
         $("#cardBurnerDash").removeClass("dashGrey");
         $("#cardBurnerDash").addClass("select");
-    };
+    }
 };
 
 /**

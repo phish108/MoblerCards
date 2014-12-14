@@ -1,5 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -15,15 +14,12 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
-
+under the License.
 */
-
 
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
-
-*/
+ */
 
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
@@ -34,10 +30,11 @@ under the License.
  * it sets the tag ID for the splash screen view
  * @param {String} controller
  */
-function SplashScreenView(controller) {
+function SplashView(controller) {
     var self = this;
+    
     this.controller = controller;
-    this.tagID = this.controller.views.id;
+    this.tagID = this.controller.viewId;
 }
 
 /**
@@ -46,12 +43,9 @@ function SplashScreenView(controller) {
  * @prototype
  * @function close
  **/
-SplashScreenView.prototype.cleanup = function () {
+SplashView.prototype.cleanup = function () {
     console.log("SplashScreen: close me!");
     $("#loading").remove();
-    if (this.controller.models.configuration.isLoggedIn()) {
-        this.closeDiv();
-    }
 };
 
 /**
@@ -59,6 +53,6 @@ SplashScreenView.prototype.cleanup = function () {
  * @prototype
  * @function showNoConnectionMessage
  **/
-SplashScreenView.prototype.showNoConnectionMessage = function () {
+SplashView.prototype.showNoConnectionMessage = function () {
     $("#loginForm").text("Sorry, you need to be online to connect to your LMS");
 }

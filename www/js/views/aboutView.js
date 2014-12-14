@@ -36,15 +36,11 @@ under the License.
  *  @constructor
  *  - it sets the tag ID for the settings view
  *  - assigns event handler when taping on close button
- *
  **/
+
+// clean
 function AboutView() {
     var self = this;
-
-    jester($('#closeAboutIcon')[0]).tap(function () {
-        self.closeAbout();
-    });
-
 }
 
 AboutView.prototype.prepare = function () {
@@ -52,31 +48,26 @@ AboutView.prototype.prepare = function () {
     this.controller.models.configuration.loadFromServer();
 };
 
-/**
- * Pinch leads to course list
- * It works currently only on iOS devices
- * @prototype
- * @function handlePinch
- **/
-AboutView.prototype.pinch = function () {
-    console.log("pinch in AboutView");
+AboutView.prototype.tap = function (event) {
+    var id = event.target.id;
+    
+    if (id === "closeAboutIcon") {
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("settings");
+        }
+        else {
+            this.controller.changeView("landing");
+        }
+    }
+};
+
+AboutView.prototype.pinch = function (event) {
     if (this.controller.getLoginState()) {
         this.controller.changeView("settings");
     }
     else {
         this.controller.changeView("landing");
     }
-};
-
-/**
- * When user clicks on the close button
- * it leads to the courses list
- * @prototype
- * @function closeAbout
- **/
-AboutView.prototype.closeAbout = function () {
-    console.log("close settings button clicked");
-    this.controller.changeView('settings');
 };
 
 /**
@@ -96,7 +87,7 @@ AboutView.prototype.logout = function () {
 /**
  * Loads the data of the about view. Most of its
  * content has been initialized in the localization in
- * the controller. 	In this function, the data  that are
+ * the controller. In this function, the data  that are
  * loaded are the logos.
  * @prototype
  * @function loadData
