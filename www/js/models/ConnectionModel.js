@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -17,8 +15,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
 
 
@@ -41,10 +37,9 @@ under the License.
  *  @param {String} controller
  */
 function ConnectionModel(controller) {
-
     var self = this;
+    
     this.controller = controller;
-
     this.checkConnection();
 
     console.log("connection state during initialization: " + self.state);
@@ -70,7 +65,8 @@ ConnectionModel.prototype.checkConnection = function () {
 
     if (networkState === Connection.NONE) {
         this.state = false;
-    } else {
+    } 
+    else {
         this.state = true;
     }
 };
@@ -94,7 +90,8 @@ ConnectionModel.prototype.goOnline = function () {
     console.log("**online**");
     this.state = true;
 
-    if (this.controller.appLoaded) {
+    if (typeof this.controller != "undefined" &&   
+        this.controller.appLoaded) {
         this.synchronizeData();
     }
 };
@@ -108,6 +105,7 @@ ConnectionModel.prototype.goOnline = function () {
 ConnectionModel.prototype.goOffline = function () {
     console.log("**offline**");
     var self = this;
+    
     this.state = false;
     $(document).trigger("trackingEventDetected", "offline");
     // show no connection error message in login view
@@ -218,7 +216,9 @@ ConnectionModel.prototype.synchronizeData = function () {
         if (this.controller &&
             this.controller.models &&
             this.controller.models.statistics) {
-            if (!statisticsModel.lastSendToServer || statisticsModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) { // it was 24*60*60*1000 (check once every day)
+            if (!statisticsModel.lastSendToServer || 
+                statisticsModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) { 
+                // it was 24*60*60*1000 (check once every day)
                 console.log("statistics need to be synchronized in connection state model");
                 statisticsModel.sendToServer();
             }
@@ -234,8 +234,11 @@ ConnectionModel.prototype.synchronizeData = function () {
         }
         // if tracking data wasn't sent to the server for more than 24 hours
         // send the data to the server
-        if (this.controller && this.controller.models && this.controller.models.tracking) {
-            if (!trackingModel.lastSendToServer || trackingModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
+        if (this.controller && 
+            this.controller.models 
+            && this.controller.models.tracking) {
+            if (!trackingModel.lastSendToServer || 
+                trackingModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
                 trackingModel.sendToServer();
             }
         }
