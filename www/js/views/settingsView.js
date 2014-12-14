@@ -65,18 +65,36 @@ SettingsView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeSettingsIcon") {
-        this.controller.changeView("course");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("course");
+        } else {
+            this.controller.changeView("landing");
+        }
     }
     else if (id === "logOutSettings") {
-        this.controller.changeView("logout");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("logout");
+        }
+        else {
+            this.controller.changeView("landing");
+        }
     }
     else if (id === "aboutMore") {
-        this.controller.changeView("about");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("about");
+        }
+        else {
+            this.controller.changeView("landing");
+        }
     }
 };
 
 SettingsView.prototype.pinch = function (event) {
-    this.controller.changeView("course");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**

@@ -47,7 +47,12 @@ LogoutView.prototype.tap = function (event) {
     var featuredContentId = FEATURED_CONTENT_ID;
     
     if (id === "closeIcon") {
-        this.controller.changeView("settings");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("settings");
+        }
+        else {
+            this.controller.changeView("landing");
+        }
     }
     else if (id === "logOut") {
         this.logout(featuredContentId);
@@ -56,7 +61,12 @@ LogoutView.prototype.tap = function (event) {
 };
 
 LogoutView.prototype.pinch = function () {
-    this.controller.changeView("settings");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("settings");
+    }
+    else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**

@@ -106,7 +106,11 @@ StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeStatisticsIcon") {
-        this.controller.changeView("course");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("course");
+        } else {
+            this.controller.changeView("landing");
+        }
     }
     else if (id === "statsSlot3") {
         this.controller.changeView("achievements", this.featuredContentId);
@@ -118,7 +122,11 @@ StatisticsView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 StatisticsView.prototype.pinch = function (event) {
-    this.controller.changeView("course");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**swipe does nothing

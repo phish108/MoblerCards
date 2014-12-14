@@ -124,7 +124,11 @@ QuestionView.prototype.pinch = function (event) {
     var id = event.target.id;
     
     if (id === "cardQuestionView") {
-        this.controller.changeView("course");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("course");
+        } else {
+            this.controller.changeView("landing");
+        }
     }
 };
 
@@ -170,9 +174,9 @@ QuestionView.prototype.showQuestionTitle = function () {
  **/
 QuestionView.prototype.clickCourseListButton = function (featuredContentId) {
     this.controller.models.answer.resetTimer();
-    if (featuredContentId) {
-        this.controller.changeView("landing");
-    } else {
+    if (this.controller.getLoginState()) {
         this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
     }
 };

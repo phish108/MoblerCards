@@ -130,7 +130,12 @@ CourseView.prototype.tap = function (event) {
     var courseID = this.controller.models.course.getId();
     
     if (id === "coursesListSetIcon") {
-        this.controller.changeView("settings");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("settings");
+        }
+        else {
+            this.controller.changeView("landing");
+        }
     }
     else if (id === "courseListIcon") {
         this.clickFeaturedStatisticsIcon(featuredContent_id);
@@ -151,7 +156,12 @@ CourseView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 CourseView.prototype.pinch = function (event) {
-    this.controller.changeView("settings");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("settings");
+    }
+    else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**

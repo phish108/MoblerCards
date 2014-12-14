@@ -60,7 +60,12 @@ AboutView.prototype.prepare = function () {
  **/
 AboutView.prototype.pinch = function () {
     console.log("pinch in AboutView");
-    this.controller.changeView("settings");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("settings");
+    }
+    else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**
@@ -80,7 +85,12 @@ AboutView.prototype.closeAbout = function () {
  * @function logout
  **/
 AboutView.prototype.logout = function () {
-    this.controller.changeView("logout");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("logout");
+    }
+    else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**
