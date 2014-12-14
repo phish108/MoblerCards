@@ -7,8 +7,8 @@ function MoblerCards() {
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    self.bindEvents();
-
+    
+    var featuredContentId = FEATURED_CONTENT_ID;
     var startTime = new Date().getTime();
 
     jester().options({
@@ -21,11 +21,7 @@ function MoblerCards() {
     $.ajaxSetup({
         cache: false
     });
-}
-
-MoblerCards.prototype.bindEvents = function () {
-    var self = this;
-
+    
     document.addEventListener('pause', function (ev) {
         self.onPause(ev);
     }, false);
@@ -38,14 +34,14 @@ MoblerCards.prototype.bindEvents = function () {
         self.onBack(ev);
     }, false);
 
-    $(document).bind("allstatisticcalculationsdone", function (featuredContent_id) {
+    $(document).bind("allstatisticcalculationsdone", function (featuredContentId) {
         console.log("all statistics calculations done is ready");
         // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
         if (!self.checkclickOutOfStatisticsIcon()) {
             console.log("transition to statistics because all calculations have been done");
-            self.transition('statisticsView', featuredContent_id);
+            self.changeView("statistics", featuredContentId);
         } else {
-            console.log("transition to statistics is not feasible because the user has clicked elsewhere else");
+            console.log("transition to statistics is not feasible because the user has clicked elsewhere");
         }
     });
 
@@ -74,7 +70,7 @@ MoblerCards.prototype.bindEvents = function () {
     $(document).bind("questionpoolready", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the synchronization of questionpool ready");
-            self.transitionToLogin(); // or we can stay on the current view i.e. lms view, landing view or login view
+            self.changeView("login"); // or we can stay on the current view i.e. lms view, landing view or login view
         }
     });
 
@@ -96,19 +92,13 @@ MoblerCards.prototype.bindEvents = function () {
     $(document).bind("activeServerReady", function () {
         if (self.appLoaded && self.activeView === self.views.lms) {
             console.log("transition to login view after selecting server in lms view");
-            self.transitionToLogin();
-        } else if (self.appLoaded && self.activeView === self.views.splashScreen) {
+            self.changeView("login");
+        } else if (self.appLoaded && self.activeView === self.views.splash) {
             console.log("transition to login view after the default server has been registered");
-            self.transitionToLanding();
+            self.changeView("landing");
         }
     });
-
-    //    $(document).bind("click", function (e) {
-    //        console.log(" click in login view ");
-    //        e.preventDefault();
-    //        e.stopPropagation();
-    //    });
-};
+}
 
 MoblerCards.prototype.onPause = function () {};
 
@@ -119,11 +109,9 @@ MoblerCards.prototype.onBack = function () {};
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
     //    this.appLoaded = true;
-    //    this.transitionToAuthArea("coursesList");
 };
 
 MoblerCards.prototype.initBasics = function () {
-    this.featuredContentId = FEATURED_CONTENT_ID;
     this.models.connection.synchronizeData();
     this.models.configuration.loadFromServer();
 };
@@ -250,72 +238,6 @@ MoblerCards.prototype.setupLanguage = function () {
     });
 };
 
-// TODO replace transition functions with given features from basic contribs.
-
-/**
- * Closes the current view and opens the specified one
- * @prototype
- * @function transition
- * @param {String} viewname, the name of the specified target view
- **/
-MoblerCards.prototype.transition = function (viewname, fd, achievementsFlag) {
-    console.log("transition start to " + viewname);
-
-    // Check if the current active view exists and either if it is different from the targeted view or if it is the landing view
-    if (this.views[viewname] && (viewname === "landing" || this.activeView.tagID !== this.views[viewname].tagID)) {
-        console.log("transition: yes we can!");
-        this.activeView.close();
-        this.activeView = this.views[viewname];
-        //clear all flags that are needed for waiting for model processing
-        //currently only used by the statistics model
-        this.clickOutOfStatisticsIcon = true;
-        this.activeView.open(fd, achievementsFlag);
-    }
-};
-
-/**
- * It  navigates to the first view that is shown after the the constructor has been initialized and has reached its end point.
- * If a user is already logged in, the course list is shown otherwise the login form is shown.
- * @prototype
- * @function transitionToEndpoint
- **/
-//MoblerCards.prototype.transitionToEndpoint = function () {
-//    console.log('initialize endpoint');
-//    this.appLoaded = true;
-//    this.transitionToAuthArea("course");
-//};
-
-/**
- * Transition to login view.
- * @prototype
- * @function transitionToLogin
- **/
-//MoblerCards.prototype.transitionToLogin = function () {
-//    console.log("enter transitionToLogin in controller");
-//    if (this.appLoaded) {
-//        console.log("the app is loaded in transition to login in controller");
-//        //        this.transition('login');
-//        this.controller.changeView('login');
-//    }
-//};
-
-/**
- * Helper function that handles the transition to the specified targeted view by firstly checking if the user is logged in.
- * If the user is not logged in the transition reaches the login view
- * @prototype
- * @function transitionToAuthArea
- * @param {String} viewname, the name of the targeted view
- **/
-MoblerCards.prototype.transitionToAuthArea = function (viewname, featuredContentFlag) {
-    if (this.getLoginState()) {
-        //        this.transition(viewname);
-        this.controller.changeView(viewname);
-    } else {
-        //        stay on the current view if we are not logged in 0
-        this.transitionToLanding();
-    }
-};
-
 /**
  * Transition to statistics view. The user can reach the statistics view in two ways: 1) either by clicking the statistics icon on the course list view or  2) from the achievements view.
  * TODO: Refactoring of the function
@@ -332,10 +254,10 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
     if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
         this.models.statistics.setCurrentCourseId(courseID);
         if (!this.models.statistics.dataAvailable()) {
-            this.transition("landing");
+            this.changeView("landing");
         }
     } else if (achievementsFlag) {
-        this.transition("statisticsView", achievementsFlag);
+        this.changeView("statistics", achievementsFlag);
     }
 };
 
