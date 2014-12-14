@@ -24,91 +24,41 @@ under the License.
  * @author Evangelia Mitsopoulou
 
 */
- 
-/*jslint vars: true, sloppy: true */
 
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @class SplashScreen
  * View for displaying the splash screen
- * @constructor 
+ * @constructor
  * it sets the tag ID for the splash screen view
  * @param {String} controller
  */
 function SplashScreenView(controller) {
     var self = this;
-    self.controller = controller;
-    self.tagID = 'splashScreen';
-
+    this.controller = controller;
+    this.tagID = this.controller.views.id;
 }
 
-/**
- * Nothing is executed if the user pinches on the splash screen
- * @prototype
- * @function handlePinch.
- **/
-SplashScreenView.prototype.handlePinch = doNothing;
-
- 
-/**
- * Nothing is executed if the user taps on the splash screen
- * @prototype
- * @function handleTap.
- **/
-SplashScreenView.prototype.handleTap = doNothing;
-
-
-/**
- * Nothing is executed if the user swipes on the splash screen
- * @prototype
- * @function handleSwipe
- **/
-SplashScreenView.prototype.handleSwipe = doNothing;
-
-
-
-
-/**
- *Open the view does nothing, the controller handles the transition to login view
- * @prototype
- * @function open
- **/
-SplashScreenView.prototype.open = doNothing;
-
-
-
-/**
- * Closes the view
- * @prototype
- * @function closeDiv
- **/
-SplashScreenView.prototype.closeDiv = closeView;
-
-
- 
 /**
  * hides the loading icon
  * closes the view if the user is already logged in
  * @prototype
  * @function close
  **/
-SplashScreenView.prototype.close = function() {
-	moblerlog("SplashScreen: close me!");
-	$("#loading").remove();
-	   if( this.controller.models["authentication"].isLoggedIn() ) {
+SplashScreenView.prototype.cleanup = function () {
+    console.log("SplashScreen: close me!");
+    $("#loading").remove();
+    if (this.controller.models.configuration.isLoggedIn()) {
         this.closeDiv();
     }
 };
-
 
 /**
  * shows the user that he/she has no internet connection
  * @prototype
  * @function showNoConnectionMessage
- **/ 
-SplashScreenView.prototype.showNoConnectionMessage = function() {
-	$("#loginForm").text("Sorry, you need to be online to connect to your LMS");
+ **/
+SplashScreenView.prototype.showNoConnectionMessage = function () {
+    $("#loginForm").text("Sorry, you need to be online to connect to your LMS");
 }
-
-
-SplashScreenView.prototype.changeOrientation = doNothing;

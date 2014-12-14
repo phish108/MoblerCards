@@ -104,7 +104,11 @@ AnswerView.prototype.tap = function (event) {
     var id = event.targetid;
 
     if (id === "CourseList_FromAnswer") {
-        this.controller.changView("course");
+        if (this.controller.getLoginState()) {
+            this.controller.changeView("course");
+        } else {
+            this.controller.changeView("landing");
+        }
     } 
     else if (id === "doneButton") {
         this.clickDoneButton;
@@ -121,7 +125,11 @@ AnswerView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 AnswerView.prototype.pinch = function () {
-    this.controller.changeView("course");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**Loads a subview-widget based on the specific question type

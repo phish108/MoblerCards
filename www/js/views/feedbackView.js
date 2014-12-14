@@ -162,7 +162,11 @@ FeedbackView.prototype.swipe = function () {
  * @function handlePinch
  **/
 FeedbackView.prototype.pinch = function () {
-    this.controller.changeView("course");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
+    }
 };
 
 /**click on feedback done button leads to new question
@@ -201,7 +205,11 @@ FeedbackView.prototype.clickCourseListButton = function () {
     $("#feedbackTipBody").hide();
     $("#feedbackBody").show();
     
-    this.controller.changeView("course");
+    if (this.controller.getLoginState()) {
+        this.controller.changeView("course");
+    } else {
+        this.controller.changeView("landing");
+    }
 };
 
 
