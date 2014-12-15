@@ -30,11 +30,8 @@ under the License.
  * it sets the tag ID for the splash screen view
  * @param {String} controller
  */
-function SplashView(controller) {
+function SplashView() {
     var self = this;
-    
-    this.controller = controller;
-    this.tagID = this.controller.viewId;
 }
 
 /**
@@ -44,7 +41,7 @@ function SplashView(controller) {
  * @function close
  **/
 SplashView.prototype.cleanup = function () {
-    console.log("SplashScreen: close me!");
+    console.log("[SplashScreen] close me!");
     $("#loading").remove();
 };
 

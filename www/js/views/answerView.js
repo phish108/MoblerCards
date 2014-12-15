@@ -39,11 +39,11 @@ under the License.
  * @param {String} controller
  */
 // TODO get rid of css elements
-function AnswerView(controller) {
+function AnswerView() {
     var self = this;
-    self.controller = controller;
-    self.tagID = self.controller.viewId;
-    self.widget = null;
+    this.tagID = this.app.viewId;
+    this.widget = null;
+    
     var featuredContentId = FEATURED_CONTENT_ID;
 
     // center the answer body to the middle of the screen of the answer view
@@ -62,8 +62,8 @@ function AnswerView(controller) {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.isActiveView) && 
-            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.isActiveView) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in answer view 1");
             self.showAnswerBody();
         }
@@ -75,8 +75,8 @@ function AnswerView(controller) {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.tagID === self.controller.isActiveView) &&
-            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.isActiveView) &&
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in  answer view 2 ");
             self.showAnswerBody();
         }
@@ -94,7 +94,7 @@ AnswerView.prototype.prepare = function (featuredContent_id) {
     console.log("opes answer view");
     this.showAnswerTitle();
     this.showAnswerBody();
-    this.controller.resizeHandler();
+    this.app.resizeHandler();
     //set automatic the width of the input field in numeric questions
     //setNumberInputWidth();
 };
@@ -103,10 +103,10 @@ AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
 
     if (id === "CourseList_FromAnswer") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("course");
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
         } else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     } 
     else if (id === "doneButton") {
@@ -114,7 +114,7 @@ AnswerView.prototype.tap = function (event) {
     }
     else if (id === "cardAnswerTitle" || id === "cardAnswerIcon") {
         this.widget.storeAnswers();
-        this.controller.changeView("question");
+        this.app.changeView("question");
     };
 };
 
@@ -124,10 +124,10 @@ AnswerView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 AnswerView.prototype.pinch = function () {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -141,7 +141,7 @@ AnswerView.prototype.showAnswerBody = function () {
     $("#dataErrorMessage").hide();
     $("#cardAnswerBody").empty();
 
-    var questionpoolModel = this.controller.models.questionpool;
+    var questionpoolModel = this.app.models.questionpool;
 
     var questionType = questionpoolModel.getQuestionType();
     // a flag used to distinguish between answer and feedback view. 
@@ -179,7 +179,7 @@ AnswerView.prototype.showAnswerBody = function () {
  * @function showAnswerTitle
  **/
 AnswerView.prototype.showAnswerTitle = function () {
-    var currentAnswerTitle = this.controller.models.questionpool.getQuestionType();
+    var currentAnswerTitle = this.app.models.questionpool.getQuestionType();
     $("#answerIcon").removeClass();
     $("#answerIcon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#cardAnswerTitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
@@ -191,16 +191,16 @@ AnswerView.prototype.showAnswerTitle = function () {
  * @function clickDoneButton
  **/
 AnswerView.prototype.clickDoneButton = function () {
-    var questionpoolModel = this.controller.models.questionpool;
-    var statisticsModel = this.controller.models.statistics;
-    var answerModel = this.controller.models.answer;
+    var questionpoolModel = this.app.models.questionpool;
+    var statisticsModel = this.app.models.statistics;
+    var answerModel = this.app.models.answer;
     console.log('check apology ' + this.widget.didApologize);
     if (this.widget.didApologize) {
         // if there was a problem with the data, the widget knows
         // in this case we proceed to the next question
         //statisticsModel.resetTimer();
         questionpoolModel.nextQuestion();
-        this.controller.changeView("question");
+        this.app.changeView("question");
     } else {
         // if there was no error with the data we provide feedback to the
         // learner.
@@ -208,7 +208,7 @@ AnswerView.prototype.clickDoneButton = function () {
         questionpoolModel.queueCurrentQuestion();
         this.widget.storeAnswers();
         answerModel.storeScoreInDB();
-        this.controller.changeView("feedback");
+        this.app.changeView("feedback");
     }
 };
 
@@ -227,7 +227,7 @@ AnswerView.prototype.changeOrientation = function (o, w, h) {
 
 function setNumberInputWidth() {
 
-    var questionpoolModel = this.controller.models.questionpool;
+    var questionpoolModel = this.app.models.questionpool;
 
     var questionType = questionpoolModel.getQuestionType();
     if (questionType == "assNumeric") {

@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -18,7 +15,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
 */
 
 
@@ -40,14 +36,11 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-function FeedbackView(controller) {
+function FeedbackView() {
     var self = this;
-    self.controller = controller;
-    self.tagID = this.controller.view.id;
-    var featuredContent_id = FEATURED_CONTENT_ID;
 
+    this.tagID = this.app.viewId;
     
-
     // center the feedback body to the middle of the screen
     function setOrientation() {
         $(".cardBody").css('height', window.innerHeight - 70);
@@ -69,7 +62,7 @@ function FeedbackView(controller) {
      * @param: a callback function that displays the feedback body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
             moblerlog("enters load statistics from server is done in feedback view 1");
             self.showFeedbackBody();
         }
@@ -81,7 +74,7 @@ function FeedbackView(controller) {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         moblerlog("enters in calculations done in question view1 ");
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
             moblerlog("enters in calculations done in feedback view 2 ");
             self.showFeedbackBody();
         }
@@ -95,9 +88,9 @@ function FeedbackView(controller) {
  **/
 FeedbackView.prototype.prepare = function () {
     // if (coming from answer view){
-    if (this.controller.models.answer.answerScore == -1) {
+    if (this.app.models.answer.answerScore == -1) {
         console.log("feedbackview opened after returning from answerview");
-        this.controller.models.answer.calculateScore();
+        this.app.models.answer.calculateScore();
     }
 
     this.showFeedbackBody();
@@ -105,7 +98,7 @@ FeedbackView.prototype.prepare = function () {
 
     console.log("feedback open");
     this.widget.setCorrectAnswerTickHeight();
-    this.controller.resizeHandler();
+    this.app.resizeHandler();
 };
 
 /**Closing of the feedback view
@@ -132,8 +125,8 @@ FeedbackView.prototype.tap = function (event) {
         this.clickFeedbackMore();
     }
     else if (id === "CourseList_FromFeedback") {
-        this.controller.models.answer.answerList = [];
-        this.controller.models.answer.answerScore = -1;
+        this.app.models.answer.answerList = [];
+        this.app.models.answer.answerScore = -1;
         this.clickCourseListButton();
     }
     else if (id === "cardFeedbackTitle") {
@@ -148,12 +141,12 @@ FeedbackView.prototype.tap = function (event) {
  **/
 FeedbackView.prototype.swipe = function () {
     this.clickFeedbackDoneButton();
-    //	controller.models["answers"].deleteData();
+    //	app.models["answers"].deleteData();
     //	$("#feedbackTip").empty();
     //	$("#feedbackTip").hide();
     //	$("#feedbackBody").show();
-    //	controller.models['questionpool'].nextQuestion();
-    //	controller.transitionToQuestion();
+    //	app.models['questionpool'].nextQuestion();
+    //	app.transitionToQuestion();
 };
 
 /**Transition to courses list view when pinching on the feedback view. 
@@ -162,10 +155,10 @@ FeedbackView.prototype.swipe = function () {
  * @function handlePinch
  **/
 FeedbackView.prototype.pinch = function () {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -174,11 +167,11 @@ FeedbackView.prototype.pinch = function () {
  * @function clickFeedbackDoneButton
  **/
 FeedbackView.prototype.clickFeedbackDoneButton = function () {
-    this.controller.models.answer.deleteData();
+    this.app.models.answer.deleteData();
     $("#feedbackTipBody").hide();
     $("#feedbackBody").show();
-    this.controller.models.questionpool.nextQuestion();
-    this.controller.changeView("question");
+    this.app.models.questionpool.nextQuestion();
+    this.app.changeView("question");
 };
 
 
@@ -199,16 +192,16 @@ FeedbackView.prototype.clickFeedbackMore = function () {
  * @function clickCourseListButton
  **/
 FeedbackView.prototype.clickCourseListButton = function () {
-    this.controller.models.answer.deleteData();
+    this.app.models.answer.deleteData();
     
     $("#feedbackTip").empty();
     $("#feedbackTipBody").hide();
     $("#feedbackBody").show();
     
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -219,7 +212,7 @@ FeedbackView.prototype.clickCourseListButton = function () {
  * @function showFeedbackTitle
  **/
 FeedbackView.prototype.showFeedbackTitle = function () {
-    var currentFeedbackTitle = this.controller.models.anwer.getAnswerResults();
+    var currentFeedbackTitle = this.app.models.anwer.getAnswerResults();
 
     $("#cardFeedbackTitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
     $("#feedbackIcon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
@@ -233,7 +226,7 @@ FeedbackView.prototype.showFeedbackTitle = function () {
  * @function showFeedbackBody
  **/
 FeedbackView.prototype.showFeedbackBody = function () {
-    var questionpoolModel = this.controller.models.questionpool;
+    var questionpoolModel = this.app.models.questionpool;
     var questionType = questionpoolModel.getQuestionType();
     var interactive = false;
     switch (questionType) {
@@ -262,7 +255,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     $("#FeedbackMore").hide();
 
     var feedbackText = questionpoolModel.getWrongFeedback();
-    var currentFeedbackTitle = this.controller.models.answer.getAnswerResults();
+    var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
 
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
@@ -281,8 +274,8 @@ FeedbackView.prototype.showFeedbackBody = function () {
  * @function clickTitleArea
  **/
 FeedbackView.prototype.clickTitleArea = function () {
-    this.controller.models.answer.answerScore = -1;
-    this.controller.changeView("question");
+    this.app.models.answer.answerScore = -1;
+    this.app.changeView("question");
 };
 
 /**

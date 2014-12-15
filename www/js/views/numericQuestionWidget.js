@@ -43,16 +43,16 @@ under the License.
 function NumericQuestionWidget(interactive) {
     var self = this;
 
-    self.tickedAnswers = controller.models["answers"].getAnswers(); // a list with the typed answer
+    self.tickedAnswers = this.app.models.answers.getAnswers(); // a list with the typed answer
 
     self.interactive = interactive;
     this.didApologize = false; // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     //Check the boolean value of interactive. This is set through the answer and feedback view.
     if (self.interactive) {
         self.showAnswer();
-        moblerlog("interactive true");
+        console.log("interactive true");
     } else {
-        moblerlog("interactive false");
+        console.log("interactive false");
         self.showFeedback(); //displays the feedback body of the multiple choice widget
 
     }
@@ -79,12 +79,12 @@ NumericQuestionWidget.prototype.showAnswer = function () {
 
     var self = this;
 
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = this.app.models.questionpool;
     $("#cardAnswerBody").empty();
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()) {
-        moblerlog("entered numeric answer body");
+        console.log("entered numeric answer body");
 
         var ul = $("<ul/>", {
             "id": "numericElements"
@@ -146,13 +146,13 @@ NumericQuestionWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 NumericQuestionWidget.prototype.showFeedback = function () {
-    moblerlog("start show feedback in numeric choice");
+    console.log("start show feedback in numeric choice");
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
-    var questionpoolModel = controller.models["questionpool"];
-    var answerModel = controller.models["answers"];
+    var questionpoolModel = this.app.models.questionpool;
+    var answerModel = this.app.models.answers;
     var typedAnswer = answerModel.getAnswers();
-    moblerlog("typed answer is " + typedAnswer);
+    console.log("typed answer is " + typedAnswer);
     var correctAnswer = questionpoolModel.getAnswer()[0];
     var currentFeedbackTitle = answerModel.getAnswerResults();
 
@@ -199,7 +199,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 
     } else {
         // if the typed numeric answer is wrong
-        moblerlog('handle answer results');
+        console.log('handle answer results');
 
         var ul = $("<ul/>", {}).appendTo("#feedbackBody");
         var li = $(
@@ -259,10 +259,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
             "id": "shadowedNumericFeedbackLi",
             "class": "gradient1 shadowedLi"
         }).appendTo(lastli);
-
-
     }
-
 };
 
 
@@ -272,12 +269,10 @@ NumericQuestionWidget.prototype.showFeedback = function () {
  * @function storeAnswers
  **/
 NumericQuestionWidget.prototype.storeAnswers = function () {
-
-    var questionpoolModel = controller.models["questionpool"];
-
+    var questionpoolModel = this.app.models.questionpool;
     var numericAnswer = $("#numberInput").val();
 
-    controller.models["answers"].setAnswers(numericAnswer);
+    this.app.models.answers.setAnswers(numericAnswer);
 };
 
 
@@ -289,4 +284,4 @@ NumericQuestionWidget.prototype.storeAnswers = function () {
 NumericQuestionWidget.prototype.setCorrectAnswerTickHeight = doNothing;
 
 
-moblerlog("end of numeric choice widget");
+console.log("end of numeric choice widget");

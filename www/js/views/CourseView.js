@@ -36,16 +36,15 @@ under the License.
  *   the transformation of the loading icon to statistics icon
  * @param {String} controller
  */
-function CourseView(controller) {
+function CourseView() {
 
     var self = this;
-    this.controller = controller;
 
-    self.tagID = 'coursesListView';
-    self.controller = controller;
-    self.active = false;
-    self.firstLoad = true;
-    var featuredContent_id = FEATURED_CONTENT_ID;
+    this.tagID = 'coursesListView';
+    this.active = false;
+    this.firstLoad = true;
+    
+    var featuredContentId = FEATURED_CONTENT_ID;
 
     /**
      * In some rare cases an automated transition from login view to course list view takes place.
@@ -57,7 +56,7 @@ function CourseView(controller) {
      *        that the specific course including all its questions has been fully loaded
      */
     $(document).bind("questionpoolready", function (e, courseID) {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("view questionPool ready called " + courseID);
             self.courseIsLoaded(courseID);
         }
@@ -74,8 +73,8 @@ function CourseView(controller) {
      */
 
     $(document).bind("courselistupdate", function (e) {
-        if ((self.tagID === self.controller.viewId) && 
-            (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.viewId) && 
+            (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
             console.log("course list update called");
             self.firstLoad = false;
             if (self.active) {
@@ -101,10 +100,10 @@ function CourseView(controller) {
  * @prototype
  * @function open
  **/
-CourseView.prototype.prepare = function (featuredContent_id) {
+CourseView.prototype.prepare = function (featuredContentId) {
     console.log("open course list view");
     this.active = true;
-    this.update(featuredContent_id);
+    this.update(featuredContentId);
     this.firstLoad = false;
     this.setIconSize();
 };
@@ -117,25 +116,25 @@ CourseView.prototype.prepare = function (featuredContent_id) {
 CourseView.prototype.cleanup = function () {
     console.log("clean course list view");
     this.active = false;
-    this.controller.models.course.loadFromServer();
+    this.app.models.course.loadFromServer();
     $("#coursesList").empty();
 };
 
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
-    var featuredContent_id = FEATURED_CONTENT_ID;
-    var courseID = this.controller.models.course.getId();
+    var featuredContentId = FEATURED_CONTENT_ID;
+    var courseID = this.app.models.course.getId();
     
     if (id === "coursesListSetIcon") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("settings");
+        if (this.app.getLoginState()) {
+            this.app.changeView("settings");
         }
         else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
     else if (id === "courseListIcon") {
-        this.clickFeaturedStatisticsIcon(featuredContent_id);
+        this.clickFeaturedStatisticsIcon(featuredContentId);
     }
     else if (id === "courseTitle" + courseID) {
         this.clickCourseItem($(this).parent().attr('id').substring(6));
@@ -151,11 +150,11 @@ CourseView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 CourseView.prototype.pinch = function (event) {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("settings");
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
     }
     else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -165,7 +164,7 @@ CourseView.prototype.pinch = function (event) {
  * @function clickCourseItem
  **/
 CourseView.prototype.clickCourseItem = function (course_id) {
-    if (this.controller.models.course.isSynchronized(course_id)) {
+    if (this.app.models.course.isSynchronized(course_id)) {
         selectCourseItem(course_id);
     }
 };
@@ -184,7 +183,7 @@ CourseView.prototype.clickStatisticsIcon = function (courseID) {
         //icon-loading, icon-bars old name
         //all calculations are done based on the course id and are triggered
         //within setCurrentCourseId
-        this.controller.changeView("statistics", courseID);
+        this.app.changeView("statistics", courseID);
     }
 };
 
@@ -195,12 +194,12 @@ CourseView.prototype.clickStatisticsIcon = function (courseID) {
  * @function update
  */
 CourseView.prototype.update = function () {
-    var featuredContent_id = FEATURED_CONTENT_ID;
+    var featuredContentId = FEATURED_CONTENT_ID;
     var self = this;
 
-    var courseModel = self.controller.models.course;
-    var statisticsModel = self.controller.models.statistics;
-    var featuredModel = self.controller.models.featured;
+    var courseModel = self.app.models.course;
+    var statisticsModel = self.app.models.statistics;
+    var featuredModel = self.app.models.featured;
     courseModel.reset();
     $("#coursesList").empty();
 
@@ -209,7 +208,7 @@ CourseView.prototype.update = function () {
     //featured content
 
     var liF = $("<li/>", {
-        "id": "featured" + featuredContent_id,
+        "id": "featured" + featuredContentId,
         "class": " courseLiContainer gradient2"
     }).appendTo("#coursesList");
 
@@ -231,15 +230,15 @@ CourseView.prototype.update = function () {
     }).appendTo(liF);
 
     var separatorF = $("<div/>", {
-        "id": "separator" + featuredContent_id,
+        "id": "separator" + featuredContentId,
         "class": "radialCourses lineContainer separatorContainerCourses"
     }).appendTo(sBF);
 
     var divclassF = "lineContainer selectItemContainer";
-    divclassF += (featuredModel.isSynchronized(featuredContent_id) ? " icon-bars" : "icon-loading loadingRotation");
+    divclassF += (featuredModel.isSynchronized(featuredContentId) ? " icon-bars" : "icon-loading loadingRotation");
 
     var rightdivF = $("<div/>", {
-        "id": "courseListIcon" + featuredContent_id,
+        "id": "courseListIcon" + featuredContentId,
         "class": "gridContainer lineContainer selectItemContainer white icon-bars"
     }).appendTo(liF);
 
@@ -248,14 +247,14 @@ CourseView.prototype.update = function () {
     //	}).appendTo(rightdivF);
     //	
     //	spanF = $("<div/>", {
-    //		"id":"courseListIcon"+ featuredContent_id,
+    //		"id":"courseListIcon"+ featuredContentId,
     //		"class" : "icon-bars"
     //	}).appendTo(divF);
     //	
 
     // ?? FIXME ?? which ID are we talking about here??
     jester(mydivF[0]).tap(function (e) {
-        self.clickFeaturedItem(featuredContent_id);
+        self.clickFeaturedItem(featuredContentId);
     });
 
     if (courseModel.courseList.length == 0) {
@@ -362,13 +361,13 @@ CourseView.prototype.setIconSize = function () {
  * @prototype
  * @function clickFeaturedItem
  */
-CourseView.prototype.clickFeaturedItem = function (featuredContent_id) {
+CourseView.prototype.clickFeaturedItem = function (featuredContentId) {
 
-    //if (this.controller.models['featured'].isSynchronized(featuredContent_id)) {
+    //if (this.app.models['featured'].isSynchronized(featuredContentId)) {
     //	NEW
-    //	var featuredModel = self.controller.models['featured'];
+    //	var featuredModel = self.app.models['featured'];
     //	var feauturedId= featuredModel.getId();
-    selectCourseItem(featuredContent_id);
+    selectCourseItem(featuredContentId);
     //}end of isSynchronized
 };
 
@@ -378,16 +377,16 @@ CourseView.prototype.clickFeaturedItem = function (featuredContent_id) {
  * @prototype
  * @function clickFeaturedStatisticsIcon
  */
-CourseView.prototype.clickFeaturedStatisticsIcon = function (featuredContent_id) {
+CourseView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId) {
     console.log("statistics button in landing view clicked");
 
-    if ($("#courseListIcon" + featuredContent_id).hasClass("icon-bars")) {
+    if ($("#courseListIcon" + featuredContentId).hasClass("icon-bars")) {
         console.log("select arrow landing has icon bars");
-        $("#courseListIcon" + featuredContent_id).addClass("icon-loading loadingRotation").removeClass("icon-bars");
+        $("#courseListIcon" + featuredContentId).addClass("icon-loading loadingRotation").removeClass("icon-bars");
 
         //icon-loading, icon-bars old name
         //all calculations are done based on the course id and are triggered
         //within setCurrentCourseId
-        this.controller.changeView("statistics", featuredContent_id);
+        this.app.changeView("statistics", featuredContentId);
     }
 };

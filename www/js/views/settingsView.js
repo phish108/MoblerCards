@@ -38,10 +38,10 @@ under the License.
  *    such as the close button, the logout button and the "more info" icon.
  *  - it binds the event that is triggered when the authentication is ready
  **/
-function SettingsView(controller) {
+function SettingsView() {
     var self = this;
-    this.controller = controller;
-    this.tagID = this.controller.views.id;
+    
+    this.tagID = this.app.views.id;
 
     /**
      * When all authentication data are received and stored in the local storage
@@ -56,8 +56,8 @@ function SettingsView(controller) {
 }
 
 SettingsView.prototype.prepare = function () {
-    this.controller.models.featured.loadFeaturedCourseFromServer();
-    this.controller.models.course.loadFromServer();
+    this.app.models.featured.loadFeaturedCourseFromServer();
+    this.app.models.course.loadFromServer();
     this.loadData();
 };
 
@@ -65,35 +65,35 @@ SettingsView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeSettingsIcon") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("course");
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
         } else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
     else if (id === "logOutSettings") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("logout");
+        if (this.app.getLoginState()) {
+            this.app.changeView("logout");
         }
         else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
     else if (id === "aboutMore") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("about");
+        if (this.app.getLoginState()) {
+            this.app.changeView("about");
         }
         else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
 };
 
 SettingsView.prototype.pinch = function (event) {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -105,8 +105,8 @@ SettingsView.prototype.pinch = function (event) {
 SettingsView.prototype.loadData = function () {
     $("#deactivateLi").hide();
     var self = this;
-    var config = this.controller.models.configuration;
-    var lmsModel = this.controller.model.lms;
+    var config = this.app.models.configuration;
+    var lmsModel = this.app.model.lms;
     var servername = lmsModel.lmsData.activeServer;
 
     console.log("deactivate flag is " + lmsModel.lmsData.ServerData[servername].deactivateFlag);
@@ -118,8 +118,8 @@ SettingsView.prototype.loadData = function () {
     }
 
     $("#aboutMore").show();
-    $("#lmsLabelSet").attr("src", self.controller.getActiveLogo());
-    $("#pfpItemSet").text(self.controller.getActiveLabel());
+    $("#lmsLabelSet").attr("src", self.app.getActiveLogo());
+    $("#pfpItemSet").text(self.app.getActiveLabel());
     $("#nameItemSet").text(config.getDisplayName());
     $("#usernameItemSet").text(config.getUserName());
     $("#emailItemSet").text(config.getEmailAddress());

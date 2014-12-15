@@ -36,10 +36,9 @@ under the License.
  *  @param {String} controller
  **/
 // TODO templates
-function AchievementsView(controller) {
+function AchievementsView() {
     var self = this;
-    self.controller = controller;
-    self.tagID = self.controller.views.id;
+    self.tagID = self.app.views.id;
     self.featuredContentId = FEATURED_CONTENT_ID;
     var achievementsFlag = true;
 
@@ -51,10 +50,10 @@ function AchievementsView(controller) {
      */
     // TODO make loginState a boolean if possible
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.id) && 
-            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.id) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done");
-            self.controller.models.statistics.getFirstActiveDay();
+            self.app.models.statistics.getFirstActiveDay();
         }
     });
 
@@ -65,8 +64,8 @@ function AchievementsView(controller) {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done 1 ");
-        if ((self.tagID === self.controller.activeView.id) &&
-            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.id) &&
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done 2 ");
             self.showAchievementsBody();
         }
@@ -87,7 +86,7 @@ AchievementsView.prototype.prepare = function () {
     if (self.featuredContentId) {
         self.showAchievementsBody();
     } 
-    else if (self.controller.getConfigVariable("statisticsLoaded")) {
+    else if (self.app.getConfigVariable("statisticsLoaded")) {
         self.showAchievementsBody();
     }
     else {
@@ -99,7 +98,7 @@ AchievementsView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeAchievementsIcon") {
-        this.controller.changeView("statistics", 1);
+        this.app.changeView("statistics", 1);
     }
 };
 
@@ -111,7 +110,7 @@ AchievementsView.prototype.tap = function (event) {
  **/
 AchievementsView.prototype.pinch = function (event) {
     console.log("pinch in AchievementsView");
-    this.controller.changeView("statistics", 1);
+    this.app.changeView("statistics", 1);
 };
 
 /**
@@ -121,7 +120,7 @@ AchievementsView.prototype.pinch = function (event) {
  **/
 AchievementsView.prototype.swipe = function (event) {
     console.log("swipe in AchievementsView");
-    this.controller.changeView("statistics", 1);
+    this.app.changeView("statistics", 1);
 };
 
 // TODO TEMPLATES
@@ -136,7 +135,7 @@ AchievementsView.prototype.swipe = function (event) {
  * @function showAchievementsBody
  **/
 AchievementsView.prototype.showAchievementsBody = function () {
-    var statisticsModel = this.controller.models.statistics;
+    var statisticsModel = this.app.models.statistics;
     $("#loadingMessageAchievements").hide();
     $("#StackHandlerContainer").show();
     $("#CardBurnerContainer").show();

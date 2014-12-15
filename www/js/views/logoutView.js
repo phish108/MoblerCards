@@ -37,9 +37,8 @@ under the License.
  *  - assigns various event handlers when taping on various elements of the view
  *    such as the close button, the final logout button
  **/
-function LogoutView(controller) {
+function LogoutView() {
     var self = this;
-    this.controller = controller;
 }
 
 LogoutView.prototype.tap = function (event) {
@@ -47,11 +46,11 @@ LogoutView.prototype.tap = function (event) {
     var featuredContentId = FEATURED_CONTENT_ID;
     
     if (id === "closeIcon") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("settings");
+        if (this.app.getLoginState()) {
+            this.app.changeView("settings");
         }
         else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
     else if (id === "logOut") {
@@ -60,11 +59,11 @@ LogoutView.prototype.tap = function (event) {
 };
 
 LogoutView.prototype.pinch = function () {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("settings");
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
     }
     else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -73,7 +72,7 @@ LogoutView.prototype.pinch = function () {
  * shows the login view
  */
 LogoutView.prototype.logout = function (featuredContentId) {
-    var config = this.controller.models.configuration;
+    var config = this.app.models.configuration;
     config.logout(featuredContentId);
-    this.controller.changeView("login", featuredContentId);
+    this.app.changeView("login", featuredContentId);
 };

@@ -36,7 +36,7 @@ under the License.
  * @param {Boolean} interactive
  */
 
-function ClozeQuestionTypeView(interactive, controller) {
+function ClozeQuestionTypeView(interactive) {
     var self = this;
     self.interactive = interactive;
     self.didApologize = false;
@@ -62,7 +62,7 @@ function ClozeQuestionTypeView(interactive, controller) {
  **/
 ClozeQuestionTypeView.prototype.showAnswer = function (interactive) {
     //	$("#cardAnswerBody").empty();
-    var questionpoolModel = this.controller.models.questionpool;
+    var questionpoolModel = this.app.models.questionpool;
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
     var domElement = $("#cardAnswerBody");
@@ -116,12 +116,12 @@ ClozeQuestionTypeView.prototype.storeAnswers = function () {
         gapAnswers.push(answer);
     });
     console.log("gapAnswers is " + gapAnswers);
-    this.controller.models.answer.setAnswers(gapAnswers);
+    this.app.models.answer.setAnswers(gapAnswers);
 };
 
 function createClozeQuestionBody(domElement, interactive) {
-    var answerModel = this.controller.models.answer;
-    var answerBody = this.controller.models.questionpool.getAnswer();
+    var answerModel = this.app.models.answer;
+    var answerBody = this.app.models.questionpool.getAnswer();
     console.log("answerbody is " + answerBody);
     var answertext = answerBody.clozeText;
     console.log("answertext is " + answertext);
@@ -171,7 +171,7 @@ function createClozeQuestionBody(domElement, interactive) {
 
         // replace all gap tags in the card feedback body with div's
         $("#feedbackBody gap").each(function (i, gap) {
-            var answerModel = this.controller.models.answer;
+            var answerModel = this.app.models.answer;
             $(gap).parent().removeClass("marginClozeLi");
             $(gap).parent().addClass("gradientSelected");
             var filledAnswers = answerModel.getAnswers();

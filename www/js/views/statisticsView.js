@@ -43,10 +43,10 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-function StatisticsView(controller) {
+function StatisticsView() {
     var self = this;
-    this.controller = controller;
-    this.tagID = this.controller.views.id;
+
+    this.tagID = this.app.views.id;
     this.featuredContentId = FEATURED_CONTENT_ID;
     
     self.dataLoaded = false;
@@ -57,9 +57,9 @@ function StatisticsView(controller) {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done");
-            self.controller.models.statistics.getFirstActiveDay();
+            self.app.models.statistics.getFirstActiveDay();
         }
 
     });
@@ -70,7 +70,7 @@ function StatisticsView(controller) {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done 1 ");
-        if (self.tagID === self.controller.activeView.tagID) {
+        if (self.tagID === self.app.activeView.tagID) {
             console.log("enters in calculations done 2 ");
             self.loadData();
         }
@@ -85,8 +85,8 @@ function StatisticsView(controller) {
  **/
 StatisticsView.prototype.prepare = function () {
     var self = this;
-    if (self.controller.getLoginState()) {
-        if (this.featuredContentId || self.controller.getConfigVariable("statisticsLoaded") === true) {
+    if (self.app.getLoginState()) {
+        if (this.featuredContentId || self.app.getConfigVariable("statisticsLoaded") === true) {
             self.loadData();
         } else {
             self.showLoadingMessage();
@@ -98,7 +98,7 @@ StatisticsView.prototype.prepare = function () {
         console.log("open statistics view in featured course context");
         self.loadData();
     }
-    this.controller.models.featured.loadFeaturedCourseFromServer();
+    this.app.models.featured.loadFeaturedCourseFromServer();
     this.changeOrientation();
 };
 
@@ -106,14 +106,14 @@ StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeStatisticsIcon") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("course");
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
         } else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
     else if (id === "statsSlot3") {
-        this.controller.changeView("achievements", this.featuredContentId);
+        this.app.changeView("achievements", this.featuredContentId);
     }
 };
 
@@ -122,10 +122,10 @@ StatisticsView.prototype.tap = function (event) {
  * @function handlePinch
  **/
 StatisticsView.prototype.pinch = function (event) {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -134,7 +134,7 @@ StatisticsView.prototype.pinch = function (event) {
  * @function handleSwipe
  **/
 StatisticsView.prototype.swipe = function (event) {
-    this.controller.changeView("achievements", this.featuredContentId);
+    this.app.changeView("achievements", this.featuredContentId);
 };
 
 /**show loading message when statistics have not been fully loaded from the server
@@ -155,7 +155,7 @@ StatisticsView.prototype.showLoadingMessage = function () {
  **/
 StatisticsView.prototype.loadData = function () {
     var self = this;
-    var statisticsModel = this.controller.models.statistics;
+    var statisticsModel = this.app.models.statistics;
 
 
     console.log("init values for statistics");

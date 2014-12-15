@@ -37,11 +37,10 @@ under the License.
  *    login form itself.(FIX ME:. stay here instead of redirecting to the login view)
  *  @param {String} controller
  **/
-function LandingView(controller) {
+function LandingView() {
     var self = this;
 
-    self.tagID = this.controller.viewId;
-    this.controller = controller;
+    this.tagID = this.app.viewId;
     this.active = false;
     this.fixedRemoved = false;
     
@@ -76,8 +75,8 @@ function LandingView(controller) {
  * @function open
  **/
 LandingView.prototype.prepare = function () {
-    console.log("landingView: open sesame");
-    this.showForm();
+    console.log("[landingView] prepare");
+    this.showForm();    
     this.active = true;
 };
 
@@ -108,7 +107,7 @@ LandingView.prototype.tap = function (event) {
         this.clickFeaturedStatisticsIcon(featuredContentId);
     }
     else if (id === "leftElement1") {
-        this.clickFeaturedItem(featuredContentId);
+        this.app.selectCourseItem(featuredContentId);
     }
     else if (id === "leftElementExclusive") {
         this.selectExclusiveContent();
@@ -123,10 +122,8 @@ LandingView.prototype.tap = function (event) {
  */
 LandingView.prototype.selectExclusiveContent = function () {
     console.log("enter selectExclusiveContent");
-    // this statement comes from the controller TranstitionToLogin
-    if (this.apploaded) {
-        this.controller.changeView("login");
-    }
+    // this statement comes from the app TranstitionToLogin
+    this.app.changeView("login");
 };
 
 /**
@@ -138,12 +135,12 @@ LandingView.prototype.selectExclusiveContent = function () {
 LandingView.prototype.showForm = function () {
     console.log("enter show form of landing view");
     var self = this;
-    var featuredModel = self.controller.models.featured;
+    var featuredModel = self.app.models.featured;
     this.hideErrorMessage();
-    if (this.controller.models.connection.isOffline()) {
+    if (this.app.models.connection.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
-    //$("#featuredContent").attr("id",this.featuredContent_id);
+    //$("#featuredContent").attr("id",this.featuredContentId);
     //NEW
     //$("#featuredContent").attr("id",featuredModel.getId());
     //scalculateLabelWidth();
@@ -175,13 +172,7 @@ LandingView.prototype.showErrorMessage = function (message) {
  * @function clickFeaturedItem
  */
 LandingView.prototype.clickFeaturedItem = function (featuredContentId) {
-    //	if (this.controller.models['featured'].isSynchronized(featuredContent_id)) {
-    //  NEW
-    //  var featuredModel = self.controller.models['featured'];
-    //	var feauturedId= featuredModel.getId();
-    //	moblerlog("featured content id in landing view is "+feauturedId);
-    selectCourseItem(featuredContentId);
-    //}
+    
 };
 
 /**
@@ -199,7 +190,7 @@ LandingView.prototype.hideErrorMessage = function () {
  * loads the statistics view after transforming the statistics icon into loading icon
  * @prototype
  * @function clickStatisticsIcon
- * @param {string} featuredContent_id
+ * @param {string} featuredContentId
  */
 LandingView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId) {
     console.log("statistics button in landing view clicked");
@@ -211,10 +202,10 @@ LandingView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId)
         //icon-loading, icon-bars old name
         //all calculations are done based on the course id and are triggered
         //within setCurrentCourseId
-        //this.controller.transitionToStatistics(featuredContent_id);
+        //this.app.transitionToStatistics(featuredContentId);
         //		NEW
-        //		var featuredModel = self.controller.models['featured'];
+        //		var featuredModel = self.app.models['featured'];
         //		var feauturedId= featuredModel.getId();
-        this.controller.changeView("statistics", featuredContentId);
+        this.app.changeView("statistics", featuredContentId);
     }
 };

@@ -45,10 +45,9 @@ under the License.
  *    login form itself.
  *  @param {String} controller
  **/
-function LoginView(controller) {
+function LoginView() {
     var self = this;
-    this.controller = controller;
-    this.tagID = this.controller.views.id;
+    this.tagID = this.app.viewId;
     this.active = false;
     this.fixedRemoved = false;
 
@@ -64,33 +63,10 @@ function LoginView(controller) {
 
     // if keyboard is displayed, move the logos up
     // if keyboard is not displayed anymore, move logos down
-    $("#usernameInput")[0].addEventListener("focus", focusLogos);
-    $("#password")[0].addEventListener("focus", focusLogos);
-    $("#usernameInput")[0].addEventListener("blur", unfocusLogos);
-    $("#password")[0].addEventListener("blur", unfocusLogos);
-
-    function focusLogos(e) {
-        e.stopPropagation();
-        e.preventDefault;
-
-        moblerlog("focus logos " + e.currentTarget);
-        $("#loginButton").removeClass("fixed");
-        var fixedRemoved = true;
-        $("#logos").removeClass("bottom");
-        $("#logos").addClass("static");
-    }
-
-    function unfocusLogos(e) {
-        e.stopPropagation();
-        e.preventDefault;
-        moblerlog("unfocus logos " + e.currentTarget);
-        $("#loginButton").addClass("fixed");
-        $("#loginButton").show();
-        moblerlog("loginButton is now fixed");
-        var fixedRemoved = false; //it is back on its old position
-        $("#logos").addClass("bottom");
-        $("#logos").removeClass("static");
-    }
+    $("#usernameInput")[0].addEventListener("focus", self.focusLogos);
+    $("#password")[0].addEventListener("focus", self.focusLogos);
+    $("#usernameInput")[0].addEventListener("blur", self.unfocusLogos);
+    $("#password")[0].addEventListener("blur", self.unfocusLogos);
 } //end of constructor
 
 /**
@@ -110,7 +86,7 @@ LoginView.prototype.prepare = function () {
     $("#selectLMS").removeClass("gradientSelected");
     this.showForm();
     this.active = true;
-    this.controller.models.featured.loadFeaturedCourseFromServer();
+    this.app.models.featured.loadFeaturedCourseFromServer();
 };
 
 /**
@@ -125,7 +101,7 @@ LoginView.prototype.cleanup = function () {
     $("#password").blur();
     $("#usernameInput").blur();
     this.active = false;
-    injectStyle();
+    this.app.injectStyle();
 };
 
 /**
@@ -135,27 +111,41 @@ LoginView.prototype.cleanup = function () {
  **/
 LoginView.prototype.tap = function (event) {
     var id = event.target.id;
-        
-//    move to prepare()    
-//    $("#loginButton").show();
     
-    if (id === "loginButton") {
+    console.log("[LoginView] tap registered: " + id);
+    
+    if (id === "selectarrow") {
         this.clickLoginButton();
     }
     else if (id === "loginViewBackIcon") {
         this.clickCloseLoginButton();
     }
     else if (id === "usernameInput") {
-        focusLogos(event);
+        this.focusLogos(event);
     }
     else if (id === "password") {
-        focusLogos(event);
+        this.focusLogos(event);
     }
-    else if (id === "selectLMS") {
+    else if (id === "loginLmsLabel") {
         this.selectLMS();
     }
 };
 
+LoginView.prototype.focusLogos = function () {
+        $("#loginButton").removeClass("fixed");
+        var fixedRemoved = true;
+        $("#logos").removeClass("bottom");
+        $("#logos").addClass("static");
+};
+
+LoginView.prototype.unfocusLogos = function () {
+        $("#loginButton").addClass("fixed");
+        $("#loginButton").show();
+        var fixedRemoved = false;
+        $("#logos").addClass("bottom");
+        $("#logos").removeClass("static");
+};
+        
 /**
  * click on the login button sends data to the authentication model,
  * data is only sent if input fields contain some values
@@ -171,10 +161,10 @@ LoginView.prototype.clickLoginButton = function () {
         if (self.active) {
             console.log("is logIn");
             $(document).trigger("trackingEventDetected", ["Login"]);
-            if (this.controller.getLoginState()) {
-                this.controller.changeView("course");
+            if (this.app.getLoginState()) {
+                this.app.changeView("course");
             } else {
-                this.controller.changeView("landing");
+                this.app.changeView("landing");
             }
         }
     }
@@ -206,7 +196,7 @@ LoginView.prototype.clickLoginButton = function () {
 
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
-        if (!self.controller.models["connection"].isOffline()) {
+        if (!self.app.models.connection.isOffline()) {
             console.log("has logIn data");
 
             $(document).bind("authenticationready", cbLoginSuccess);
@@ -214,8 +204,7 @@ LoginView.prototype.clickLoginButton = function () {
             $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
 
             self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
-            this.controller.models.configuration.login(
-                $("#usernameInput").val(), $("#password").val());
+            this.app.models.configuration.login($("#usernameInput").val(), $("#password").val());
         } //use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
         // the isOffline seems to work not properly
     } else {
@@ -231,8 +220,8 @@ LoginView.prototype.clickLoginButton = function () {
 LoginView.prototype.showForm = function () {
     console.log("show form in login view");
     console.log("active server in login view is ");
-    $("#lmsImage").attr("src", this.controller.getActiveLogo());
-    $("#loginLmsLabel").text(this.controller.getActiveLabel());
+    $("#lmsImage").attr("src", this.app.getActiveLogo());
+    $("#loginLmsLabel").text(this.app.getActiveLabel());
 
     this.hideErrorMessage();
     this.hideDeactivateMessage();
@@ -240,7 +229,7 @@ LoginView.prototype.showForm = function () {
     $("#loginViewBackIcon").show();
     $("#loginBody").show();
 
-    if (this.controller.models.connection.isOffline()) {
+    if (this.app.models.connection.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
     }
 };
@@ -263,7 +252,7 @@ LoginView.prototype.showErrorMessage = function (message) {
  * @function showErrorMessage
  */
 LoginView.prototype.showDeactivateMessage = function (message) {
-    moblerlog("show deactivate message");
+    console.log("show deactivate message");
     $("#warningmessage").hide();
     $("#errormessage").hide();
     $("#deactivatemessage").text(message);
@@ -327,7 +316,7 @@ LoginView.prototype.selectLMS = function () {
     $("#selectLMS").addClass("gradientSelected");
     self.storeSelectedLMS();
     setTimeout(function () {
-        self.controller.changeView("lms");
+        self.app.changeView("lms");
     }, 100);
 };
 
@@ -339,7 +328,7 @@ LoginView.prototype.selectLMS = function () {
 LoginView.prototype.storeSelectedLMS = function () {
     var selectedLMS = $("#loginLmsLabel").text();
     console.log("stored selected lms is" + JSON.stringify(selectedLMS));
-    this.controller.models.lms.setSelectedLMS(selectedLMS);
+    this.app.models.lms.setSelectedLMS(selectedLMS);
 };
 
 /**
@@ -383,8 +372,8 @@ LoginView.prototype.changeOrientation = function (orientationLayout, w, h) {
  * */
 LoginView.prototype.clickCloseLoginButton = function () {
     //set the active server to be the previous server
-    var lmsModel = this.controller.models.lms;
+    var lmsModel = this.app.models.lms;
     var activeServer = lmsModel.getActiveServer();
     lmsModel.storePreviousServer(activeServer);
-    this.controller.changeView("landing");
+    this.app.changeView("landing");
 };

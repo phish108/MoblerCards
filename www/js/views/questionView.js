@@ -36,10 +36,10 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-function QuestionView(controller) {
+function QuestionView() {
     var self = this;
-    this.controller = controller;
-    this.tagID = this.controller.views.id;
+
+    this.tagID = this.app.views.id;
     var featuredContentId = FEATURED_CONTENT_ID;
     var returnButton = $('#CourseList_FromQuestion')[0];
     if (returnButton) {
@@ -71,7 +71,7 @@ function QuestionView(controller) {
      * @param: a callback function that displays the question text and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
             moblerlog("enters load statistics from server is done in question view");
             self.showQuestionBody();
         }
@@ -85,7 +85,7 @@ function QuestionView(controller) {
     $(document).bind("allstatisticcalculationsdone", function () {
         moblerlog("enters in calculations done in question view1 ");
 
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
             moblerlog("enters in calculations done in question view 2 ");
             self.showQuestionBody();
         }
@@ -96,11 +96,11 @@ QuestionView.prototype.prepare = function () {
     var featuredContentId = FEATURED_CONTENT_ID;
     this.showQuestionTitle();
     this.showQuestionBody();
-    if (!this.controller.models.answer.hasStarted()) {
+    if (!this.app.models.answer.hasStarted()) {
         if (featuredContentId) {
-            this.controller.models.answer.startTimer(featuredContentId);
+            this.app.models.answer.startTimer(featuredContentId);
         } else {
-            this.controller.models.answer.startTimer(this.controller.models.questionpool.getId());
+            this.app.models.answer.startTimer(this.app.models.questionpool.getId());
         }
     }
 };
@@ -111,10 +111,10 @@ QuestionView.prototype.tap = function (event) {
     if (id === "ButtonAnswer" ||
         id === "carQuestionBody" ||
         id === "cardQuestionHeader") {
-        if (this.controller.models.answer.answerScore > -1) {
-            this.controller.changeView("feedback");
+        if (this.app.models.answer.answerScore > -1) {
+            this.app.changeView("feedback");
         } else {
-            this.controller.changeView("answer");
+            this.app.changeView("answer");
         }
     }
 };
@@ -123,10 +123,10 @@ QuestionView.prototype.pinch = function (event) {
     var id = event.target.id;
     
     if (id === "cardQuestionView") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("course");
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
         } else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
 };
@@ -136,7 +136,7 @@ QuestionView.prototype.pinch = function (event) {
  * @function handleSwipe
  **/
 QuestionView.prototype.swipe = function (event) {
-    this.controller.models.questionpool.nextQuestion();
+    this.app.models.questionpool.nextQuestion();
     this.prepare();
 };
 
@@ -146,7 +146,7 @@ QuestionView.prototype.swipe = function (event) {
  **/
 QuestionView.prototype.showQuestionBody = function () {
     console.log("enter question view exclusive content");
-    var currentQuestionBody = this.controller.models.questionpool.getQuestionBody();
+    var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
     console.log("current question body" + currentQuestionBody);
     $("#questionText").html(currentQuestionBody);
     $("#ButtonTip").hide();
@@ -159,7 +159,7 @@ QuestionView.prototype.showQuestionBody = function () {
  * @function showQuestionTitle
  **/
 QuestionView.prototype.showQuestionTitle = function () {
-    var currentQuestionType = this.controller.models.questionpool.getQuestionType();
+    var currentQuestionType = this.app.models.questionpool.getQuestionType();
 
     $("#questionIcon").removeClass();
 
@@ -172,10 +172,10 @@ QuestionView.prototype.showQuestionTitle = function () {
  * @function clickCourseListButton
  **/
 QuestionView.prototype.clickCourseListButton = function (featuredContentId) {
-    this.controller.models.answer.resetTimer();
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("course");
+    this.app.models.answer.resetTimer();
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     } else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };

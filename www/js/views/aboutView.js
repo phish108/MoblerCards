@@ -45,28 +45,28 @@ function AboutView() {
 
 AboutView.prototype.prepare = function () {
     this.loadData();
-    this.controller.models.configuration.loadFromServer();
+    this.app.models.configuration.loadFromServer();
 };
 
 AboutView.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "closeAboutIcon") {
-        if (this.controller.getLoginState()) {
-            this.controller.changeView("settings");
+        if (this.app.getLoginState()) {
+            this.app.changeView("settings");
         }
         else {
-            this.controller.changeView("landing");
+            this.app.changeView("landing");
         }
     }
 };
 
 AboutView.prototype.pinch = function (event) {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("settings");
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
     }
     else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -76,11 +76,11 @@ AboutView.prototype.pinch = function (event) {
  * @function logout
  **/
 AboutView.prototype.logout = function () {
-    if (this.controller.getLoginState()) {
-        this.controller.changeView("logout");
+    if (this.app.getLoginState()) {
+        this.app.changeView("logout");
     }
     else {
-        this.controller.changeView("landing");
+        this.app.changeView("landing");
     }
 };
 
@@ -93,7 +93,7 @@ AboutView.prototype.logout = function () {
  * @function loadData
  **/
 AboutView.prototype.loadData = function () {
-    var config = this.controller.models.configuration;
+    var config = this.app.models.configuration;
 
     $("#logos").show();
 };

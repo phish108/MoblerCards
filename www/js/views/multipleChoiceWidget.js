@@ -44,7 +44,7 @@ under the License.
 function MultipleChoiceWidget(interactive) {
     var self = this;
 
-    self.tickedAnswers = this.controller.models.answer.getAnswers(); // a list with the currently selected answers
+    self.tickedAnswers = this.app.models.answer.getAnswers(); // a list with the currently selected answers
     self.interactive = interactive;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
@@ -77,7 +77,7 @@ MultipleChoiceWidget.prototype.cleanup = function () {};
  * @function showAnswer
  **/
 MultipleChoiceWidget.prototype.showAnswer = function () {
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = this.app.models['questionpool'];
 
     $("#cardAnswerBody").empty();
 
@@ -85,7 +85,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
 
-        var questionpoolModel = controller.models["questionpool"];
+        var questionpoolModel = this.app.models["questionpool"];
         var answers = questionpoolModel.getAnswer(); //returns an array containing the possible answers
         var mixedAnswers;
         //mix answer items in an random order
@@ -168,12 +168,12 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 MultipleChoiceWidget.prototype.showFeedback = function () {
-    moblerlog("start show feedback in multiple choice");
+    console.log("start show feedback in multiple choice");
 
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
     var self = this;
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = this.app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
 
@@ -235,9 +235,8 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
         "class": "spacerMargin"
     }).insertAfter(shadoweddiv);
 
-    moblerlog("enter feedback view after switching from question view");
+    console.log("enter feedback view after switching from question view");
 };
-
 
 /**
  * Handling behavior when click on the an item of the multiple answers list
@@ -251,7 +250,6 @@ MultipleChoiceWidget.prototype.clickMultipleAnswerItem = function (
     clickedElement.toggleClass("gradientSelected");
 };
 
-
 /**
  * Storing the ticked answers in an array
  * @prototype
@@ -259,7 +257,7 @@ MultipleChoiceWidget.prototype.clickMultipleAnswerItem = function (
  **/
 MultipleChoiceWidget.prototype.storeAnswers = function () {
     var answers = new Array();
-    var questionpoolModel = controller.models["questionpool"];
+    var questionpoolModel = this.app.models.questionpool;
 
     $("#cardAnswerBody li").each(function (index) {
         if ($(this).hasClass("gradientSelected")) {
@@ -268,9 +266,8 @@ MultipleChoiceWidget.prototype.storeAnswers = function () {
         }
     });
 
-    controller.models["answers"].setAnswers(answers);
+    this.app.models.answers.setAnswers(answers);
 };
-
 
 /**
  * Sets the height of the list items that contain correct answers
