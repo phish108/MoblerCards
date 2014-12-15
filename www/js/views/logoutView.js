@@ -56,7 +56,6 @@ LogoutView.prototype.tap = function (event) {
     }
     else if (id === "logOut") {
         this.logout(featuredContentId);
-        event.stopPropagation();
     }
 };
 

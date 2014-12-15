@@ -289,7 +289,6 @@ function createEvent(type, event) {
         false, 0, null);
 
     first.target.dispatchEvent(simulatedEvent);
-    event.preventDefault();
 }
 
 
@@ -303,6 +302,4 @@ TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
         $(this).find(".correctAnswer").height(height);
         $(this).find(".correctAnswer").css("line-height", height + "px");
     });
-
-
 }

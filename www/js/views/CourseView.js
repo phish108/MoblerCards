@@ -138,11 +138,9 @@ CourseView.prototype.tap = function (event) {
         this.clickFeaturedStatisticsIcon(featuredContent_id);
     }
     else if (id === "courseTitle" + courseID) {
-        event.stopPropagation();
         this.clickCourseItem($(this).parent().attr('id').substring(6));
     }
     else if (id === "courseListIcon" + courseID) {
-        event.stopPropagation();
         this.clickStatisticsIcon($(this).parent().attr('id').substring(6));
     }
 };

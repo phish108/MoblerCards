@@ -48,15 +48,11 @@ function LandingView(controller) {
     $('#featuredContent').bind("touchstart", function (e) {
         $("#featuredContent").addClass("gradientSelected");
         console.log("color changed in featured content touchstart");
-        e.preventDefault();
-        e.stopPropagation();
     });
 
     $('#selectExclusiveContent').bind("touchstart", function (e) {
         console.log(" enters in landing view 2 ");
         $("#selectExclusiveContent").addClass("gradientSelected");
-        e.preventDefault();
-        e.stopPropagation();
     });
 
     /** 
@@ -105,6 +101,8 @@ LandingView.prototype.cleanup = function () {
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
+    
+    console.log("[LandingView] tap registered: " + id);
     
     if (id === "selectarrowLanding") {
         this.clickFeaturedStatisticsIcon(featuredContentId);

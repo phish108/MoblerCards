@@ -45,7 +45,6 @@ function QuestionView(controller) {
     if (returnButton) {
         function cbReturnButtonTap(event, featuredContentId) {
             self.clickCourseListButton(featuredContentId);
-            event.stopPropagation();
         }
 
         jester(returnButton).tap(cbReturnButtonTap);

@@ -246,7 +246,6 @@ function createEvent(type, event) {
         false, 0, null);
 
     first.target.dispatchEvent(simulatedEvent);
-    event.preventDefault();
 }
 
 //sets the height property of the list items that contain correct answers

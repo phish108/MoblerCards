@@ -152,7 +152,6 @@ LoginView.prototype.tap = function (event) {
         focusLogos(event);
     }
     else if (id === "selectLMS") {
-        event.stopPropagation();
         this.selectLMS();
     }
 };
