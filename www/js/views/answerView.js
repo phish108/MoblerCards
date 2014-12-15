@@ -1,7 +1,4 @@
-/**
- * .0	THIS COMMENT MUST NOT BE REMOVED
-
-
+/*** .0	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -19,7 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
 */
-
 
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
@@ -42,12 +38,13 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
+// TODO get rid of css elements
 function AnswerView(controller) {
     var self = this;
     self.controller = controller;
-    self.tagID = 'cardAnswerView';
+    self.tagID = self.controller.viewId;
     self.widget = null;
-    var featuredContent_id = FEATURED_CONTENT_ID;
+    var featuredContentId = FEATURED_CONTENT_ID;
 
     // center the answer body to the middle of the screen of the answer view
     function setOrientation() {
@@ -65,8 +62,9 @@ function AnswerView(controller) {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters load statistics from server is done in answer view 1");
+        if ((self.tagID === self.controller.isActiveView) && 
+            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("enters load statistics from server is done in answer view 1");
             self.showAnswerBody();
         }
     });
@@ -76,9 +74,10 @@ function AnswerView(controller) {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("allstatisticcalculationsdone", function () {
-        moblerlog("enters in calculations done in question view1 ");
-        if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters in calculations done in  answer view 2 ");
+        console.log("enters in calculations done in question view1 ");
+        if ((self.tagID === self.controller.isActiveView) &&
+            (self.controller.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("enters in calculations done in  answer view 2 ");
             self.showAnswerBody();
         }
     });
@@ -92,7 +91,7 @@ function AnswerView(controller) {
  * @function open
  **/
 AnswerView.prototype.prepare = function (featuredContent_id) {
-    moblerlog("opes answer view");
+    console.log("opes answer view");
     this.showAnswerTitle();
     this.showAnswerBody();
     this.controller.resizeHandler();
@@ -101,7 +100,7 @@ AnswerView.prototype.prepare = function (featuredContent_id) {
 };
 
 AnswerView.prototype.tap = function (event) {
-    var id = event.targetid;
+    var id = event.target.id;
 
     if (id === "CourseList_FromAnswer") {
         if (this.controller.getLoginState()) {
@@ -138,7 +137,6 @@ AnswerView.prototype.pinch = function () {
  * @function showAnswerBody
  **/
 AnswerView.prototype.showAnswerBody = function () {
-
     $("#dataErrorMessage").empty();
     $("#dataErrorMessage").hide();
     $("#cardAnswerBody").empty();
@@ -181,7 +179,7 @@ AnswerView.prototype.showAnswerBody = function () {
  * @function showAnswerTitle
  **/
 AnswerView.prototype.showAnswerTitle = function () {
-    var currentAnswerTitle = controller.models["questionpool"].getQuestionType();
+    var currentAnswerTitle = this.controller.models.questionpool.getQuestionType();
     $("#answerIcon").removeClass();
     $("#answerIcon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#cardAnswerTitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));

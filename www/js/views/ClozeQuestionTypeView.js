@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -19,11 +17,9 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
    
-
 */
 
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
@@ -100,7 +96,6 @@ ClozeQuestionTypeView.prototype.showFeedback = function () {
     var domElement = $("#feedbackBody");
     var domString = "#feedbackBody";
     createClozeQuestionBody(domElement);
-
 };
 
 
@@ -209,7 +204,7 @@ function createClozeQuestionBody(domElement, interactive) {
                 // if yes add the green icon check mark, otherwise nothing
                 "class": (answerModel.checkFilledAnswer(filledAnswer, i) ? "right icon-checkmark glow2" : " ")
             }).appendTo(div2);
-
+            var j = 0;
             if (!answerModel.checkFilledAnswer(filledAnswer, i)) { //if the filled gap is wrong
                 console.log("design the correct options");
                 //add new li elements under the specific filled gap that will contain the correct options
