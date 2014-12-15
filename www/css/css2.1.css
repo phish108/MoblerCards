@@ -264,7 +264,6 @@ ul {
     border-bottom: solid 0px white;
 }
 #landingBody {
-    display: none;
     z-index: 10;
 }
 #loginBody {
@@ -407,9 +406,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 }
 /****Landing View*****/
 
-#landingViewHeader {
-    display: none;
-}
 #landingViewBackIcon {
     display: none;
 }
