@@ -108,8 +108,8 @@ MoblerCards.prototype.onBack = function () {};
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
+    this.appLoaded = true;
     this.changeView("landing");
-    //    this.appLoaded = true;
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -351,7 +351,7 @@ MoblerCards.prototype.resizeHandler = function () {
         console.log("we are in landscape mode");
     } // e.g. Landscape mode
     // window.width / window.height > 1 portrait
-    this.activeView.changeOrientation(orientationLayout, w, h);
+//    this.activeView.changeOrientation(orientationLayout, w, h);
 };
 
 /**
@@ -365,3 +365,60 @@ MoblerCards.prototype.checkclickOutOfStatisticsIcon = function () {
     console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
     return this.clickOutOfStatisticsIcon;
 };
+
+
+MoblerCards.prototype.injectStyle = function () {
+    console.log("enter inject Style");
+    var h = $(window).height(),
+        w = $(window).width();
+
+    if (h < w) { // oops we are in ladscape mode
+        var t = w;
+        w = h;
+        h = t;
+    }
+
+    // calculate the heights once and forever. 
+    var cfl = w - 54,
+        cfp = h - 54,
+        cl = w - 102,
+        cp = h - 108;
+    var style;
+
+    style = '@media all and (orientation:portrait) { ';
+    style += '   .content { height: ' + cp + "px; }";
+    style += '   .content.full { height: ' + cfp + "px; }";
+    style += "} ";
+    style += '@media all and (orientation:landscape) { ';
+    style += '   .content { height: ' + cl + "px; }";
+    style += '   .content.full { height: ' + cfl + "px; }";
+    style += "} ";
+
+    var e = $('<style/>', {
+        'type': 'text/css',
+        'text': style
+    });
+
+    $('head').append(e);
+}
+
+/**
+ * 	Does the aproropriate calculations when we click on a course item
+ * 	either it is featured content or exclusive content.
+ *  and after loading the data and setting the correct course id we do
+ *  the transiton to the question view as long as we have valid data.
+ *  @function selectCourseItem
+ * 	@ param{string or number}, courseId, the id of the current course
+ * */
+MoblerCards.prototype.selectCourseItem = function (courseId) {
+    this.models.questionpool.reset(); 
+    //add it within the loadData, similar with statistics (setcurrentCourseId function)...
+    this.models.questionpool.loadData(courseId);
+    if (this.models.questionpool.dataAvailable()) {
+        this.models.answer.setCurrentCourseId(courseId);
+        console.log("enters clickFeauturedItem");
+        this.changeView("question");
+    } else {
+        console.log("[ERROR]@selectCourseItem()");
+    }
+}
