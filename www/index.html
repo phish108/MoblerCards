@@ -18,7 +18,7 @@
 </head>
 
 <body id="myDoc">
-    <div id="splash" class="screen" data-view="SplashView">
+    <div id="splash" class="screen active" data-view="SplashView">
         <div class="viewblock cover">
             <div class="viewblock cover">
                 <div id="loading">
@@ -30,8 +30,8 @@
         </div>
     </div>
 
-    <div id="landing" class="screen" data-view="LandingView" data-touch="touch">
-        <div id="landingViewHeader" class="landingHeader">
+    <div id="landing" class="screen" data-view="LandingView" data-touch="tap">
+        <div id="landingViewHeader" class="landingHeader" data-touch="tap">
             <div id="landingViewTitle" class="title landingTitle">
                 <span class="title1">Mobler </span>
                 <span class="title2">Cards</span>
@@ -42,7 +42,7 @@
                 <div id="card1Login" class="card1">N</div>
             </div>
         </div>
-        <div id="landingBody" class="content full">
+        <div id="landingBody" class="content full" data-touch="tap">
             <div>
                 <ul id="landingElements">
                     <li id="featuredContent" class=" courseLiContainer gradient2">
@@ -58,23 +58,6 @@
 
                         <div id="selectarrowLanding" class="lineContainer selectItemContainer select gridContainer icon-bars"></div>
                     </li>
-                    <!--<li>
-                        <div id="selectFreeContent" class="selectWidget gradient2">
-                                <div class=" left lineContainer selectItemContainer ">
-                                    <span class="select icon-dash"></span>
-                                </div>
-                                <div id="leftElementLanding" class="labelContainer">
-                                    <div id="freeCourseLabel" class="lsmlabel textShadow"></div>
-                                </div>
-                                <span id="rightElementsLanding" class="right">
-                        <div id="separatorLandingFreeContent" class="lineContainer separatorContainerCourses radial"></div>
-                                    <div id="selectarrow"
-                                        class="lineContainer selectItemContainer select">
-                                        <span class="icon-enter"></span>
-                                    </div>
-                                </span>
-                            </div>
-                        </li>  -->
                     <li id="selectExclusiveContent" class="courseLiContainer gradient2">
                         <div class=" dashContainer lineContainer selectItemContainer ">
                             <span class="select icon-dash"></span>
@@ -653,7 +636,7 @@
     <script type="text/javascript" src="js/common.js"></script>
 
     <script type="text/javascript" src="js/contrib/jester2.js"></script>
-    <script type="text/javascript" src="js/contrib/jquery.js"></script>
+    <script type="text/javascript" src="js/contrib/jquery2.js"></script>
     <script type="text/javascript" src="js/contrib/jquery-ui.js"></script>
     <script type="text/javascript" src="js/contrib/jquery.i18n.properties-1.0.9.js"></script>
 

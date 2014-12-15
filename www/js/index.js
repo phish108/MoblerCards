@@ -108,6 +108,7 @@ MoblerCards.prototype.onBack = function () {};
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
+    this.changeView("landing");
     //    this.appLoaded = true;
 };
 
