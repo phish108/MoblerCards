@@ -49,11 +49,11 @@ function SingleChoiceWidget(interactive) {
     // and an error message is displayed on the screen
     self.didApologize = false;
 
-    moblerlog('check for previous answers');
+    console.log('check for previous answers');
     // a list  with the currently  selected answers
     self.tickedAnswers = controller.models["answers"].getAnswers();
 
-    moblerlog('ok');
+    console.log('ok');
 
     // Check the boolean value of interactive. This is set through the answer and
     // feedback view.
@@ -174,7 +174,7 @@ SingleChoiceWidget.prototype.showAnswer = function () {
  **/
 SingleChoiceWidget.prototype.showFeedback = function () {
 
-    moblerlog("enter feedback view after switching from question view");
+    console.log("enter feedback view after switching from question view");
 
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
