@@ -51,7 +51,7 @@ function SingleChoiceWidget(interactive) {
 
     console.log('check for previous answers');
     // a list  with the currently  selected answers
-    self.tickedAnswers = controller.models["answers"].getAnswers();
+    self.tickedAnswers = app.models.answer.getAnswers();
 
     console.log('ok');
 
@@ -69,14 +69,6 @@ function SingleChoiceWidget(interactive) {
 }
 
 /**
- * doNothing
- * @prototype
- * @function cleanup
- **/
-SingleChoiceWidget.prototype.cleanup = doNothing;
-
-
-/**
  * Creation of answer body for single choice questions. It contains a list with
  * the possible solutions which have been firstly mixed in a random order.
  * Only one of them can be ticked each time.
@@ -84,7 +76,7 @@ SingleChoiceWidget.prototype.cleanup = doNothing;
  * @function showAnswer
  **/
 SingleChoiceWidget.prototype.showAnswer = function () {
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = app.models.questionpool;
 
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
@@ -180,7 +172,7 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     $("#feedbackTip").empty();
 
     var self = this;
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
 
@@ -193,10 +185,9 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     for (var c = 0; c < mixedAnswers.length; c++) {
         // when an answer item is clicked a highlighted background color is
         // applied to it via "ticked" class
-        var li = $(
-            "<li/>", {
-                "id": "answer" + mixedAnswers[c],
-                "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
+        var li = $("<li/>", {
+            "id": "answer" + mixedAnswers[c],
+            "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
             }).appendTo(ul);
 
         var rightDiv = $("<div/>", {
@@ -210,14 +201,12 @@ SingleChoiceWidget.prototype.showFeedback = function () {
 
 
         div = $("<div/>", {
-            //"class" : "courseListIcon right gradient2"
             "id": "iconContainer" + mixedAnswers[c],
             "class": "courseListIconFeedback lineContainer background"
         }).appendTo(rightDiv);
 
         span = $("<div/>", {
             "id": "courseListIcon" + mixedAnswers[c],
-            //"class" : (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ?  "right green icon-checkmark" : ($(li).hasClass("gradientSelected"))?"right red icon-App-Icons glowRed" :"")
             "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
         }).appendTo(div);
 
@@ -241,9 +230,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     var marginLi = $("<li/>", {
         "class": "spacerMargin"
     }).appendTo(ul);
-
-    var questionpoolModel = controller.models["questionpool"];
-
 };
 
 /**
@@ -273,7 +259,7 @@ SingleChoiceWidget.prototype.storeAnswers = function () {
         }
     });
 
-    controller.models["answers"].setAnswers(answers);
+    app.models.answer.setAnswers(answers);
 };
 
 
@@ -284,17 +270,8 @@ SingleChoiceWidget.prototype.storeAnswers = function () {
  **/
 SingleChoiceWidget.prototype.setCorrectAnswerTickHeight = function () {
     $("#feedbackBody ul li").each(function () {
-        height = $(this).height();
+        var height = $(this).height();
         $(this).find(".correctAnswer").height(height);
         $(this).find(".correctAnswer").css("line-height", height + "px");
     });
 };
-
-
-/**
- * handles dynamically any change that should take place on the layout
- * when the orientation changes.
- * @prototype
- * @function changeOrientation
- **/
-SingleChoiceWidget.prototype.changeOrientation = doNothing;

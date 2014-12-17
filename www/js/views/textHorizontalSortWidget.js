@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -18,8 +15,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
 
 
@@ -42,7 +37,7 @@ function HorizontalTextSortWidget(interactive) {
     // loads answers from model for displaying already by the user ordered
     // elements
 
-    self.tickedAnswers = controller.models["answers"].getAnswers();
+    self.tickedAnswers = app.models.answer.getAnswers();
     self.interactive = interactive;
 
     this.didApologize = false;
@@ -54,15 +49,13 @@ function HorizontalTextSortWidget(interactive) {
     }
 }
 
-HorizontalTextSortWidget.prototype.cleanup = doNothing;
-
 /**
  * displays the answer for text sort questions
  */
 HorizontalTextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
-    var questionpoolModel = controller.models["questionpool"];
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
 
     $("#cardAnswerBody").empty();
@@ -71,12 +64,12 @@ HorizontalTextSortWidget.prototype.showAnswer = function () {
 
         // create a new unordered list
         var ul = $("<ul/>", {
-            "class": "sortable"
+            "class": "sortable gradient2"
         }).appendTo("#cardAnswerBody");
 
         var mixedAnswers;
 
-        // if sorting has not started yet, mix the answers
+        // if sortingh has not started yet, mix the answers
         if (!questionpoolModel.currAnswersMixed()) {
             var tmp_answerModel = new AnswerModel();
             do {
@@ -88,7 +81,8 @@ HorizontalTextSortWidget.prototype.showAnswer = function () {
                 tmp_answerModel.setAnswers(mixedAnswers);
                 tmp_answerModel.calculateTextSortScore();
             } while (tmp_answerModel.getAnswerResults() != "Wrong");
-        } else {
+        } 
+        else {
             mixedAnswers = this.tickedAnswers;
         }
 
@@ -107,25 +101,38 @@ HorizontalTextSortWidget.prototype.showAnswer = function () {
             }).appendTo(li);
         }
 
-        // make the list sortable using JQuery UI's function
-        $(".sortable").sortable({
-            placeholder: "placeholder",
-            scrollSensitivity: 10,
-            disabled: false,
-            start: function (event, ui) {
-                $(ui.item).addClass("currentSortedItem");
-            },
-            stop: function (event, ui) {
-                $(ui.item).removeClass("currentSortedItem");
-            }
-        });
-        $(".sortable").disableSelection();
+        var lastli = $("<li/>", {}).appendTo(ul);
 
-        self.enableSorting();
-    } else {
-        this.didApologize = true;
-        doApologize();
+        "id": "lastHSortingLi",
+        "class": "gradient1 shadowedLi"
+    }).appendTo(lastli);
+
+
+//add some space, so that to enable scrolling in landscape mode
+var marginli = $("<li/>", {
+    "class": "spacerMargin"
+}).appendTo(ul);
+
+
+// make the list sortable using JQuery UI's function
+$(".sortable").sortable({
+    placeholder: "placeholder",
+    scrollSensitivity: 10,
+    disabled: false,
+    start: function (event, ui) {
+        $(ui.item).addClass("currentSortedItem");
+    },
+    stop: function (event, ui) {
+        $(ui.item).removeClass("currentSortedItem");
     }
+});
+$(".sortable").disableSelection();
+
+self.enableSorting();
+} else {
+    this.didApologize = true;
+    doApologize();
+}
 
 };
 
@@ -139,22 +146,23 @@ HorizontalTextSortWidget.prototype.showFeedback = function () {
         disabled: true
     });
 
-    var ul = $("<ul/>", {}).appendTo("#feedbackBody");
+    var ul = $("<ul/>", {
+        "class": "gradient2"
+    }).appendTo("#feedbackBody");
 
-    var questionpoolModel = controller.models["questionpool"];
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
-    var answerModel = controller.models["answers"];
+    var answerModel = app.models.answer;
     var scores = answerModel.getScoreList();
 
     // iterate over all answers
     for (var i = 0; i < answers.length; i++) {
         var li = $("<li/>", {
-            "class": (scores[i] == "1" || scores[i] == "1.5") ? "ticked" : ""
+            "class": (scores[i] == "1" || scores[i] == "1.5") ? "gradientSelected" : " "
         }).appendTo(ul);
 
         var div = $("<div/>", {
             "class": "text",
-            //text : answers[i].answertext
             text: answers[i]
         }).appendTo(li);
 
@@ -197,7 +205,7 @@ HorizontalTextSortWidget.prototype.storeAnswers = function () {
         answers.push(id);
     });
 
-    controller.models["answers"].setAnswers(answers);
+    app.models.answer.setAnswers(answers);
 };
 
 

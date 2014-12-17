@@ -44,7 +44,7 @@ under the License.
 function MultipleChoiceWidget(interactive) {
     var self = this;
 
-    self.tickedAnswers = this.app.models.answer.getAnswers(); // a list with the currently selected answers
+    self.tickedAnswers = app.models.answer.getAnswers(); // a list with the currently selected answers
     self.interactive = interactive;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
@@ -77,7 +77,7 @@ MultipleChoiceWidget.prototype.cleanup = function () {};
  * @function showAnswer
  **/
 MultipleChoiceWidget.prototype.showAnswer = function () {
-    var questionpoolModel = this.app.models['questionpool'];
+    var questionpoolModel = app.models.questionpool;
 
     $("#cardAnswerBody").empty();
 
@@ -85,7 +85,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
 
-        var questionpoolModel = this.app.models["questionpool"];
+        questionpoolModel = app.models.questionpool;
         var answers = questionpoolModel.getAnswer(); //returns an array containing the possible answers
         var mixedAnswers;
         //mix answer items in an random order
@@ -123,7 +123,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
             }).appendTo(rightDiv);
 
 
-            div = $("<div/>", {
+            var div = $("<div/>", {
                 //"class" : "courseListIcon right gradient2"
                 "id": "iconContainer" + mixedAnswers[c],
                 "class": "courseListIconFeedback lineContainer"
@@ -173,15 +173,9 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
     var self = this;
-    var questionpoolModel = this.app.models.questionpool;
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
-
-
-    // clone the answerbody, 
-    //	var clone = $("#cardAnswerBody ul").clone(); 
-    //	clone.appendTo("#feedbackBody"); 
-    //	
 
     var ul = $("<ul/>", {
         "z-index": " 7"
@@ -214,7 +208,6 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
 
         span = $("<span/>", {
             "id": "courseListIcon" + mixedAnswers[c],
-            // "class" : (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0  ? "right icon-checkmark glow2 background" : ($(li).hasClass("gradientSelected")) ?"right icon-checkmark glowNone background": "")
             "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
         }).appendTo(div);
 
@@ -257,7 +250,7 @@ MultipleChoiceWidget.prototype.clickMultipleAnswerItem = function (
  **/
 MultipleChoiceWidget.prototype.storeAnswers = function () {
     var answers = new Array();
-    var questionpoolModel = this.app.models.questionpool;
+    var questionpoolModel = app.models.questionpool;
 
     $("#cardAnswerBody li").each(function (index) {
         if ($(this).hasClass("gradientSelected")) {
@@ -266,7 +259,7 @@ MultipleChoiceWidget.prototype.storeAnswers = function () {
         }
     });
 
-    this.app.models.answers.setAnswers(answers);
+    app.models.answer.setAnswers(answers);
 };
 
 /**

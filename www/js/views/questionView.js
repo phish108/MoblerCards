@@ -39,9 +39,10 @@ under the License.
 function QuestionView() {
     var self = this;
 
-    this.tagID = this.app.views.id;
+    this.tagID = this.app.viewId;
     var featuredContentId = FEATURED_CONTENT_ID;
     var returnButton = $('#CourseList_FromQuestion')[0];
+    
     if (returnButton) {
         function cbReturnButtonTap(event, featuredContentId) {
             self.clickCourseListButton(featuredContentId);
@@ -162,7 +163,6 @@ QuestionView.prototype.showQuestionTitle = function () {
     var currentQuestionType = this.app.models.questionpool.getQuestionType();
 
     $("#questionIcon").removeClass();
-
     $("#questionIcon").addClass(jQuery.i18n.prop('msg_' + currentQuestionType + '_icon'));
 
 };

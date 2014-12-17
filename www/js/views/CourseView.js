@@ -164,7 +164,7 @@ CourseView.prototype.pinch = function (event) {
  **/
 CourseView.prototype.clickCourseItem = function (course_id) {
     if (this.app.models.course.isSynchronized(course_id)) {
-        selectCourseItem(course_id);
+        this.app.selectCourseItem(course_id);
     }
 };
 
@@ -366,7 +366,7 @@ CourseView.prototype.clickFeaturedItem = function (featuredContentId) {
     //	NEW
     //	var featuredModel = self.app.models['featured'];
     //	var feauturedId= featuredModel.getId();
-    selectCourseItem(featuredContentId);
+    this.app.selectCourseItem(featuredContentId);
     //}end of isSynchronized
 };
 

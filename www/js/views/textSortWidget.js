@@ -53,7 +53,7 @@ function TextSortWidget(interactive) {
     // loads answers from model for displaying already by the user ordered
     // elements
 
-    self.tickedAnswers = controller.models["answers"].getAnswers();
+    self.tickedAnswers = app.models.answer.getAnswers();
     self.interactive = interactive;
 
     this.didApologize = false;
@@ -80,7 +80,7 @@ TextSortWidget.prototype.cleanup = doNothing;
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
-    var questionpoolModel = controller.models["questionpool"];
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
 
     $("#cardAnswerBody").empty();
@@ -182,9 +182,9 @@ TextSortWidget.prototype.showFeedback = function () {
         "class": "gradient2"
     }).appendTo("#feedbackBody");
 
-    var questionpoolModel = controller.models["questionpool"];
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
-    var answerModel = controller.models["answers"];
+    var answerModel = app.models.answer;
     var scores = answerModel.getScoreList();
 
     // iterate over all answers
@@ -278,6 +278,17 @@ TextSortWidget.prototype.enableSorting = function () {
     });
 };
 
+/**sets the height property of the list items that contain correct answers
+ * @prototype
+ * @function setCorrectAnswerTickHeight
+ **/
+TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
+    $("#feedbackBody ul li").each(function () {
+        height = $(this).height();
+        $(this).find(".correctAnswer").height(height);
+        $(this).find(".correctAnswer").css("line-height", height + "px");
+    });
+}
 
 //creates a new mouse event of the specified type
 
@@ -289,17 +300,4 @@ function createEvent(type, event) {
         false, 0, null);
 
     first.target.dispatchEvent(simulatedEvent);
-}
-
-
-/**sets the height property of the list items that contain correct answers
- * @prototype
- * @function setCorrectAnswerTickHeight
- **/
-TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
-    $("#feedbackBody ul li").each(function () {
-        height = $(this).height();
-        $(this).find(".correctAnswer").height(height);
-        $(this).find(".correctAnswer").css("line-height", height + "px");
-    });
 }
