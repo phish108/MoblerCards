@@ -375,14 +375,7 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     var lmsModel = self.app.models.lms;
 
     self.checkLoadingStatus(servername);
-
-//    if ($("#lmsWaiting" + servername).hasClass("icon-cross red")) {
-//        console.log("cannot do anything because the lms item is selected");
-//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-//            e.preventDefault();
-//            $("#selectLMSitem" + previousSelectedLMSname).addClass("gradientSelected");
-//        });
-//    } 
+ 
     if ($("#lmsImage" + servername).is(":visible")) {
         this.previousSelectedLMSname = lmsitem.attr("id").substring(13);
         
@@ -406,9 +399,6 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
 LMSView.prototype.checkLoadingStatus = function (servername) {
     if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
         console.log("deactivate li item when trying to connect");
-//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-//            e.preventDefault();
-//        });
     }
 };
 
@@ -420,9 +410,6 @@ LMSView.prototype.checkLoadingStatus = function (servername) {
 LMSView.prototype.checkInactiveStatus = function (servername) {
     if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
         console.log("deactivate li item when trying to connect");
-//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-//            e.preventDefault();
-//        });
     }
 };
 
@@ -460,9 +447,7 @@ LMSView.prototype.showLMSConnectionMessage = function (message, servername) {
         $("#lmserrormessage" + servername).slideUp(600);
     }, 2300);
     setTimeout(function () {
-        //	$("#lms"+servername).removeClass("gradientSelected");
         self.hideRotation(servername);
-        //self.deselectItemVisuals(servername);
     }, 2800);
 };
 
