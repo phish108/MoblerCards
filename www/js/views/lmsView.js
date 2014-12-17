@@ -43,6 +43,7 @@ function LMSView() {
     this.firstLoad = true;
     this.didApologize = false;
     this.messageShown = false;
+    this.previousSelectedLMSname;
 
     /**It is triggered when an unregistered lms item is selected and and there is no internet connection
      * @event lmsOffline
@@ -143,9 +144,18 @@ LMSView.prototype.cleanup = function () {
  **/
 LMSView.prototype.tap = function (event) {
     var id = event.target.id;
+    var sn = id.substring(5);
+   
+    console.log("[LMSView] tap registered: " + id + " " + sn);
     
     if (id === "closeLMSIcon") {
-        this.closeLMS();
+        this.back();
+    }
+    else if (id.substring(0,5) === "label")  { 
+        this.clickLMSItem(sn, $(this));
+        if ($("#lmsWaiting" + sn).hasClass("icon-cross red")) {
+            $("#selectLMSitem" + this.previousSelectedLMSname).addClass("gradientSelected");
+        }
     }
 };
 
@@ -209,7 +219,6 @@ LMSView.prototype.createLMSItem = function (ul, lmsData) {
     var self = this;
     var sn = lmsData.servername;
     var lmsModel = self.app.models.lms;
-    console.log("sn is " + sn);
     var selectedLMS = this.app.models.lms.getSelectedLMS();
 
     var li = $(
@@ -217,10 +226,6 @@ LMSView.prototype.createLMSItem = function (ul, lmsData) {
             "id": "selectLMSitem" + sn,
             "class": (selectedLMS === lmsData.logoLabel ? "gradientSelected" : "gradient2 textShadow")
         }).appendTo(ul);
-    console.log("the first lms is" + sn);
-
-    // create the div container within the li element
-    // that will host the image and logo of the lms's
 
     var rightDiv = $("<div/>", {
         "id": "rightDivLMS" + sn,
@@ -236,26 +241,17 @@ LMSView.prototype.createLMSItem = function (ul, lmsData) {
         "id": "imageContainer" + sn,
         "class": " courseListIconLMS lmsIcon "
     }).appendTo(rightDiv);
-
-    console.log("[LMSVIew] isRegistrable: " + lmsModel.isRegistrable(sn));
-    
+     
     var img = $("<img/>", {
-        "id": "lmsState" + sn,
-        "class": (lmsModel.isRegistrable(sn) ? "imageLogoLMS " : "icon-cross red "),
+        "id": "lmsImage" + sn,
+        "class": (lmsModel.isRegistrable(sn) ? "imageLogoLMS" : "hidden"),
         "src": lmsData.logoImage
     }).appendTo(div);
-    
-//    
-//    var img = $("<img/>", {
-//        "id": "lmsImage" + sn,
-//        "class": (lmsModel.isRegistrable(sn) ? "imageLogoLMS" : "hidden"),
-//        "src": lmsData.logoImage
-//    }).appendTo(div);
-//
-//    $("<div/>", {
-//        "id": "lmsWaiting" + sn,
-//        "class": (lmsModel.isRegistrable(sn) ? "hidden" : "icon-cross red") 
-//    }).appendTo(div);
+
+    $("<div/>", {
+        "id": "lmsWaiting" + sn,
+        "class": (lmsModel.isRegistrable(sn) ? "hidden" : "icon-cross red") 
+    }).appendTo(div);
 
     var div1 = $("<div/>", {
         "class": "left lineContainer selectItemContainer"
@@ -272,15 +268,7 @@ LMSView.prototype.createLMSItem = function (ul, lmsData) {
         // check if the lms has failed to register for less than 24 hours 
         // and display light grey font color
         "text": lmsData.logoLabel
-    }).appendTo(li);
-
-    // FIXME need to catch this event in this.tap();
-    var prevent = true;
-    jester(li[0]).tap(function (e, prevent) {
-        e.preventDefault();
-        e.stopPropagation();
-        self.clickLMSItem(sn, $(this));
-    });
+    }).appendTo(li);    
 };
 
 /**
@@ -291,7 +279,7 @@ LMSView.prototype.createLMSItem = function (ul, lmsData) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.selectItemVisuals = function (servername) {
-    $("#selectLMSitem" + servername).addClass("lightShadow gradientSelected");
+    $("#selectLMSitem" + servername).addClass("lightShadow gradientSelected ");
     $("#selectLMSitem" + servername).removeClass("textShadow");
 };
 
@@ -303,7 +291,7 @@ LMSView.prototype.selectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deselectItemVisuals = function (servername) {
-    $("#selectLMSitem" + servername).removeClass("lightShadow gradientSelected");
+    $("#selectLMSitem" + servername).removeClass("lightShadow gradientSelected ");
     $("#selectLMSitem" + servername).addClass("textShadow");
 };
 
@@ -316,18 +304,13 @@ LMSView.prototype.deselectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deactivateLMS = function (servername) {
-//    $("#lmsWaiting" + servername).removeClass("icon-loading loadingRotation");
-//    console.log("loading rotation has been removed");
-//    $("#lmsImage" + servername).hide();
-//    $("#lmsWaiting" + servername).addClass("icon-cross red");
-//    $("#lmsWaiting" + servername).show();
+    $("#lmsWaiting" + servername).removeClass("icon-loading loadingRotation");
+    $("#lmsWaiting" + servername).addClass("icon-cross red");
+    $("#lmsWaiting" + servername).show();
+    $("#lmsImage" + servername).hide();
     
     $("#label" + servername).addClass("lightgrey");
     $("#lmsDash" + servername).removeClass("select").addClass("dashGrey");
-    
-    $("#lmsState" + servername).removeClass("icon-loading loadingRotation imageLogoLMS");
-    $('#lmsState' + servername).addClass("icon-cross red");
-    $("#lmsState" + servername).hide();
 };
 
 /**when an lms has been temporarily (for one hour) been abanded 
@@ -338,16 +321,12 @@ LMSView.prototype.deactivateLMS = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.activateLMS = function (servername) {
-//    $("#lmsWaiting" + servername).removeClass("icon-cross red");
-//    $("#lmsWaiting" + servername).show();
-//    $("#lmsImage" + servername).show();
+    $("#lmsWaiting" + servername).removeClass("icon-cross red");
+    $("#lmsWaiting" + servername).show();
+    $("#lmsImage" + servername).show();
     
     $("#label" + servername).removeClass("lightgrey");
     $("#lmsDash" + servername).removeClass("dashGrey").addClass("select");
-    
-    $('#lmsState' + servername).removeClass("icon-cross red");
-    $('#lmsState' + servername).addClass("imageLogoLMS");
-    $("#lmsState" + servername).show();
 };
 
 /**
@@ -358,11 +337,9 @@ LMSView.prototype.activateLMS = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.hideRotation = function (servername) {
-    $("#lmsState" + servername).removeClass("icon-loading loadingRotation");
-    $("#lmsState" + servername).show();
-//    $("#lmsWaiting" + servername).removeClass("icon-loading loadingRotation");
-//    $("#lmsWaiting" + servername).hide();
-//    $("#lmsImage" + servername).show();
+    $("#lmsWaiting" + servername).removeClass("icon-loading loadingRotation");
+    $("#lmsWaiting" + servername).hide();
+    $("#lmsImage" + servername).show();
 };
 
 /**
@@ -375,19 +352,11 @@ LMSView.prototype.hideRotation = function (servername) {
 LMSView.prototype.toggleIconWait = function (servername) {
     var self = this;
     console.log("toggle icon wait");
-//    if ($("#lmsImage" + servername).is(":visible")) {
-//        console.log("removed imagea and added loading icon");
-//        $("#lmsImage" + servername).hide();
-//        $("#lmsWaiting" + servername).addClass("icon-loading loadingRotation");
-//        $("#lmsWaiting" + servername).show();
-//    } 
-//    else {
-//        self.hideRotation(servername);
-//    }
-    
-    if ($("#lmsState" + servername).is(":visible")) {
-        $("#lmsState" + servername).addClass("icon-loading loadingRotation");
-        $("#lmsState" + servername).hide();
+    if ($("#lmsImage" + servername).is(":visible")) {
+        console.log("removed imagea and added loading icon");
+        $("#lmsImage" + servername).hide();
+        $("#lmsWaiting" + servername).addClass("icon-loading loadingRotation");
+        $("#lmsWaiting" + servername).show();
     } 
     else {
         self.hideRotation(servername);
@@ -408,24 +377,19 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     self.checkLoadingStatus(servername);
 
 //    if ($("#lmsWaiting" + servername).hasClass("icon-cross red")) {
-    if ($("#lmsState" + servername).hasClass("icon-cross red")) {
-        console.log("cannot do anything because the lms item is selected");
-        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-            e.preventDefault();
-            $("#selectLMSitem" + previousSelectedLMSname).addClass("gradientSelected");
-        });
-    } 
-    else if ($("#lmsState" + servername).is(":visible")) {
-        console.log("lms item is clicked " + servername);
-        var previousSelectedLMS = lmsitem.parent().find("li.gradientSelected");
-        console.log("selected lms in click item is " + previousSelectedLMS);
-        console.log("attr id in click item is " + previousSelectedLMS.attr("id"));
-        var previousSelectedLMSname = previousSelectedLMS.attr("id").substring(13);
-        console.log("previous selected li is " + previousSelectedLMSname);
+//        console.log("cannot do anything because the lms item is selected");
+//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
+//            e.preventDefault();
+//            $("#selectLMSitem" + previousSelectedLMSname).addClass("gradientSelected");
+//        });
+//    } 
+    if ($("#lmsImage" + servername).is(":visible")) {
+        this.previousSelectedLMSname = lmsitem.attr("id").substring(13);
+        
         //store in the model the previous selected lms and not pass it as an argument in the setActive server
-        this.app.models.lms.storePreviousServer(previousSelectedLMSname);
+        this.app.models.lms.storePreviousServer(this.previousSelectedLMSname);
         //or previousLMS=lmsModel.getPreviousServer();
-        previousSelectedLMS.removeClass("gradientSelected").addClass("gradient2 textShadow");
+        lmsitem.removeClass("gradientSelected").addClass("gradient2 textShadow");
         this.selectItemVisuals(servername);
         setTimeout(function () {
             this.app.models.lms.setActiveServer(servername);
@@ -440,12 +404,11 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.checkLoadingStatus = function (servername) {
-//    if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
-    if ($("#lmsState" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
+    if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
         console.log("deactivate li item when trying to connect");
-        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-            e.preventDefault();
-        });
+//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
+//            e.preventDefault();
+//        });
     }
 };
 
@@ -455,12 +418,11 @@ LMSView.prototype.checkLoadingStatus = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.checkInactiveStatus = function (servername) {
-//    if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
-    if ($("#lmsState" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
+    if ($("#lmsWaiting" + servername).hasClass("icon-loading loadingRotation") && $("#selectLMSitem" + servername).hasClass("gradientSelected")) {
         console.log("deactivate li item when trying to connect");
-        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
-            e.preventDefault();
-        });
+//        jester($("#selectLMSitem" + servername)[0]).tap(function (e) {
+//            e.preventDefault();
+//        });
     }
 };
 
@@ -589,7 +551,7 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
     setTimeout(function () {
         self.deselectItemVisuals(servername);
         self.deactivateLMS(servername);
-        //moblerlog("previouslms is "+previouslms);
+        //console.log("previouslms is "+previouslms);
         //var previouslms=this.app.models['lms'].getPreviousServer();
         self.app.models.lms.storeActiveServer(previousLMS);
         $("#selectLMSitem" + previousLMS).addClass("gradientSelected");
