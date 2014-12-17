@@ -104,10 +104,10 @@ function FeaturedModel(controller) {
 	//var featuredObject = JSON.parse(localStorage.getItem("featuredContent"));
 	if (localStorage.getItem("featuredContent")){
 		var featuredObject = JSON.parse(localStorage.getItem("featuredContent"));
-		moblerlog("load featured content data locally");
+		console.log("load featured content data locally");
 		this.loadData();
 	}else {
-		moblerlog("load featured content data from the server");
+		console.log("load featured content data from the server");
 		this.loadFeaturedCourseFromServer();
 	}
 
@@ -121,15 +121,15 @@ function FeaturedModel(controller) {
  * @function loadData
  */
 FeaturedModel.prototype.loadData = function() {
-	moblerlog("enter load data in featured model");
+	console.log("enter load data in featured model");
 	var featuredObject;
 	try {
 		featuredObject = JSON.parse(localStorage.getItem("featuredContent")) || {};
 	} catch (err) {
 		featuredObject = {};
 	}
-	moblerlog("featured object issssss: "+featuredObject);
-	moblerlog("featured object lenght isss "+JSON.stringify(featuredObject).length);
+	console.log("featured object issssss: "+featuredObject);
+	console.log("featured object lenght isss "+JSON.stringify(featuredObject).length);
 	x=JSON.stringify(featuredObject).length;
 	this.featuredContentList = featuredObject.featuredCourses || [];
 	this.syncDateTime = featuredObject.syncDateTime || (new Date()).getTime();
@@ -137,10 +137,10 @@ FeaturedModel.prototype.loadData = function() {
 	this.syncTimeOut = featuredObject.syncTimeOut || DEFAULT_SYNC_TIMEOUT;
 	this.index = 0;
 	this.checkForTimeOut();
-	moblerlog("object featuredContent is "+localStorage.getItem("featuredContent"));
-	moblerlog("featured content list in load data is "+JSON.stringify(this.featuredContentList));
-	//moblerlog("featured content id is"+JSON.stringify(this.featuredContentList[0]["id"]));
-	moblerlog("featuredCourseId in load data "+this.featuredCourseId);
+	console.log("object featuredContent is "+localStorage.getItem("featuredContent"));
+	console.log("featured content list in load data is "+JSON.stringify(this.featuredContentList));
+	//console.log("featured content id is"+JSON.stringify(this.featuredContentList[0]["id"]));
+	console.log("featuredCourseId in load data "+this.featuredCourseId);
 	//$(document).trigger("featuredContentlistupdateLocal", this.featuredCourseId);	
 	this.isFeaturedContentLocal=true;
 };
@@ -170,7 +170,7 @@ FeaturedModel.prototype.storeData = function(){
 		featuredString = "";
 	}
 	localStorage.setItem("featuredContent", featuredString);
-	moblerlog("featured content object is "+localStorage.getItem("featuredContent"));
+	console.log("featured content object is "+localStorage.getItem("featuredContent"));
 };
 
 
@@ -181,7 +181,7 @@ FeaturedModel.prototype.storeData = function(){
  * @function loadFeaturedCourseFromServer 
  */
 FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
-	moblerlog("loadFromServer-Featured Course is called");
+	console.log("loadFromServer-Featured Course is called");
 	var self = this;
 	var syncStateCache = [];
 	var activeURL = self.controller.getActiveURL();
@@ -189,7 +189,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 
 		// save current syncStates for this featured course
 		if (self.featuredContentList && self.featuredContentList.length > 0) {
-			moblerlog("before AJAX request");
+			console.log("before AJAX request");
             var c;
 			for ( c in self.featuredContentList) {
 				syncStateCache[self.featuredContentList[c].id] = self.featuredContentList[c].syncState;
@@ -205,8 +205,8 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 					error : function(request) {
 						localStorage.setItem("pendingFeaturedContentList", true);
 						console.log("Error while loading featured course list from server");
-						 moblerlog("ERROR status code is : " + request.status);
-		                 moblerlog("ERROR returned data is: "+ request.responseText);
+						 console.log("ERROR status code is : " + request.status);
+		                 console.log("ERROR returned data is: "+ request.responseText);
 					},
 					beforeSend : setHeader
 				});
@@ -217,7 +217,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 		}
 
 		function createFeaturedContentList(data) {
-			moblerlog("success");
+			console.log("success");
 
 			// if there was a pending featured course list, remove it from the storage
 			localStorage.removeItem("pendingFeaturedContentList");
@@ -227,34 +227,34 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 				featuredObject = data;
 			} catch (err) {
 				featuredObject = {};
-				moblerlog("Couldn't load featured courses from server " + err);
+				console.log("Couldn't load featured courses from server " + err);
 			}
-			moblerlog("featuredOboject is"+featuredObject);
+			console.log("featuredOboject is"+featuredObject);
 			self.featuredContentList = featuredObject.featuredCourses || [];
 			self.featuredQuestions = self.featuredContentList[0]["questions"];
 			stringifiedFeaturedQuestions = JSON.stringify(self.featuredQuestions);
 			self.featuredContentActualId = self.featuredContentList[0]["id"];
 			var stringifiedfeaturedContentActualId = JSON.stringify(self.featuredContentActualId);
-			moblerlog("featured questions are "+stringifiedFeaturedQuestions);
-			moblerlog(" stringified featured content id is featured model is "+stringifiedfeaturedContentActualId);
-			moblerlog("featured content id is featured model is "+stringifiedfeaturedContentActualId);
+			console.log("featured questions are "+stringifiedFeaturedQuestions);
+			console.log(" stringified featured content id is featured model is "+stringifiedfeaturedContentActualId);
+			console.log("featured content id is featured model is "+stringifiedfeaturedContentActualId);
 						
 //			x=JSON.stringify(self.featuredContentList);
-//			moblerlog("JSON Featured Content: "+x);
-//			moblerlog("featured Content info length "+ self.featuredContentList.length); //needed this for title debugging
+//			console.log("JSON Featured Content: "+x);
+//			console.log("featured Content info length "+ self.featuredContentList.length); //needed this for title debugging
 
 //			var pos=x.indexOf("questions");
 //			q="questions";
 //			l=q.length;
 //			var last= x.indexOf(x.length-2);
-//			moblerlog("position of last pointer: "+last);
+//			console.log("position of last pointer: "+last);
 //			var list= x.substring(pos+l+2, x.length-2);
-//			moblerlog("featured questions are "+list);
+//			console.log("featured questions are "+list);
 //			
 			self.syncDateTime = (new Date()).getTime();
 			self.syncState = true;
 			self.syncTimeOut = featuredObject.syncTimeOut || DEFAULT_SYNC_TIMEOUT;
-			moblerlog("sync time out is:"+JSON.stringify(self.syncTimeOut));
+			console.log("sync time out is:"+JSON.stringify(self.syncTimeOut));
 			//store the featured questions in the same local storage object with the exclusive content questions
 			//they will all be handled by the same model- questionpool.
 			//var featuredCourseId = FEATURED_CONTENT_ID;
@@ -263,13 +263,13 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 			localStorage.setItem("questionpool_" +self.featuredCourseId,stringifiedFeaturedQuestions);
 			//NEW localStorage.setItem("questionpool_"+self.featuredContentActualId,stringifiedFeaturedQuestions);
 			
-			moblerlog("questionpool object for fd is "+localStorage.getItem("questionpool_"+this.featuredCourseId));
-			//NEW moblerlog("questionpool object for fd is "+localStorage.getItem("questionpool_"+self.featuredContentActualId));
+			console.log("questionpool object for fd is "+localStorage.getItem("questionpool_"+this.featuredCourseId));
+			//NEW console.log("questionpool object for fd is "+localStorage.getItem("questionpool_"+self.featuredContentActualId));
 			
 			//store in the local storage all the data except the questions
 
 			// 	var featuredCourseString=x.substring(0,pos-2).concat("}]");
-			//	moblerlog("featured course string is"+featuredCourseString);
+			//	console.log("featured course string is"+featuredCourseString);
 			//	self.storeData(featuredCourseString);	
 						
 			self.storeData();
@@ -278,11 +278,11 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 			
 			//if there was any saved sync state then assign it to the sync state of the courses of the course list
 			if (syncStateCache.length > 0) {
-				moblerlog("sync state cache existis");
+				console.log("sync state cache existis");
                 var c;
 				for ( c in self.featuredContentList) {
 					self.featuredContentList[c].syncState = syncStateCache[self.featuredContentList[c].id];
-					moblerlog("sync state of featured content list is "+self.featuredContentList[c].syncState);
+					console.log("sync state of featured content list is "+self.featuredContentList[c].syncState);
 				}
 			}
 			
@@ -290,7 +290,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function(){
 			  * It is triggered when the loading of the course list from the server has been finished
 			 * @event courselistupdate 
 			 **/
-			moblerlog("this.featuredCourseId" +self.featuredCourseId);
+			console.log("this.featuredCourseId" +self.featuredCourseId);
 			$(document).trigger("featuredContentlistupdate",self.featuredCourseId);
 			//$(document).trigger("featuredContentlistupdate",stringifiedfeaturedContentActualId);
 		} //end of function createCourseList
@@ -312,8 +312,8 @@ FeaturedModel.prototype.checkForTimeOut = function(){};
  */
 FeaturedModel.prototype.getTitle = function() {
 	var self=this;
-	moblerlog("index of the current course is"+this.index);
-	moblerlog("length of featured content list in getTitle"+self.featuredContentList.length);
+	console.log("index of the current course is"+this.index);
+	console.log("length of featured content list in getTitle"+self.featuredContentList.length);
 	
 	return (this.index > this.featuredContentList.length - 1) ? false
 		: this.featuredContentList[this.index].title;
@@ -328,7 +328,7 @@ FeaturedModel.prototype.getTitle = function() {
  */
 FeaturedModel.prototype.getId = function() {
 	var self=this;
-		moblerlog("length of featured content list in getTitle"+self.featuredContentList.length);
+		console.log("length of featured content list in getTitle"+self.featuredContentList.length);
 	
 	return (this.index > this.featuredContentList.length - 1) ? false
 		: this.featuredContentList[this.index].id;
@@ -346,12 +346,12 @@ FeaturedModel.prototype.getId = function() {
  */
 FeaturedModel.prototype.isSynchronized = function(featuredContentId) {
 	if (featuredContentId != "") {
-		moblerlog("featured content id is greater than zero");
+		console.log("featured content id is greater than zero");
 		var c;
 		for (c in this.featuredContentList) {
-			moblerlog ("id of the featuredcontent list"+this.featuredContentList[c].id);
+			console.log ("id of the featuredcontent list"+this.featuredContentList[c].id);
 			if (this.featuredContentList[c].id === featuredContentId) {
-				moblerlog("check id's between featured contentsss");
+				console.log("check id's between featured contentsss");
 				return this.featuredContentList[c].syncState;
 			}
 		}
@@ -367,7 +367,7 @@ FeaturedModel.prototype.isSynchronized = function(featuredContentId) {
  * @function switchToOnline
  */
 FeaturedModel.prototype.switchToOnline = function() {
-	moblerlog("switch to online - load all not yet loaded courses");
+	console.log("switch to online - load all not yet loaded courses");
 
 	this.checkForTimeOut();
 
@@ -377,7 +377,7 @@ FeaturedModel.prototype.switchToOnline = function() {
         var c;
 		for ( c in this.courseList) {
 			if (!this.courseList[c].isLoaded || !this.courseList[c].syncState) {
-				moblerlog(this.courseList[c].id + " is not loaded yet");
+				console.log(this.courseList[c].id + " is not loaded yet");
 				this.controller.models["questionpool"]
 						.loadFromServer(this.courseList[c].id);
 			}

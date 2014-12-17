@@ -89,17 +89,17 @@ QuestionPoolModel.prototype.storeData = function(course_id) {
 QuestionPoolModel.prototype.loadData = function(course_id) {
 	var questionPoolObject;
 	try {
-		moblerlog("question pool object exists");
+		console.log("question pool object exists");
 		questionPoolObject = JSON.parse(localStorage.getItem("questionpool_"
 				+ course_id)) || [];
-		moblerlog("questionpool Object is "+questionPoolObject );
+		console.log("questionpool Object is "+questionPoolObject );
 	} catch (err) {
-		moblerlog("question pool object is zero");
+		console.log("question pool object is zero");
 		questionPoolObject2 = [];
 	}
-	moblerlog("questionpool pool id is ????:"+course_id);
+	console.log("questionpool pool id is ????:"+course_id);
 	this.questionList = questionPoolObject;
-	moblerlog("question pool list for the course_id is "+this.questionList);
+	console.log("question pool list for the course_id is "+this.questionList);
 	this.reset();
 };
 
@@ -124,14 +124,14 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 				type : 'GET',
 				dataType : 'json',
 				success : function(data) {
-					moblerlog("success");
+					console.log("success");
 					
 					turnOffDeactivate();
 					
 					//if this was a pending question pool, remove it from the storage
 					localStorage.removeItem("pendingQuestionPool" + courseId);
 					if (data) {
-                    moblerlog("JSON: " + data);
+                    console.log("JSON: " + data);
 						var questionPoolObject;
 						
 						questionPoolObject = data.questions;				
@@ -147,8 +147,8 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 								self.cleanupAnswertext(question,j);
 								
 								//clear the question
-								moblerlog("*****************************************************************");
-								moblerlog("--> question id " + question.id);
+								console.log("*****************************************************************");
+								console.log("--> question id " + question.id);
 								
 								question["question"] = self.cleanupHTML(question["question"]);
 								
@@ -158,12 +158,12 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 							}
 						}
 										
-						moblerlog("Object: " + questionPoolObject);
+						console.log("Object: " + questionPoolObject);
 						
 						var questionPoolString;
 						try {
 							questionPoolString = JSON.stringify(questionPoolObject);
-							moblerlog("questionpool string "+questionPoolString);
+							console.log("questionpool string "+questionPoolString);
 						} catch (err) {
 							questionPoolString = "";
 						}
@@ -179,12 +179,12 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 					}
 				},
 				error : function(request) {
-					var lmsModel=self.controller.models['lms'];
+					var lmsModel=self.controller.models.lms;
 					var servername=lmsModel.lmsData.activeServer;	
 					if (request.status===403){
 						if (lmsModel.lmsData.ServerData[servername].deactivateFlag==false){
 							turnOnDeactivate();
-							moblerlog("Error while loading question pool from server");
+							console.log("Error while loading question pool from server");
 							showErrorResponses(request);
 						}
 					}
@@ -192,7 +192,7 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 					//if there was an error while sending the request,
 					//store the course id for the question pool in the local storage
 					if (request.status===404){
-						moblerlog("Error while loading question pool from server");
+						console.log("Error while loading question pool from server");
 						showErrorResponses(request);
 					}
 						localStorage.setItem("pendingQuestionPool_" + courseId, true);
@@ -202,7 +202,7 @@ QuestionPoolModel.prototype.loadFromServer = function(courseId) {
 
 	function setHeader(xhr) {
 		xhr.setRequestHeader('sessionkey',
-				self.controller.models['authentication'].getSessionKey());
+				self.controller.models.configuration.getSessionKey());
 	}
 
 };
@@ -231,19 +231,19 @@ QuestionPoolModel.prototype.cleanupHTML = function(htmltext) {
 
 	var contentsArray = elementContents(helperDiv[0]);
 	for (var i=0; i<contentsArray.length; i++){
-		moblerlog("element in loop is"+contentsArray[i]);
+		console.log("element in loop is"+contentsArray[i]);
 		if (! trimHelper(i, contentsArray[i]) ) {
 			break;
 		} 	
 	}
 	
-	moblerlog(">>>PRE REVERSE>>> " + helperDiv.html());
+	console.log(">>>PRE REVERSE>>> " + helperDiv.html());
 	
 	contentsArray = elementContents(helperDiv[0]);
 	
 	var reversedArray=contentsArray.reverse();
 	for (var k=0; k<reversedArray.length; k++){
-		moblerlog("enter reverse loop");
+		console.log("enter reverse loop");
 		if(! trimHelper(k, reversedArray[k])) {
 			break;
 		} 
@@ -252,19 +252,19 @@ QuestionPoolModel.prototype.cleanupHTML = function(htmltext) {
 	
 	// the following piece of code trims all the leading and trailing brs.
 	function trimHelper(index, element) {
-		moblerlog("element at "+index +" in trim helper is a "+ element);
+		console.log("element at "+index +" in trim helper is a "+ element);
 		// if the element is a text node AND it contains something other than white-spaces, then we will stop!
 		if ( element.nodeType === 3 && /\S/.test(element.nodeValue) ) { 
-			moblerlog("found a text node with text. stop processing!");
+			console.log("found a text node with text. stop processing!");
 			return false;
 		}
 		//   if the element is a tag element check if it is a BR. in this case remove it
 		if ( element.nodeType === 1 ) {
-			moblerlog( "id: " + index + "; tagname: " + element.nodeName) ;
+			console.log( "id: " + index + "; tagname: " + element.nodeName) ;
 			if  (element.nodeName === "br" || element.nodeName === "BR" ) {
-				moblerlog("found a br element");
+				console.log("found a br element");
 				$(element).remove();
-				moblerlog("removed "+index+" br");
+				console.log("removed "+index+" br");
 			}
 		}
 		return true;
@@ -278,7 +278,7 @@ QuestionPoolModel.prototype.cleanupHTML = function(htmltext) {
 	var rethtmltext = helperDiv.html();
 	helperDiv.empty();
 	
-	moblerlog(">>>HTML>>> " + rethtmltext);
+	console.log(">>>HTML>>> " + rethtmltext);
 	return rethtmltext;
 };
 
@@ -302,15 +302,15 @@ QuestionPoolModel.prototype.cleanupAnswertext = function(questionobject,question
 		//the answer is an array, so we need to loop
 		for (var i = 0; i < questionobject.answer.length; i++) {
 			questionobject.answer[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answer[i].answertext).text();
-			moblerlog("passed clearing answer view for various question types");
+			console.log("passed clearing answer view for various question types");
 			$("#modelHelperQuestionpool").empty();
 		}
 		break;
 	case "assClozeTest":
-		moblerlog("enter cloze question type case");
+		console.log("enter cloze question type case");
 		// this is a bit more complicated
 		// for the cloze Text
-		moblerlog("cloze text is"+questionobject.answer["clozeText"]);
+		console.log("cloze text is"+questionobject.answer["clozeText"]);
 		questionobject.answer["clozeText"] = this.cleanupHTML(questionobject.answer["clozeText"]);
 		
 		// we clean the correct gap definition as well, just to be safe.
@@ -438,9 +438,9 @@ QuestionPoolModel.prototype.nextQuestion = function() {
 	do {
 		// generates a random number between 0 and questionList.length 
 		random = Math.floor((Math.random() * this.questionList.length));
-		moblerlog("random:" +random);
+		console.log("random:" +random);
 		newId = this.questionList[random].id;
-		moblerlog("New ID: " + newId);
+		console.log("New ID: " + newId);
 		//keeps repeating the process of getting the id of the new random question of question list
 		//while the new random id is still the same with id of the current question or if this new random id is still 
 		//stored in the waiting queue 	
@@ -543,7 +543,7 @@ QuestionPoolModel.prototype.getId = function() {
  * @function reset
  */ 
 QuestionPoolModel.prototype.reset = function(featuredContent_id) {
-	moblerlog("reset question pool");
+	console.log("reset question pool");
 	this.queue = [ "-1", "-1", "-1" ];
 	if (featuredContent_id){
 		this.id=featuredContent_id;
@@ -577,9 +577,9 @@ QuestionPoolModel.prototype.reset = function(featuredContent_id) {
  */ 
 QuestionPoolModel.prototype.dataAvailable= function() {
 	if (this.questionList) {
-		moblerlog("questionpool list exists");
+		console.log("questionpool list exists");
 		return true;
 	}
-	moblerlog("questionpool list does not exist");
+	console.log("questionpool list does not exist");
 	return false;
 };

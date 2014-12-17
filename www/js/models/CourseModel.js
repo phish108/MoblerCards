@@ -76,7 +76,7 @@ function CourseModel(controller) {
 	 * keep track of the loading of the course and its synchronization state
 	 **/
 		$(document).bind("questionpoolready", function(e, courseID) {
-		moblerlog("model questionPool ready called " + courseID);
+		console.log("model questionPool ready called " + courseID);
 		self.courseIsLoaded(courseID);
 	});
 
@@ -123,7 +123,7 @@ CourseModel.prototype.storeData = function() {
 		courseString = "";
 	}
 	localStorage.setItem("courses", courseString);
-	moblerlog("courses object is " +localStorage.getItem("courses"));
+	console.log("courses object is " +localStorage.getItem("courses"));
 };
 
 /**
@@ -148,8 +148,8 @@ CourseModel.prototype.loadData = function() {
 
 	this.checkForTimeOut();
 	
-	moblerlog("object courses is "+localStorage.getItem("courses"));
-	moblerlog("course list in load data is "+this.courseList);
+	console.log("object courses is "+localStorage.getItem("courses"));
+	console.log("course list in load data is "+this.courseList);
 };
 
 /**
@@ -162,16 +162,14 @@ CourseModel.prototype.loadData = function() {
  */
 
 CourseModel.prototype.loadFromServer = function() {
-	moblerlog("loadFromServer-Course is called");
+	console.log("loadFromServer-Course is called");
 	var self = this;
 	var syncStateCache = [];
 	var activeURL = self.controller.getActiveURL();
 	self.checkForTimeOut();
-	if (self.controller.getLoginState()
-			&& !self.syncState) {
+	if (self.controller.getLoginState() && !self.syncState) {
 		// var sessionkey = self.controller.getSessionKey();
-		var sessionKey = self.controller.models['authentication']
-				.getSessionKey();
+		var sessionKey = self.controller.models.configuration.getSessionKey();
 
 		// save current syncStates for this course
 		if (self.courseList && self.courseList.length > 0) {
@@ -193,13 +191,13 @@ CourseModel.prototype.loadFromServer = function() {
 						if (request.status === 403) { 
 							if (lmsModel.lmsData.ServerData[servername].deactivateFlag==false){
 								turnOnDeactivate();
-								moblerlog("Error while loading course list from server");
+								console.log("Error while loading course list from server");
 								showErrorResponses(request);
 							}
 						}
 					
 						if (request.status === 404) { 
-							moblerlog("Error while loading course list from server");
+							console.log("Error while loading course list from server");
 							showErrorResponses(request);
 						}
 					localStorage.setItem("pendingCourseList", true);
@@ -213,8 +211,8 @@ CourseModel.prototype.loadFromServer = function() {
 		}
 
 		function createCourseList(data) {
-			moblerlog("success in getting course list");
-			moblerlog("before enter turn off deactivate in course model");
+			console.log("success in getting course list");
+			console.log("before enter turn off deactivate in course model");
 			turnOffDeactivate();
 			// if there was a pending course list, remove it from the storage
 			localStorage.removeItem("pendingCourseList");
@@ -225,10 +223,10 @@ CourseModel.prototype.loadFromServer = function() {
 
 			} catch (err) {
 				courseObject = {};
-				moblerlog("Couldn't load courses from server " + err);
+				console.log("Couldn't load courses from server " + err);
 			}
-			moblerlog("course data loaded from server");
-            moblerlog(courseObject);
+			console.log("course data loaded from server");
+            console.log(courseObject);
 			self.courseList = courseObject.courses || [];
 			self.syncDateTime = (new Date()).getTime();
 			self.syncState = true;
@@ -237,7 +235,7 @@ CourseModel.prototype.loadFromServer = function() {
 			
 			
 			
-			moblerlog("JSON CourseList: " + JSON.stringify(self.courseList));
+			console.log("JSON CourseList: " + JSON.stringify(self.courseList));
 			self.reset();
 			
 			//if there was any saved sync state then assign it to the sync state of the courses of the course list
@@ -336,11 +334,11 @@ CourseModel.prototype.reset = function() {
  */
 CourseModel.prototype.checkForTimeOut = function() {
 	var timeDelta = ((new Date()).getTime() - this.syncDateTime);
-	moblerlog("timeDelta: " + timeDelta);
-	moblerlog("syncTimeOut: " + this.syncTimeOut);
+	console.log("timeDelta: " + timeDelta);
+	console.log("syncTimeOut: " + this.syncTimeOut);
 	if (timeDelta > this.syncTimeOut) {
 		this.syncState = false;
-		moblerlog("check for timeout is false");
+		console.log("check for timeout is false");
 	}
 };
 
@@ -379,7 +377,7 @@ CourseModel.prototype.courseIsLoaded = function(courseId) {
 			this.courseList[c].isLoaded = true;
 			this.courseList[c].syncState = true;
 			this.storeData();
-			moblerlog(this.courseList[c].id + " is loaded");
+			console.log(this.courseList[c].id + " is loaded");
 			break;
 		}
 	}
@@ -414,7 +412,7 @@ CourseModel.prototype.isSynchronized = function(courseId) {
  * @function switchToOnline
  */
 CourseModel.prototype.switchToOnline = function() {
-	moblerlog("switch to online - load all not yet loaded courses");
+	console.log("switch to online - load all not yet loaded courses");
 
 	this.checkForTimeOut();
 
@@ -424,7 +422,7 @@ CourseModel.prototype.switchToOnline = function() {
         var c;
 		for ( c in this.courseList) {
 			if (!this.courseList[c].isLoaded || !this.courseList[c].syncState) {
-				moblerlog(this.courseList[c].id + " is not loaded yet");
+				console.log(this.courseList[c].id + " is not loaded yet");
 				this.controller.models["questionpool"]
 						.loadFromServer(this.courseList[c].id);
 			}
@@ -458,14 +456,14 @@ CourseModel.prototype.switchToOnline = function() {
  * */
 CourseModel.prototype.getCourseList = function() {
 	var self=this;
-	//moblerlog("course list in courses model is "+JSON.stringify(this.courseList));
+	//console.log("course list in courses model is "+JSON.stringify(this.courseList));
 	self.loadData();
-	moblerlog("course list in getCourseList is"+self.courseList);
+	console.log("course list in getCourseList is"+self.courseList);
 	var c;
 	var coursesIdList=[];
 	for ( c in this.courseList){
 	coursesIdList[c]=this.courseList[c].id;	
 	}
-	moblerlog("courses id list is"+coursesIdList);
+	console.log("courses id list is"+coursesIdList);
 	return coursesIdList;
 }

@@ -118,9 +118,9 @@ AnswerModel.prototype.deleteData = function() {
  * @return {String}, "Excellent" if answer score is 1, "Wrong" if answer score is 0, otherwise "PariallyCorrect"
  **/
 AnswerModel.prototype.getAnswerResults = function() {
-	moblerlog("answer score: " + this.answerScore);
+	console.log("answer score: " + this.answerScore);
 	if (this.answerScore === 1) {
-		moblerlog("Excellent");
+		console.log("Excellent");
 		return "Excellent";
 	} else if (this.answerScore === 0) {
 		return "Wrong";
@@ -139,7 +139,7 @@ AnswerModel.prototype.getAnswerResults = function() {
 AnswerModel.prototype.calculateSingleChoiceScore = function() {
 	var clickedAnswerIndex = this.answerList[0];
 	if (controller.models["questionpool"].getScore(clickedAnswerIndex) > 0) {
-		moblerlog("the score is 1");
+		console.log("the score is 1");
 		this.answerScore = 1;
 	} else {
 		this.answerScore = 0;
@@ -168,27 +168,27 @@ AnswerModel.prototype.calculateMultipleChoiceScore = function() {
 	var wrong_ticked = 0;
 
 	for (i = 0; i < numberOfAnswers; i++) {
-		moblerlog("answer " + i + ": " + questionpool.getScore(i));
+		console.log("answer " + i + ": " + questionpool.getScore(i));
 		//if the current answer item is correct, then its score value in the database is set to 1 (or at least greater than 1).
 		if (questionpool.getScore(i) > 0) {
 			correctAnswers++;
 			//check if the user has clicked on the correct answer item
 			if (this.answerList.indexOf(i) !== -1) {
 				corr_ticked++;
-				moblerlog("corr_ticked");
+				console.log("corr_ticked");
 			}
 		} else {
 			//the user has clicked on the wrong answer item
 			if (this.answerList.indexOf(i) !== -1) {
 				wrong_ticked++;
-				moblerlog("wrong_ticked");
+				console.log("wrong_ticked");
 			}
 		}
 	}
 
-	moblerlog("Number of answers: " + numberOfAnswers);
-	moblerlog("Correct ticked: " + corr_ticked);
-	moblerlog("Wrong ticked: " + wrong_ticked);
+	console.log("Number of answers: " + numberOfAnswers);
+	console.log("Correct ticked: " + corr_ticked);
+	console.log("Wrong ticked: " + wrong_ticked);
 
 	if ((corr_ticked + wrong_ticked) === numberOfAnswers || corr_ticked === 0) {
 		// if all answers are ticked or no correct answer is ticked, we assign 0
@@ -316,7 +316,7 @@ AnswerModel.prototype.calculateClozeQuestionScore = function() {
 	for (i=0; i<filledAnswers.length;i++){
 		var actualCorrectGaps= getCorrectGaps(i); // an array containing the correct answers for the gap with the index i in the
 												  // object that is returned from the server
-		moblerlog("actual Correct Gaps for gap "+i+" is "+actualCorrectGaps);
+		console.log("actual Correct Gaps for gap "+i+" is "+actualCorrectGaps);
 		if (actualCorrectGaps.indexOf(filledAnswers[i])!==-1){
 			gaps[i]=1;
 		}else {
@@ -328,12 +328,12 @@ AnswerModel.prototype.calculateClozeQuestionScore = function() {
 	
 	
 	function calculateAnswerScoreValue(){
-		moblerlog("calculates answre score value in cloze questions");
+		console.log("calculates answre score value in cloze questions");
 		var sumValue=0; // a helper variable that calculates the sum of the values of the gaps array 
 		for (gapindex=0; gapindex<gaps.length; gapindex++) {
 			sumValue= sumValue + gaps[gapindex];	
 		}
-		moblerlog("sumvalue is "+sumValue);
+		console.log("sumvalue is "+sumValue);
 		if (sumValue == 0){
 			this.answerScore=0;
 		}else if(sumValue==gaps.length){ // if all gaps are filled in correctly, then all elements of the gaps array have value 1
@@ -343,7 +343,7 @@ AnswerModel.prototype.calculateClozeQuestionScore = function() {
 			this.answerScore=0.5
 		}
 		return this.answerScore;
-			moblerlog("answer score value within function is "+this.answerScore);
+			console.log("answer score value within function is "+this.answerScore);
 		};
 }
 
@@ -356,7 +356,7 @@ AnswerModel.prototype.calculateClozeQuestionScore = function() {
  **/ 
 AnswerModel.prototype.setCurrentCourseId = function(courseId) {
 	this.currentCourseId = courseId;
-	moblerlog("currentCourseId "+this.currentCourseId);
+	console.log("currentCourseId "+this.currentCourseId);
 };
 
 
@@ -369,9 +369,9 @@ AnswerModel.prototype.setCurrentCourseId = function(courseId) {
  **/
 AnswerModel.prototype.startTimer = function(questionId) {
 	this.start = (new Date()).getTime();
-	moblerlog("this.start in startTimer is "+this.start);
+	console.log("this.start in startTimer is "+this.start);
 	this.currentQuestionId = questionId;
-	moblerlog("currentQuestionId: " + this.currentQuestionId);
+	console.log("currentQuestionId: " + this.currentQuestionId);
 };
 
 
@@ -419,11 +419,11 @@ AnswerModel.prototype.initDB = function() {
  * @function storeScoreInDB 
  ***/
 AnswerModel.prototype.storeScoreInDB = function() {
-	moblerlog("enter score in DB");
+	console.log("enter score in DB");
 	var self = this;
 	var day = new Date();
 	var duration = (new Date()).getTime() - this.start;
-	moblerlog("duration is "+duration);
+	console.log("duration is "+duration);
 	this.db
 	.transaction(function(transaction) {
 		transaction
@@ -432,7 +432,7 @@ AnswerModel.prototype.storeScoreInDB = function() {
 				[ self.currentCourseId, self.currentQuestionId,
 				  day.getTime(), self.answerScore, duration ],
 				  function() {
-					moblerlog("successfully inserted SCORE IN db for course "+self.currentCourseId);
+					console.log("successfully inserted SCORE IN db for course "+self.currentCourseId);
 
 					/**It is triggered after the successful insertion of the score in the local database
 					 * @event checkachievements
@@ -445,7 +445,7 @@ AnswerModel.prototype.storeScoreInDB = function() {
 					}
 					$(document).trigger("checkachievements", self.currentCourseId);
 				}, function(tx, e) {
-					moblerlog("error! NOT inserted: "+ e.message);
+					console.log("error! NOT inserted: "+ e.message);
 				});
 	});
 	// resets the time in order to start the time recording for the next question
@@ -459,12 +459,12 @@ AnswerModel.prototype.storeScoreInDB = function() {
  * @function deleteDB 
  **/
 AnswerModel.prototype.deleteDB = function() {
-	//moblerlog("featured content id in deleteDB is "+featuredContent_id);
+	//console.log("featured content id in deleteDB is "+featuredContent_id);
 	var self=this;
 	//localStorage.removeItem("db_version"); // this line is from before we had featured content.
 	var courseList = self.controller.models["course"].getCourseList();
 	//var courseList = this.controller.models["course"].courseList;
-	moblerlog("course list for the specific user is "+JSON.stringify(courseList));
+	console.log("course list for the specific user is "+JSON.stringify(courseList));
 	this.db.transaction(function(tx) {
 		//DELETE FROM statistics WHERE course_id IN (CID LIST FOR THE USER) 
 		var qm = [];
@@ -472,9 +472,9 @@ AnswerModel.prototype.deleteDB = function() {
 		$.each(courseList,function() {qm.push("?");});
 		tx.executeSql('DELETE FROM statistics where course_id IN ('+ qm.join(",") +')', courseList, function() {
 		// tx.executeSql("DELETE FROM statistics where course_id != ?", [featuredContent_id], function() {
-			moblerlog("statistics table cleared");
+			console.log("statistics table cleared");
 		}, function() {
-			moblerlog("error: statistics table not cleared");
+			console.log("error: statistics table not cleared");
 		});
 	});
 	//localStorage.removeItem("courses");

@@ -426,7 +426,7 @@ StatisticsModel.prototype.loadFromServer = function () {
 
                     for (i = 0; i < statisticsObject.length; i++) {
                         self.insertStatisticItem(statisticsObject[i]);
-                        //moblerlog("i is "+i+" and the length of statistics object is "+statisticsObject.length);
+                        //console.log("i is "+i+" and the length of statistics object is "+statisticsObject.length);
                     }
                     console.log("after inserting statistics from server");
                     // trigger event statistics are loaded from server
@@ -467,7 +467,7 @@ StatisticsModel.prototype.loadFromServer = function () {
  */
 StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
     var self = this;
-    // moblerlog("day: " + statisticItem['day']);
+    // console.log("day: " + statisticItem['day']);
 
     self
         .queryDB(
@@ -478,7 +478,7 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
     function checkIfItemExists(transaction, results) {
         var item = statisticItem;
         if (results.rows.length === 0) {
-            moblerlog("No entry for day: " + item['day']);
+            console.log("No entry for day: " + item['day']);
             query = "INSERT INTO statistics(course_id, question_id, day, score, duration) VALUES (?,?,?,?,?)";
             values = [item['course_id'],
               item['question_id'],
@@ -487,7 +487,7 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
               item['duration']];
             self.queryDB(query, values, function cbInsert(transaction,
                 results) {
-                //  moblerlog("after inserting in insertStatisticsItem "+JSON.stringify(statisticItem));
+                //  console.log("after inserting in insertStatisticsItem "+JSON.stringify(statisticItem));
             });
         }
     }
@@ -556,17 +556,17 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 console.log("results length: " + results.rows.length);
                 for (i = 0; i < results.rows.length; i++) {
                     row = results.rows.item(i);
-                    //	moblerlog("sent statistics row to the server"+row);
+                    //	console.log("sent statistics row to the server"+row);
                     //	rowCourse= row.course_id;
-                    //	moblerlog("course id is "+rowCourse);
+                    //	console.log("course id is "+rowCourse);
                     statistics.push(row);
-                    // moblerlog("sending " + i + ": " + JSON.stringify(row));
+                    // console.log("sending " + i + ": " + JSON.stringify(row));
                 }
                 sessionkey = self.controller.models.configuration.getSessionKey();
                 uuid = device.uuid;
             }
 
-            moblerlog("count statistics=" + statistics.length);
+            console.log("count statistics=" + statistics.length);
             var statisticsString = JSON.stringify(statistics);
 
             //processData has to be set to false!
@@ -581,7 +581,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     if (data) {
                         console.log("there ");
                         if (numberOfStatisticsItems < data) {
-                            moblerlog("server has more items than local database -> fetch statistics from server");
+                            console.log("server has more items than local database -> fetch statistics from server");
                             self.loadFromServer();
                         }
                     }
@@ -595,7 +595,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     if (request.status === 403) {
                         if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
                             turnOnDeactivate();
-                            moblerlog("Error while sending statistics data to server");
+                            console.log("Error while sending statistics data to server");
                             showErrorResponses(request);
                         }
                     }
@@ -634,7 +634,7 @@ StatisticsModel.prototype.getAllDBEntries = function () {
 
     function dataSelectHandler(transaction, results) {
         var i;
-        moblerlog("ALL ROWS: " + results.rows.length);
+        console.log("ALL ROWS: " + results.rows.length);
         for (i = 0; i < results.rows.length; i++) {
             row = results.rows.item(i);
             console.log(i + ": " + JSON.stringify(row));

@@ -623,7 +623,7 @@ LMSModel.prototype.isRegistrable = function (servername) {
             console.log("specific lms is still deactivate");
             return false;
         }
-//        return true;
+        return true;
     } //end for
 
 };
