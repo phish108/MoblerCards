@@ -106,7 +106,7 @@ SettingsView.prototype.loadData = function () {
     $("#deactivateLi").hide();
     var self = this;
     var config = this.app.models.configuration;
-    var lmsModel = this.app.model.lms;
+    var lmsModel = this.app.models.lms;
     var servername = lmsModel.lmsData.activeServer;
 
     console.log("deactivate flag is " + lmsModel.lmsData.ServerData[servername].deactivateFlag);
