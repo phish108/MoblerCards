@@ -201,7 +201,6 @@ LMSModel.prototype.getActiveServerAPI = function () {
  * @return {String} activeRequestToken, the client key of the active server
  */
 LMSModel.prototype.getActiveRequestToken = function () {
-
     return this.activeRequestToken;
 };
 
@@ -213,7 +212,6 @@ LMSModel.prototype.getActiveRequestToken = function () {
 LMSModel.prototype.getDefaultLanguage = function () {
     return this.defaultLanguage;
 };
-
 
 /**
  * This function is executed when we click on an item on the lms list view
@@ -328,11 +326,9 @@ LMSModel.prototype.storeActiveServer = function (servername) {
  * @param {string} servername, the name of the active server
  */
 LMSModel.prototype.getActiveServer = function (servername) {
-
     //this.activeServerInfo = this.findServerInfo(servername);
     //this.lmsData.activeServer=servername;
     return this.activerServer;
-
 };
 
 /**
@@ -342,12 +338,11 @@ LMSModel.prototype.getActiveServer = function (servername) {
  * @param {string} servername, the name of the previously selected lms
  */
 LMSModel.prototype.storePreviousServer = function (servername) {
-
     this.loadData();
     this.lmsData.previousServer = servername;
     console.log("previous server ");
+    
     this.storeData();
-
 };
 
 /**
@@ -357,9 +352,7 @@ LMSModel.prototype.storePreviousServer = function (servername) {
  * @return {string} servername, the name of the previously selected lms
  */
 LMSModel.prototype.getPreviousServer = function () {
-
     return this.lmsData.previousServer;
-
 };
 
 /**
@@ -372,13 +365,13 @@ LMSModel.prototype.getPreviousServer = function () {
 LMSModel.prototype.register = function (servername) {
     var self = this;
     console.log("enters regsitration");
+    
     //phone gap property to get the id of a device
     var deviceID = device.uuid;
     var activeURL = self.getActiveServerURL();
     console.log("active url in register function is " + activeURL);
 
-    $
-        .ajax({
+    $.ajax({
             url: activeURL + '/registration.php',
             type: 'GET',
             dataType: 'json',
@@ -386,7 +379,6 @@ LMSModel.prototype.register = function (servername) {
             // if no registration is done, then use the request parameter
             // to display the error that created the problem in the console
             error: function (request) {
-
                 // remember in lmsData that the server made a booboo
 
                 //***************DEACTIVATE CHECK******************************
@@ -532,8 +524,8 @@ LMSModel.prototype.registerApi2 = function (servername) {
      * @param {String} data, the data exchanged with the server during the registration
      */
     function appRegistration(data) {
-
         var DEACTIVATE = false;
+        
         // if we don't know a user's language we try to use the phone's language.
         language = navigator.language.split("-");
         language_root = (language[0]);

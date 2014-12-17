@@ -881,6 +881,8 @@ ul#loginElements {
     background-color: #a52a2a;
     color: white;
 }
+
+
 .lmsmessage {
     display: none;
     color: white;
@@ -1172,10 +1174,8 @@ ul#loginElements {
     background-color: transparent;
 }
 .separatorContainerAchievements {
-    /*display:inline-block;*/
     border-left: solid 1px #b3b2b2;
     height: 50px;
-    /*it was 71px*/
     line-height: 50px;
     width: 12px;
     text-align: center;
@@ -1192,8 +1192,6 @@ img.imageLogoLMS {
     border: solid 0px blue;
 }
 .achievementsImg {
-    /*position:absolute;
-	margin-right:6px;*/
     vertical-align: middle;
     font-size: 38px;
     border: 0px solid red;
@@ -1207,11 +1205,9 @@ img.imageLogo {
 }
 .radial {
     background: -webkit-radial-gradient(-93px 30px, circle closest-corner, #bbbbbb, #c8c8c8 20px, #e6e6e6 50px, transparent 100px);
-    /*background-image:-webkit-gradient(radial,64 59, 412, 0 44, 412,  from(#FCFCFC), to(#D3D2D4), color-stop(.6,#E8E8E8));*/
 }
 .radialCourses {
     background: -webkit-radial-gradient(-94px 25px, circle closest-corner, #ba996e, transparent 100px);
-    /*background-image:-webkit-gradient(radial,64 59, 412, 0 44, 412,  from(#FCFCFC), to(#D3D2D4), color-stop(.6,#E8E8E8));*/
 }
 .courseContainer {
     height: 45px;
@@ -1222,7 +1218,6 @@ img.imageLogo {
 }
 .textDiv {
     border: 1px solid blue;
-    /*margin-right:60px;*/
 }
 .liBorder {
     border: 1px solid green;
