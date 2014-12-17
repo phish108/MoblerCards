@@ -77,12 +77,12 @@ function Controller() {
                 var configuration = JSON.parse(configurationObject);
             }
         } catch (err) {
-            moblerlog("error! while loading configuration in migration");
+            console.log("error! while loading configuration in migration");
         }
         var language = navigator.language.split("-");
         var language_root = (language[0]);
         if (configuration && configuration.appAuthenticationKey) {
-            moblerlog("app authentication key exists in configuration object");
+            console.log("app authentication key exists in configuration object");
             //create the new structure for the lms object
             var lmsObject = {
                 "activeServer": "hornet",
@@ -99,12 +99,12 @@ function Controller() {
             //var configurationObject=localStorage.getItem("configuration");
             //localStorage.setItem("configuration", JSON.stringify(localStorage.getItem("configuration")));
             localStorage.setItem("configuration", JSON.stringify(configuration));
-            moblerlog("configuration object after delete of appAuthenticationKey " + localStorage.getItem("configuration"));
+            console.log("configuration object after delete of appAuthenticationKey " + localStorage.getItem("configuration"));
             localStorage.setItem("urlsToLMS", JSON.stringify(lmsObject));
         }
 
         if (!configuration) {
-            moblerlog("configuration object didn't exist during the migration");
+            console.log("configuration object didn't exist during the migration");
             var configurationObject = {
                 loginState: "loggedOut",
                 statisticsLoaded: "false"
@@ -152,10 +152,10 @@ function Controller() {
         swipeCatcher).tap(tapCatcher);
 
 
-    moblerlog('core gestures done');
+    console.log('core gestures done');
 
     // if device is an iPhone enable pinching
-    //moblerlog('platform' + device.platform);
+    //console.log('platform' + device.platform);
     // FIXME device is not defined
     //if (device.platform === 'iPhone') {
     //
@@ -191,13 +191,13 @@ function Controller() {
      * */
 
     $(document).bind("allstatisticcalculationsdone", function (featuredContent_id) {
-        moblerlog("all statistics calculations done is ready");
+        console.log("all statistics calculations done is ready");
         // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
         if (!self.checkclickOutOfStatisticsIcon()) {
-            moblerlog("transition to statistics because all calculations have been done");
+            console.log("transition to statistics because all calculations have been done");
             self.transition('statisticsView', featuredContent_id);
         } else {
-            moblerlog("transition to statistics is not feasible because the user has clicked elsewhere else");
+            console.log("transition to statistics is not feasible because the user has clicked elsewhere else");
         }
     });
 
@@ -211,7 +211,7 @@ function Controller() {
      */
     $(document).bind("statisticssenttoserver", function () {
         if (!self.getLoginState()) {
-            moblerlog("stays in login view, despite the synchronization of sent statistics");
+            console.log("stays in login view, despite the synchronization of sent statistics");
             //	self.transitionToLogin();
         }
     });
@@ -225,7 +225,7 @@ function Controller() {
      */
     $(document).bind("questionpoolready", function () {
         if (!self.getLoginState()) {
-            moblerlog("stays in login view, despite the synchronization of questionpool ready");
+            console.log("stays in login view, despite the synchronization of questionpool ready");
             self.transitionToLogin(); // or we can stay on the current view i.e. lms view, landing view or login view
         }
     });
@@ -239,7 +239,7 @@ function Controller() {
      */
     $(document).bind("courselistupdate", function () {
         if (!self.getLoginState()) {
-            moblerlog("stays in login view, despite the courses synchronization updates");
+            console.log("stays in login view, despite the courses synchronization updates");
             //self.transitionToLogin();
             // or we can stay on the current view i.e. lms view, landing view or login view
         }
@@ -247,16 +247,16 @@ function Controller() {
 
     $(document).bind("activeServerReady", function () {
         if (self.appLoaded && self.activeView == self.views.lms) {
-            moblerlog("transition to login view after selecting server in lms view");
+            console.log("transition to login view after selecting server in lms view");
             self.transitionToLogin();
         } else if (self.appLoaded && self.activeView == self.views.splashScreen) {
-            moblerlog("transition to login view after the default server has been registered");
+            console.log("transition to login view after the default server has been registered");
             self.transitionToLanding();
         }
     });
 
     $(document).bind("click", function (e) {
-        moblerlog(" click in login view ");
+        console.log(" click in login view ");
         e.preventDefault();
         e.stopPropagation();
     });
@@ -289,16 +289,16 @@ function Controller() {
     function cbFeaturedContentListUpdate() {
         if (!self.models['featured'].isFeaturedContentLocal) {
             //if (this.activeView !== this.views.login && this.activeView == !this.views.statistics) {
-            moblerlog("featured content list update called");
+            console.log("featured content list update called");
             var currentTime = new Date().getTime();
             var deltaTime = currentTime - startTime;
             if (deltaTime < 3000) {
                 setTimeout(function () {
-                    moblerlog("enter transition point 1");
+                    console.log("enter transition point 1");
                     self.transitionToEndpoint();
                 }, 3000 - deltaTime);
             } else {
-                moblerlog("enter transition point 2");
+                console.log("enter transition point 2");
                 self.transitionToEndpoint();
             }
 
@@ -313,9 +313,9 @@ function Controller() {
     //$(document).bind("featuredContentlistupdateLocal", cbFeaturedContentListUpdateLocal);
 
     injectStyle();
-    moblerlog("End of Controller");
+    console.log("End of Controller");
     if (this.models['featured'].isFeaturedContentLocal) {
-        moblerlog("transition start to end point when featured content is loaded locally");
+        console.log("transition start to end point when featured content is loaded locally");
         self.transitionToEndpoint();
     }
 } // end of Controller
@@ -443,10 +443,10 @@ Controller.prototype.setupLanguage = function () {
  * @param {String} viewname, the name of the specified target view
  **/
 Controller.prototype.transition = function (viewname, fd, achievementsFlag) {
-    moblerlog("transition start to " + viewname);
+    console.log("transition start to " + viewname);
     // Check if the current active view exists and either if it is different from the targeted view or if it is the landing view
     if (this.views[viewname] && (viewname === "landing" || this.activeView.tagID !== this.views[viewname].tagID)) {
-        moblerlog("transition: yes we can!");
+        console.log("transition: yes we can!");
         this.activeView.close();
         this.activeView = this.views[viewname];
         //clear all flags that are needed for waiting for model processing
@@ -463,14 +463,14 @@ Controller.prototype.transition = function (viewname, fd, achievementsFlag) {
  * @function transitionToEndpoint
  **/
 Controller.prototype.transitionToEndpoint = function () {
-    moblerlog('initialize endpoint');
+    console.log('initialize endpoint');
     this.appLoaded = true;
     this.transitionToAuthArea("coursesList");
     //	if (this.models['authentication'].isLoggedIn()) {
-    //		moblerlog("is loggedIn");
+    //		console.log("is loggedIn");
     //		this.transition('coursesList');
     //	} else {
-    //		moblerlog("transitionToEndpoint: is not loggedIn");
+    //		console.log("transitionToEndpoint: is not loggedIn");
     //		this.transition('login');
     //	}
 };
@@ -481,16 +481,16 @@ Controller.prototype.transitionToEndpoint = function () {
  * @function transitionToLogin
  **/
 Controller.prototype.transitionToLogin = function () {
-    moblerlog("enter transitionToLogin in controller");
+    console.log("enter transitionToLogin in controller");
     if (this.appLoaded) {
-        moblerlog("the app is loaded in transition to login in controller");
+        console.log("the app is loaded in transition to login in controller");
         this.transition('login');
 
     }
 };
 
 Controller.prototype.transitionToLanding = function () {
-    moblerlog("enter controller transition to landing view in controller");
+    console.log("enter controller transition to landing view in controller");
     this.transition('landing');
 };
 
@@ -500,7 +500,7 @@ Controller.prototype.transitionToLanding = function () {
  * @function transitionToLogin
  **/
 Controller.prototype.transitionToLMS = function () {
-    moblerlog("enter controller transition to LMS");
+    console.log("enter controller transition to LMS");
     this.transition('lms');
 };
 
@@ -528,7 +528,7 @@ Controller.prototype.transitionToAuthArea = function (viewname, featuredContentF
         //		if (featuredContentFlag){
         //			this.transition(viewname,featuredContentFlag);
         // 		}else {
-        //	moblerlog("no fd value passed");
+        //	console.log("no fd value passed");
         this.transitionToLanding();
         //}
     }
@@ -549,7 +549,7 @@ Controller.prototype.transitionToCourses = function () {
  * @function transitionToQuestion
  **/
 Controller.prototype.transitionToQuestion = function () {
-    moblerlog("enters transition to question in controller");
+    console.log("enters transition to question in controller");
     //this.transitionToAuthArea('questionView',fd);
     this.transition('questionView');
 };
@@ -560,7 +560,7 @@ Controller.prototype.transitionToQuestion = function () {
  * @function transitionToAnswer
  **/
 Controller.prototype.transitionToAnswer = function () {
-    moblerlog("enters transition to answer view in controller");
+    console.log("enters transition to answer view in controller");
     this.transition('answerView');
 };
 
@@ -607,14 +607,14 @@ Controller.prototype.transitionToStatistics = function (courseID, achievementsFl
 
     //	if (this.getLoginState()) {
     //		//The transition to statistics view is done by clicking the statistics icon in the course list view. In this case a courseID is assigned for the clicked option.
-    //		moblerlog("enters get logic state in transition to statistics in controller");
+    //		console.log("enters get logic state in transition to statistics in controller");
     //		if (courseID && (courseID > 0 || courseID === "fd") ) {
-    //			moblerlog ("enters course id in controller");
+    //			console.log ("enters course id in controller");
     //			this.models['statistics'].setCurrentCourseId(courseID);
     //		}
     //		else
     //		{
-    //			moblerlog("transition to statistics when loggedin and coming from achievements view");
+    //			console.log("transition to statistics when loggedin and coming from achievements view");
     //			// when the achievements get closed we won't pass the course id
     //			// in order to avoid that the statistics are recalculated. Which makes no sense,
     //			// because the statistics model has already all the data in place.
@@ -623,7 +623,7 @@ Controller.prototype.transitionToStatistics = function (courseID, achievementsFl
     //	}//end of is logged in
     //	else { //the user is not 
     //		if (courseID && !achievementsFlag){
-    //		moblerlog("enter the statistics from landing view");
+    //		console.log("enter the statistics from landing view");
     //		this.models['statistics'].setCurrentCourseId(courseID);
     //		}else if (achievementsFlag)
     //			{
@@ -755,7 +755,7 @@ Controller.prototype.resizeHandler = function () {
         h = $(window).height();
     if (w / h > 1) {
         orientationLayout = true;
-        moblerlog("we are in landscape mode");
+        console.log("we are in landscape mode");
     } // e.g. Landscape mode
     // window.width / window.height > 1 portrait
     this.activeView.changeOrientation(orientationLayout, w, h);
@@ -770,7 +770,7 @@ Controller.prototype.resizeHandler = function () {
  * @return {Boolean}, true or false.  It returns true if any other element has been clicked, and false if only the statistics icon has been clicked and the user is waiting.
  */
 Controller.prototype.checkclickOutOfStatisticsIcon = function () {
-    moblerlog("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
+    console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
     return this.clickOutOfStatisticsIcon;
 }
 
@@ -781,7 +781,7 @@ Controller.prototype.checkclickOutOfStatisticsIcon = function () {
  * @function setButtonHeight
  **/
 function setButtonHeight() {
-    moblerlog("setButtonHeight");
+    console.log("setButtonHeight");
     var height, windowheight = $(window).height();
 
     //The main content area has a top margin of 55px. 
@@ -808,7 +808,7 @@ function setButtonHeight() {
  * @function setButtonWidth
  **/
 function setButtonWidth() {
-    moblerlog("setButtonWidth");
+    console.log("setButtonWidth");
     var width, window_width = $(window).width();
 
     //The main content area has a top margin of 55px. 
@@ -822,7 +822,7 @@ function setButtonWidth() {
 }
 
 function injectStyle() {
-    moblerlog("enter inject Style");
+    console.log("enter inject Style");
     var h = $(window).height(),
         w = $(window).width();
 
@@ -869,7 +869,7 @@ function selectCourseItem(courseId) {
     this.controller.models['questionpool'].loadData(courseId);
     if (this.controller.models.questionpool.dataAvailable()) {
         this.controller.models['answers'].setCurrentCourseId(courseId);
-        moblerlog("enters clickFeauturedItem");
+        console.log("enters clickFeauturedItem");
         this.controller.transitionToQuestion();
     } else {
         // inform the user that something went wrong

@@ -72,7 +72,7 @@ function QuestionView() {
      */
     $(document).bind("loadstatisticsfromserver", function () {
         if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters load statistics from server is done in question view");
+            console.log("enters load statistics from server is done in question view");
             self.showQuestionBody();
         }
 
@@ -83,10 +83,10 @@ function QuestionView() {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("allstatisticcalculationsdone", function () {
-        moblerlog("enters in calculations done in question view1 ");
+        console.log("enters in calculations done in question view1 ");
 
         if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters in calculations done in question view 2 ");
+            console.log("enters in calculations done in question view 2 ");
             self.showQuestionBody();
         }
     });

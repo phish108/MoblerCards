@@ -63,7 +63,7 @@ function FeedbackView() {
      */
     $(document).bind("loadstatisticsfromserver", function () {
         if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters load statistics from server is done in feedback view 1");
+            console.log("enters load statistics from server is done in feedback view 1");
             self.showFeedbackBody();
         }
     });
@@ -73,9 +73,9 @@ function FeedbackView() {
      * @param: a callback function that displays the feeback body and preventing the display of the statistics view
      */
     $(document).bind("allstatisticcalculationsdone", function () {
-        moblerlog("enters in calculations done in question view1 ");
+        console.log("enters in calculations done in question view1 ");
         if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
-            moblerlog("enters in calculations done in feedback view 2 ");
+            console.log("enters in calculations done in feedback view 2 ");
             self.showFeedbackBody();
         }
     });
@@ -285,6 +285,6 @@ FeedbackView.prototype.clickTitleArea = function () {
  * @function changeOrientation
  **/
 FeedbackView.prototype.changeOrientation = function (o, w, h) {
-    moblerlog("change orientation in answer view " + o + " , " + w + ", " + h);
+    console.log("change orientation in answer view " + o + " , " + w + ", " + h);
     setFeedbackWidth(o, w, h);
 };

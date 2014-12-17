@@ -37,10 +37,9 @@ under the License.
  * @param {String} controller
  */
 function CourseView() {
-
     var self = this;
 
-    this.tagID = 'coursesListView';
+    this.tagID = this.app.viewId;
     this.active = false;
     this.firstLoad = true;
     
@@ -56,7 +55,7 @@ function CourseView() {
      *        that the specific course including all its questions has been fully loaded
      */
     $(document).bind("questionpoolready", function (e, courseID) {
-        if ((self.tagID === self.app.activeView.tagID) && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.activeView && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("view questionPool ready called " + courseID);
             self.courseIsLoaded(courseID);
         }

@@ -57,7 +57,7 @@ function LoginView() {
      * @param: a function that hides the error message from login view
      * **/
     $(document).bind("errormessagehide", function () {
-        moblerlog(" hide error message loaded ");
+        console.log(" hide error message loaded ");
         self.hideErrorMessage();
     });
 
@@ -77,7 +77,7 @@ function LoginView() {
  * @function open
  **/
 LoginView.prototype.prepare = function () {
-    moblerlog("loginView: open sesame");
+    console.log("loginView: open sesame");
     $("#loginButton").show();
     // hide unnecessary errors and warnings 
     this.hideErrorMessage();
