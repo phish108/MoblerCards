@@ -377,12 +377,15 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     self.checkLoadingStatus(servername);
  
     if ($("#lmsImage" + servername).is(":visible")) {
-        this.previousSelectedLMSname = lmsitem.parent().find("li.gradientSelected").attr("id").substring(13);
+        lmsitem.removeClass("gradientSelected").addClass("gradient2 textShadow");
         
+        // FIXME where is the point in saving the previous server?
+        
+        this.previousSelectedLMSname = lmsitem.parent().find("li.gradientSelected").attr("id").substring(13);
         //store in the model the previous selected lms and not pass it as an argument in the setActive server
         this.app.models.lms.storePreviousServer(this.previousSelectedLMSname);
         //or previousLMS=lmsModel.getPreviousServer();
-        lmsitem.removeClass("gradientSelected").addClass("gradient2 textShadow");
+        
         this.selectItemVisuals(servername);
         setTimeout(function () {
             this.app.models.lms.setActiveServer(servername);
