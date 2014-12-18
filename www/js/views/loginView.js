@@ -161,10 +161,10 @@ LoginView.prototype.clickLoginButton = function () {
         if (self.active) {
             console.log("is logIn");
             $(document).trigger("trackingEventDetected", ["Login"]);
-            if (this.app.getLoginState()) {
-                this.app.changeView("course");
+            if (self.app.getLoginState()) {
+                self.app.changeView("course");
             } else {
-                this.app.changeView("landing");
+                self.app.changeView("landing");
             }
         }
     }

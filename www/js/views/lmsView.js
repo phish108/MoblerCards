@@ -151,8 +151,8 @@ LMSView.prototype.tap = function (event) {
     if (id === "closeLMSIcon") {
         this.back();
     }
-    else if (id.substring(0,5) === "label")  { 
-        this.clickLMSItem(sn, $(this));
+    else if (id.substring(0,5) === "label")  {  
+        this.clickLMSItem(sn, $(event.target));
         if ($("#lmsWaiting" + sn).hasClass("icon-cross red")) {
             $("#selectLMSitem" + this.previousSelectedLMSname).addClass("gradientSelected");
         }
@@ -381,9 +381,9 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
         
         // FIXME where is the point in saving the previous server?
         
-        this.previousSelectedLMSname = lmsitem.parent().find("li.gradientSelected").attr("id").substring(13);
-        //store in the model the previous selected lms and not pass it as an argument in the setActive server
-        this.app.models.lms.storePreviousServer(this.previousSelectedLMSname);
+//        this.previousSelectedLMSname = lmsitem.parent().find("li.gradientSelected").attr("id").substring(13);
+//        //store in the model the previous selected lms and not pass it as an argument in the setActive server
+//        this.app.models.lms.storePreviousServer(this.previousSelectedLMSname);
         //or previousLMS=lmsModel.getPreviousServer();
         
         this.selectItemVisuals(servername);

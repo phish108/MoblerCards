@@ -91,7 +91,6 @@ function AnswerView() {
  * @function open
  **/
 AnswerView.prototype.prepare = function (featuredContent_id) {
-    console.log("opes answer view");
     this.showAnswerTitle();
     this.showAnswerBody();
     this.app.resizeHandler();
@@ -102,6 +101,7 @@ AnswerView.prototype.prepare = function (featuredContent_id) {
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[AnswerView] tap registered: " + id);
+    
     if (id === "CourseList_FromAnswer") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");

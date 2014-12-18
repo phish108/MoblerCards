@@ -72,7 +72,8 @@ function QuestionView() {
      * @param: a callback function that displays the question text and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in question view");
             self.showQuestionBody();
         }
@@ -86,7 +87,8 @@ function QuestionView() {
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
 
-        if ((self.tagID === self.app.activeView.tagID) && (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.tagID === self.app.activeView) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in question view 2 ");
             self.showQuestionBody();
         }
@@ -108,7 +110,8 @@ QuestionView.prototype.prepare = function () {
 
 QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
-
+    console.log("[QuestionView] tap registered: " + id);
+    
     if (id === "ButtonAnswer" ||
         id === "carQuestionBody" ||
         id === "cardQuestionHeader") {
