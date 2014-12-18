@@ -96,7 +96,7 @@ CardBurnerModel.prototype.calculateValueHelper = checkAchievement;
 CardBurnerModel.prototype.calculateAchievementValues = function(){
 	var self = this;
     self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
-	moblerlog("current values for card burner"+self.values);
+	console.log("current values for card burner"+self.values);
 	self.queryDB( 
 		function cbSH(t,r) {self.calculateCardBurner(t,r);});
 
@@ -119,12 +119,12 @@ CardBurnerModel.prototype.calculateCardBurner = function(transaction, results) {
 		//if card burner was achieved (100 handled cards within 24 hours)
 		//some markers (via the achievement helper function) are inserted into the database 
 		if (row['c'] >= 100) {
-			moblerlog("cardburner was achieved");
+			console.log("cardburner was achieved");
 			this.achievementValue = 100;
 			this.insertAchievementHelper();
 		} else {
 			this.achievementValue = row['c'];
-			moblerlog("cardburner still not achieved yet");
+			console.log("cardburner still not achieved yet");
 		}
 	}
 	

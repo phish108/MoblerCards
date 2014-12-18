@@ -98,16 +98,16 @@ AverageScoreModel.prototype.queryDB = queryDatabase;
 AverageScoreModel.prototype.calculateAverageScore = function(transaction, results) {
 	
 	var self = this;
-	moblerlog("rows: " + results.rows.length);
+	console.log("rows: " + results.rows.length);
 	if (results.rows.length > 0) {
 		row = results.rows.item(0);
-		moblerlog("row: " + JSON.stringify(row));
+		console.log("row: " + JSON.stringify(row));
 		if (row['num'] === 0) {
 			this.averageScore = 0;
 		} else {
 			this.averageScore =  Math.round((row['score'] / row['num']) * 100);
 		}
-		moblerlog("AVERAGE SCORE: " + this.averageScore);
+		console.log("AVERAGE SCORE: " + this.averageScore);
 	} else {
 		this.averageScore = 0;
 	}
@@ -131,10 +131,10 @@ AverageScoreModel.prototype.calculateAverageScore = function(transaction, result
 AverageScoreModel.prototype.calculateImprovementAverageScore = function (transaction,results){
 	
 	var self = this;
-	moblerlog("rows in calculate improvement average score: "+ results.rows.length);
+	console.log("rows in calculate improvement average score: "+ results.rows.length);
 	if (results.rows.length > 0) {
 		row = results.rows.item(0);
-		moblerlog("row: " + JSON.stringify(row));
+		console.log("row: " + JSON.stringify(row));
 		var oldAverageScore = 0;
 		if (row['num'] !== 0) {
 			oldAverageScore = Math.round((row['score'] / row['num']) * 100);
@@ -154,7 +154,7 @@ AverageScoreModel.prototype.calculateImprovementAverageScore = function (transac
 		//current 24 hours
 	  this.improvementAverageScore = this.averageScore;
 	}
-	moblerlog("improvement average score: "+ this.improvementAverageScore);
+	console.log("improvement average score: "+ this.improvementAverageScore);
 	//When the calculation is done, this model notifies the statistics model by increasing the boolAllDone value 
 	//and calling then the allCalculationsDone() function, where the counting of the so far calculated statistis metrics
 	//will be done summative 

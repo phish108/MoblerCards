@@ -71,7 +71,7 @@ ProgressModel.prototype.initQuery = function(){
 ProgressModel.prototype.calculateValue = function(){
 	var self = this;
 	self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_FOUR);
-	moblerlog("current values progess model" +self.values);
+	console.log("current values progess model" +self.values);
 	self.queryDB( 
 		function cbP(t,r) {self.calculateProgress(t,r);});
 };
@@ -98,15 +98,15 @@ ProgressModel.prototype.calculateProgress = function(transaction, results) {
 	var self = this;
 	if (results.rows.length > 0) {
 		row = results.rows.item(0);
-		moblerlog("number of correct questions:" + row['numCorrect']);
-		moblerlog("number of answered questions:"+ self.superModel.handledCards.handledCards);
+		console.log("number of correct questions:" + row['numCorrect']);
+		console.log("number of answered questions:"+ self.superModel.handledCards.handledCards);
 		cards = self.superModel.controller.models['questionpool'].questionList.length;
 		if (cards === 0) {
 			this.progress = 0;
 		} else {
 		this.progress = Math.round(((row['numCorrect']) / cards) * 100);
 		}
-		moblerlog("progress: " +this.progress);
+		console.log("progress: " +this.progress);
 	} else {
 		this.progress = 0;
 	}
@@ -130,20 +130,20 @@ ProgressModel.prototype.calculateProgress = function(transaction, results) {
  */
 ProgressModel.prototype.calculateImprovementProgress= function (transaction,results){
 	var self = this;
-	moblerlog("rows in calculate improvement progress: "+ results.rows.length);
+	console.log("rows in calculate improvement progress: "+ results.rows.length);
 	if (results.rows.length > 0) {
 		row = results.rows.item(0);
-		moblerlog("progress row" + JSON.stringify(row));
+		console.log("progress row" + JSON.stringify(row));
 		cards = self.superModel.controller.models['questionpool'].questionList.length;
 		if (cards === 0) {
 			this.improvementProgress = 0;
 		} else {
-			moblerlog("Progress Num Correct: " + row['numCorrect']);
+			console.log("Progress Num Correct: " + row['numCorrect']);
 			oldProgress = Math
 				.round(((row['numCorrect']) / cards) * 100);
 			newProgress = this.progress;
 			this.improvementProgress = newProgress - oldProgress;
-			moblerlog("improvement progress: " + this.improvementProgress);
+			console.log("improvement progress: " + this.improvementProgress);
 			/**
 			 * It is triggered when the calculations of user's progress and its 
 			 * improvement have been finished

@@ -95,7 +95,7 @@ StackHandlerModel.prototype.calculateAchievementValues = function(){
 	var self = this;
 	var val = 0;
 	self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_ONE);
-	moblerlog("current values for stack handler"+self.values);
+	console.log("current values for stack handler"+self.values);
 	self.queryDB( 
 		function cbSH(t,r) {self.calculateStackHandler(t,r);});
 
@@ -133,8 +133,8 @@ StackHandlerModel.prototype.calculateStackHandler = function(transaction, result
 	if (this.achievementValue >= 100) {
 		this.insertAchievementHelper();
 	}
-	moblerlog("stackHandler: " + self.achievementName + " handled: " + numHandledCards + " all: " + numAllCards);
-	moblerlog("stackHandler: " + this.achievementValue + " handled: " + numHandledCards + " all: " + numAllCards);
+	console.log("stackHandler: " + self.achievementName + " handled: " + numHandledCards + " all: " + numAllCards);
+	console.log("stackHandler: " + this.achievementValue + " handled: " + numHandledCards + " all: " + numAllCards);
 	//When the calculation is done, this model notifies the statistics model by increasing the boolAllDone value 
 	//and calling then the allCalculationsDone() function, where the counting of the so far calculated statistis metrics
 	//will be done summative 
