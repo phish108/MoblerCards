@@ -291,6 +291,7 @@ LMSView.prototype.selectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deselectItemVisuals = function (servername) {
+    console.log("previous servername: " + servername);
     $("#selectLMSitem" + servername).removeClass("lightShadow gradientSelected ");
     $("#selectLMSitem" + servername).addClass("textShadow");
 };
@@ -377,19 +378,19 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     self.checkLoadingStatus(servername);
  
     if ($("#lmsImage" + servername).is(":visible")) {
-        lmsitem.removeClass("gradientSelected").addClass("gradient2 textShadow");
-        
-        // FIXME where is the point in saving the previous server?
-        
-//        this.previousSelectedLMSname = lmsitem.parent().find("li.gradientSelected").attr("id").substring(13);
-//        //store in the model the previous selected lms and not pass it as an argument in the setActive server
-//        this.app.models.lms.storePreviousServer(this.previousSelectedLMSname);
+        lmsitem.parent().removeClass("gradientSelected").addClass("gradient2 textShadow");
+                
+        //store in the model the previous selected lms and not pass it as an argument in the setActive server
+        this.app.models.lms.storePreviousServer();
         //or previousLMS=lmsModel.getPreviousServer();
-        
+        this.previousSelectedLMSname = lmsModel.getPreviousServer();
+
         this.selectItemVisuals(servername);
-        setTimeout(function () {
+        this.deselectItemVisuals(this.previousSelectedLMSname);
+        
+//        setTimeout(function () {
             this.app.models.lms.setActiveServer(servername);
-        }, 650);
+//        }, 650);
     }
 };
 

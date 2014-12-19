@@ -110,7 +110,7 @@ AnswerView.prototype.tap = function (event) {
         }
     } 
     else if (id === "doneButton") {
-        this.clickDoneButton;
+        this.clickDoneButton();
     }
     else if (id === "cardAnswerTitle" || id === "cardAnswerIcon") {
         this.widget.storeAnswers();

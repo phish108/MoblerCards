@@ -1,3 +1,4 @@
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -38,7 +39,8 @@ under the License.
 // TODO templates
 function AchievementsView() {
     var self = this;
-    self.tagID = self.app.views.id;
+    
+    self.tagID = self.app.viewId;
     self.featuredContentId = FEATURED_CONTENT_ID;
     var achievementsFlag = true;
 

@@ -102,11 +102,11 @@ HorizontalTextSortWidget.prototype.showAnswer = function () {
         }
 
         var lastli = $("<li/>", {}).appendTo(ul);
-
-        "id": "lastHSortingLi",
-        "class": "gradient1 shadowedLi"
-    }).appendTo(lastli);
-
+        
+        $("<div/>", {
+            "id": "lastHSortingLi",
+            "class": "gradient1 shadowedLi"
+        }).appendTo(lastli);
 
 //add some space, so that to enable scrolling in landscape mode
 var marginli = $("<li/>", {

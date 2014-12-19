@@ -117,7 +117,8 @@ FeedbackView.prototype.cleanup = function () {
  **/
 FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
-
+    console.log("[FeedbackView] tap registered: " + id);
+    
     if (id === "FeedbackDoneButon") {
         this.clickFeedbackDoneButton();
     }
@@ -212,7 +213,7 @@ FeedbackView.prototype.clickCourseListButton = function () {
  * @function showFeedbackTitle
  **/
 FeedbackView.prototype.showFeedbackTitle = function () {
-    var currentFeedbackTitle = this.app.models.anwer.getAnswerResults();
+    var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
 
     $("#cardFeedbackTitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
     $("#feedbackIcon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
