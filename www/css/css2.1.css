@@ -48,6 +48,7 @@ body {
     border: 1px solid white;
     line-height: 49px;
     height: 49px;
+    width: 100%;
     z-index: 10;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999999), color-stop(100%, #6a6a6a));
     /* Safari 4+, Chrome 2+ */
