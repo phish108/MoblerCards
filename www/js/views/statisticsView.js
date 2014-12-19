@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -16,27 +14,22 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
-
-
+under the License.
 */
-
-
-
 
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
 
 */
 
-/*jslint vars: true, sloppy: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class StatisticsView
  * The statistics view displays displays the statistics data.
  * - Best day and best score. Their calculations are based on from the first active
  *   day until the current time.
- * - Handled Cards:It is the number of cards the user has handled for a specific course 
+ * - Handled Cards:It is the number of cards the user has handled for a specific course
  *   during the last 24 hours
  * - Average Score: It is the average score of the handled cards during the last 24 hours
  * - Progress: It is the increase or not in the percentage of the correctly answered
@@ -49,152 +42,109 @@ under the License.
  *   the calculation of all the statistics metrics.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
-*/ 
-function StatisticsView(controller) {
+ */
+function StatisticsView() {
     var self = this;
+
+    this.tagID = this.app.views.id;
+    this.featuredContentId = FEATURED_CONTENT_ID;
     
-    self.tagID = 'statisticsView';
-    self.controller = controller;
-    var featuredContent_id = FEATURED_CONTENT_ID;
-    self.dataLoaded=false;
-    
-    moblerlog( 'statistics view init touch events');
-    
-    jester($('#closeStatisticsIcon')[0]).tap(function(){ self.closeStatistics(); });
-    
-    jester($('#statsSlot3')[0]).tap(function() {
-    	moblerlog("clicked in achievements in statistics view");
-		self.clickToAchievements(featuredContent_id);
-	});
-    
-    
-    moblerlog('bind the application events');
+    self.dataLoaded = false;
+
     /**It is triggered after statistics are loaded locally from the server. This can happen during the 
-	 * authentication or if we had clicked on the statistics icon and moved to the questions.
-	 * @event loadstatisticsfromserver
-	 * @param: a callback function that displays the answer body and preventing the display of the statistics view
-	 */	
-    $(document).bind("loadstatisticsfromserver", function() {
-    	if ((self.tagID === self.controller.activeView.tagID) && (self.controller.models['authentication'].configuration.loginState === "loggedIn"))
-    	{
-    		moblerlog("enters load statistics from server is done");
-			 self.controller.models['statistics'].getFirstActiveDay();
-    	}
-    	
-	  });
-    
+     * authentication or if we had clicked on the statistics icon and moved to the questions.
+     * @event loadstatisticsfromserver
+     * @param: a callback function that displays the answer body and preventing the display of the statistics view
+     */
+    $(document).bind("loadstatisticsfromserver", function () {
+        if ((self.tagID === self.app.activeView.tagID) && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("enters load statistics from server is done");
+            self.app.models.statistics.getFirstActiveDay();
+        }
+
+    });
+
     /**It is triggered when the calculation of all the statistics metrics is done in the statistics model
-	 * @event allstatisticcalculationsdone
-	 * @param: a callback function that displays the statistics view
-	 */	
-    $(document).bind("allstatisticcalculationsdone", function() { 
-    	moblerlog("enters in calculations done 1 ");
-    	if (self.tagID === self.controller.activeView.tagID)
-    	{
-    		moblerlog("enters in calculations done 2 ");
-    		self.loadData();
-    	}
-    	});
-     
-        moblerlog('done');
-  }
-
-/**pinch leads to course list
- * @prototype
- * @function handlePinch
- **/
-StatisticsView.prototype.handlePinch = function() {
-    this.controller.transitionToCourses();  
-};
-
-
-/**tap does nothing
- * @prototype
- * @function handleTap
- **/
-StatisticsView.prototype.handleTap   = doNothing;
-
-
-/**swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-StatisticsView.prototype.handleSwipe = function(featuredContent_id) {
-	controller.transitionToAchievements(featuredContent_id);
-};
-
-
-/**closes the view
- * @prototype
- * @function close
- **/
-StatisticsView.prototype.close = closeView;
-
-
-/**opens the view
- * @prototype
- * @function openDiv
- **/ 
-StatisticsView.prototype.openDiv = openView;
-
+     * @event allstatisticcalculationsdone
+     * @param: a callback function that displays the statistics view
+     */
+    $(document).bind("allstatisticcalculationsdone", function () {
+        console.log("enters in calculations done 1 ");
+        if (self.tagID === self.app.activeView.tagID) {
+            console.log("enters in calculations done 2 ");
+            self.loadData();
+        }
+    });
+}
 
 /**Opens the view. First checks if the statistics are loaded from the server.
  * If not displays a "loading" message on the screen, otherwise it
  * loads the statistics data.
  * @prototype
  * @function open
- **/ 
-StatisticsView.prototype.open = function(featuredContent_id,achievementsFlag) {
-	var self=this;
-	if (self.controller.getLoginState()) {
-		if (featuredContent_id || self.controller.getConfigVariable("statisticsLoaded")== true){
-			self.loadData();
-		}
-		else {
-		self.showLoadingMessage();
-			}
-		
-	}//end of is logged in
-	else //if we are not logged in 
-		{
-			moblerlog("open statistics view in featured course context");
-		self.loadData();	
-		}
-	controller.models['featured'].loadFeaturedCourseFromServer();
-	this.changeOrientation();
-	this.openDiv();	
-	
+ **/
+StatisticsView.prototype.prepare = function () {
+    var self = this;
+    if (self.app.getLoginState()) {
+        if (this.featuredContentId || self.app.getConfigVariable("statisticsLoaded") === true) {
+            self.loadData();
+        } else {
+            self.showLoadingMessage();
+        }
+
+    } //end of is logged in
+    else //if we are not logged in 
+    {
+        console.log("open statistics view in featured course context");
+        self.loadData();
+    }
+    this.app.models.featured.loadFeaturedCourseFromServer();
+    this.changeOrientation();
 };
 
-/**leads to course list
+StatisticsView.prototype.tap = function (event) {
+    var id = event.target.id;
+    
+    if (id === "closeStatisticsIcon") {
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
+        } else {
+            this.app.changeView("landing");
+        }
+    }
+    else if (id === "statsSlot3") {
+        this.app.changeView("achievements", this.featuredContentId);
+    }
+};
+
+/**pinch leads to course list
  * @prototype
- * @function closeStatistics
- **/ 
-StatisticsView.prototype.closeStatistics = function() {
-	moblerlog("close Statistics button clicked");
-	this.controller.transitionToCourses();
+ * @function handlePinch
+ **/
+StatisticsView.prototype.pinch = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    } else {
+        this.app.changeView("landing");
+    }
 };
 
+/**swipe does nothing
+ * @prototype
+ * @function handleSwipe
+ **/
+StatisticsView.prototype.swipe = function (event) {
+    this.app.changeView("achievements", this.featuredContentId);
+};
 
 /**show loading message when statistics have not been fully loaded from the server
  * @prototype
  * @function showLoadingMessage
  **/
-StatisticsView.prototype.showLoadingMessage = function() {
-	$("#statisticsBody").hide();
-	$("#loadingMessage").show();		
+StatisticsView.prototype.showLoadingMessage = function () {
+    $("#statisticsBody").hide();
+    $("#loadingMessage").show();
 };
-
-
-/**leads to achievements view
- * @prototype
- * @function clickToAchievements
- **/
-StatisticsView.prototype.clickToAchievements = function(featuredContent_id) {
-	moblerlog("slot 1 or slot 2 clicked");
-	this.controller.transitionToAchievements(featuredContent_id);
-};
-
 
 /**loads the statistics data, whose values are calculated in the answer model
  * additionally, depending on the improvement or not of their values in
@@ -203,88 +153,77 @@ StatisticsView.prototype.clickToAchievements = function(featuredContent_id) {
  * @prototype
  * @function loadData
  **/
-StatisticsView.prototype.loadData = function() {
-	var self=this;
-	moblerlog("enters load data in statistics");
-	var statisticsModel = this.controller.models['statistics'];
-	
-	
-	moblerlog("init values for statistics");
-	//starts the calculation of the values of the various
-	//statistics metrics
-	var avgScore = statisticsModel.averageScore.averageScore;
-	moblerlog("average score is: "+avgScore);
-	var improvementAvgScore = statisticsModel.averageScore.improvementAverageScore;
-	if (avgScore < 0) {
-		avgScore =  0;
-	}
-	
-	var avgSpeed = statisticsModel.averageSpeed.averageSpeed;
-	var improvementSpeed = statisticsModel.averageSpeed.improvementSpeed;
-	if (avgSpeed <= 0) {
-		avgSpeed =  "-";
-	}
-	
-	var handledCards = statisticsModel.handledCards.handledCards;
-	var improvementhandledCards = statisticsModel.handledCards.improvementHandledCards;
-    if (handledCards < 0) {
-        handledCards =  0;
+StatisticsView.prototype.loadData = function () {
+    var self = this;
+    var statisticsModel = this.app.models.statistics;
+
+
+    console.log("init values for statistics");
+    //starts the calculation of the values of the various
+    //statistics metrics
+    var avgScore = statisticsModel.averageScore.averageScore;
+    console.log("average score is: " + avgScore);
+    var improvementAvgScore = statisticsModel.averageScore.improvementAverageScore;
+    if (avgScore < 0) {
+        avgScore = 0;
     }
-    
+
+    var avgSpeed = statisticsModel.averageSpeed.averageSpeed;
+    var improvementSpeed = statisticsModel.averageSpeed.improvementSpeed;
+    if (avgSpeed <= 0) {
+        avgSpeed = "-";
+    }
+
+    var handledCards = statisticsModel.handledCards.handledCards;
+    var improvementhandledCards = statisticsModel.handledCards.improvementHandledCards;
+    if (handledCards < 0) {
+        handledCards = 0;
+    }
+
     var progress = statisticsModel.progress.progress;
     var improvementProgress = statisticsModel.progress.improvementProgress;
-	if (progress < 0) {
-		progress =  0;
-	}
-    
-	var bestDay = statisticsModel.bestDay.bestDay;
-	if (!bestDay) {
-		// if the database does not know better, today is the best day!
-		bestDay = new Date().getTime();
-	}
-	var oBestDay = new Date(bestDay);
-	
-	var bestScore = statisticsModel.bestDay.bestScore;
-	if (bestScore < 0) {
-		bestScore =  0;
-	}
-	moblerlog("initialization of data done");
-	
-	var removeClasses = msg_positiveImprovement_icon + " " + msg_negativeImprovement_icon + " " + msg_neutralImprovement_icon +
-    " red green";
-	//once the calculation of the values is done
-	// we display the values, their text and the improvement arrow
-	$("#loadingMessage").hide();
-	$("#statisticsBody").show();
-	$("#statBestDayValue").text(oBestDay.getDate()  + " " + jQuery.i18n.prop('msg_monthName_'+ (oBestDay.getMonth() +1)));
-	$("#statBestDayInfo").text(oBestDay.getFullYear());
-	$("#statBestScoreValue").text(bestScore+"%");
-	//$("#statHandledCardsValue").text(handledCards+ " "+ jQuery.i18n.prop('msg_handledCards_info'));
-	$("#statHandledCardsValue").text(handledCards);
-	$("#statsHandledCardsInfo").text(jQuery.i18n.prop('msg_handledCards_info'));
-	$("#statsHandledCardsIconchange").removeClass(removeClasses);
-	$("#statsHandledCardsIconchange").addClass(checkImprovement(improvementhandledCards));
-	$("#statAverageScoreValue").text(avgScore+"%");
-	$("#statsAverageScoreIconchange").removeClass(removeClasses);
-	$("#statsAverageScoreIconchange").addClass(checkImprovement(improvementAvgScore));
-	$("#statProgressValue").text(progress+"%");
-	$("#statsProgressIconchange").removeClass(removeClasses);
-	$("#statsProgressIconchange").addClass(checkImprovement(improvementProgress));
-	//$("#statSpeedValue").text(avgSpeed+" "+ jQuery.i18n.prop('msg_speed_info'));
-	$("#statSpeedValue").text(avgSpeed);
-	$("#statsSpeedinfo").text(jQuery.i18n.prop('msg_speed_info'));
-	$("#statsSpeedIconchange").removeClass(removeClasses);
-	$("#statsSpeedIconchange").addClass(checkSpeedImprovement(improvementSpeed));
-   
-    moblerlog("end load data");
-    
-    
-};	
+    if (progress < 0) {
+        progress = 0;
+    }
 
-/**
-* handles dynamically any change that should take place on the layout
-* when the orientation changes.
-* @prototype
-* @function changeOrientation
-**/ 	
-StatisticsView.prototype.changeOrientation = doNothing;
+    var bestDay = statisticsModel.bestDay.bestDay;
+    if (!bestDay) {
+        // if the database does not know better, today is the best day!
+        bestDay = new Date().getTime();
+    }
+    var oBestDay = new Date(bestDay);
+
+    var bestScore = statisticsModel.bestDay.bestScore;
+    if (bestScore < 0) {
+        bestScore = 0;
+    }
+    console.log("initialization of data done");
+
+    var removeClasses = msg_positiveImprovement_icon + " " + msg_negativeImprovement_icon + " " + msg_neutralImprovement_icon +
+        " red green";
+    //once the calculation of the values is done
+    // we display the values, their text and the improvement arrow
+    $("#loadingMessage").hide();
+    $("#statisticsBody").show();
+    $("#statBestDayValue").text(oBestDay.getDate() + " " + jQuery.i18n.prop('msg_monthName_' + (oBestDay.getMonth() + 1)));
+    $("#statBestDayInfo").text(oBestDay.getFullYear());
+    $("#statBestScoreValue").text(bestScore + "%");
+    //$("#statHandledCardsValue").text(handledCards+ " "+ jQuery.i18n.prop('msg_handledCards_info'));
+    $("#statHandledCardsValue").text(handledCards);
+    $("#statsHandledCardsInfo").text(jQuery.i18n.prop('msg_handledCards_info'));
+    $("#statsHandledCardsIconchange").removeClass(removeClasses);
+    $("#statsHandledCardsIconchange").addClass(checkImprovement(improvementhandledCards));
+    $("#statAverageScoreValue").text(avgScore + "%");
+    $("#statsAverageScoreIconchange").removeClass(removeClasses);
+    $("#statsAverageScoreIconchange").addClass(checkImprovement(improvementAvgScore));
+    $("#statProgressValue").text(progress + "%");
+    $("#statsProgressIconchange").removeClass(removeClasses);
+    $("#statsProgressIconchange").addClass(checkImprovement(improvementProgress));
+    //$("#statSpeedValue").text(avgSpeed+" "+ jQuery.i18n.prop('msg_speed_info'));
+    $("#statSpeedValue").text(avgSpeed);
+    $("#statsSpeedinfo").text(jQuery.i18n.prop('msg_speed_info'));
+    $("#statsSpeedIconchange").removeClass(removeClasses);
+    $("#statsSpeedIconchange").addClass(checkSpeedImprovement(improvementSpeed));
+
+    console.log("end load data");
+};

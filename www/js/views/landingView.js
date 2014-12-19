@@ -1,5 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -16,15 +15,13 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
 
 /**
  * @author Evangelia Mitsopoulou
  */
 
-/*jslint vars: true, sloppy: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class LandingView
@@ -38,151 +35,84 @@ under the License.
  *    the update of courses and questions. It prevents the display of the appropriate
  *    views that are also binded with the aforementioned events by displaying the
  *    login form itself.(FIX ME:. stay here instead of redirecting to the login view)
- *  @param {String} controller  
+ *  @param {String} controller
  **/
-function LandingView(controller) {
-	var self = this;
+function LandingView() {
+    var self = this;
 
-	self.tagID = 'landingView';
-	this.controller = controller;
-	this.active = false;
-	this.fixedRemoved= false;
-	var prevent=true;
-	var featuredContent_id = FEATURED_CONTENT_ID;
-	
-	jester($('#selectarrowLanding')[0]).tap(function(e) {
-		//	e.stopPropagation();
-		moblerlog("taped statistics icon landing view");
-		self.clickFeaturedStatisticsIcon(featuredContent_id);
-	});
-	
-	$('#featuredContent').bind("touchstart", function(e) {
-		$("#featuredContent").addClass("gradientSelected");
-		moblerlog("color changed in featured content touchstart");
-		e.preventDefault();
-		e.stopPropagation();
-	});	
-	
-	jester($('#leftElement1')[0]).tap(function(e,prevent) {
-		moblerlog("taped feautured Content");
-		//$("#featuredContent").addClass("gradientSelected");
-		//	e.stopPropagation();
-		//	e.preventDefault();
-		// $("#featuredContent").addClass("gradientSelected");
-		//	NEW
-		// var featuredModel = self.controller.models['featured'];
-		// var feauturedId= featuredModel.getId();
-		self.clickFeaturedItem(featuredContent_id);
-	});
+    this.tagID = this.app.viewId;
+    this.active = false;
+    this.fixedRemoved = false;
+    
+    $('#featuredContent').bind("touchstart", function (e) {
+        $("#featuredContent").addClass("gradientSelected");
+        console.log("color changed in featured content touchstart");
+    });
 
-	//handler when taping on the exclusive content element
-	jester($('#leftElementExclusive')[0]).tap(function(e,prevent) {
-		//$('#selectExclusiveContent').addClass("gradientSelected");
-		moblerlog(" taped exclusive conent in landing view 1");
-		//e.preventDefault();
-		//e.stopPropagation();
-		self.selectExclusiveContent();
-	});
-		
-	
-	$('#selectExclusiveContent').bind("touchstart", function(e) {
-		moblerlog(" enters in landing view 2 ");
-		$("#selectExclusiveContent").addClass("gradientSelected");
-		e.preventDefault();
-		e.stopPropagation();
-	});	
-	
-	/** 
-	 * It is triggered when an online connection is detected.
-	 * @event errormessagehide
-	 * @param: a function that hides the error message from login view
-	 * **/
-	$(document).bind("errormessagehide", function() {
-		moblerlog(" hide error message loaded ");
-		self.hideErrorMessage();
-	});	
-		
-	
+    $('#selectExclusiveContent').bind("touchstart", function (e) {
+        console.log(" enters in landing view 2 ");
+        $("#selectExclusiveContent").addClass("gradientSelected");
+    });
 
-	
-	
+    /** 
+     * It is triggered when an online connection is detected.
+     * @event errormessagehide
+     * @param: a function that hides the error message from login view
+     * **/
+    $(document).bind("errormessagehide", function () {
+        console.log(" hide error message loaded ");
+        self.hideErrorMessage();
+    });
 
-	$(document).bind("featuredContentlistupdate", function(e,featuredCourseId) {
-		
-	self.showForm(); //this will be called when a synchronization update takes place
-	
-	});
-
-	
-	
+    $(document).bind("featuredContentlistupdate", function (e, featuredCourseId) {
+        self.showForm(); //this will be called when a synchronization update takes place
+    });
 } //end of constructor
-
-
-/**
- * 
- * @prototype
- * @function handleTap
- **/
-LandingView.prototype.handleTap =doNothing;
-
-
-/**
- * pinch does nothing
- * @prototype
- * @function handlePinch
- **/
-LandingView.prototype.handlePinch = doNothing;
-
-/**
- * swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-LandingView.prototype.handleSwipe = doNothing;
-
-
-/**
- * opens the view
- * @prototype
- * @function openDiv
- **/
-LandingView.prototype.openDiv = openView;
-
 
 /**
  * It opens the landing view
  * @prototype
  * @function open
  **/
-LandingView.prototype.open = function() {
-	moblerlog("landingView: open sesame");
-	this.showForm();
-	this.openDiv();
-	this.active = true;
+LandingView.prototype.prepare = function () {
+    console.log("[landingView] prepare");
+    this.showForm();    
+    this.active = true;
 };
 
-
 /**
- * closes the view
- * @prototype
- * @function closeDiv
- **/ 
-LandingView.prototype.closeDiv = closeView;
-
-
-/**
- * closes the view after firstly removing the gradients 
+ * closes the view after firstly removing the gradients
  * of the featured and exclusive content
  * @prototype
  * @function close
- **/ 
-LandingView.prototype.close = function() {
-	$("#selectExclusiveContent").removeClass("gradientSelected");
-	$("#featuredContent").removeClass("gradientSelected");
-	this.active = false;
-	this.closeDiv();
+ **/
+LandingView.prototype.cleanup = function () {
+    $("#selectExclusiveContent").removeClass("gradientSelected");
+    $("#featuredContent").removeClass("gradientSelected");
+    this.active = false;
 };
 
+/**
+ *
+ * @prototype
+ * @function handleTap
+ **/
+LandingView.prototype.tap = function (event) {
+    var id = event.target.id;
+    var featuredContentId = FEATURED_CONTENT_ID;
+    
+    console.log("[LandingView] tap registered: " + id);
+    
+    if (id === "selectarrowLanding") {
+        this.clickFeaturedStatisticsIcon(featuredContentId);
+    }
+    else if (id === "leftElement1") {
+        this.app.selectCourseItem(featuredContentId);
+    }
+    else if (id === "leftElementExclusive") {
+        this.selectExclusiveContent();
+    }
+};
 
 /**
  * transition to login view when the exclusive option
@@ -190,115 +120,92 @@ LandingView.prototype.close = function() {
  * @prototype
  * @function selectExclusiveContent
  */
-LandingView.prototype.selectExclusiveContent = function() {
-	moblerlog("enter selectExclusiveContent");
-	this.controller.transitionToLogin();
+LandingView.prototype.selectExclusiveContent = function () {
+    console.log("enter selectExclusiveContent");
+    // this statement comes from the app TranstitionToLogin
+    this.app.changeView("login");
 };
 
-
 /**
- * displays the landing form 
+ * displays the landing form
  * @prototype
  * @function showForm
  * @param{string}, featuredContent_id
- */ 
-LandingView.prototype.showForm = function() {
-	moblerlog("enter show form of landing view");
-	var self=this;
-	var featuredModel = self.controller.models['featured'];
-	this.hideErrorMessage();
-	if (this.controller.models['connection'].isOffline()) {
-		this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));}
-	 //$("#featuredContent").attr("id",this.featuredContent_id);
-	//NEW
-	//$("#featuredContent").attr("id",featuredModel.getId());
-	//scalculateLabelWidth();
-	$("#landingViewHeader").show();
-	moblerlog("showed landing view header");
-	$("#leftElement1").text(featuredModel.getTitle());
-	
-	if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
-		$("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");	
-	}
-	$("#landingBody").show();	
-	moblerlog("showed the body of the landing page");
- 
-}
+ */
+LandingView.prototype.showForm = function () {
+    console.log("enter show form of landing view");
+    var self = this;
+    var featuredModel = self.app.models.featured;
+    this.hideErrorMessage();
+    if (this.app.models.connection.isOffline()) {
+        this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
+    }
+    //$("#featuredContent").attr("id",this.featuredContentId);
+    //NEW
+    //$("#featuredContent").attr("id",featuredModel.getId());
+    //scalculateLabelWidth();
+    $("#landingViewHeader").show();
+    console.log("showed landing view header");
+    $("#leftElement1").text(featuredModel.getTitle());
 
+    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
+        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
+    }
+    $("#landingBody").show();
+    console.log("showed the body of the landing page");
+};
 
 /**
  * shows the specified error message
  * @prototype
  * @function showErrorMessage
- */ 
-LandingView.prototype.showErrorMessage = function(message) {
-	$("#warningmessageLanding").hide();
-	$("#errormessageLanding").text(message);
-	$("#errormessageLanding").show();
+ */
+LandingView.prototype.showErrorMessage = function (message) {
+    $("#warningmessageLanding").hide();
+    $("#errormessageLanding").text(message);
+    $("#errormessageLanding").show();
 };
 
 /**
  * click on the default featured content, loads its questions
  * @prototype
  * @function clickFeaturedItem
- */ 
-LandingView.prototype.clickFeaturedItem = function(featuredContent_id){
-//	if (this.controller.models['featured'].isSynchronized(featuredContent_id)) {
-//  NEW
-//  var featuredModel = self.controller.models['featured'];
-//	var feauturedId= featuredModel.getId();
-//	moblerlog("featured content id in landing view is "+feauturedId);
-	selectCourseItem(featuredContent_id);
-//}
+ */
+LandingView.prototype.clickFeaturedItem = function (featuredContentId) {
+    
 };
 
-
 /**
-* hides the specified error message
-* @prototype
-* @function hideErrorMessage
-**/ 
-LandingView.prototype.hideErrorMessage = function() {
-	$("#errormessageLanding").text("");
-	$("#errormessageLanding").hide();
+ * hides the specified error message
+ * @prototype
+ * @function hideErrorMessage
+ **/
+LandingView.prototype.hideErrorMessage = function () {
+    $("#errormessageLanding").text("");
+    $("#errormessageLanding").hide();
 };
 
-
 /**
-* handles dynamically any change that should take place on the layout
-* when the orientation changes.
-* @prototype
-* @function changeOrientation
-* @param {string, number, number} orientationLayout, width of device screen, height of device screen
-**/ 
-LandingView.prototype.changeOrientation = function(orientationLayout, w, h) {
-	moblerlog("change orientation in landing view");
-};
-
-
-/**
- * click on statistic icon calculates the appropriate statistics and 
+ * click on statistic icon calculates the appropriate statistics and
  * loads the statistics view after transforming the statistics icon into loading icon
  * @prototype
  * @function clickStatisticsIcon
- * @param {string} featuredContent_id
- */ 
-LandingView.prototype.clickFeaturedStatisticsIcon = function(featuredContent_id) {
-	moblerlog("statistics button in landing view clicked");
-	
+ * @param {string} featuredContentId
+ */
+LandingView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId) {
+    console.log("statistics button in landing view clicked");
 
-	if ($("#selectarrowLanding").hasClass("icon-bars")) {
-		moblerlog("select arrow landing has icon bars");
-		$("#selectarrowLanding").removeClass("icon-bars").addClass("icon-loading loadingRotation");
-		
-		//icon-loading, icon-bars old name
-		//all calculations are done based on the course id and are triggered
-		//within setCurrentCourseId
-		//this.controller.transitionToStatistics(featuredContent_id);
-//		NEW
-//		var featuredModel = self.controller.models['featured'];
-//		var feauturedId= featuredModel.getId();
-		this.controller.transitionToStatistics(featuredContent_id);
-	}
+    if ($("#selectarrowLanding").hasClass("icon-bars")) {
+        console.log("select arrow landing has icon bars");
+        $("#selectarrowLanding").removeClass("icon-bars").addClass("icon-loading loadingRotation");
+
+        //icon-loading, icon-bars old name
+        //all calculations are done based on the course id and are triggered
+        //within setCurrentCourseId
+        //this.app.transitionToStatistics(featuredContentId);
+        //		NEW
+        //		var featuredModel = self.app.models['featured'];
+        //		var feauturedId= featuredModel.getId();
+        this.app.changeView("statistics", featuredContentId);
+    }
 };
-

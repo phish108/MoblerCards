@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -17,13 +15,9 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
 
-
 /*jslint vars: true, sloppy: true */
-
 
 /**
  * @class AverageScoreModel 
@@ -38,13 +32,10 @@ under the License.
  * @param {String} statisticsModel 
  */
 function AverageScoreModel(statisticsModel){
-    this.modelName = "avg score";
     this.superModel = statisticsModel;
     this.averageScore = -1;
     this.improvementAverageScore = 0;
     this.initQuery();
-    
-	
 }
 
 /**
@@ -74,7 +65,6 @@ AverageScoreModel.prototype.calculateValue = function(){
 	self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
 	self.queryDB( 
 			function cbAS(t,r) {self.calculateAverageScore(t,r);});
-
 };
 
 /**
@@ -96,18 +86,18 @@ AverageScoreModel.prototype.queryDB = queryDatabase;
  * @param transaction, results
  */
 AverageScoreModel.prototype.calculateAverageScore = function(transaction, results) {
-	
 	var self = this;
-	moblerlog("rows: " + results.rows.length);
+    
+	console.log("rows: " + results.rows.length);
 	if (results.rows.length > 0) {
-		row = results.rows.item(0);
-		moblerlog("row: " + JSON.stringify(row));
+		var row = results.rows.item(0);
+		console.log("row: " + JSON.stringify(row));
 		if (row['num'] === 0) {
 			this.averageScore = 0;
 		} else {
 			this.averageScore =  Math.round((row['score'] / row['num']) * 100);
 		}
-		moblerlog("AVERAGE SCORE: " + this.averageScore);
+		console.log("AVERAGE SCORE: " + this.averageScore);
 	} else {
 		this.averageScore = 0;
 	}
@@ -129,17 +119,17 @@ AverageScoreModel.prototype.calculateAverageScore = function(transaction, result
  *@param transaction, results
  */
 AverageScoreModel.prototype.calculateImprovementAverageScore = function (transaction,results){
-	
 	var self = this;
-	moblerlog("rows in calculate improvement average score: "+ results.rows.length);
+    
+	console.log("rows in calculate improvement average score: "+ results.rows.length);
 	if (results.rows.length > 0) {
-		row = results.rows.item(0);
-		moblerlog("row: " + JSON.stringify(row));
+		var row = results.rows.item(0);
+		console.log("row: " + JSON.stringify(row));
 		var oldAverageScore = 0;
 		if (row['num'] !== 0) {
 			oldAverageScore = Math.round((row['score'] / row['num']) * 100);
 		}
-		newAverageScore = this.averageScore;
+		var newAverageScore = this.averageScore;
 		this.improvementAverageScore = newAverageScore - oldAverageScore;
 		/**
 		 * It is triggered when the calculations of the average Score and its 
@@ -154,7 +144,7 @@ AverageScoreModel.prototype.calculateImprovementAverageScore = function (transac
 		//current 24 hours
 	  this.improvementAverageScore = this.averageScore;
 	}
-	moblerlog("improvement average score: "+ this.improvementAverageScore);
+	console.log("improvement average score: "+ this.improvementAverageScore);
 	//When the calculation is done, this model notifies the statistics model by increasing the boolAllDone value 
 	//and calling then the allCalculationsDone() function, where the counting of the so far calculated statistis metrics
 	//will be done summative 
@@ -162,8 +152,3 @@ AverageScoreModel.prototype.calculateImprovementAverageScore = function (transac
 	this.superModel.allCalculationsDone();
 		
 };
-
-
-
-
-

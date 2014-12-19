@@ -36,7 +36,6 @@ under the License.
  * @param {String} statisticsModel 
  */
 function CardBurnerModel(statisticsModel){
-    this.modelName = " card burner";
     this.superModel = statisticsModel;
     this.achievementName = 'cardburner';
     this.achievementValue = -1;
@@ -51,8 +50,7 @@ function CardBurnerModel(statisticsModel){
  * @prototype
  * @function initQuery
  */
-CardBurnerModel.prototype.initQuery = function(){
-	   
+CardBurnerModel.prototype.initQuery = function(){  
 	this.query = "SELECT count(*) as c FROM statistics WHERE course_id=? AND duration!=-100 AND day>=? AND day<=?";
 };
 
@@ -73,7 +71,6 @@ CardBurnerModel.prototype.queryDB = queryDatabase;
 CardBurnerModel.prototype.calculateValue = function(courseId){
 	this.courseId = courseId;
 	this.calculateValueHelper();
-	
 };
 
 
@@ -96,10 +93,9 @@ CardBurnerModel.prototype.calculateValueHelper = checkAchievement;
 CardBurnerModel.prototype.calculateAchievementValues = function(){
 	var self = this;
     self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
-	moblerlog("current values for card burner"+self.values);
+	console.log("current values for card burner"+self.values);
 	self.queryDB( 
 		function cbSH(t,r) {self.calculateCardBurner(t,r);});
-
 };
 
 
@@ -111,20 +107,20 @@ CardBurnerModel.prototype.calculateAchievementValues = function(){
  * @param transaction, results
  */
 CardBurnerModel.prototype.calculateCardBurner = function(transaction, results) {
-	
 	var self = this;
+    
 	if (results.rows.length > 0) {
 		var row = results.rows.item(0);
 		
 		//if card burner was achieved (100 handled cards within 24 hours)
 		//some markers (via the achievement helper function) are inserted into the database 
 		if (row['c'] >= 100) {
-			moblerlog("cardburner was achieved");
+			console.log("cardburner was achieved");
 			this.achievementValue = 100;
 			this.insertAchievementHelper();
 		} else {
 			this.achievementValue = row['c'];
-			moblerlog("cardburner still not achieved yet");
+			console.log("cardburner still not achieved yet");
 		}
 	}
 	
@@ -133,7 +129,6 @@ CardBurnerModel.prototype.calculateCardBurner = function(transaction, results) {
 	//will be done summative 
 	self.superModel.boolAllDone++;
 	self.superModel.allCalculationsDone();
-
 };
 
 
@@ -143,7 +138,3 @@ CardBurnerModel.prototype.calculateCardBurner = function(transaction, results) {
  * @function insertAchievementHelper
  */
 CardBurnerModel.prototype.insertAchievementHelper = insertAchievement;
-
-
-
-

@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -18,10 +15,7 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
-
 
 /*jslint vars: true, sloppy: true */
 
@@ -34,7 +28,6 @@ under the License.
  * @param {String} statisticsModel 
  */
 function HandledCardsModel(statisticsModel){
-    this.modelName = " handled cards";
     this.superModel = statisticsModel;
     this.handledCards = -1;
     this.improvementHandledCards = 0;
@@ -65,12 +58,9 @@ HandledCardsModel.prototype.initQuery = function(){
 HandledCardsModel.prototype.calculateValue = function(){
 	var self = this;
 	self.values = self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
-	moblerlog("current values for handled cards"+ self.values.join(", "));
-	self.queryDB( 
-		function cbHC(t,r) {self.calculateHandledCards(t,r);});
-
+	console.log("current values for handled cards"+ self.values.join(", "));
+	self.queryDB(function cbHC(t,r) {self.calculateHandledCards(t,r);});
 };
-
 
 /**
  * Execute the query by using the global function  queryDatabase.
@@ -78,7 +68,6 @@ HandledCardsModel.prototype.calculateValue = function(){
  * @function queryDB
  */
 HandledCardsModel.prototype.queryDB = queryDatabase;
-
 
 /**
  * Calculates how many cards have been handled for the specific course for the last 24 hours
@@ -93,9 +82,9 @@ HandledCardsModel.prototype.calculateHandledCards = function(transaction, result
 	var self = this;
 	if (results.rows.length > 0) {
 		var row = results.rows.item(0);
-		moblerlog("number of handled cards:" + row['c']);
+		console.log("number of handled cards:" + row['c']);
 		this.handledCards = row['c'];
-		moblerlog("handledCards:"+this.handledCards);
+		console.log("handledCards:"+this.handledCards);
 
 	} else {
 		self.handledCards = 0;
@@ -118,16 +107,16 @@ HandledCardsModel.prototype.calculateHandledCards = function(transaction, result
  * @param transaction, results
  */
 HandledCardsModel.prototype.calculateImprovementHandledCards = function (transaction,results){
-	
 	var self = this;
-	moblerlog("rows in calculate improvement handled cards: "+ results.rows.length);
+    
+	console.log("rows in calculate improvement handled cards: "+ results.rows.length);
 	if (results.rows.length > 0) {
 		var row = results.rows.item(0);
-		moblerlog("number of handled cards:" + row['c']);
-		oldHandledCards = row['c'];
-		newHandledCards = this.handledCards;
+		console.log("number of handled cards:" + row['c']);
+		var oldHandledCards = row['c'];
+		var newHandledCards = this.handledCards;
 		this.improvementHandledCards  = newHandledCards - oldHandledCards;
-		moblerlog("improvement handled cards: "+ this.improvementHandledCards);
+		console.log("improvement handled cards: "+ this.improvementHandledCards);
 		/**
 		 * It is triggered when the calculations of the number of handler cards
 		 * has been finished 
@@ -144,8 +133,3 @@ HandledCardsModel.prototype.calculateImprovementHandledCards = function (transac
 	this.superModel.boolAllDone++;
 	this.superModel.allCalculationsDone();		
 };
-
-
-
-
-

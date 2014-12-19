@@ -19,14 +19,12 @@ under the License.
 
 */
 
-
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
    
 */
 
-/*jslint vars: true, sloppy: true */
-
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class SettingsView
@@ -38,154 +36,92 @@ under the License.
  *  - it sets the tag ID for the settings view
  *  - assigns various event handlers when taping on various elements of the view
  *    such as the close button, the logout button and the "more info" icon.
- *  - it binds the event that is triggered when the authentication is ready  
+ *  - it binds the event that is triggered when the authentication is ready
  **/
-function SettingsView(controller) {
+function SettingsView() {
     var self = this;
-    this.controller = controller;
-    self.tagID = 'settingsView';
     
-    // assigning gesture handlers on the view elements (close, logout  and more info button)
-    // when they are tapped
-    jester($('#closeSettingsIcon')[0]).tap(function(){ self.closeSettings(); } );
-    jester($('#logOutSettings')[0]).tap(function() {
-    	self.logout();
-    });
-    jester($('#aboutMore')[0]).tap(function() {
-		self.clickAboutMore();
-	});
-    
+    this.tagID = this.app.views.id;
+
     /**
      * When all authentication data are received and stored in the local storage
      * the authenticationready event is triggered and binded here
      * @event authenticationready
-     * @param e, userID, the user id 
-     */  
-    $(document).bind("authenticationready", function(e, userID) {
-		moblerlog("authentication ready called " + userID);
-		self.loadData();
-	});    
-} 
+     * @param e, userID, the user id
+     */
+    $(document).bind("authenticationready", function (e, userID) {
+        console.log("authentication ready called " + userID);
+        self.loadData();
+    });
+}
 
-
-/**
- * pinch leads to course list
- * @prototype
- * @function handlePinch
- **/
-SettingsView.prototype.handlePinch = function() {
-    controller.transitionToCourses();
+SettingsView.prototype.prepare = function () {
+    this.app.models.featured.loadFeaturedCourseFromServer();
+    this.app.models.course.loadFromServer();
+    this.loadData();
 };
 
-/**
- * tap does nothing
- * @prototype
- * @function handleTap
- **/
-SettingsView.prototype.handleTap = doNothing;
-
-
-/**
- * swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-SettingsView.prototype.handleSwipe = doNothing;
-
-
-/**
- * opens the view
- * @prototype
- * @function openDiv
- **/
-SettingsView.prototype.openDiv = openView;
-
-
-/**
- * shows the settings data
- * @prototype
- * @function open
- **/
-SettingsView.prototype.open = function() {
-	controller.models['featured'].loadFeaturedCourseFromServer();
-	controller.models['course'].loadFromServer();	
-	this.loadData();
-	this.openDiv();
-	
+SettingsView.prototype.tap = function (event) {
+    var id = event.target.id;
+    
+    if (id === "closeSettingsIcon") {
+        if (this.app.getLoginState()) {
+            this.app.changeView("course");
+        } else {
+            this.app.changeView("landing");
+        }
+    }
+    else if (id === "logOutSettings") {
+        if (this.app.getLoginState()) {
+            this.app.changeView("logout");
+        }
+        else {
+            this.app.changeView("landing");
+        }
+    }
+    else if (id === "aboutMore") {
+        if (this.app.getLoginState()) {
+            this.app.changeView("about");
+        }
+        else {
+            this.app.changeView("landing");
+        }
+    }
 };
 
-
-/**
- * closes the view
- * @prototype
- * @function close
- **/
-SettingsView.prototype.close = closeView;
-
- 
-/**
- * Leads to course list
- * @prototype
- * @function closeSettings
- **/
-SettingsView.prototype.closeSettings = function() {
-	moblerlog("close settings button clicked");
-	controller.transitionToCourses();
+SettingsView.prototype.pinch = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    } else {
+        this.app.changeView("landing");
+    }
 };
-
-
-
-/**
- *leads to logout confirmation view
- * @prototype
- * @function logout
- **/
-SettingsView.prototype.logout = function() {
-	controller.transitionToLogout();
-};
-
 
 /**
  * loads the statistics data
  * @prototype
  * @function loadData
  **/
-SettingsView.prototype.loadData = function(){
-	$("#deactivateLi").hide();
-	var self=this;
-	var lmsObj = controller.models['lms'];
-	var config = controller.models['authentication'];
-	
-	moblerlog("the value of DEACTIVATE IS "+DEACTIVATE);
-	var lmsModel=self.controller.models['lms'];
-	var servername=lmsModel.lmsData.activeServer;
-	
-	moblerlog("deactivate flag is "+lmsModel.lmsData.ServerData[servername].deactivateFlag);	
-	var servername=self.controller.models['lms'].lmsData.activeServer;
-	if (lmsModel.lmsData.ServerData[servername].deactivateFlag== true){
-		moblerlog(" deactivate flag is: will show deactive msg");
-		$("#deactivateLi").show();
-	}else{
-		moblerlog(" deactivate flag is: will NOT show deactivate msg");
-	}
-	
-	$("#aboutMore").show();
-	$("#lmsLabelSet").attr("src",self.controller.getActiveLogo());
-	$("#pfpItemSet").text(self.controller.getActiveLabel());
-	$("#nameItemSet").text(config.getDisplayName());
-	$("#usernameItemSet").text(config.getUserName());
-	$("#emailItemSet").text(config.getEmailAddress());
-	$("#languageItemSet").text(jQuery.i18n.prop('msg_' + config.getLanguage() + '_title'));	
+SettingsView.prototype.loadData = function () {
+    $("#deactivateLi").hide();
+    var self = this;
+    var config = this.app.models.configuration;
+    var lmsModel = this.app.models.lms;
+    var servername = lmsModel.lmsData.activeServer;
+
+    console.log("deactivate flag is " + lmsModel.lmsData.ServerData[servername].deactivateFlag);
+    if (lmsModel.lmsData.ServerData[servername].deactivateFlag === true) {
+        console.log("deactivate flag is: will show deactive msg");
+        $("#deactivateLi").show();
+    } else {
+        console.log(" deactivate flag is: will NOT show deactivate msg");
+    }
+
+    $("#aboutMore").show();
+    $("#lmsLabelSet").attr("src", self.app.getActiveLogo());
+    $("#pfpItemSet").text(self.app.getActiveLabel());
+    $("#nameItemSet").text(config.getDisplayName());
+    $("#usernameItemSet").text(config.getUserName());
+    $("#emailItemSet").text(config.getEmailAddress());
+    $("#languageItemSet").text(jQuery.i18n.prop('msg_' + config.getLanguage() + '_title'));
 };
-
-
-/**
- * This function is executed when the user clicks on the "info" button on the statistics view.
- * Leads to about view
- * @prototype
- * @function clickAboutMore
- **/
-SettingsView.prototype.clickAboutMore = function() {
-	controller.transitionToAbout();
-}
-

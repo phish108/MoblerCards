@@ -24,8 +24,7 @@ under the License.
  * View for displaying the logout confimation
  */
 
-/*jslint vars: true, sloppy: true */
-
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class LogoutView
@@ -36,83 +35,44 @@ under the License.
  *  @constructor
  *  - it sets the tag ID for the settings view
  *  - assigns various event handlers when taping on various elements of the view
- *    such as the close button, the final logout button 
+ *    such as the close button, the final logout button
  **/
 function LogoutView() {
-	var self = this;
+    var self = this;
+}
 
-	self.tagID = 'logoutConfirmationView';
-	var featuredContent_id = FEATURED_CONTENT_ID;
-	jester($('#closeIcon')[0]).tap(function(){ self.cancel(); } );  
-	jester($('#logOut')[0]).tap(function(event){ self.logout(featuredContent_id); event.stopPropagation(); } );  
-} 
-
-
-/**
- * tap does nothing
- * @prototype
- * @function handleTap
- **/
-LogoutView.prototype.handleTap = doNothing;
-
-/**
- * swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-LogoutView.prototype.handleSwipe = doNothing;
-
-/**
- * pinch does nothing
- * @prototype
- * @function handlePinch
- **/
-LogoutView.prototype.handlePinch = function(){
-    controller.transitionToSettings();
+LogoutView.prototype.tap = function (event) {
+    var id = event.target.id;
+    var featuredContentId = FEATURED_CONTENT_ID;
+    
+    if (id === "closeIcon") {
+        if (this.app.getLoginState()) {
+            this.app.changeView("settings");
+        }
+        else {
+            this.app.changeView("landing");
+        }
+    }
+    else if (id === "logOut") {
+        this.logout(featuredContentId);
+    }
 };
 
-
-/**
- * opens the view
- * @prototype
- * @function open
- **/
-LogoutView.prototype.open = openView;
-
-
-/**
- * closes the view
- * @prototype
- * @function close
- **/
-LogoutView.prototype.close = closeView;
-
-/**
- *click on the cancel button leads to settings
- * @prototype
- * @function cancel
- **/
-LogoutView.prototype.cancel = function() {
-	controller.transitionToSettings();
+LogoutView.prototype.pinch = function () {
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
+    }
+    else {
+        this.app.changeView("landing");
+    }
 };
 
 /**
  * click on the logout button logs the user out and
  * shows the login view
  */
-LogoutView.prototype.logout = function(featuredContent_id) {
-	var config = controller.models['authentication'];
-	config.logout(featuredContent_id);
-	controller.transitionToLogin(featuredContent_id);
+LogoutView.prototype.logout = function (featuredContentId) {
+    var config = this.app.models.configuration;
+    config.logout(featuredContentId);
+    this.app.changeView("login", featuredContentId);
 };
-
-
-/**
-* handles dynamically any change that should take place on the layout
-* when the orientation changes.
-* (the distance between the cards and the title should be calculated dynamically) 
-* @prototype
-* @function changeOrientation
-**/ 
-LogoutView.prototype.changeOrientation = doNothing;
-
