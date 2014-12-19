@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT  REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -45,7 +43,6 @@ var SUBMODEL_QUERY_ONE = 1;
 var SUBMODEL_QUERY_THREE = 3;
 var SUBMODEL_QUERY_FOUR = 4;
 
-
 /**
  *Global variable that stores the
  *duration of a day in miliseconds. 
@@ -54,7 +51,6 @@ var SUBMODEL_QUERY_FOUR = 4;
  *@default 1000 * 60 * 60 * 24
  **/
 var TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
-
 
 /**
  * @class StatisticsModel
@@ -82,6 +78,7 @@ function StatisticsModel(controller) {
     this.firstActiveDay;
     this.lastActiveDay;
     this.checkLocalStorage();
+    this.cardBurner;
 
     /**
      * Check if time dependent achievements have been accomplished.
@@ -95,10 +92,9 @@ function StatisticsModel(controller) {
      * @param: a callback function that
      * FIXME: the call back is undefined
      **/
-    $(document).bind("checkachievements", function (p, courseId) {
-        self.cardBurner.calculateValue(courseId);
-    });
-
+//    $(document).bind("checkachievements", function (p, courseId) {
+//        self.controller.models.cardburner.calculateValue(courseId);
+//    });
 }
 
 /**
@@ -252,7 +248,6 @@ StatisticsModel.prototype.checkActivity = function (day, courseId) {
     }
 };
 
-
 /**
  * Initializes all values that are needed for the calculations (executions of the queries)
  * of statistics metrics (statistiscs submodels)
@@ -281,7 +276,6 @@ StatisticsModel.prototype.getCurrentValues = function (val) {
     return retval;
 };
 
-
 /**
  * Get the values from the last active day. It is needed for the calculation of improvement
  * for some of the statistics metrics/models:
@@ -301,9 +295,7 @@ StatisticsModel.prototype.getLastActiveValues = function (progressVal) {
         return [this.currentCourseId, lastActiveDay24hBefore, this.lastActiveDay];
     }
     return [this.currentCourseId, 1, lastActiveDay24hBefore, this.lastActiveDay];
-
 };
-
 
 /**
  * Calculates the statistics values for the various statistics metrics.
@@ -316,7 +308,6 @@ StatisticsModel.prototype.calculateValues = function (courseId) {
     var self = this;
 
     self.boolAllDone = 0;
-
     self.bestDay.calculateValue(courseId);
     self.handledCards.calculateValue(courseId);
     self.averageScore.calculateValue(courseId);
@@ -326,7 +317,6 @@ StatisticsModel.prototype.calculateValues = function (courseId) {
     // calculate the achievements
     self.stackHandler.calculateValue(courseId);
     self.checkAchievements(this.currentCourseId);
-
 };
 
 
@@ -347,7 +337,6 @@ StatisticsModel.prototype.allCalculationsDone = function (courseId) {
     }
 };
 
-
 /**
  *Function for querying the database
  * @prototype
@@ -366,8 +355,6 @@ StatisticsModel.prototype.queryDB = function (query, values, cbResult) {
     });
 };
 
-
-
 /**
  *Checks if any achievements have been achieved for the specific course
  * @prototype
@@ -376,9 +363,8 @@ StatisticsModel.prototype.queryDB = function (query, values, cbResult) {
  */
 StatisticsModel.prototype.checkAchievements = function (courseId) {
     //check if cardburner was already achieved
-    this.cardBurner.calculateValue(courseId);
+//    this.controller.models.cardburner.calculateValue(courseId);
 };
-
 
 /**
  *Function that is called if an error occurs while querying the database
@@ -390,7 +376,6 @@ StatisticsModel.prototype.checkAchievements = function (courseId) {
 StatisticsModel.prototype.dbErrorFunction = function (tx, e) {
     console.log("DB Error: " + e.message);
 };
-
 
 /**
  * Loads the statistics data from the server and stores it in the local database
@@ -494,7 +479,6 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
 
 };
 
-
 /**Send statistics data to the server after checking firstly if there are any pending statistics data from previous time.
  * The statistics data are stored in the local 'statistics' database. The pending statistics data are stored in the local storage in the
  * object with the label "pendingstatistics".
@@ -510,7 +494,8 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
     var self = this;
     var activeURL = self.controller.getActiveURL();
     //if (self.controller.getLoginState()) {
-    if (self.controller.models.configuration.configuration.userAuthenticationKey && self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
+    if (self.controller.models.configuration.configuration.userAuthenticationKey && 
+        self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
         console.log("we enter the get login state in sendToServer");
         //var url = self.controller.models['authentication'].urlToLMS + '/statistics.php';
         var url = activeURL + '/statistics.php';
@@ -529,11 +514,11 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
         });
 
         function sendStatistics(transaction, results) {
-            var row;
-            statistics = [];
-            numberOfStatisticsItems = 0;
-            uuid = "";
-            sessionkey = "";
+            var row,
+                statistics = [],
+                numberOfStatisticsItems = 0,
+                uuid = "",
+                sessionkey = "";
             //if there are any statistics data
             //that were not sent last time succesfully
             //to the server, they are stored in the local object "pendingStatistics" 
@@ -624,7 +609,6 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
  * @function getAllDBEntries
  * */
 StatisticsModel.prototype.getAllDBEntries = function () {
-
     this.db.transaction(function (transaction) {
         //select all the statistics data for a specific course
         transaction.executeSql('SELECT * FROM statistics WHERE course_id=?', [courseId], dataSelectHandler, function (tx, e) {
@@ -633,7 +617,9 @@ StatisticsModel.prototype.getAllDBEntries = function () {
     });
 
     function dataSelectHandler(transaction, results) {
-        var i;
+        var i,
+            row;
+        
         console.log("ALL ROWS: " + results.rows.length);
         for (i = 0; i < results.rows.length; i++) {
             row = results.rows.item(i);
@@ -641,7 +627,6 @@ StatisticsModel.prototype.getAllDBEntries = function () {
         }
     }
 };
-
 
 /**
  * Sets to true the flag variable that tracks

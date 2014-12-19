@@ -1,8 +1,6 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -19,8 +17,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
 
 /**
@@ -45,7 +41,6 @@ function LMSModel(controller) {
     this.controller = controller;
     this.selectedLMSList = [];
     this.previousLMS = "";
-    //localStorage.removeItem("urlsToLMS"); // for debugging only
     this.loadData();
     this.lastTryToRegister = [];
     this.temporaryFailure = "";
@@ -101,8 +96,6 @@ LMSModel.prototype.loadData = function () {
     this.lmsData = lmsObject;
 };
 
-
-
 /**
  * Stores the data into the local storage (key = "urlsToLMS") therefore the
  * json object is converted into a string
@@ -122,7 +115,6 @@ LMSModel.prototype.storeData = function () {
     console.log("LMS Storage after storeData: " + localStorage.getItem("urlsToLMS"));
 };
 
-
 /**
  * This function makes use of the static variable URLS_TO_LMS
  * that stores information for all servers
@@ -134,8 +126,6 @@ LMSModel.prototype.getLMSData = function () {
     return debugActivate();
 };
 
-
-
 /**
  * @prototype
  * @function getActiveServerImage
@@ -144,7 +134,6 @@ LMSModel.prototype.getLMSData = function () {
 LMSModel.prototype.getActiveServerImage = function () {
     return this.activeServerInfo.logoImage;
 };
-
 
 /**
  * @prototypegetActiveServerLabel
@@ -296,8 +285,6 @@ LMSModel.prototype.setActiveServer = function (servername) {
     }
 };
 
-
-
 /**
  * Stores in the local storage the active server
  * This step is executed within the set active server function above.
@@ -310,13 +297,11 @@ LMSModel.prototype.setActiveServer = function (servername) {
  * @param {string} servername, the name of the previously selected lms
  */
 LMSModel.prototype.storeActiveServer = function (servername) {
-
     this.loadData();
     this.activeServerInfo = this.findServerInfo(servername);
     this.lmsData.activeServer = servername;
     console.log("active server set ");
     this.storeData();
-
 };
 
 /**
@@ -325,10 +310,10 @@ LMSModel.prototype.storeActiveServer = function (servername) {
  * @function getActiveServer
  * @param {string} servername, the name of the active server
  */
-LMSModel.prototype.getActiveServer = function (servername) {
+LMSModel.prototype.getActiveServer = function () {
     //this.activeServerInfo = this.findServerInfo(servername);
     //this.lmsData.activeServer=servername;
-    return this.activerServer;
+    return this.lmsData.activeServer;
 };
 
 /**
@@ -337,11 +322,10 @@ LMSModel.prototype.getActiveServer = function (servername) {
  * @function storePreviousServer
  * @param {string} servername, the name of the previously selected lms
  */
-LMSModel.prototype.storePreviousServer = function (servername) {
+LMSModel.prototype.storePreviousServer = function () {
     this.loadData();
-    this.lmsData.previousServer = servername;
+    this.lmsData.previousServer = this.getActiveServer();
     console.log("previous server ");
-    
     this.storeData();
 };
 
@@ -395,7 +379,7 @@ LMSModel.prototype.register = function (servername) {
                     }
                     $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
                 }
-                if (request.status === 404) {
+                if (request.status === 404 || request.status === 500) {
                     self.lastTryToRegister[servername] = (new Date()).getTime();
                     self.lmsData.ServerData[servername] = {};
                     self.lmsData.ServerData[servername].lastRegister = self.lastTryToRegister[servername];
@@ -424,7 +408,6 @@ LMSModel.prototype.register = function (servername) {
      * @param {String} data, the data exchanged with the server during the registration
      */
     function appRegistration(data) {
-
         var DEACTIVATE = false;
         // if we don't know a user's language we try to use the phone's language.
         language = navigator.language.split("-");
@@ -495,25 +478,19 @@ LMSModel.prototype.registerApi2 = function (servername) {
                     }
                     $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
                 }
-                if (request.status === 404) {
+                if (request.status === 404 || request.status === 500) {
                     self.lastTryToRegister[servername] = (new Date()).getTime();
                     self.lmsData.ServerData[servername] = {};
                     self.lmsData.ServerData[servername].lastRegister = self.lastTryToRegister[servername];
                     self.storeData();
                     $(document).trigger("registrationfailed", [servername, previousLMS]);
                 }
-
             },
             //during the registration we send via headers the app id and the device id
             beforeSend: setHeaders
         });
 
-
-
-    function setHeaders(xhr) {
-
-    }
-
+    function setHeaders(xhr) {}
 
     /**
      * In case of a successful registration we store in the local storage the client/app key
@@ -625,5 +602,4 @@ LMSModel.prototype.isRegistrable = function (servername) {
         }
         return true;
     } //end for
-
 };

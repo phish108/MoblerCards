@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -18,10 +15,7 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
-
 
 /*jslint vars: true, sloppy: true */
 
@@ -40,13 +34,11 @@ under the License.
  * @param {String} statisticsModel
  */
 function AverageSpeedModel(statisticsModel) {
-    this.modelName = "avg speed";
     this.superModel = statisticsModel;
     this.averageSpeed = -1;
     this.improvementSpeed = 0;
     this.initQuery();
 }
-
 
 /**
  * Creates the Query "select the sum of the duration time spent on a question, as well as the number of the answered questions for a specific course for the last 24 hours "
@@ -58,8 +50,6 @@ function AverageSpeedModel(statisticsModel) {
 AverageSpeedModel.prototype.initQuery = function () {
     this.query = 'SELECT sum(duration) as duration, count(id) as num FROM statistics WHERE course_id=? AND duration!=-100' + ' AND day>=? AND day<=?' + ' GROUP BY course_id';
 };
-
-
 
 /**
  * Pass the current variables to the above query that will be
@@ -75,7 +65,6 @@ AverageSpeedModel.prototype.calculateValue = function () {
         function cbASp(t, r) {
             self.calculateAverageSpeed(t, r);
         });
-
 };
 
 /**
@@ -95,11 +84,11 @@ AverageSpeedModel.prototype.queryDB = queryDatabase;
  * @param transaction, results
  */
 AverageSpeedModel.prototype.calculateAverageSpeed = function (transaction, results) {
-
     var self = this;
+    
     console.log("rows: " + results.rows.length);
     if (results.rows.length > 0) {
-        row = results.rows.item(0);
+        var row = results.rows.item(0);
         console.log("row: " + JSON.stringify(row));
         if (row['num'] === 0) {
             this.averageSpeed = 0;
@@ -125,17 +114,17 @@ AverageSpeedModel.prototype.calculateAverageSpeed = function (transaction, resul
  * @function calculateImprovementAverageSpeed
  */
 AverageSpeedModel.prototype.calculateImprovementAverageSpeed = function (transaction, results) {
-
     var self = this;
+    
     console.log("rows in calculate improvement average speed: " + results.rows.length);
     if (results.rows.length > 0) {
-        row = results.rows.item(0);
+        var row = results.rows.item(0);
         console.log("row: " + JSON.stringify(row));
         var oldAverageSpeed = 0;
         if (row['num'] !== 0) {
             oldAverageSpeed = Math.round((row['duration'] / row['num']) / 1000);
         }
-        newAverageSpeed = this.averageSpeed;
+        var newAverageSpeed = this.averageSpeed;
         if (oldAverageSpeed === 0 && newAverageSpeed !== 0) {
             this.improvementSpeed = -1;
         } else if (newAverageSpeed !== 0) {

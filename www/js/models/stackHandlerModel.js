@@ -1,7 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -35,7 +32,6 @@ under the License.
  * @param {String} statisticsModel 
  */
 function StackHandlerModel(statisticsModel){
-    this.modelName = " stack handler";
     this.superModel = statisticsModel;
     this.achievementName = 'stackhandler';
     this.achievementValue = -1;
@@ -61,8 +57,6 @@ StackHandlerModel.prototype.initQuery = function(){
  */
 StackHandlerModel.prototype.queryDB = queryDatabase;
 
-
-
 /**
  * Before calculating the stack Handler it checks whether 
  * it has been achieved or not
@@ -73,8 +67,6 @@ StackHandlerModel.prototype.calculateValue = function() {
 	this.courseId = this.superModel.currentCourseId;
 	this.calculateValueHelper();
 };
-
-
 
 /**
  * Check if the achievement has been reached or not by using the 
@@ -92,15 +84,15 @@ StackHandlerModel.prototype.calculateValueHelper = checkAchievement;
  * @function calculateAchievementValues
  */
 StackHandlerModel.prototype.calculateAchievementValues = function(){
-	var self = this;
-	var val = 0;
+	var self = this,
+        val = 0;
+    
 	self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_ONE);
 	console.log("current values for stack handler"+self.values);
 	self.queryDB( 
 		function cbSH(t,r) {self.calculateStackHandler(t,r);});
 
 };
-
 
 /**
  * Calculates the stack handler achievement
@@ -111,7 +103,7 @@ StackHandlerModel.prototype.calculateAchievementValues = function(){
  */
 StackHandlerModel.prototype.calculateStackHandler = function(transaction, results) {
 	var row, a, i, self = this;
-	var allCards = self.superModel.controller.models["questionpool"].questionList;
+	var allCards = self.superModel.controller.models.questionpool.questionList;
 	var handledCards = [];
 	var numHandledCards = 0;
 	for (i = 0; i < results.rows.length; i++) {
@@ -123,7 +115,7 @@ StackHandlerModel.prototype.calculateStackHandler = function(transaction, result
 			numHandledCards++;
 		}
 	}
-	numAllCards = allCards.length;
+	var numAllCards = allCards.length;
 	if (numAllCards === 0) {
 		this.achievementValue = 0;
 	} else {
@@ -143,16 +135,9 @@ StackHandlerModel.prototype.calculateStackHandler = function(transaction, result
 
 };
 
-
 /**Inserting of markers in the database when the card burner has been reached
  * This is executed in the globabal function insertAchievement
  * @prototype
  * @function insertAchievementHelper
  */
 StackHandlerModel.prototype.insertAchievementHelper = insertAchievement;
-
-
-
-
-
-

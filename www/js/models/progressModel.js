@@ -1,9 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
-
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -23,6 +18,7 @@ under the License.
 */
 
 /*jslint vars: true, sloppy: true */
+
 /**
  * @class ProgressModel 
  * This model calculates the number (in percentage) of questions of a specific course 
@@ -37,13 +33,11 @@ under the License.
  * @param {String} statisticsModel 
  */
 function ProgressModel(statisticsModel){
-    this.modelName = " progress";
     this.superModel = statisticsModel;
     this.progress = -1;
     this.improvementProgress = 0;
     this.initQuery();
 }
-
 
 /**
  * Creates the Query "select the distinct number of questions of a specific course that are answered correctly within 24 hours"
@@ -56,10 +50,8 @@ ProgressModel.prototype.initQuery = function(){
 	
 	this.values = [];
 	this.valuesLastActivity = [];
-	this.query = 'SELECT count(DISTINCT question_id) as numCorrect FROM statistics WHERE course_id=? AND duration!=-100 AND score=?'
-		+ ' AND day>=? AND day<=?';
+	this.query = 'SELECT count(DISTINCT question_id) as numCorrect FROM statistics WHERE course_id=? AND duration!=-100 AND score=?' + ' AND day>=? AND day<=?';
 };
-
 
 /**
  * Pass the current variables to the above query that will be
@@ -76,7 +68,6 @@ ProgressModel.prototype.calculateValue = function(){
 		function cbP(t,r) {self.calculateProgress(t,r);});
 };
 
-
 /**
  * Execute the query by using the global function queryDatabase
  * where the transaction is executed
@@ -84,7 +75,6 @@ ProgressModel.prototype.calculateValue = function(){
  * @function queryDB
  */
 ProgressModel.prototype.queryDB = queryDatabase;
-
 
 /**
  * Calculates the progress (the correctly answered questions for a specific course) within the last 24 hours.
@@ -94,13 +84,13 @@ ProgressModel.prototype.queryDB = queryDatabase;
  * @param transaction, results
  */
 ProgressModel.prototype.calculateProgress = function(transaction, results) {
-	
 	var self = this;
+    
 	if (results.rows.length > 0) {
-		row = results.rows.item(0);
+		var row = results.rows.item(0);
 		console.log("number of correct questions:" + row['numCorrect']);
 		console.log("number of answered questions:"+ self.superModel.handledCards.handledCards);
-		cards = self.superModel.controller.models['questionpool'].questionList.length;
+		var cards = self.superModel.controller.models.questionpool.questionList.length;
 		if (cards === 0) {
 			this.progress = 0;
 		} else {
@@ -119,7 +109,6 @@ ProgressModel.prototype.calculateProgress = function(transaction, results) {
 	});
 };
 
-
 /**
  * Calculates the number of correctly answered questions(the percentage value of it) in the 
  * last active day and compares it with the progress value of the current day.
@@ -130,18 +119,19 @@ ProgressModel.prototype.calculateProgress = function(transaction, results) {
  */
 ProgressModel.prototype.calculateImprovementProgress= function (transaction,results){
 	var self = this;
+    
 	console.log("rows in calculate improvement progress: "+ results.rows.length);
 	if (results.rows.length > 0) {
-		row = results.rows.item(0);
+		var row = results.rows.item(0);
 		console.log("progress row" + JSON.stringify(row));
-		cards = self.superModel.controller.models['questionpool'].questionList.length;
+		var cards = self.superModel.controller.models.questionpool.questionList.length;
 		if (cards === 0) {
 			this.improvementProgress = 0;
 		} else {
 			console.log("Progress Num Correct: " + row['numCorrect']);
-			oldProgress = Math
+			var oldProgress = Math
 				.round(((row['numCorrect']) / cards) * 100);
-			newProgress = this.progress;
+			var newProgress = this.progress;
 			this.improvementProgress = newProgress - oldProgress;
 			console.log("improvement progress: " + this.improvementProgress);
 			/**
@@ -160,8 +150,3 @@ ProgressModel.prototype.calculateImprovementProgress= function (transaction,resu
 	this.superModel.boolAllDone++;
 	this.superModel.allCalculationsDone();		
 };
-
-
-
-
-

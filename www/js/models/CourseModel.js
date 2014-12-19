@@ -1,6 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -17,17 +15,12 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.	
-
-
 */
-
-
 
 /** @author Isabella Nake
  * @author Evangelia Mitsopoulou
 
 */
-
 
 /*jslint vars: true, sloppy: true */
 
@@ -91,8 +84,7 @@ function CourseModel(controller) {
 		self.switchToOnline();
 	});
 	
-	
-	 /**  
+    /**  
 	 * @event authenticationready 
 	 * @param call back function in which the courses list is loaded from the server
 	 * **/
@@ -101,7 +93,6 @@ function CourseModel(controller) {
 	});
 
 	this.loadData();
-
 }
 
 /**
@@ -233,8 +224,6 @@ CourseModel.prototype.loadFromServer = function() {
 			self.syncTimeOut = courseObject.syncTimeOut || DEFAULT_SYNC_TIMEOUT;
 			self.storeData();
 			
-			
-			
 			console.log("JSON CourseList: " + JSON.stringify(self.courseList));
 			self.reset();
 			
@@ -260,7 +249,6 @@ CourseModel.prototype.loadFromServer = function() {
 				self.controller.models["questionpool"]
 						.loadFromServer(self.courseList[c].id);
 			}
-
 		}
 	}
 };
@@ -275,8 +263,6 @@ CourseModel.prototype.getId = function() {
 			: this.courseList[this.index].id;
 };
 
-
-
 /**
  * @prototype
  * @function getTitle
@@ -286,7 +272,6 @@ CourseModel.prototype.getTitle = function() {
 	return (this.index > this.courseList.length - 1) ? false
 			: this.courseList[this.index].title;
 };
-
 
 /**
  * It checks whether a course is synchronized the server.Synchronizations differences may exist because:
@@ -302,8 +287,6 @@ CourseModel.prototype.getSyncState = function() {
 			: this.courseList[this.index].syncState;
 };
 
-
-
 /**
  * Increases the index in the course list, which means we move to the next course.
  * @prototype
@@ -314,8 +297,6 @@ CourseModel.prototype.nextCourse = function() {
 	this.index++;
 	return this.index < this.courseList.length;
 };
-
-
 
 /**
  * Sets index to 0
@@ -429,8 +410,6 @@ CourseModel.prototype.switchToOnline = function() {
 		}
 	}
 };
-
-
 
 /** Resets the course list by:
  * - emptying the course list

@@ -1,5 +1,4 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
-
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -18,9 +17,7 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-
 /*jslint vars: true, sloppy: true */
-
 
 /**
  * @class BestDayScoreModel
@@ -35,7 +32,6 @@ under the License.
  * @param {String} statisticsModel
  */
 function BestDayModel(statisticsModel) {
-    this.modelName = " best day";
     this.superModel = statisticsModel;
     this.bestDay = -1;
     this.bestScore = -1;
@@ -51,7 +47,6 @@ function BestDayModel(statisticsModel) {
  * @function initQuery
  */
 BestDayModel.prototype.initQuery = function () {
-
     this.query = 'SELECT min(day) as day, sum(score) as score, count(id) as num' + ' FROM statistics WHERE course_id=? AND duration!=-100' + ' GROUP BY DATE(day/1000, "unixepoch")';
 };
 
@@ -95,9 +90,9 @@ BestDayModel.prototype.calculateBestDayAndScore = function (transaction, results
     var i, bestDay;
     var bestScore = -1;
     for (i = 0; i < results.rows.length; i++) {
-        row = results.rows.item(i);
+        var row = results.rows.item(i);
         console.log(JSON.stringify(row));
-        score = 0;
+        var score = 0;
         if (row['num'] !== 0) {
             score = row['score'] / row['num'];
         }
