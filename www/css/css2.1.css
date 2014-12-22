@@ -297,7 +297,6 @@ li {
 .screen {
     display: none;
 }
-
 .screen.active {
     display: block;
     width: 100%;
@@ -311,6 +310,42 @@ li {
 }
 
 /*********************** Splash Screen ***********************/
+
+.loading {
+    font-size: 100px;
+    height: 200px;
+    width: 200px;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    -webkit-animation: spin 4s infinite linear;
+    margin-left: auto;
+}
+.centered {
+    display: inline-block;
+    text-align: center;
+    line-height: 200px;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes spinoff {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(-360deg);
+    }
+}
+
+/*********************** Splash Screen ***********************/
+
 
 #mainTitle {
     font-size: 20pt;
@@ -373,38 +408,7 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     height: 100%;
     width: 100%;
 }
-#loading {
-    font-size: 100px;
-    height: 200px;
-    width: 200px;
-    text-align: center;
-    vertical-align: middle;
-    margin-left: auto;
-    margin-right: auto;
-    -webkit-animation: spin 4s infinite linear;
-    margin-left: auto;
-}
-.centered {
-    display: inline-block;
-    text-align: center;
-    line-height: 200px;
-}
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-@-webkit-keyframes spinoff {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(-360deg);
-    }
-}
+
 /****Landing View*****/
 
 #landingViewBackIcon {
