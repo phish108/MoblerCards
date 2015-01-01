@@ -309,7 +309,7 @@ li {
     padding: 0px;
 }
 
-/*********************** Splash Screen ***********************/
+/*********************** SplashView ***********************/
 
 .loading {
     font-size: 100px;
@@ -343,18 +343,7 @@ li {
         -webkit-transform: rotate(-360deg);
     }
 }
-
-/*********************** Splash Screen ***********************/
-
-
-#mainTitle {
-    font-size: 20pt;
-    margin: 25px auto 10px 20px;
-}
-#cardsTitle {
-    color: #008CC7;
-    font-weight: bold;
-}
+/*********************** LandingView ***********************/
 #cards {
     color: white;
     position: absolute;
@@ -367,11 +356,9 @@ li {
     position: absolute;
     left: 15px;
     top: 12px;
-    /*z-index:-1;*/
     background-color: #008CC7;
     transform: rotate(15deg);
     -webkit-transform: rotate(15deg);
-    /* Safari and Chrome */
     height: 40px;
     width: 60px;
     padding-left: 3px;
@@ -379,43 +366,30 @@ li {
 }
 .card2 {
     position: absolute;
-    /*left: -10px;*/
     background-color: #29ABE2;
     height: 50px;
     width: 60px;
     padding-left: 3px;
     padding-top: 3px;
-    /*z-index:-2;*/
 }
 .card3 {
     position: absolute;
     left: -15px;
     top: -10px;
-    /*z-index:-3;*/
     background-color: #7FCBDD;
     transform: rotate(-15deg);
     -webkit-transform: rotate(-15deg);
-    /* Safari and Chrome */
     height: 60px;
     width: 60px;
     padding-left: 5px;
     padding-top: 3px;
 }
-/*the following was id and was used for splash screen. it will be used in the login view now
-which will be hosted outside splashscreen. the landing view will be hosted inside splash screen*/
-
 .cover {
     height: 100%;
     width: 100%;
 }
-
-/****Landing View*****/
-
 #landingViewBackIcon {
     display: none;
-}
-#landingBody {
-    /*there was a z-index before, but we took it out in order to display the cards positively*/
 }
 #landingForm {
     width: 100%;
@@ -751,7 +725,10 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     padding-left: 5px;
 }
 /*********************** About View ***********************/
-
+#cardsTitle {
+    color: #008CC7;
+    font-weight: bold;
+}
 #aboutView {
     display: none;
 }
