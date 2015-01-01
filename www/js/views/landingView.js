@@ -1,34 +1,15 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
-
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @Class LandingView
  * View for displaying the first page that is visible to the user when the app is launched.
  * It contains the courses that are available free to the user, whithout beeing registrated.
  *  @constructor
- *  - it sets the tag ID for the landing view
  *  - assigns various event handlers when taping on the elements of the
  *    landing form such as featured content, exclusive content (and free content soon)
  *  - it binds synchronization events such as the sending of statistics to the server,
@@ -43,7 +24,7 @@ function LandingView() {
     this.tagID = this.app.viewId;
     this.active = false;
     this.fixedRemoved = false;
-    
+
     $('#featuredContent').bind("touchstart", function (e) {
         $("#featuredContent").addClass("gradientSelected");
         console.log("color changed in featured content touchstart");
@@ -63,21 +44,36 @@ function LandingView() {
         console.log(" hide error message loaded ");
         self.hideErrorMessage();
     });
-
+    
+    //this will be called when a synchronization update takes place
     $(document).bind("featuredContentlistupdate", function (e, featuredCourseId) {
-        self.showForm(); //this will be called when a synchronization update takes place
+        self.showForm();     
     });
 } //end of constructor
 
-/**
- * It opens the landing view
- * @prototype
- * @function open
- **/
 LandingView.prototype.prepare = function () {
     console.log("[landingView] prepare");
-    this.showForm();    
+    this.showForm();
     this.active = true;
+};
+
+LandingView.prototype.showForm = function () {
+    var featuredModel = this.app.models.featured;
+    
+    this.hideErrorMessage();
+    
+    if (this.app.models.connection.isOffline()) {
+        this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
+    }
+
+    $("#landingViewHeader").show();
+    $("#leftElement1").text(featuredModel.getTitle());
+
+    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
+        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
+    }
+    
+    $("#landingBody").show();
 };
 
 /**
@@ -100,59 +96,19 @@ LandingView.prototype.cleanup = function () {
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
-    
+
     console.log("[LandingView] tap registered: " + id);
-    
+
     if (id === "selectarrowLanding") {
-        this.clickFeaturedStatisticsIcon(featuredContentId);
-    }
-    else if (id === "leftElement1") {
+        if ($("#selectarrowLanding").hasClass("icon-bars")) {
+            $("#selectarrowLanding").removeClass("icon-bars").addClass("icon-loading loadingRotation");
+            this.app.changeView("statistics");
+        }
+    } else if (id === "leftElement1") {
         this.app.selectCourseItem(featuredContentId);
+    } else if (id === "leftElementExclusive") {
+        this.app.changeView("login");
     }
-    else if (id === "leftElementExclusive") {
-        this.selectExclusiveContent();
-    }
-};
-
-/**
- * transition to login view when the exclusive option
- * is selected in the landing page
- * @prototype
- * @function selectExclusiveContent
- */
-LandingView.prototype.selectExclusiveContent = function () {
-    console.log("enter selectExclusiveContent");
-    // this statement comes from the app TranstitionToLogin
-    this.app.changeView("login");
-};
-
-/**
- * displays the landing form
- * @prototype
- * @function showForm
- * @param{string}, featuredContent_id
- */
-LandingView.prototype.showForm = function () {
-    console.log("enter show form of landing view");
-    var self = this;
-    var featuredModel = self.app.models.featured;
-    this.hideErrorMessage();
-    if (this.app.models.connection.isOffline()) {
-        this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
-    }
-    //$("#featuredContent").attr("id",this.featuredContentId);
-    //NEW
-    //$("#featuredContent").attr("id",featuredModel.getId());
-    //scalculateLabelWidth();
-    $("#landingViewHeader").show();
-    console.log("showed landing view header");
-    $("#leftElement1").text(featuredModel.getTitle());
-
-    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
-        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
-    }
-    $("#landingBody").show();
-    console.log("showed the body of the landing page");
 };
 
 /**
@@ -167,15 +123,6 @@ LandingView.prototype.showErrorMessage = function (message) {
 };
 
 /**
- * click on the default featured content, loads its questions
- * @prototype
- * @function clickFeaturedItem
- */
-LandingView.prototype.clickFeaturedItem = function (featuredContentId) {
-    
-};
-
-/**
  * hides the specified error message
  * @prototype
  * @function hideErrorMessage
@@ -183,29 +130,4 @@ LandingView.prototype.clickFeaturedItem = function (featuredContentId) {
 LandingView.prototype.hideErrorMessage = function () {
     $("#errormessageLanding").text("");
     $("#errormessageLanding").hide();
-};
-
-/**
- * click on statistic icon calculates the appropriate statistics and
- * loads the statistics view after transforming the statistics icon into loading icon
- * @prototype
- * @function clickStatisticsIcon
- * @param {string} featuredContentId
- */
-LandingView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId) {
-    console.log("statistics button in landing view clicked");
-
-    if ($("#selectarrowLanding").hasClass("icon-bars")) {
-        console.log("select arrow landing has icon bars");
-        $("#selectarrowLanding").removeClass("icon-bars").addClass("icon-loading loadingRotation");
-
-        //icon-loading, icon-bars old name
-        //all calculations are done based on the course id and are triggered
-        //within setCurrentCourseId
-        //this.app.transitionToStatistics(featuredContentId);
-        //		NEW
-        //		var featuredModel = self.app.models['featured'];
-        //		var feauturedId= featuredModel.getId();
-        this.app.changeView("statistics", featuredContentId);
-    }
 };
