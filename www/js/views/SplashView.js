@@ -5,6 +5,6 @@
  * View for displaying the splash screen
  * @constructor
  * It doesn't actually do a thing besides showing a rotating arrow.
- * @param {String} controller
  */
+
 function SplashView() {}

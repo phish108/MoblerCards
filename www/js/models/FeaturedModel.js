@@ -78,11 +78,12 @@ function FeaturedModel(controller) {
     this.queue = [];
 
     /** 
-     * It it binded when an online connection is detected
+     * It is binded when an online connection is detected
      * @event switchtoonline
      * @param:  a call back function in which the featured(and any pending questions)
      *          are loaded from the server
-     * **/
+     * 
+     */
 
     $(document).bind("online", function () {
         self.switchToOnline();
@@ -100,9 +101,7 @@ function FeaturedModel(controller) {
         console.log("load featured content data from the server");
         this.loadFeaturedCourseFromServer();
     }
-
 }
-
 
 /**
  * Loads the data from the local storage (key = "featuredContent"). Therefore the string
