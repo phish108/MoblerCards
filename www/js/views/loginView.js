@@ -1,32 +1,10 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
-
-
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
-
-
-
-
-/**@author Isabella Nake
- * @author Evangelia Mitsopoulou
- */
-
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
+/**
+ * @author Isabella Nake
+ * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
+ */
 
 /**
  * @Class LoginView
@@ -105,47 +83,47 @@ LoginView.prototype.cleanup = function () {
 };
 
 /**
- *
  * @prototype
  * @function handleTap
  **/
 LoginView.prototype.tap = function (event) {
     var id = event.target.id;
-    
     console.log("[LoginView] tap registered: " + id);
-    
+
     if (id === "selectarrow") {
         this.clickLoginButton();
-    }
+    } 
     else if (id === "loginViewBackIcon") {
         this.clickCloseLoginButton();
-    }
-    else if (id === "usernameInput") {
+    } 
+    else if (id === "usernameInput" &&
+             id === "password") {
         this.focusLogos(event);
-    }
-    else if (id === "password") {
-        this.focusLogos(event);
-    }
+    } 
     else if (id === "loginLmsLabel") {
-        this.selectLMS();
+        $("#selectLMS").removeClass("textShadow");
+        $("#selectLMS").addClass("gradientSelected");
+
+        this.storeSelectedLMS();
+        this.app.changeView("lms");
     }
 };
 
 LoginView.prototype.focusLogos = function () {
-        $("#loginButton").removeClass("fixed");
-        var fixedRemoved = true;
-        $("#logos").removeClass("bottom");
-        $("#logos").addClass("static");
+    $("#loginButton").removeClass("fixed");
+    var fixedRemoved = true;
+    $("#logos").removeClass("bottom");
+    $("#logos").addClass("static");
 };
 
 LoginView.prototype.unfocusLogos = function () {
-        $("#loginButton").addClass("fixed");
-        $("#loginButton").show();
-        var fixedRemoved = false;
-        $("#logos").addClass("bottom");
-        $("#logos").removeClass("static");
+    $("#loginButton").addClass("fixed");
+    $("#loginButton").show();
+    var fixedRemoved = false;
+    $("#logos").addClass("bottom");
+    $("#logos").removeClass("static");
 };
-        
+
 /**
  * click on the login button sends data to the authentication model,
  * data is only sent if input fields contain some values
@@ -205,9 +183,11 @@ LoginView.prototype.clickLoginButton = function () {
 
             self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
             this.app.models.configuration.login($("#usernameInput").val(), $("#password").val());
-        } //use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
-        // the isOffline seems to work not properly
-    } else {
+        } 
+    // use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
+    // the isOffline seems to work not properly
+    } 
+    else {
         self.showErrorMessage(jQuery.i18n.prop('msg_authentication_message'));
     }
 };
@@ -303,23 +283,6 @@ LoginView.prototype.hideDeactivateMessage = function () {
     console.log("hided deactivate message");
 };
 
-/**
- * when user taps on the select lms button
- * it leads to lms list view
- * @prototype
- * @function selectLMS
- **/
-LoginView.prototype.selectLMS = function () {
-    var self = this;
-    console.log("select lms");
-    $("#selectLMS").removeClass("textShadow");
-    $("#selectLMS").addClass("gradientSelected");
-    self.storeSelectedLMS();
-    setTimeout(function () {
-        self.app.changeView("lms");
-    }, 100);
-};
-
 /** 
  * storing the selected LMS  in an array
  * @prototype
@@ -339,29 +302,27 @@ LoginView.prototype.storeSelectedLMS = function () {
  * @function changeOrientation
  **/
 LoginView.prototype.changeOrientation = function (orientationLayout, w, h) {
-    var self = this;
+    var self = this,
+        buttonwidth,
+        window_width = $(window).width();
 
     console.log("change orientation in login view");
 
-    if (orientationLayout == false || self.fixedRemoved == true) //we are in portrait mode and previously
-    // we had removed the fixed position of login button
-    {
+    //we are in portrait mode and previously we had removed the fixed position of login button
+    if (orientationLayout === false || self.fixedRemoved == true) {
         $("#loginButton").removeClass("fixed");
-    } else if (self.fixedRemoved == false) {
+    } 
+    else if (self.fixedRemoved === false) {
         $("#loginButton").addClass("fixed");
-    };
-
+    }
 
     //we are in landscape mode and previously we had removed the fixed position of login button
-    if (self.fixedRemoved == false) {
+    if (self.fixedRemoved === false) {
         $("#loginButton").addClass("fixed");
-    };
+    }
 
-
-    var buttonwidth, window_width = $(window).width();
     buttonwidth = window_width - 2;
     $(".forwardButton").css("width", buttonwidth + "px");
-
 };
 
 /**
@@ -374,6 +335,7 @@ LoginView.prototype.clickCloseLoginButton = function () {
     //set the active server to be the previous server
     var lmsModel = this.app.models.lms;
     var activeServer = lmsModel.getActiveServer();
+
     lmsModel.storePreviousServer(activeServer);
     this.app.changeView("landing");
 };
