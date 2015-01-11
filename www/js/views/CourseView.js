@@ -1,28 +1,10 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
-
-
-/** @author Isabella Nake
- * @author Evangelia Mitsopoulou
- */
-
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
+/** 
+ * @author Isabella Nake
+ * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
+ */
 
 /**
  * @Class AnswerView
@@ -34,7 +16,6 @@ under the License.
  * - bind 2 events, that are related with loading of courses and questions
  *   and they handle the  display of the list of courses as well as
  *   the transformation of the loading icon to statistics icon
- * @param {String} controller
  */
 function CourseView() {
     var self = this;
@@ -55,12 +36,12 @@ function CourseView() {
      *        that the specific course including all its questions has been fully loaded
      */
     $(document).bind("questionpoolready", function (e, courseID) {
-        if (self.app.activeView && (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.app.isActiveView(self.tagID)) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("view questionPool ready called " + courseID);
             self.courseIsLoaded(courseID);
         }
     });
-
 
     /**
      * In some rare cases an automated transition from login view to course list view takes place.
@@ -72,8 +53,8 @@ function CourseView() {
      */
 
     $(document).bind("courselistupdate", function (e) {
-        if ((self.tagID === self.app.viewId) && 
-            (self.app.models['authentication'].configuration.loginState === "loggedIn")) {
+        if ((self.app.isActiveView(self.tagID)) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("course list update called");
             self.firstLoad = false;
             if (self.active) {
@@ -186,7 +167,6 @@ CourseView.prototype.clickStatisticsIcon = function (courseID) {
     }
 };
 
-
 /**
  * updates the course list
  * @prototype
@@ -204,52 +184,43 @@ CourseView.prototype.update = function () {
 
     console.log("First course id: " + courseModel.getId());
 
-    //featured content
-
-    var liF = $("<li/>", {
-        "id": "featured" + featuredContentId,
-        "class": " courseLiContainer gradient2"
-    }).appendTo("#coursesList");
-
-    var dashDivF = $("<div/>", {
-        "class": "dashContainer lineContainer selectItemContainer"
-    }).appendTo(liF);
-
-    var spanDashF = $("<span/>", {
-        "class": "dashGrey icon-dash"
-    }).appendTo(dashDivF);
-
-    var mydivF = $("<div/>", {
-        "class": "text textShadow marginForCourseList labelContainer",
-        text: featuredModel.getTitle()
-    }).appendTo(liF);
-
-    var sBF = $("<div/>", {
-        "class": "separatorBlock"
-    }).appendTo(liF);
-
-    var separatorF = $("<div/>", {
-        "id": "separator" + featuredContentId,
-        "class": "radialCourses lineContainer separatorContainerCourses"
-    }).appendTo(sBF);
-
-    var divclassF = "lineContainer selectItemContainer";
-    divclassF += (featuredModel.isSynchronized(featuredContentId) ? " icon-bars" : "icon-loading loadingRotation");
-
-    var rightdivF = $("<div/>", {
-        "id": "courseListIcon" + featuredContentId,
-        "class": "gridContainer lineContainer selectItemContainer white icon-bars"
-    }).appendTo(liF);
-
-    //	divF = $("<div/>", {
-    //		"class" : " courseListIcon lineContainerCourses "
-    //	}).appendTo(rightdivF);
-    //	
-    //	spanF = $("<div/>", {
-    //		"id":"courseListIcon"+ featuredContentId,
-    //		"class" : "icon-bars"
-    //	}).appendTo(divF);
-    //	
+    var tmpl = this.template;
+    tmpl.attach("courselistelement");
+//    
+//    var liF = $("<li/>", {
+//        "id": "featured" + featuredContentId,
+//        "class": " courseLiContainer gradient2"
+//    }).appendTo("#coursesList");
+//
+//    var dashDivF = $("<div/>", {
+//        "class": "dashContainer lineContainer selectItemContainer"
+//    }).appendTo(liF);
+//
+//    var spanDashF = $("<span/>", {
+//        "class": "dashGrey icon-dash"
+//    }).appendTo(dashDivF);
+//
+//    var mydivF = $("<div/>", {
+//        "class": "text textShadow marginForCourseList labelContainer",
+//        text: featuredModel.getTitle()
+//    }).appendTo(liF);
+//
+//    var sBF = $("<div/>", {
+//        "class": "separatorBlock"
+//    }).appendTo(liF);
+//
+//    var separatorF = $("<div/>", {
+//        "id   ": "separator" + featuredContentId,
+//        "class": "radialCourses lineContainer separatorContainerCourses"
+//    }).appendTo(sBF);
+//
+//    var divclassF = "lineContainer selectItemContainer";
+//    divclassF += (featuredModel.isSynchronized(featuredContentId) ? " icon-bars" : "icon-loading loadingRotation");
+//
+//    var rightdivF = $("<div/>", {
+//        "id": "courseListIcon" + featuredContentId,
+//        "class": "gridContainer lineContainer selectItemContainer white icon-bars"
+//    }).appendTo(liF);
 
     // ?? FIXME ?? which ID are we talking about here??
     jester(mydivF[0]).tap(function (e) {
@@ -271,18 +242,7 @@ CourseView.prototype.update = function () {
             var li = $("<li/>", {
                 "class": "courseLiContainer gradient2",
                 "id": "course" + courseID
-            }).appendTo("#coursesList");
-
-            //			span = $("<div/>", {
-            //				"id":"courseListIcon"+ courseID,
-            //				"class" : (courseModel.isSynchronized(courseID) ? " icon-bars" : "icon-loading loadingRotation")
-            //			}).appendTo(div);
-            //			
-
-            //			var leftDiv = $("<div/>", {
-            //				"class" : "labelContainer"
-            //			}).appendTo(li);
-            //			
+            }).appendTo("#coursesList");		
 
             var dashDiv = $("<div/>", {
                 "class": "dashContainer lineContainer selectItemContainer"
@@ -313,9 +273,6 @@ CourseView.prototype.update = function () {
                 "id": "courseListIcon" + courseID
             }).appendTo(li);
 
-            //			var div = $("<span/>", {
-            //				"class" : divclass
-            //			}).appendTo(rightDiv);
         } while (courseModel.nextCourse());
         self.setIconSize();
     }

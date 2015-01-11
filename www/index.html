@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Learning Cards</title>
+    <title>Learning Cards</title>   
 
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
@@ -193,9 +193,22 @@
             <span class="icon-settings"></span>
         </div>
         <div id="courses" class="content full">
-            <ul id="coursesList" class="gradient2"></ul>
+            <ul id="coursesList" class="gradient2">
+                <!-- TODO srsly those class names need to be reimplemented -->
+                <template id="courselistbox">
+                    <li id="courselistelement" class="courseLiContainer gradient2">
+                        <div id="coursedash" class="dashContainer lineContainer selectItemContainer">
+                            <span class="dashGrey icon-dash"></span>
+                        </div>
+                        <div id="coursecontentbox"></div>
+                        <div id="seperatorblock">
+                            <div id="seperatorfd" class="radialCourses lineContainer separatorContainerCourses"></div>
+                        </div>
+                        <div id="courselisticon" class="gridContainer lineContainer selectItemContainer white icon-bars"></div>
+                    </li>
+                </template>
+            </ul>
         </div>
-        <div></div>
     </div>
 
     <div id="settings" class="screen" data-view="SettingsView" data-touch="tap pinch">
