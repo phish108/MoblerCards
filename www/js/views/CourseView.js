@@ -101,8 +101,9 @@ CourseView.prototype.cleanup = function () {
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
-    var courseID = this.app.models.course.getId();
-    
+    var courseId = this.app.models.course.getId();
+    var featuredId = this.app.models.featured.getId();
+
     console.log("[CourseView] tap registered " + id);
     
     if (id === "coursesListSetIcon") {
@@ -113,43 +114,21 @@ CourseView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "courseListIcon") {
-        this.clickFeaturedStatisticsIcon(featuredContentId);
-    }
-    else if (id === "courseTitle" + courseID) {
-        this.clickCourseItem($(this).parent().attr('id').substring(6));
-    }
-    else if (id === "courseListIcon" + courseID) {
-        this.clickStatisticsIcon($(this).parent().attr('id').substring(6));
-    }
-};
-
-/**
- * click on course item loads the appropriate question pool
- * @prototype
- * @function clickCourseItem
- **/
-CourseView.prototype.clickCourseItem = function (course_id) {
-    if (this.app.models.course.isSynchronized(course_id)) {
-        this.app.selectCourseItem(course_id);
-    }
-};
-
-/**
- * click on statistic icon calculates the appropriate statistics and shows them
- * @prototype
- * @function clickStatisticsIcon
- */
-CourseView.prototype.clickStatisticsIcon = function (courseID) {
-    console.log("statistics button clicked");
-
-    if ($("#courseListIcon" + courseID).hasClass("icon-bars")) {
-        $("#courseListIcon" + courseID).addClass("icon-loading loadingRotation").removeClass("icon-bars");
-
-        //icon-loading, icon-bars old name
-        //all calculations are done based on the course id and are triggered
-        //within setCurrentCourseId
-        this.app.changeView("statistics", courseID);
+    else {
+        var course = id.split("_");
+        
+        if (course[0] === "coursecontentbox") {
+            if (course.length === 4 &&
+                course[3] === "fd") {
+                this.app.selectCourseItem(course[3]);
+            }
+            else {
+                this.app.selectCourseItem(course[2]);
+            }
+        }
+        else if (course[0] === "courselisticon") {
+            this.app.changeView("statistics", course[2]);
+        }
     }
 };
 
@@ -184,7 +163,7 @@ CourseView.prototype.setDefaultCourse = function () {
     var ctmpl = this.app.templates.getTemplate("courselistbox");
     var featuredId = featuredModel.getId();
     
-    ctmpl.attach(featuredId);
+    ctmpl.attach(featuredId + "_fd");
     ctmpl.coursecontentbox.text = featuredModel.getTitle();
     
     this.setCourseIcon(ctmpl, featuredModel, featuredId);
@@ -222,41 +201,4 @@ CourseView.prototype.setIconSize = function () {
         $(this).find(".courseListIcon").height(height);
         $(this).find(".courseListIcon").css("line-height", height + "px");
     });
-};
-
-/**
- * click on featured content which is on top of
- * courses list view, right before the exclusive content
- * loads the questions of the featured course question pool
- * @prototype
- * @function clickFeaturedItem
- */
-CourseView.prototype.clickFeaturedItem = function (featuredContentId) {
-
-    //if (this.app.models['featured'].isSynchronized(featuredContentId)) {
-    //	NEW
-    //	var featuredModel = self.app.models['featured'];
-    //	var feauturedId= featuredModel.getId();
-    this.app.selectCourseItem(featuredContentId);
-    //}end of isSynchronized
-};
-
-/**
- * click on statistic icon calculates the appropriate statistics and shows them
- * while we are registered in courses list view
- * @prototype
- * @function clickFeaturedStatisticsIcon
- */
-CourseView.prototype.clickFeaturedStatisticsIcon = function (featuredContentId) {
-    console.log("statistics button in landing view clicked");
-
-    if ($("#courseListIcon" + featuredContentId).hasClass("icon-bars")) {
-        console.log("select arrow landing has icon bars");
-        $("#courseListIcon" + featuredContentId).addClass("icon-loading loadingRotation").removeClass("icon-bars");
-
-        //icon-loading, icon-bars old name
-        //all calculations are done based on the course id and are triggered
-        //within setCurrentCourseId
-        this.app.changeView("statistics", featuredContentId);
-    }
 };
