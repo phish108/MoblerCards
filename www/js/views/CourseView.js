@@ -51,18 +51,18 @@ function CourseView() {
      * @event courselistupdate
      * @param a callback function that loads the body of the courses list view, which is the list of courses
      */
-
-    $(document).bind("courselistupdate", function (e) {
-        if ((self.app.isActiveView(self.tagID)) && 
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-            console.log("course list update called");
-            self.firstLoad = false;
-            if (self.active) {
-                console.log("course list view is active");
-                self.update();
-            }
-        }
-    });
+//
+//    $(document).bind("courselistupdate", function (e) {
+//        if ((self.app.isActiveView(self.tagID)) && 
+//            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+//            console.log("course list update called");
+//            self.firstLoad = false;
+//            if (self.active) {
+//                console.log("course list view is active");
+//                self.generateCourses();
+//            }
+//        }
+//    });
 
     function setOrientation() {
         self.setIconSize();
@@ -75,11 +75,6 @@ function CourseView() {
     window.addEventListener("resize", setOrientation, false);
 }
 
-/**
- * updates the course list and shows it
- * @prototype
- * @function open
- **/
 CourseView.prototype.prepare = function (featuredContentId) {
     console.log("open course list view");
     this.active = true;
@@ -167,123 +162,49 @@ CourseView.prototype.clickStatisticsIcon = function (courseID) {
     }
 };
 
-/**
- * updates the course list
- * @prototype
- * @function update
- */
-CourseView.prototype.update = function () {
-    var featuredContentId = FEATURED_CONTENT_ID;
+CourseView.prototype.update = function (featuredContentId) {
     var self = this;
 
+    this.template.attach("courselistbox");
+
     var courseModel = self.app.models.course;
-    var statisticsModel = self.app.models.statistics;
     var featuredModel = self.app.models.featured;
+    var ctmpl = this.app.templates.getTemplate("courselistbox");
+    
     courseModel.reset();
-    $("#coursesList").empty();
+    $("#courselistbox").empty();
 
-    console.log("First course id: " + courseModel.getId());
-
-    var tmpl = this.template;
-    tmpl.attach("courselistelement");
-//    
-//    var liF = $("<li/>", {
-//        "id": "featured" + featuredContentId,
-//        "class": " courseLiContainer gradient2"
-//    }).appendTo("#coursesList");
-//
-//    var dashDivF = $("<div/>", {
-//        "class": "dashContainer lineContainer selectItemContainer"
-//    }).appendTo(liF);
-//
-//    var spanDashF = $("<span/>", {
-//        "class": "dashGrey icon-dash"
-//    }).appendTo(dashDivF);
-//
-//    var mydivF = $("<div/>", {
-//        "class": "text textShadow marginForCourseList labelContainer",
-//        text: featuredModel.getTitle()
-//    }).appendTo(liF);
-//
-//    var sBF = $("<div/>", {
-//        "class": "separatorBlock"
-//    }).appendTo(liF);
-//
-//    var separatorF = $("<div/>", {
-//        "id   ": "separator" + featuredContentId,
-//        "class": "radialCourses lineContainer separatorContainerCourses"
-//    }).appendTo(sBF);
-//
-//    var divclassF = "lineContainer selectItemContainer";
-//    divclassF += (featuredModel.isSynchronized(featuredContentId) ? " icon-bars" : "icon-loading loadingRotation");
-//
-//    var rightdivF = $("<div/>", {
-//        "id": "courseListIcon" + featuredContentId,
-//        "class": "gridContainer lineContainer selectItemContainer white icon-bars"
-//    }).appendTo(liF);
-
-    // ?? FIXME ?? which ID are we talking about here??
-    jester(mydivF[0]).tap(function (e) {
-        self.clickFeaturedItem(featuredContentId);
-    });
-
-    if (courseModel.courseList.length == 0) {
-        var li = $("<li/>", {}).appendTo("#coursesList");
-
-        $("<div/>", {
-            "class": "text textShadow",
-            text: (self.firstLoad ? "Courses are being loaded" : "No Courses"),
-        }).appendTo(li);
-
-    } else {
+    if (courseModel.courseList.length === 0) {
+        ctmpl.attach("courselistelement");
+        ctmpl.courselistelement.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
+    } 
+    else {
+        ctmpl.attach("courselistelement");
+        ctmpl.coursecontentbox.text = featuredModel.getTitle();
+         
+        if (courseModel.isSynchronized(featuredContentId)) {
+            ctmpl.courselisticon.addClass("icon-bars");
+        }
+        else {
+            ctmpl.courselisticon.addClass("icon-loading");
+            ctmpl.courselisticon.addClass("loadingRotation");
+        }
         do {
             var courseID = courseModel.getId();
-
-            var li = $("<li/>", {
-                "class": "courseLiContainer gradient2",
-                "id": "course" + courseID
-            }).appendTo("#coursesList");		
-
-            var dashDiv = $("<div/>", {
-                "class": "dashContainer lineContainer selectItemContainer"
-            }).appendTo(li);
-
-            var spanDash = $("<span/>", {
-                "class": "dashGrey icon-dash"
-            }).appendTo(dashDiv);
-
-            var mydiv = $("<div/>", {
-                "id": "courseTitle" + courseID,
-                "class": "text textShadow marginForCourseList labelContainer",
-                text: courseModel.getTitle()
-            }).appendTo(li);
-
-            var sB = $("<div/>", {
-                "class": "separatorBlock"
-            }).appendTo(li);
-            var separator = $("<div/>", {
-                "id": "separator" + courseID,
-                "class": "radialCourses lineContainer separatorContainerCourses"
-            }).appendTo(sB);
-
-            var divclass = "lineContainer selectItemContainer white ";
-            divclass += (courseModel.isSynchronized(courseID) ? " icon-bars" : "icon-loading loadingRotation");
-            var rightDiv = $("<div/>", {
-                "class": "gridContainer " + divclass,
-                "id": "courseListIcon" + courseID
-            }).appendTo(li);
-
+          
+            ctmpl.attach("courselistelement");
+            ctmpl.coursecontentbox.text = courseModel.getTitle();
+            
+            if (courseModel.isSynchronized(courseID)) {
+                ctmpl.courselisticon.addClass("icon-bars");
+            }
+            else {
+                ctmpl.courselisticon.addClass("icon-loading");
+                ctmpl.courselisticon.addClass("loadingRotation");
+            }
         } while (courseModel.nextCourse());
         self.setIconSize();
     }
-
-    var lastli = $("<li/>", {}).appendTo("#coursesList");
-
-    var shadoweddiv = $("<div/>", {
-        "id": "shadowedLi",
-        "class": "gradient1"
-    }).appendTo(lastli);
-
 };
 
 /**
