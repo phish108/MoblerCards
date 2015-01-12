@@ -83,7 +83,7 @@ CourseView.prototype.prepare = function () {
 };
 
 CourseView.prototype.update = function () {
-    this.template.attach("courselistbox");
+//    this.template.attach("courselistbox");
     this.setDefaultCourse();
     this.setCourse();
 };
