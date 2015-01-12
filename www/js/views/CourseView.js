@@ -23,7 +23,6 @@ function CourseView() {
     this.tagID = this.app.viewId;
     this.active = false;
     this.firstLoad = true;
-    
     var featuredContentId = FEATURED_CONTENT_ID;
 
     /**
@@ -51,18 +50,18 @@ function CourseView() {
      * @event courselistupdate
      * @param a callback function that loads the body of the courses list view, which is the list of courses
      */
-//
-//    $(document).bind("courselistupdate", function (e) {
-//        if ((self.app.isActiveView(self.tagID)) && 
-//            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-//            console.log("course list update called");
-//            self.firstLoad = false;
-//            if (self.active) {
-//                console.log("course list view is active");
-//                self.generateCourses();
-//            }
-//        }
-//    });
+
+    $(document).bind("courselistupdate", function (e) {
+        if ((self.app.isActiveView(self.tagID)) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("course list update called");
+            self.firstLoad = false;
+            if (self.active) {
+                console.log("course list view is active");
+                self.update();
+            }
+        }
+    });
 
     function setOrientation() {
         self.setIconSize();
@@ -76,14 +75,13 @@ function CourseView() {
 }
 
 CourseView.prototype.prepare = function () {
-    console.log("open course list view");
+    console.log("[CourseView] opened");
     this.active = true;
     this.firstLoad = false;
     this.setIconSize();
 };
 
 CourseView.prototype.update = function () {
-//    this.template.attach("courselistbox");
     this.setDefaultCourse();
     this.setCourse();
 };
@@ -168,12 +166,12 @@ CourseView.prototype.setCourse = function () {
     } 
     else {
         do {
-//            was used for the icons
             courseId = courseModel.getId();
           
             ctmpl.attach(courseId);
             ctmpl.coursecontentbox.text = courseModel.getTitle();
-            ctmpl.courselisticon.addClass("icon-bars");
+            
+            this.setCourseIcon(ctmpl, courseModel, courseId);
         } while (courseModel.nextCourse());
         self.setIconSize();
     }
@@ -188,7 +186,18 @@ CourseView.prototype.setDefaultCourse = function () {
     
     ctmpl.attach(featuredId);
     ctmpl.coursecontentbox.text = featuredModel.getTitle();
-    ctmpl.courselisticon.addClass("icon-bars");
+    
+    this.setCourseIcon(ctmpl, featuredModel, featuredId);
+};
+
+CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
+    if (model.isSynchronized(modelId)) {
+        ctmpl.courselisticon.addClass("icon-bars");
+    }
+    else {
+        ctmpl.courselisticon.addClass("icon-loading");
+        ctmpl.courselisticon.addClass("loadingRotation");
+    }
 };
 
 /**

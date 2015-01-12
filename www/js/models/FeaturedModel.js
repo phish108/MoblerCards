@@ -319,13 +319,14 @@ FeaturedModel.prototype.getId = function () {
  * @param {Number} featuredContentId, the id of the featured course
  * @return {Boolean} true if the course with the specified id is synchronized, otherwise false
  */
-FeaturedModel.prototype.isSynchronized = function (featuredContentId) {
-    if (featuredContentId != "") {
+FeaturedModel.prototype.isSynchronized = function (featuredId) {
+//    if (featuredContentId != "") {
+    if (featuredId > 0) {
 //        console.log("featured content id is greater than zero");
         var c;
         for (c in this.featuredContentList) {
 //            console.log("id of the featuredcontent list" + this.featuredContentList[c].id);
-            if (this.featuredContentList[c].id === featuredContentId) {
+            if (this.featuredContentList[c].id === featuredId) {
 //                console.log("check id's between featured contentsss");
                 return this.featuredContentList[c].syncState;
             }
