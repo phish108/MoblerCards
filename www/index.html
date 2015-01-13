@@ -163,23 +163,71 @@
         </div>
     </div>
 
+<!--
     <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
         <div id="lmsListHeader" class="headerContainer">
             <div class="titleicon" id="lmsIcon">
                 <span class="icon-lms"></span>
             </div>
-            <!-- <div class="left"></div> -->
             <div id="lmsListTitle" class="title"></div>
         </div>
         <div id="closeLMSIcon" class="closeButton">
             <span class="icon-cross"></span>
         </div>
-        <div id="lmsbody" class="content full"></div>
+        <div id="lmsbody" class="content full">
+            <ul id="lmsbox">
+                <template id="lmslistbox">
+                    <li id="selectedLms">
+                        <div class="left lineContainer selectItemContainer">
+                            <span id="lmsDash" class="icon-dash"></span>
+                        </div>
+                        <div id="lmsLabel" class="text marginForCourseList"></div>
+                        <div id="selectedLmsIcon">
+                            <div id="separator" class="radialCourses lineContainer separatorContainerLMS"></div>
+                            <div id="lmsImageContainer" class="right courseListIconLMS lmsIcon">
+                                <img id="lmsImg" class="imageLogoLMS"></img>
+                                <span id="lmsWaiting" class="red hidden"></span>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+        <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
+    </div>
+-->
+
+    <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
+        <div id="lmsheader" class="headerbox">
+            <div id="lmsicon"  class="titleiconNEW"><span class="icon-lms"></span></div>
+            <div id="lmstitle" class="headercontent">LMS list</div>
+            <div id="lmscross" class="closeicon"><span class="icon-cross"></span></div>
+        </div>
+        
+        <div id="lmsbody" class="content full">
+            <ul id="lmsbox">
+                <template id="lmslistbox">
+                    <li id="selectedLms">
+                        <div class="left lineContainer selectItemContainer">
+                            <span id="lmsDash" class="icon-dash"></span>
+                        </div>
+                        <div id="lmsLabel" class="text marginForCourseList"></div>
+                        <div id="selectedLmsIcon">
+                            <div id="separator" class="radialCourses lineContainer separatorContainerLMS"></div>
+                            <div id="lmsImageContainer" class="right courseListIconLMS lmsIcon">
+                                <img id="lmsImg" class="imageLogoLMS"></img>
+                                <span id="lmsWaiting" class="red hidden"></span>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
 
         <!-- <div id="lmserrormessage" class="gradientSelected"></div> -->
         <!-- <div id="lmsregistrationmessage" class="gradientSelected"></div> -->
         <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
-        <div></div>
     </div>
 
     <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
@@ -233,7 +281,6 @@
             </div>
 
             <ul id="settingsData" class="gradient2">
-                <!--  <li><div class="settingsLi lms"><img id="lmsLabelSet" class="settingsLabel "/><span id="pfpItemSet"></span></div></li>-->
                 <li>
                     <div class=" settingsLi lineContainer imageContainer ">
                         <div class="imageoutline1">

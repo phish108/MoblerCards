@@ -17,6 +17,48 @@ body {
 }
 /* close button general characteristics, top right corner of each view*/
 
+/*********************** Header new ***********************/
+.headerbox {
+    display: table;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid white;    
+    background: linear-gradient(#008cc7, #0072a2);
+    box-shadow: 0px 3px 5px -1px #ccc;
+    -webkit-box-shadow: 0px 3px 5px -1px #ccc;
+}
+.titleiconNEW {
+    display: table-cell;
+    width: 40px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 30px;
+    color: white;
+}
+.headercontent {
+    display: table-cell;
+    font-size: 22px;
+    color: white;
+    overflow: hidden;
+}
+.closeicon {
+    display: table-cell;
+    width: 49px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 30px;
+    color: white;
+    border-left: 1px solid white;
+}
+
+
+/*********************** Header old ***********************/
 .closeButton {
     width: 49px;
     height: 47px;
@@ -35,6 +77,7 @@ body {
     top: 0px;
     z-index: 10;
 }
+
 /*done button general characteristics, bottom side of each view*/
 
 .forwardButton {
@@ -536,10 +579,6 @@ li {
     font-size: 15pt;
     border: 1px solid white;
 }
-#LMSContainer {
-    border: 1px solid white;
-    height: 60px;
-}
 #logos {
     vertical-align: bottom;
     margin-top: 10px;
@@ -797,9 +836,6 @@ ul#loginElements {
 }
 #selectarrowLanding {
     border: 0px solid green;
-}
-#lmsView {
-    display: none;
 }
 .lmsListItem {
     border-left: 1px solid white;
@@ -1166,7 +1202,7 @@ ul#loginElements {
     background-color: transparent;
 }
 img.imageLogoLMS {
-    display: inline;
+/*    display: inline;*/
     width: 38px;
     height: 38px;
     padding-right: 7px;
