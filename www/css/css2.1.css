@@ -23,8 +23,8 @@ body {
     top: 0px;
     left: 0px;
     width: 100%;
-    height: 50px;
-    line-height: 50px;
+    height: 55px;
+    line-height: 55px;
     margin: 0px;
     padding: 0px;
     border: 1px solid white;    
@@ -34,7 +34,7 @@ body {
 }
 .titleicon {
     display: table-cell;
-    width: 40px;
+    width: 58px;
     text-align: center;
     vertical-align: middle;
     font-size: 30px;
@@ -43,12 +43,14 @@ body {
 .headercontent {
     display: table-cell;
     font-size: 22px;
+    vertical-align: middle;
     color: white;
     overflow: hidden;
 }
 .closeicon {
     display: table-cell;
-    width: 49px;
+    width: 63px;
+    padding-top: 5px;
     text-align: center;
     vertical-align: middle;
     font-size: 30px;
@@ -59,7 +61,7 @@ body {
 .contentbox {
     display: block;
     position: fixed;
-    top: 53px;
+    top: 63px;
     left: 0px;
     width: 100%;
 }
