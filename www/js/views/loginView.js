@@ -93,7 +93,7 @@ LoginView.prototype.tap = function (event) {
     if (id === "selectarrow") {
         this.clickLoginButton();
     } 
-    else if (id === "loginViewBackIcon") {
+    else if (id === "loginclose") {
         this.clickCloseLoginButton();
     } 
     else if (id === "usernameInput" &&

@@ -87,7 +87,7 @@
             <div id="loginheader" class="headerbox">
                 <div id="loginicon"  class="titleicon"><span class="icon-lock"></span></div>
                 <div id="logintitle" class="headercontent">Login</div>
-                <div id="logincross" class="closeicon"><span class="icon-cross"></span></div>
+                <div id="logincross" class="closeicon"><span id="loginclose" class="icon-cross"></span></div>
             </div>
 
             <div id="loginBody" class="content">
@@ -163,20 +163,20 @@
         <div id="lmsheader" class="headerbox">
             <div id="lmsicon"  class="titleicon"><span class="icon-lms"></span></div>
             <div id="lmstitle" class="headercontent">LMS list</div>
-            <div id="lmscross" class="closeicon"><span class="icon-cross"></span></div>
+            <div id="lmscross" class="closeicon"><span id="lmsclose" class="icon-cross"></span></div>
         </div>
         
         <div id="lmscontent" class="contentbox">
-            <ul id="lmslist">
+            <ul id="lmsbox">
                 <template id="lmslistbox">
-                    <li id="lmselement" class="listbox">
+                    <li id="lmslist" class="listbox">
                         <div id="lmsdash"  class="listdash">
                             <span class="icon-dash"></span>
                         </div>
                         <div id="lmslabel" class="listlabel"></div>
                         <div id="lmsimage" class="listimage">
                             <img id="lmsimg"/>
-                            <span id="lmswait" class="red"></span>
+                            <span id="lmswait" class="red icon-cross"></span>
                         </div>
                     </li>
                 </template>
