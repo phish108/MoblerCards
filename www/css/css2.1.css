@@ -15,9 +15,8 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
-/* close button general characteristics, top right corner of each view*/
 
-/*********************** Header new ***********************/
+/*********************** Header ***********************/
 .headerbox {
     display: table;
     position: fixed;
@@ -56,7 +55,14 @@ body {
     color: white;
     border-left: 1px solid white;
 }
-
+/*********************** Content ***********************/
+.contentbox {
+    display: block;
+    position: fixed;
+    top: 53px;
+    left: 0px;
+    width: 100%;
+}
 
 /*********************** Header old ***********************/
 .closeButton {
@@ -260,7 +266,6 @@ body {
 	border: 1px solid red;*/
     margin-top: 55px;
     width: 100%;
-    background-image: url(../resources/app_background.png);
     background-size: 100% auto;
     /*background-size: 946px auto;
     background-size:100% 15%;
@@ -437,8 +442,36 @@ li {
 #landingForm {
     width: 100%;
 }
-/*********************** Login ***********************/
-
+/*********************** LMS View *************************/
+.listbox {
+    display: table;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+.listdash {
+    display: table-cell;
+    width: 34px;
+    padding-top: 3px;    
+    text-align: center;
+    vertical-align: middle;
+    font-size: 25px;
+}
+.listlabel {
+    display: table-cell;
+    padding-left: 10px;
+    padding-right: 5px;
+    vertical-align: middle;
+}
+.listimage {
+    display: table-cell;
+    width: 38px;
+    padding-top: 5px;
+    padding-right: 10px;
+    text-align: center;
+    font-size: 28px;
+}
+/*********************** Login View ***********************/
 #loginForm {
     width: 100%;
 }
