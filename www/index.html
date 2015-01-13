@@ -84,15 +84,10 @@
 
     <div id="login" class="screen" data-view="LoginView" data-touch="tap">
         <div class="viewblock cover">
-            <div id="loginViewHeader" class="headerContainer">
-                <div id="loginViewTitle" class="title">Login</div>
-                <div id="loginIcon" class="titleicon">
-                    <span class="icon-lock"></span>
-                </div>
-            </div>
-
-            <div id="loginViewBackIcon" class="closeButton">
-                <span class="icon-cross"></span>
+            <div id="loginheader" class="headerbox">
+                <div id="loginicon"  class="titleicon"><span class="icon-lock"></span></div>
+                <div id="logintitle" class="headercontent">Login</div>
+                <div id="logincross" class="closeicon"><span class="icon-cross"></span></div>
             </div>
 
             <div id="loginBody" class="content">
@@ -200,7 +195,7 @@
 
     <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
         <div id="lmsheader" class="headerbox">
-            <div id="lmsicon"  class="titleiconNEW"><span class="icon-lms"></span></div>
+            <div id="lmsicon"  class="titleicon"><span class="icon-lms"></span></div>
             <div id="lmstitle" class="headercontent">LMS list</div>
             <div id="lmscross" class="closeicon"><span class="icon-cross"></span></div>
         </div>
@@ -224,15 +219,13 @@
                 </template>
             </ul>
         </div>
-
-        <!-- <div id="lmserrormessage" class="gradientSelected"></div> -->
-        <!-- <div id="lmsregistrationmessage" class="gradientSelected"></div> -->
+    
         <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
     </div>
 
     <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
         <div id="coursesListHeader" class="headerContainer">
-            <div id="coursesTitleIcon" class="titleicon">
+            <div id="coursesTitleIcon" class="titleiconOLD">
                 <span class="icon-courses"></span>
             </div>
             <div id="coursesListTitle" class="title"></div>
@@ -260,7 +253,7 @@
 
     <div id="settings" class="screen" data-view="SettingsView" data-touch="tap pinch">
         <div id="settingsHeader" class="headerContainer">
-            <div id="settingsIcon" class="titleicon">
+            <div id="settingsIcon" class="titleiconOLD">
                 <span class="icon-settings"></span>
             </div>
             <div id="settingsTitle" class="title"></div>
@@ -394,7 +387,7 @@
 
     <div id="question" class="screen" data-view="QuestionView" data-touch="tap pinch swipe">
         <div id="cardQuestionHeader" class="headerContainer">
-            <div class="titleicon">
+            <div class="titleiconOLD">
                 <span id="questionIcon"></span>
             </div>
             <div id="cardQuestionTitle" class="title">Choose some</div>
@@ -428,7 +421,7 @@
 
     <div id="answer" class="screen" data-view="AnswerView" data-touch="tap pinch">
         <div id="cardAnswerHeader" class="headerContainer">
-            <div id="cardAnswerIcon" class="titleicon">
+            <div id="cardAnswerIcon" class="titleiconOLD">
                 <span id="answerIcon"></span>
             </div>
             <div id="cardAnswerTitle" class="title"></div>
@@ -449,7 +442,7 @@
 
     <div id="feedback" class="screen" data-view="FeedbackView" data-touch="tap pinch swipe">
         <div id="cardFeedbackHeader" class="headerContainer">
-            <div class="titleicon" id="cardFeedbackIcon">
+            <div class="titleiconOLD" id="cardFeedbackIcon">
                 <span id="feedbackIcon"></span>
             </div>
             <div id="cardFeedbackTitle" class="title"></div>
@@ -486,7 +479,7 @@
 
     <div id="statistics" class="screen" data-view="StatisticsView" data-touch="tap pinch swipe">
         <div id="statisticsHeader" class="headerContainer">
-            <div id="statisticsIcon" class="titleicon">
+            <div id="statisticsIcon" class="titleiconOLD">
                 <span class="icon-bars"></span>
             </div>
             <div id="statisticsTitle" class="title">Statistics</div>
@@ -619,7 +612,7 @@
                 <span class="icon-cross"></span>
             </div>
             <div id="achievementsTitle" class="title"></div>
-            <div id="achievementsIcon" class="titleicon">
+            <div id="achievementsIcon" class="titleiconOLD">
                 <span class="icon-happy"></span>
             </div>
         </div>
