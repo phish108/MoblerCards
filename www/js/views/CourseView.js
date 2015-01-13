@@ -106,7 +106,7 @@ CourseView.prototype.tap = function (event) {
 
     console.log("[CourseView] tap registered " + id);
     
-    if (id === "coursesListSetIcon") {
+    if (id === "coursesettings") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
@@ -148,7 +148,7 @@ CourseView.prototype.setCourse = function () {
             courseId = courseModel.getId();
           
             ctmpl.attach(courseId);
-            ctmpl.coursecontentbox.text = courseModel.getTitle();
+            ctmpl.courselabel.text = courseModel.getTitle();
             
             this.setCourseIcon(ctmpl, courseModel, courseId);
         } while (courseModel.nextCourse());
@@ -164,19 +164,19 @@ CourseView.prototype.setDefaultCourse = function () {
     var featuredId = featuredModel.getId();
     
     ctmpl.attach(featuredId + "_fd");
-    ctmpl.coursecontentbox.text = featuredModel.getTitle();
+    ctmpl.courselabel.text = featuredModel.getTitle();
     
     this.setCourseIcon(ctmpl, featuredModel, featuredId);
 };
 
 CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
-    if (model.isSynchronized(modelId)) {
-        ctmpl.courselisticon.addClass("icon-bars");
-    }
-    else {
-        ctmpl.courselisticon.addClass("icon-loading");
-        ctmpl.courselisticon.addClass("loadingRotation");
-    }
+//    if (model.isSynchronized(modelId)) {
+        ctmpl.courseimg.addClass("icon-bars");
+//    }
+//    else {
+//        ctmpl.courseimage.addClass("icon-loading");
+//        ctmpl.courseimage.addClass("loadingRotation");
+//    }
 };
 
 /**

@@ -186,27 +186,23 @@
     </div>
 
     <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
-        <div id="coursesListHeader" class="headerContainer">
-            <div id="coursesTitleIcon" class="titleiconOLD">
-                <span class="icon-courses"></span>
-            </div>
-            <div id="coursesListTitle" class="title"></div>
+        <div id="courseheader" class="headerbox">
+            <div id="courseicon"  class="titleicon"><span class="icon-courses"></span></div>
+            <div id="coursetitle" class="headercontent">LMS list</div>
+            <div id="coursecross" class="closeicon"><span id="coursesettings" class="icon-settings"></span></div>
         </div>
-        <div id="coursesListSetIcon" class="closeButton">
-            <span class="icon-settings"></span>
-        </div>
-        <div id="courses" class="content full">
-            <ul id="coursebox" class="gradient2">
+
+        <div id="coursecontent" class="contentbox">
+            <ul id="coursebox">
                 <template id="courselistbox">
-                    <li id="courselistelement" class="courseLiContainer gradient2">
-                        <div id="coursedash" class="dashContainer lineContainer selectItemContainer">
-                            <span class="dashGrey icon-dash"></span>
+                    <li id="courselist" class="listbox gradient2">
+                        <div id="coursedash"  class="listdash white">
+                            <span class="icon-dash"></span>
                         </div>
-                        <div id="coursecontentbox" class="text textShadow marginForCourseList labelContainer"></div>
-                        <div id="seperatorblock" class="separatorBlock">
-                            <div id="seperatorfd" class="radialCourses lineContainer separatorContainerCourses"></div>
+                        <div id="courselabel" class="listlabel"></div>
+                        <div id="courseimage" class="listimage white">
+                            <span id="courseimg"></span>
                         </div>
-                        <div id="courselisticon" class="gridContainer lineContainer selectItemContainer white"></div>
                     </li>
                 </template>
             </ul>
