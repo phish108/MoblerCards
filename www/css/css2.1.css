@@ -65,6 +65,37 @@ body {
     left: 0px;
     width: 100%;
 }
+
+/*********************** List templates *************************/
+.listbox {
+    display: table;
+    height: 59px;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+.listdash {
+    display: table-cell;
+    width: 34px;
+    padding-top: 3px;    
+    text-align: center;
+    vertical-align: middle;
+    font-size: 25px;
+}
+.listlabel {
+    display: table-cell;
+    padding-left: 10px;
+    padding-right: 5px;
+    vertical-align: middle;
+}
+.listimage {
+    display: table-cell;
+    width: 63px;
+    padding-top: 10px;
+    padding-right: 0px;
+    text-align: center;
+    font-size: 46px;
+}
 /*********************** Header old ***********************/
 .closeButton {
     width: 49px;
@@ -443,35 +474,6 @@ li {
 #landingForm {
     width: 100%;
 }
-/*********************** LMS View *************************/
-.listbox {
-    display: table;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-}
-.listdash {
-    display: table-cell;
-    width: 34px;
-    padding-top: 3px;    
-    text-align: center;
-    vertical-align: middle;
-    font-size: 25px;
-}
-.listlabel {
-    display: table-cell;
-    padding-left: 10px;
-    padding-right: 5px;
-    vertical-align: middle;
-}
-.listimage {
-    display: table-cell;
-    width: 38px;
-    padding-top: 5px;
-    padding-right: 10px;
-    text-align: center;
-    font-size: 28px;
-}
 /*********************** Login View ***********************/
 #loginForm {
     width: 100%;
@@ -713,41 +715,6 @@ li {
     color: #008CC7;
 }
 /****************** Course List View ************************/
-
-.courseListIcon {
-    border-left: 0px solid red;
-    width: 30px;
-    line-height: 40px;
-    font-size: 24px;
-    color: white;
-    text-align: center;
-}
-.white {
-    color: white;
-}
-.courseListIconLMS {
-    border-left: 1px solid red;
-    width: 34px;
-    font-size: 32px;
-    text-align: center;
-    vertical-align: middle;
-    padding-right: 4px;
-}
-.courseListIconFeedback {
-    border: 0px solid red;
-    width: 41px;
-    line-height: 45px;
-    font-size: 32px;
-    text-align: center;
-    position: relative;
-    right: 10px;
-}
-.marginForCourseList {
-    margin-right: 54px;
-}
-.marginForCourseList2 {
-    margin-right: 70px;
-}
 .loadingRotation {
     -webkit-animation: spin 3s infinite linear;
     font-size: 25px;
