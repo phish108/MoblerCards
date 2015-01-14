@@ -21,21 +21,6 @@ function FeedbackView() {
     var self = this;
 
     this.tagID = this.app.viewId;
-    
-    // center the feedback body to the middle of the screen
-    function setOrientation() {
-        $(".cardBody").css('height', window.innerHeight - 70);
-        $(".cardBody").css('width', window.innerWidth - 100);
-        if (self.widget) {
-            self.widget.setCorrectAnswerTickHeight();
-        }
-    }
-    setOrientation();
-    //when orientation changes, set the new width and height
-    //resize event should be caught, too, because not all devices
-    //send an orientation change even
-    window.addEventListener("orientationchange", setOrientation, false);
-    window.addEventListener("resize", setOrientation, false);
 
     /**It is triggered after statistics are loaded locally from the server. This can happen during the 
      * authentication or if we had clicked on the statistics icon and moved to the questions.
@@ -62,14 +47,13 @@ function FeedbackView() {
             self.showFeedbackBody();
         }
     });
-} //end of constructor
+}
 
 /**hows feedback title and body
  * @prototype
  * @function open
  **/
 FeedbackView.prototype.prepare = function () {
-    // if (coming from answer view){
     if (this.app.models.answer.answerScore == -1) {
         console.log("feedbackview opened after returning from answerview");
         this.app.models.answer.calculateScore();
@@ -80,7 +64,6 @@ FeedbackView.prototype.prepare = function () {
 
     console.log("feedback open");
     this.widget.setCorrectAnswerTickHeight();
-    this.app.resizeHandler();
 };
 
 /**Closing of the feedback view
@@ -101,49 +84,21 @@ FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
     
-    if (id === "FeedbackDoneButon") {
+    if (id === "feedbackbutton") {
         this.clickFeedbackDoneButton();
     }
-    else if (id === "FeedbackMore") {
+    else if (id === "feedbackmore") {
         this.clickFeedbackMore();
     }
-    else if (id === "CourseList_FromFeedback") {
+    else if (id === "feedbackclose") {
         this.app.models.answer.answerList = [];
         this.app.models.answer.answerScore = -1;
         this.clickCourseListButton();
     }
-    else if (id === "cardFeedbackTitle") {
+    else if (id === "feedbacktitle") {
         this.clickTitleArea();
     }
 }
-
-/**
- * swipe leads to new question
- * @prototype
- * @function handleSwipe
- **/
-FeedbackView.prototype.swipe = function () {
-    this.clickFeedbackDoneButton();
-    //	app.models["answers"].deleteData();
-    //	$("#feedbackTip").empty();
-    //	$("#feedbackTip").hide();
-    //	$("#feedbackBody").show();
-    //	app.models['questionpool'].nextQuestion();
-    //	app.transitionToQuestion();
-};
-
-/**Transition to courses list view when pinching on the feedback view. 
- * This  is executed only on the iPhone.
- * @prototype
- * @function handlePinch
- **/
-FeedbackView.prototype.pinch = function () {
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    } else {
-        this.app.changeView("landing");
-    }
-};
 
 /**click on feedback done button leads to new question
  * @prototype
@@ -197,8 +152,8 @@ FeedbackView.prototype.clickCourseListButton = function () {
 FeedbackView.prototype.showFeedbackTitle = function () {
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
 
-    $("#cardFeedbackTitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
-    $("#feedbackIcon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
+    $("#feedbacktitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
+    $("#feedbackdynamicicon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
 };
 
 
@@ -235,7 +190,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     }
 
     // show feedback more information, which is the same for all kinds of questions
-    $("#FeedbackMore").hide();
+    $("#feedbackmore").hide();
 
     var feedbackText = questionpoolModel.getWrongFeedback();
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
@@ -248,7 +203,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     if (feedbackText && feedbackText.length > 0) {
         //$("#feedbackTip").text(feedbackText);
         $("#feedbackTip").html(feedbackText);
-        $("#FeedbackMore").show();
+        $("#feedbackmore").show();
     }
 };
 
@@ -259,15 +214,4 @@ FeedbackView.prototype.showFeedbackBody = function () {
 FeedbackView.prototype.clickTitleArea = function () {
     this.app.models.answer.answerScore = -1;
     this.app.changeView("question");
-};
-
-/**
- * handles dynamically any change that should take place on the layout
- * when the orientation changes.
- * @prototype
- * @function changeOrientation
- **/
-FeedbackView.prototype.changeOrientation = function (o, w, h) {
-    console.log("change orientation in answer view " + o + " , " + w + ", " + h);
-    setFeedbackWidth(o, w, h);
 };

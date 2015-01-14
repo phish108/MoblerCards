@@ -296,7 +296,7 @@
             <div id="answercross" class="closeicon"><span id="answerclose" class="icon-cross"></span></div>
         </div>
 
-        <div class="content" id="answerContainer">
+        <div id="answercontent" class="contentbox" >
             <div id="cardAnswerBody"></div>
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
@@ -309,28 +309,13 @@
     <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
 
     <div id="feedback" class="screen" data-view="FeedbackView" data-touch="tap">
-        <div id="cardFeedbackHeader" class="headerContainer">
-            <div class="titleiconOLD" id="cardFeedbackIcon">
-                <span id="feedbackIcon"></span>
-            </div>
-            <div id="cardFeedbackTitle" class="title"></div>
+        <div id="feedbackheader" class="headerbox">
+            <div id="feedbackicon"  class="titleicon"><span id="feedbackdynamicicon"></span></div>
+            <div id="feedbacktitle" class="headercontent"></div>
+            <div id="feedbackcross" class="closeicon"><span id="feedbackclose" class="icon-cross"></span></div>
         </div>
-        <div id="CourseList_FromFeedback" class="closeButton">
-            <span class="icon-cross"></span>
-        </div>
-        <div class="content">
-<!--
-            <div class="bottom left foreground">
-                <div id="FeedbackDoneButon" class="forwardButton fixed">
-                    <span class="icon-enter"></span>
-                </div>
-            </div>
-            <div class="bottom right foreground">
-                <div id="FeedbackMore" class="feedbackMore">
-                    <span class="icon-question"></span>
-                </div>
-            </div>
--->
+        
+        <div id="feedbackcontent" class="contentbox">
             <div id="feedbackBody"></div>
             <div id="feedbackTipBody" class="">
                 <ul id="feedbackTipUl" class="gradient2">
@@ -341,7 +326,6 @@
                         <div id="shadowFeedbackMoreView" class="gradient1 shadowedLi"></div>
                     </li>
                 </ul>
-                <!--<div class="gradient1" id="shadowFeedbackMoreView"></div>-->
             </div>
         </div>
         
@@ -350,7 +334,7 @@
                 <span class="icon-enter"></span>
             </div>
             <div class="footerright">
-                <span id="feebackmore" class="icon-question"></span>
+                <span id="feedbackmore" class="icon-question"></span>
             </div>
         </div>
     </div>
