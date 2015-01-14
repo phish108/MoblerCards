@@ -21,18 +21,6 @@ function MoblerCards() {
     $.ajaxSetup({
         cache: false
     });
-    
-    document.addEventListener('pause', function (ev) {
-        self.onPause(ev);
-    }, false);
-
-    document.addEventListener('resume', function (ev) {
-        self.onResume(ev);
-    }, false);
-
-    document.addEventListener('backbutton', function (ev) {
-        self.onBack(ev);
-    }, false);
 
     $(document).bind("allstatisticcalculationsdone", function (featuredContentId) {
         console.log("all statistics calculations done is ready");
@@ -56,7 +44,7 @@ function MoblerCards() {
     $(document).bind("statisticssenttoserver", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the synchronization of sent statistics");
-            //	self.transitionToLogin();
+            self.changeView("login");
         }
     });
 
@@ -70,7 +58,7 @@ function MoblerCards() {
     $(document).bind("questionpoolready", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the synchronization of questionpool ready");
-            self.changeView("login"); // or we can stay on the current view i.e. lms view, landing view or login view
+            self.changeView("login");
         }
     });
 
@@ -84,8 +72,7 @@ function MoblerCards() {
     $(document).bind("courselistupdate", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the courses synchronization updates");
-            //self.transitionToLogin();
-            // or we can stay on the current view i.e. lms view, landing view or login view
+            self.changeView("login");
         }
     });
 

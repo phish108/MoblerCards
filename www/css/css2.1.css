@@ -15,8 +15,217 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
-/* close button general characteristics, top right corner of each view*/
+/* refactured  start */
+/*********************** Header ***********************/
+.headerbox {
+    display: table;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 55px;
+    line-height: 55px;
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid white;    
+    background: linear-gradient(#008cc7, #0072a2);
+    box-shadow: 0px 3px 5px -1px #ccc;
+    -webkit-box-shadow: 0px 3px 5px -1px #ccc;
+}
+.titleicon {
+    display: table-cell;
+    width: 58px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 30px;
+    color: white;
+}
+.headercontent {
+    display: table-cell;
+    font-size: 22px;
+    vertical-align: middle;
+    color: white;
+    overflow: hidden;
+}
+.closeicon {
+    display: table-cell;
+    width: 63px;
+    padding-top: 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 30px;
+    color: white;
+    border-left: 1px solid white;
+}
+/*********************** Content ***********************/
+.contentbox {
+    display: block;
+    position: fixed;
+    top: 63px;
+    left: 0px;
+    width: 100%;
+}
+/*********************** List templates *************************/
+.listbox {
+    display: table;
+    height: 59px;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+.listdash {
+    display: table-cell;
+    width: 34px;
+    padding-top: 3px;    
+    text-align: center;
+    vertical-align: middle;
+    font-size: 25px;
+}
+.listlabel {
+    display: table-cell;
+    padding-left: 10px;
+    padding-right: 5px;
+    vertical-align: middle;
+}
+.listimage {
+    display: table-cell;
+    width: 63px;
+    padding-top: 10px;
+    padding-right: 0px;
+    text-align: center;
+    font-size: 46px;
+}
+input {
+    height: 59px;
+    line-height: 59px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+}
+/*********************** Views ***********************/
+.screen {
+    display: none;
+}
+.screen.active {
+    display: block;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+.viewblock {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+/*********************** SplashView ***********************/
+.loading {
+    font-size: 100px;
+    height: 200px;
+    width: 200px;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    -webkit-animation: spin 4s infinite linear;
+    margin-left: auto;
+}
+.centered {
+    display: inline-block;
+    text-align: center;
+    line-height: 200px;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes spinoff {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(-360deg);
+    }
+}
+/****************** Course View ******************************/
+.loadingrotation {
+    -webkit-animation: spin 3s infinite linear;
+    font-size: 25px;
+}
+/****************** Landing View ******************************/
+#landingheader {
+    background: linear-gradient(#dbdbdb, #ffffff);
+}
+/* <<<<<<<<<<<<<<<<< Colors and Gradients START <<<<<<<<<<<<<<<<<<<< */
+.green {
+    color: #33CC33;
+}
+.red {
+    color: #EC2F2D;
+    font-size: 22px;
+}
+.lightgrey {
+    color: #BEBEBE;
+}
+.glowRed {
+    text-shadow: -1px -1px 1px #682627, 1px 1px 2px #C04A4A;
+}
+.gradient1 {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
+    /* Safari 4+, Chrome 2+ */
+    background: -webkit-linear-gradient(#dcdcdc, #ffffff));
+    /* Safari 5.1+, Chrome 10+ */
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dbdbdb', endColorstr='#ffffff');
+    /* IE6 & IE7 */
+    background: linear-gradient(#dbdbdb, #ffffff);
+    /* the standard */
+}
+/*selected item before being selected*/
 
+.gradient2 {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #bebebe));
+    /* Safari 4+, Chrome 2+ */
+    background: -webkit-linear-gradient(#dddddd, #bebebe));
+    /* Safari 5.1+, Chrome 10+ */
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#bebebe');
+    /* IE6 & IE7 */
+    background: linear-gradient(#dddddd, #bebebe);
+    /* the standard */
+}
+.gradientSelected {
+    color: white;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e5e5e), color-stop(100%, #8c8c8c));
+    z-index: 10;
+}
+.glow2 {
+    text-shadow: 0px -1px 1px #1b621c, -1px 0px 1px #1b621c, -2px -2px 3px 62b55b, -3px -2px 8px #66b460, 0px 0px 18px #66b460, 0px 0px 25px 70ab6b, 0px 0px 35px 70ab6b;
+    text-shadow: 0px -1px 1px #1b621c, -1px 0px 1px #1b621c, -2px -2px 3px 62b55b, -0px 0px 8px #66b460, 0px 0px 18px #66b460, 0px 0px 35px 70ab6b;
+    background-color: transparent;
+    -webkit-text-stroke-color: #2da42c;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-fill-color: #59fa56;
+    z-index: 12;
+}
+.glowNone {
+    text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
+    background-color: transparent;
+    -webkit-text-stroke-color: #2da42c;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-fill-color: #21ae24;
+}
+.textShadow {
+    text-shadow: 0px 1px 1px #898989;
+}
+.lightShadow {
+    text-shadow: 0px 1px 1px #c9c9c9;
+}
+/* Colors and Gradients END*/
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< refactured end >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+/*********************** Header old ***********************/
 .closeButton {
     width: 49px;
     height: 47px;
@@ -35,6 +244,7 @@ body {
     top: 0px;
     z-index: 10;
 }
+
 /*done button general characteristics, bottom side of each view*/
 
 .forwardButton {
@@ -112,11 +322,10 @@ body {
     margin-right: 52px;
     margin-left: 0xpx;
     margin-top: -4px;
-    ;
     overflow: hidden;
     border: 0px solid green;
 }
-.landingTitle {
+#landingtitle {
     padding-left: 25px;
 }
 .title1 {
@@ -131,7 +340,7 @@ body {
     font-size: 26px;
     padding-top: 25px;
 }
-.titleicon {
+.titleiconOLD {
     height: 50px;
     line-height: 55px;
     padding: 0px;
@@ -217,7 +426,6 @@ body {
 	border: 1px solid red;*/
     margin-top: 55px;
     width: 100%;
-    background-image: url(../resources/app_background.png);
     background-size: 100% auto;
     /*background-size: 946px auto;
     background-size:100% 15%;
@@ -292,193 +500,10 @@ li {
     height: 47px;
     border: 0px solid green;
 }
-/*********************** Views ***********************/
-
-.screen {
-    display: none;
-}
-
-.screen.active {
-    display: block;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-}
-.viewblock {
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-}
-
-/*********************** Splash Screen ***********************/
-
-#mainTitle {
-    font-size: 20pt;
-    margin: 25px auto 10px 20px;
-}
-#cardsTitle {
-    color: #008CC7;
-    font-weight: bold;
-}
-#cards {
-    color: white;
-    position: absolute;
-    top: 25px;
-    right: 90px;
-    font-size: 15px;
-    font-weight: bold;
-}
-.card1 {
-    position: absolute;
-    left: 15px;
-    top: 12px;
-    /*z-index:-1;*/
-    background-color: #008CC7;
-    transform: rotate(15deg);
-    -webkit-transform: rotate(15deg);
-    /* Safari and Chrome */
-    height: 40px;
-    width: 60px;
-    padding-left: 3px;
-    padding-top: 3px;
-}
-.card2 {
-    position: absolute;
-    /*left: -10px;*/
-    background-color: #29ABE2;
-    height: 50px;
-    width: 60px;
-    padding-left: 3px;
-    padding-top: 3px;
-    /*z-index:-2;*/
-}
-.card3 {
-    position: absolute;
-    left: -15px;
-    top: -10px;
-    /*z-index:-3;*/
-    background-color: #7FCBDD;
-    transform: rotate(-15deg);
-    -webkit-transform: rotate(-15deg);
-    /* Safari and Chrome */
-    height: 60px;
-    width: 60px;
-    padding-left: 5px;
-    padding-top: 3px;
-}
-/*the following was id and was used for splash screen. it will be used in the login view now
-which will be hosted outside splashscreen. the landing view will be hosted inside splash screen*/
-
-.cover {
-    height: 100%;
-    width: 100%;
-}
-#loading {
-    font-size: 100px;
-    height: 200px;
-    width: 200px;
-    text-align: center;
-    vertical-align: middle;
-    margin-left: auto;
-    margin-right: auto;
-    -webkit-animation: spin 4s infinite linear;
-    margin-left: auto;
-}
-.centered {
-    display: inline-block;
-    text-align: center;
-    line-height: 200px;
-}
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-@-webkit-keyframes spinoff {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(-360deg);
-    }
-}
-/****Landing View*****/
-
-#landingViewBackIcon {
-    display: none;
-}
-#landingBody {
-    /*there was a z-index before, but we took it out in order to display the cards positively*/
-}
-#landingForm {
-    width: 100%;
-}
-/*********************** Login ***********************/
-
-#loginForm {
-    width: 100%;
-}
-#loginViewHeader {
-    display: none;
-}
-#loginViewBackIcon {
-    display: none;
-}
-.inputBorder {
-    padding: 5px;
-    padding-bottom: 10px;
-    border-right: 0px solid white;
-    border-left: 0px solid white;
-    margin-right: 0px
-}
-.inputBorderTop {
-    clear: both;
-    line-height: 55px;
-}
-.inputBorderCloze {
-    padding: 10px;
-    height: 33px;
-    margin-right: 0px;
-}
-.loginInput {
-    outline: none;
-    border: none;
-    border-width: 0px;
-    font-size: 12pt;
-    margin: 0px;
-    border-left: 0px solid white;
-    color: #707070;
-    background-color: transparent;
-}
-.loginInputCloze {
-    outline: none;
-    border: none;
-    font-size: 12pt;
-    margin: 0px;
-    padding: 5px;
-    border-left: 0px solid white;
-    color: #707070;
-    background-color: transparent;
-    border-bottom-style: dotted;
-    border-bottom-width: 1px;
-    border-bottom-color: grey;
-}
+/*********************** Login View ***********************/
 *[placeholder] {
     color: #666;
 }
-.loginInput:focus {
-    outline: none;
-    border: none;
-    border-width: 0px;
-    -webkit-appearance: none;
-    border-radius: 0;
-    border-left: 3px solid white;
-}
-/*it is not used, it will be used when we will add loading icons on the warning and error messages*/
-
 #warningMessageContainer {
     display: none;
 }
@@ -500,19 +525,7 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     text-align: center;
     margin: 0px;
 }
-.green {
-    color: #33CC33;
-}
-.red {
-    color: #EC2F2D;
-    font-size: 22px;
-}
-.lightgrey {
-    color: #BEBEBE;
-}
-.glowRed {
-    text-shadow: -1px -1px 1px #682627, 1px 1px 2px #C04A4A;
-}
+
 .partiallyCorrectAnswer {
     background-color: #EEEEEE;
 }
@@ -557,10 +570,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     padding-right: 10px;
     font-size: 15pt;
     border: 1px solid white;
-}
-#LMSContainer {
-    border: 1px solid white;
-    height: 60px;
 }
 #logos {
     vertical-align: bottom;
@@ -661,46 +670,6 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
 .blue {
     color: #008CC7;
 }
-/****************** Course List View ************************/
-
-.courseListIcon {
-    border-left: 0px solid red;
-    width: 30px;
-    line-height: 40px;
-    font-size: 24px;
-    color: white;
-    text-align: center;
-}
-.white {
-    color: white;
-}
-.courseListIconLMS {
-    border-left: 1px solid red;
-    width: 34px;
-    font-size: 32px;
-    text-align: center;
-    vertical-align: middle;
-    padding-right: 4px;
-}
-.courseListIconFeedback {
-    border: 0px solid red;
-    width: 41px;
-    line-height: 45px;
-    font-size: 32px;
-    text-align: center;
-    position: relative;
-    right: 10px;
-}
-.marginForCourseList {
-    margin-right: 54px;
-}
-.marginForCourseList2 {
-    margin-right: 70px;
-}
-.loadingRotation {
-    -webkit-animation: spin 3s infinite linear;
-    font-size: 25px;
-}
 /*********************** Settings View ***********************/
 
 .settingsLi {
@@ -747,7 +716,10 @@ which will be hosted outside splashscreen. the landing view will be hosted insid
     padding-left: 5px;
 }
 /*********************** About View ***********************/
-
+#cardsTitle {
+    color: #008CC7;
+    font-weight: bold;
+}
 #aboutView {
     display: none;
 }
@@ -816,9 +788,6 @@ ul#loginElements {
 }
 #selectarrowLanding {
     border: 0px solid green;
-}
-#lmsView {
-    display: none;
 }
 .lmsListItem {
     border-left: 1px solid white;
@@ -927,80 +896,7 @@ ul#loginElements {
     padding: 12px;
     font-size: 13px;
 }
-.gradient1 {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
-    /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#dcdcdc, #ffffff));
-    /* Safari 5.1+, Chrome 10+ */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dbdbdb', endColorstr='#ffffff');
-    /* IE6 & IE7 */
-    background: linear-gradient(#dbdbdb, #ffffff);
-    /* the standard */
-}
-/*selected item before being selected*/
 
-.gradient2 {
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #bebebe));
-    /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#dddddd, #bebebe));
-    /* Safari 5.1+, Chrome 10+ */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#bebebe');
-    /* IE6 & IE7 */
-    background: linear-gradient(#dddddd, #bebebe);
-    /* the standard */
-}
-.gradientSelected {
-    color: white;
-    /*-webkit-text-stroke-color: white;
-	-webkit-text-stroke-width: 1px;
-	-webkit-text-fill-color: transparent;*/
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e5e5e), color-stop(100%, #8c8c8c));
-    /* Safari 4+, Chrome 2+ */
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e5e5e), color-stop(67%, #5e5e5e),color-stop(100%, #8c8c8c));*/
-    /* Safari 4+, Chrome 2+ */
-    /*background: -webkit-linear-gradient(#5e5e5e, ##5e5e5e));*/
-    /* Safari 5.1+, Chrome 10+ */
-    /*background: -o-linear-gradient(#5e5e5e, #5e5e5e); */
-    /* Opera 11.10 */
-    /* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5e5e5e', endColorstr='#5e5e5e');*/
-    /* IE6 & IE7 */
-    /* background: linear-gradient(#5e5e5e, #5e5e5e);*/
-    /* the standard */
-    z-index: 10;
-}
-.glow2 {
-    text-shadow: 0px -1px 1px #1b621c, -1px 0px 1px #1b621c, -2px -2px 3px 62b55b, -3px -2px 8px #66b460, 0px 0px 18px #66b460, 0px 0px 25px 70ab6b, 0px 0px 35px 70ab6b;
-    text-shadow: 0px -1px 1px #1b621c, -1px 0px 1px #1b621c, -2px -2px 3px 62b55b, -0px 0px 8px #66b460, 0px 0px 18px #66b460, 0px 0px 35px 70ab6b;
-    /*font-weight: bold;
-	font-family: helvetica;*/
-    /*color:#000;*/
-    background-color: transparent;
-    /*padding:20px;*/
-    -webkit-text-stroke-color: #2da42c;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-fill-color: #59fa56;
-    z-index: 12;
-}
-.glowNone {
-    text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
-    /* Glow Effect */
-    /*font-size:150px;
-	font-weight: bold;
-	font-family: helvetica;
-	color:#000;
-	background:grey;
-	padding:20px;*/
-    background-color: transparent;
-    -webkit-text-stroke-color: #2da42c;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-fill-color: #21ae24;
-}
-.textShadow {
-    text-shadow: 0px 1px 1px #898989;
-}
-.lightShadow {
-    text-shadow: 0px 1px 1px #c9c9c9;
-}
 .bold {
     font-weight: bold;
 }
@@ -1185,7 +1081,7 @@ ul#loginElements {
     background-color: transparent;
 }
 img.imageLogoLMS {
-    display: inline;
+/*    display: inline;*/
     width: 38px;
     height: 38px;
     padding-right: 7px;

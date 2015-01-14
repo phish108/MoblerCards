@@ -168,9 +168,6 @@ function CoreView(app, domid, theDelegate) {
                 }
             }
         });
-
-
-
     }
 }
 

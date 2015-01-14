@@ -2,13 +2,13 @@
 <html>
 
 <head>
-    <title>Learning Cards</title>
+    <title>Learning Cards</title>   
 
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
 
-    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel, BestDayModel, HandledCardsModel, AverageScoreModel, ProgressModel, AverageSpeedModel, StackHandlerModel, CardBurnerModel " />
+    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel, BestDayModel, HandledCardsModel, AverageScoreModel, ProgressModel, AverageSpeedModel, StackHandlerModel, CardBurnerModel" />
 
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -18,193 +18,157 @@
 </head>
 
 <body id="myDoc">
+    
+<!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED START <<<<<<<<<<<<<<<<<<<<<<<-->
     <div id="splash" class="screen active" data-view="SplashView">
-        <div class="viewblock cover">
-            <div class="viewblock cover">
-                <div id="loading">
-                    <div class="centered">
-                        <span class="icon-loading"></span>
+        <div id="splashbox" class="loading">
+            <div class="centered">
+                <span class="icon-loading"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
+        <div id="lmsheader" class="headerbox">
+            <div id="lmsicon"  class="titleicon"><span class="icon-lms"></span></div>
+            <div id="lmstitle" class="headercontent">LMS list</div>
+            <div id="lmscross" class="closeicon"><span id="lmsclose" class="icon-cross"></span></div>
+        </div>
+        
+        <div id="lmscontent" class="contentbox">
+            <ul id="lmsbox">
+                <template id="lmslistbox">
+                    <li id="lmslist" class="listbox">
+                        <div id="lmsdash"  class="listdash">
+                            <span class="icon-dash"></span>
+                        </div>
+                        <div id="lmslabel" class="listlabel"></div>
+                        <div id="lmsimage" class="listimage">
+                            <img id="lmsimg"/>
+                            <span id="lmswait" class="red icon-cross"></span>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+        <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
+    </div>
+
+    <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
+        <div id="courseheader" class="headerbox">
+            <div id="courseicon"  class="titleicon"><span class="icon-courses"></span></div>
+            <div id="coursetitle" class="headercontent">LMS list</div>
+            <div id="coursecross" class="closeicon"><span id="coursesettings" class="icon-settings"></span></div>
+        </div>
+
+        <div id="coursecontent" class="contentbox">
+            <ul id="coursebox">
+                <template id="courselistbox">
+                    <li id="courselist" class="listbox gradient2">
+                        <div id="coursedash"  class="listdash white">
+                            <span class="icon-dash"></span>
+                        </div>
+                        <div id="courselabel" class="listlabel"></div>
+                        <div id="courseimage" class="listimage white">
+                            <span id="courseimg"></span>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="login" class="screen" data-view="LoginView" data-touch="tap">
+        <div id="loginheader" class="headerbox">
+            <div id="loginicon"  class="titleicon"><span class="icon-lock"></span></div>
+            <div id="logintitle" class="headercontent">Login</div>
+            <div id="logincross" class="closeicon"><span id="loginclose" class="icon-cross"></span></div>
+        </div>
+        <div id="logincontent" class="contentbox">
+            <ul id="loginelements">
+<!--                Username-->
+                <li id="courselistusername" class="listbox gradient2">
+                    <div id="loginnamedash"  class="listdash">
+                        <span class="icon-dash"></span>
                     </div>
-                </div>
+                    <div id="loginnamelabel" class="listlabel">
+                        <input id="usernameInput" required="required" type="text" placeholder="username"/>
+                    </div>
+                </li>
+<!--                Password-->
+                <li id="courselistpassword" class="listbox gradient2">
+                    <div id="loginpwdash"  class="listdash">
+                        <span class="icon-dash"></span>
+                    </div>
+                    <div id="loginpwlabel" class="listlabel">
+                        <input id="password" required="required" type="password" placeholder="password" name="password"/>
+                    </div>
+                </li>
+<!--                LMS selection-->
+                <li id="courselistlms" class="listbox gradient2">
+                    <div id="loginlmsdash"  class="listdash"></div>
+                    <div id="loginlmslabel" class="listlabel"></div>
+                    <div id="loginlmsimage" class="listimage"><img id="loginimg"/></div>
+                </li>
+<!--                Error messages-->
+                <li class="borderRemoval">
+                    <div id="errormessage" class="loginMessage gradientMessages"></div>
+                </li>
+                <li class="borderRemoval">
+                    <div id="warningmessage" class="loginMessage gradientMessages"></div>
+                </li>
+                <li class="borderRemoval">
+                    <div id="deactivatemessage" class="loginMessage gradientMessages"></div>
+                </li>
+            </ul>
+            <div id="loginbutton" class="forwardButton fixed">
+                <span class="icon-enter"></span>
             </div>
         </div>
     </div>
 
     <div id="landing" class="screen" data-view="LandingView" data-touch="tap">
-        <div id="landingViewHeader" class="landingHeader">
-            <div id="landingViewTitle" class="title landingTitle">
+        <div id="landingheader" class="headerbox">
+            <div id="landingtitle" class="headercontent">
                 <span class="title1">Mobler </span>
                 <span class="title2">Cards</span>
             </div>
-            <div id="cards">
-                <div id="card3Login" class="card3">I</div>
-                <div id="card2Login" class="card2">S</div>
-                <div id="card1Login" class="card1">N</div>
-            </div>
         </div>
-        <div id="landingBody" class="content full">
-            <div>
-                <ul id="landingElements">
-                    <li id="featuredContent" class=" courseLiContainer gradient2">
-                        <div class="dashContainer lineContainer selectItemContainer">
-                            <span class="select icon-dash"></span>
-                        </div>
-
-                        <div id="leftElement1" class="text textShadow labelContainer"></div>
-
-                        <div class="separatorBlock">
-                            <div id="separatorLanding" class="lineContainer separatorContainerCourses radialCourses"></div>
-                        </div>
-
-                        <div id="selectarrowLanding" class="lineContainer selectItemContainer select gridContainer icon-bars"></div>
-                    </li>
-                    <li id="selectExclusiveContent" class="courseLiContainer gradient2">
-                        <div class=" dashContainer lineContainer selectItemContainer ">
-                            <span class="select icon-dash"></span>
-                        </div>
-
-                        <div id="leftElementExclusive" class="text textShadow labelContainer">Exclusive Content</div>
-
-                        <div class="separatorBlock">
-                            <div id="separatorExclusive" class="radial lineContainer separatorContainerCourses"></div>
-                        </div>
-                        <div id="selectarrowExclusive" class="lineContainer selectItemContainer select gridContainer">
-                            <span class="icon-enter"></span>
-                        </div>
-                    </li>
-                    <li class="borderRemoval">
-                        <div id="errormessageLanding" class="loginMessage gradientMessages"></div>
-                    </li>
-                    <li class="borderRemoval">
-                        <div id="warningmessageLanding" class="loginMessage gradientMessages"></div>
-                    </li>
-                    <li>
-                        <div class="gradient1 shadowedLi"></div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div id="login" class="screen" data-view="LoginView" data-touch="tap">
-        <div class="viewblock cover">
-            <div id="loginViewHeader" class="headerContainer">
-                <div id="loginViewTitle" class="title">Login</div>
-                <div id="loginIcon" class="titleicon">
-                    <span class="icon-lock"></span>
-                </div>
-            </div>
-
-            <div id="loginViewBackIcon" class="closeButton">
-                <span class="icon-cross"></span>
-            </div>
-
-            <div id="loginBody" class="content">
-                <div id="loginForm">
-                    <ul id="loginElements">
-                        <li class="courseLiContainer gradient1">
-                            <div class="dashContainer lineContainer selectItemContainer ">
-                                <span id="inputNameDash" class="dashGrey icon-dash"></span>
-                            </div>
-
-                            <div class="labelContainer">
-                                <input id="usernameInput" class="loginInput textShadow" required="required" type="text" placeholder="" autocorrect="off" autocapitalize="off" />
-                            </div>
-                            <div id="usernameagrid" class="lineContainer selectItemContainer gridContainer"></div>
-                        </li>
-                        <li class="courseLiContainer gradient1">
-                            <div class=" dashContainer lineContainer selectItemContainer ">
-                                <span id="inputPasswordDash" class="dashGrey icon-dash"></span>
-                            </div>
-                            <div class="labelContainer ">
-                                <input id="password" class="loginInput textShadow" name="password" required="required" type="password" placeholder="" />
-                            </div>
-
-
-                            <div id="passwordgrid" class="lineContainer selectItemContainer gridContainer"></div>
-                        </li>
-                        <li id="selectLMS" class="courseLiContainer gradient2">
-                            <!-- <div id="selectLMS" class="selectWidget gradient2 "> -->
-                            <div class=" dashContainer lineContainer selectItemContainer ">
-                                <span class="select icon-dash"></span>
-                            </div>
-
-                            <div id="loginLmsLabel" class=" text textShadow lsmlabel labelContainer"></div>
-
-                            <div class="imageContainer">
-                                <div class="imageoutline1">
-                                    <div class="imageoutline2">
-                                        <img id="lmsImage" class="imageLogo" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="separatorSelectLogin " class="separatorBlock">
-                                <div id="separator" class="lineContainer separatorContainerCourses radialCourses"></div>
-                            </div>
-                            <div id="selectarrow" class="lineContainer selectItemContainer select gridContainer">
-                                <span class="icon-enter"></span>
-                            </div>
-                            <!--</div>-->
-                        </li>
-                        <li class="borderRemoval">
-                            <div id="errormessage" class="loginMessage gradientMessages"></div>
-                        </li>
-                        <li class="borderRemoval">
-                            <div id="warningmessage" class="loginMessage gradientMessages"></div>
-                        </li>
-                        <li class="borderRemoval">
-                            <div id="deactivatemessage" class="loginMessage gradientMessages"></div>
-                        </li>
-                        <li>
-                            <div class="gradient1 shadowedLi"></div>
-                        </li>
-                    </ul>
-                    <div id="loginButton" class="forwardButton fixed">
-                        <span class="icon-enter"></span>
+        <div id="landingcontent" class="contentbox">
+            <ul id="landingelements">
+                <li id="landingfeaturedlist" class="listbox gradient2">
+                    <div id="landingfeatureddash"  class="listdash blue">
+                        <span class="icon-dash"></span>
                     </div>
-                </div>
-            </div>
+                    <div id="landingfeaturedlabel" class="listlabel"></div>
+                    <div id="landingfeaturedimage" class="listimage blue">
+                        <span class="icon-bars"></span>
+                    </div>
+                </li>
+                <li id="landingexclusivelist" class="listbox gradient2">
+                    <div id="landingexclusivedash"  class="listdash blue">
+                        <span class="icon-dash"></span>
+                    </div>
+                    <div id="landingexclusivelabel" class="listlabel">Exclusive Content</div>
+                    <div id="landingexclusiveimage" class="listimage blue">
+                        <span class="icon-enter" ></span>
+                    </div>
+                </li>
+                <li class="borderRemoval">
+                    <div id="errormessageLanding" class="loginMessage gradientMessages"></div>
+                </li>
+                <li class="borderRemoval">
+                    <div id="warningmessageLanding" class="loginMessage gradientMessages"></div>
+                </li>
+            </ul>
         </div>
     </div>
 
-    <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
-        <div id="lmsListHeader" class="headerContainer">
-            <div class="titleicon" id="lmsIcon">
-                <span class="icon-lms"></span>
-            </div>
-            <!-- <div class="left"></div> -->
-            <div id="lmsListTitle" class="title"></div>
-        </div>
-        <div id="closeLMSIcon" class="closeButton">
-            <span class="icon-cross"></span>
-        </div>
-        <div id="lmsbody" class="content full"></div>
-
-        <!-- <div id="lmserrormessage" class="gradientSelected"></div> -->
-        <!-- <div id="lmsregistrationmessage" class="gradientSelected"></div> -->
-        <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
-        <div></div>
-    </div>
-
-    <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
-        <div id="coursesListHeader" class="headerContainer">
-            <div id="coursesTitleIcon" class="titleicon">
-                <span class="icon-courses"></span>
-            </div>
-            <div id="coursesListTitle" class="title"></div>
-        </div>
-        <div id="coursesListSetIcon" class="closeButton">
-            <span class="icon-settings"></span>
-        </div>
-        <div id="courses" class="content full">
-            <ul id="coursesList" class="gradient2"></ul>
-        </div>
-        <div></div>
-    </div>
+    <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
 
     <div id="settings" class="screen" data-view="SettingsView" data-touch="tap pinch">
         <div id="settingsHeader" class="headerContainer">
-            <div id="settingsIcon" class="titleicon">
+            <div id="settingsIcon" class="titleiconOLD">
                 <span class="icon-settings"></span>
             </div>
             <div id="settingsTitle" class="title"></div>
@@ -225,7 +189,6 @@
             </div>
 
             <ul id="settingsData" class="gradient2">
-                <!--  <li><div class="settingsLi lms"><img id="lmsLabelSet" class="settingsLabel "/><span id="pfpItemSet"></span></div></li>-->
                 <li>
                     <div class=" settingsLi lineContainer imageContainer ">
                         <div class="imageoutline1">
@@ -270,11 +233,8 @@
         </div>
     </div>
 
-    <div id="about" class="screen" data-view="AboutView">
+    <div id="about" class="screen" data-view="AboutView" data-touch="tap">
         <div id="aboutHeader" class=" headerContainer">
-            <!-- <div id="aboutIcon" class="titleicon left">
-                <span class="icon-cog"></span>
-            </div>-->
             <div id="aboutTitle" class="title"></div>
         </div>
         <div id="closeAboutIcon" class="closeButton">
@@ -306,18 +266,15 @@
             </ul>
 
             <div>
+<!--
                 <div id="cardsAbout">
                     <div id="card3About" class="card3">I</div>
                     <div id="card2About" class="card2">S</div>
                     <div id="card1About" class="card1">N</div>
                 </div>
+-->
             </div>
         </div>
-
-        <!-- <div id="logos" class="bottom">
-            <div id="ISNlogo"></div>
-            <div id="ETHZlogo"></div>
-        </div> -->
     </div>
 
     <div id="logout" class="screen" data-view="LogoutView" data-touch="tap">
@@ -347,7 +304,7 @@
 
     <div id="question" class="screen" data-view="QuestionView" data-touch="tap pinch swipe">
         <div id="cardQuestionHeader" class="headerContainer">
-            <div class="titleicon">
+            <div class="titleiconOLD">
                 <span id="questionIcon"></span>
             </div>
             <div id="cardQuestionTitle" class="title">Choose some</div>
@@ -381,7 +338,7 @@
 
     <div id="answer" class="screen" data-view="AnswerView" data-touch="tap pinch">
         <div id="cardAnswerHeader" class="headerContainer">
-            <div id="cardAnswerIcon" class="titleicon">
+            <div id="cardAnswerIcon" class="titleiconOLD">
                 <span id="answerIcon"></span>
             </div>
             <div id="cardAnswerTitle" class="title"></div>
@@ -395,14 +352,13 @@
                 <span class="icon-enter"></span>
             </div>
             <div id="cardAnswerBody"></div>
-            <!--<div class="inputBorder" id="numberInputContainer"></div> -->
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
     </div>
 
     <div id="feedback" class="screen" data-view="FeedbackView" data-touch="tap pinch swipe">
         <div id="cardFeedbackHeader" class="headerContainer">
-            <div class="titleicon" id="cardFeedbackIcon">
+            <div class="titleiconOLD" id="cardFeedbackIcon">
                 <span id="feedbackIcon"></span>
             </div>
             <div id="cardFeedbackTitle" class="title"></div>
@@ -439,7 +395,7 @@
 
     <div id="statistics" class="screen" data-view="StatisticsView" data-touch="tap pinch swipe">
         <div id="statisticsHeader" class="headerContainer">
-            <div id="statisticsIcon" class="titleicon">
+            <div id="statisticsIcon" class="titleiconOLD">
                 <span class="icon-bars"></span>
             </div>
             <div id="statisticsTitle" class="title">Statistics</div>
@@ -572,7 +528,7 @@
                 <span class="icon-cross"></span>
             </div>
             <div id="achievementsTitle" class="title"></div>
-            <div id="achievementsIcon" class="titleicon">
+            <div id="achievementsIcon" class="titleiconOLD">
                 <span class="icon-happy"></span>
             </div>
         </div>
