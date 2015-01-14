@@ -21,20 +21,6 @@
 function LandingView() {
     var self = this;
 
-    this.tagID = this.app.viewId;
-    this.active = false;
-    this.fixedRemoved = false;
-
-    $('#featuredContent').bind("touchstart", function (e) {
-        $("#featuredContent").addClass("gradientSelected");
-        console.log("color changed in featured content touchstart");
-    });
-
-    $('#selectExclusiveContent').bind("touchstart", function (e) {
-        console.log(" enters in landing view 2 ");
-        $("#selectExclusiveContent").addClass("gradientSelected");
-    });
-
     /** 
      * It is triggered when an online connection is detected.
      * @event errormessagehide
@@ -49,12 +35,11 @@ function LandingView() {
     $(document).bind("featuredContentlistupdate", function (e, featuredCourseId) {
         self.showForm();     
     });
-} //end of constructor
+}
 
 LandingView.prototype.prepare = function () {
     console.log("[landingView] prepare");
     this.showForm();
-    this.active = true;
 };
 
 LandingView.prototype.showForm = function () {
@@ -66,47 +51,24 @@ LandingView.prototype.showForm = function () {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
 
-    $("#landingViewHeader").show();
-    $("#leftElement1").text(featuredModel.getTitle());
+    $("#landingfeaturedlabel").text(featuredModel.getTitle());
 
-    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
-        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
-    }
-    
-    $("#landingBody").show();
+//    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
+//        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
+//    }
 };
 
-/**
- * closes the view after firstly removing the gradients
- * of the featured and exclusive content
- * @prototype
- * @function close
- **/
-LandingView.prototype.cleanup = function () {
-    $("#selectExclusiveContent").removeClass("gradientSelected");
-    $("#featuredContent").removeClass("gradientSelected");
-    this.active = false;
-};
-
-/**
- *
- * @prototype
- * @function handleTap
- **/
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
 
     console.log("[LandingView] tap registered: " + id);
 
-    if (id === "selectarrowLanding") {
-        if ($("#selectarrowLanding").hasClass("icon-bars")) {
-            $("#selectarrowLanding").removeClass("icon-bars").addClass("icon-loading loadingRotation");
-            this.app.changeView("statistics");
-        }
-    } else if (id === "leftElement1") {
+    if (id === "landingfeaturedimage") {
+        this.app.changeView("statistics");
+    } else if (id === "landingfeaturedlabel") {
         this.app.selectCourseItem(featuredContentId);
-    } else if (id === "leftElementExclusive") {
+    } else if (id === "landingexclusivelabel") {
         this.app.changeView("login");
     }
 };

@@ -170,13 +170,13 @@ CourseView.prototype.setDefaultCourse = function () {
 };
 
 CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
-//    if (model.isSynchronized(modelId)) {
+    if (model.isSynchronized(modelId)) {
         ctmpl.courseimg.addClass("icon-bars");
-//    }
-//    else {
-//        ctmpl.courseimage.addClass("icon-loading");
-//        ctmpl.courseimage.addClass("loadingRotation");
-//    }
+    }
+    else {
+        ctmpl.courseimage.addClass("icon-loading");
+        ctmpl.courseimage.addClass("loadingrotation");
+    }
 };
 
 /**
@@ -187,7 +187,7 @@ CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
 CourseView.prototype.courseIsLoaded = function (courseId) {
     console.log("courseIsLoaded: " + courseId);
     console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);
-    $("#course" + courseId + " .icon-loading").addClass("icon-bars").removeClass("icon-loading loadingRotation");
+    $("#course" + courseId + " .icon-loading").addClass("icon-bars").removeClass("icon-loading loadingrotation");
 };
 
 /**

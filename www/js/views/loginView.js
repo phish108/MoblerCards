@@ -56,7 +56,7 @@ function LoginView() {
  **/
 LoginView.prototype.prepare = function () {
     console.log("loginView: open sesame");
-    $("#loginButton").show();
+    $("#loginbutton").show();
     // hide unnecessary errors and warnings 
     this.hideErrorMessage();
     this.hideWarningMessage();
@@ -90,7 +90,7 @@ LoginView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[LoginView] tap registered: " + id);
 
-    if (id === "selectarrow") {
+    if (id === "loginbutton") {
         this.clickLoginButton();
     } 
     else if (id === "loginclose") {
@@ -100,7 +100,7 @@ LoginView.prototype.tap = function (event) {
              id === "password") {
         this.focusLogos(event);
     } 
-    else if (id === "loginLmsLabel") {
+    else if (id === "loginlmslabel") {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
 
@@ -110,15 +110,15 @@ LoginView.prototype.tap = function (event) {
 };
 
 LoginView.prototype.focusLogos = function () {
-    $("#loginButton").removeClass("fixed");
+    $("#loginbutton").removeClass("fixed");
     var fixedRemoved = true;
     $("#logos").removeClass("bottom");
     $("#logos").addClass("static");
 };
 
 LoginView.prototype.unfocusLogos = function () {
-    $("#loginButton").addClass("fixed");
-    $("#loginButton").show();
+    $("#loginbutton").addClass("fixed");
+    $("#loginbutton").show();
     var fixedRemoved = false;
     $("#logos").addClass("bottom");
     $("#logos").removeClass("static");
@@ -198,16 +198,13 @@ LoginView.prototype.clickLoginButton = function () {
  * @function showForm
  */
 LoginView.prototype.showForm = function () {
-    console.log("show form in login view");
-    console.log("active server in login view is ");
-    $("#lmsImage").attr("src", this.app.getActiveLogo());
-    $("#loginLmsLabel").text(this.app.getActiveLabel());
+    $("#loginimg").attr("src", this.app.getActiveLogo());
+    $("#loginlmslabel").text(this.app.getActiveLabel());
 
     this.hideErrorMessage();
     this.hideDeactivateMessage();
-    $("#loginViewHeader").show();
-    $("#loginViewBackIcon").show();
-    $("#loginBody").show();
+//    $("#loginViewHeader").show();
+//    $("#loginViewBackIcon").show();
 
     if (this.app.models.connection.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
@@ -289,40 +286,9 @@ LoginView.prototype.hideDeactivateMessage = function () {
  * @function storeSelectedLMS
  * */
 LoginView.prototype.storeSelectedLMS = function () {
-    var selectedLMS = $("#loginLmsLabel").text();
+    var selectedLMS = $("#loginlmslabel").text();
     console.log("stored selected lms is" + JSON.stringify(selectedLMS));
     this.app.models.lms.setSelectedLMS(selectedLMS);
-};
-
-/**
- * handles dynamically any change that should take place on the layout
- * when the orientation changes.
- *  - the width of the lms label in select widget is adjusted dynamically
- * @prototype
- * @function changeOrientation
- **/
-LoginView.prototype.changeOrientation = function (orientationLayout, w, h) {
-    var self = this,
-        buttonwidth,
-        window_width = $(window).width();
-
-    console.log("change orientation in login view");
-
-    //we are in portrait mode and previously we had removed the fixed position of login button
-    if (orientationLayout === false || self.fixedRemoved == true) {
-        $("#loginButton").removeClass("fixed");
-    } 
-    else if (self.fixedRemoved === false) {
-        $("#loginButton").addClass("fixed");
-    }
-
-    //we are in landscape mode and previously we had removed the fixed position of login button
-    if (self.fixedRemoved === false) {
-        $("#loginButton").addClass("fixed");
-    }
-
-    buttonwidth = window_width - 2;
-    $(".forwardButton").css("width", buttonwidth + "px");
 };
 
 /**
