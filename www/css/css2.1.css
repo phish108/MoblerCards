@@ -138,11 +138,6 @@ input {
     margin: 0px;
     padding: 0px;
 }
-.viewblock {
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-}
 /*********************** SplashView ***********************/
 .loading {
     font-size: 100px;
@@ -183,44 +178,21 @@ input {
     font-weight: bold;
     color: white;
 }
-.title1 {
-    color: #008CC7;
-    font-weight: bold;
-    font-size: 26px;
-    padding-top: 25px;
-}
-.title2 {
-    color: grey;
-    font-weight: bold;
-    font-size: 26px;
-    padding-top: 25px;
-}
 /****************** Course View ******************************/
 .loadingrotation {
     -webkit-animation: spin 3s infinite linear;
     font-size: 25px;
 }
-.refresh {
-    vertical-align: bottom;
-    font-size: 22px;
-    position: fixed;
-    float: left;
-    bottom: 0px;
-    color: white;
-    text-align: center;
-    border: 1px solid white;
-    line-height: 49px;
-    height: 49px;
-    width: 100%;
-    background: linear-gradient(#999999, #6a6a6a);
-}
-/****************** Course View ******************************/
-/*
-.abouttitlelabel {
-    padding-left: 
+/****************** About View ******************************/
+#abouttitlelist {
+    font-size: 20px;
+    font-weight: bold;
     color: black;   
 }
-*/
+/****************** Question View ******************************/
+#questionlisttext { 
+    font-size: 20px;
+}
 /* <<<<<<<<<<<<<<<<< Colors and Gradients START <<<<<<<<<<<<<<<<<<<< */
 .green {
     color: #33CC33;
@@ -645,15 +617,6 @@ li {
     line-height: 1.2em;
     color: #ccc;
     background: #ccc;
-}
-/*********************** Question View ***********************/
-
-#cardQuestionBody {
-    font-size: 20px;
-}
-#questionText {
-    padding: 15px;
-    /*width:100%;*/
 }
 /*********************** Answer View ***********************/
 

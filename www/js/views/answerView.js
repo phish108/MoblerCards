@@ -1,27 +1,10 @@
-/*** .0	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
-
-/** @author Isabella Nake
- * @author Evangelia Mitsopoulou
- */
-
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
+/** 
+ * @author Isabella Nake
+ * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
+ */
 
 /**
  * @Class AnswerView
@@ -38,7 +21,6 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-// TODO get rid of css elements
 function AnswerView() {
     var self = this;
     this.tagID = this.app.viewId;
@@ -46,23 +28,13 @@ function AnswerView() {
     
     var featuredContentId = FEATURED_CONTENT_ID;
 
-    // center the answer body to the middle of the screen of the answer view
-    function setOrientation() {
-        $(".cardBody").css('height', window.innerHeight - 70);
-        $(".cardBody").css('width', window.innerWidth - 100);
-    }
-
-    setOrientation();
-    window.addEventListener("orientationchange", setOrientation, false);
-    window.addEventListener("resize", setOrientation, false);
-
     /**It is triggered after statistics are loaded locally from the server. This can happen during the 
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.tagID === self.app.isActiveView) && 
+        if ((self.app.isActiveView(self.tagID)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in answer view 1");
             self.showAnswerBody();
@@ -75,15 +47,13 @@ function AnswerView() {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.tagID === self.app.isActiveView) &&
+        if ((self.app.isActiveView(self.tagID)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in  answer view 2 ");
             self.showAnswerBody();
         }
     });
-
-
-} // end of Constructor
+}
 
 /**Opening of answer view. The parts of the container div element that are loaded dynamically 
  * are explicitly defined/created here
@@ -93,42 +63,26 @@ function AnswerView() {
 AnswerView.prototype.prepare = function (featuredContent_id) {
     this.showAnswerTitle();
     this.showAnswerBody();
-    this.app.resizeHandler();
-    //set automatic the width of the input field in numeric questions
-    //setNumberInputWidth();
 };
 
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[AnswerView] tap registered: " + id);
     
-    if (id === "CourseList_FromAnswer") {
+    if (id === "answerclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         } else {
             this.app.changeView("landing");
         }
     } 
-    else if (id === "doneButton") {
+    else if (id === "answerbutton") {
         this.clickDoneButton();
     }
-    else if (id === "cardAnswerTitle" || id === "cardAnswerIcon") {
+    else if (id === "answertitle" || id === "answericon") {
         this.widget.storeAnswers();
         this.app.changeView("question");
     };
-};
-
-/**Transition to courses list view when pinching on the answer view. 
- * This  is executed only on the iPhone.
- * @prototype
- * @function handlePinch
- **/
-AnswerView.prototype.pinch = function () {
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    } else {
-        this.app.changeView("landing");
-    }
 };
 
 /**Loads a subview-widget based on the specific question type
@@ -180,9 +134,9 @@ AnswerView.prototype.showAnswerBody = function () {
  **/
 AnswerView.prototype.showAnswerTitle = function () {
     var currentAnswerTitle = this.app.models.questionpool.getQuestionType();
-    $("#answerIcon").removeClass();
-    $("#answerIcon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
-    $("#cardAnswerTitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
+    $("#answerdynamicicon").removeClass();
+    $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
+    $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
 };
 
 
@@ -211,28 +165,3 @@ AnswerView.prototype.clickDoneButton = function () {
         this.app.changeView("feedback");
     }
 };
-
-// FIXME to be handled elsewhere
-/**
- * handles dynamically any change that should take place on the layout
- * when the orientation changes.
- * @prototype
- * @function changeOrientation
- **/
-AnswerView.prototype.changeOrientation = function (o, w, h) {
-    console.log("change orientation in answer view " + o + " , " + w + ", " + h);
-    setAnswerWidth(o, w, h);
-    setNumberInputWidth();
-};
-
-function setNumberInputWidth() {
-
-    var questionpoolModel = this.app.models.questionpool;
-
-    var questionType = questionpoolModel.getQuestionType();
-    if (questionType == "assNumeric") {
-        window_width = $(window).width();
-        var inputwidth = window_width - 49 - 34 - 18; //49 is the width of the close button on the header
-        $("#numberInput").css("width", inputwidth + "px");
-    }
-}

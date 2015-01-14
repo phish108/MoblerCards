@@ -25,7 +25,7 @@ LogoutView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
     
-    if (id === "closeIcon") {
+    if (id === "logoutclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
@@ -33,17 +33,8 @@ LogoutView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "logOut") {
-        this.logout(featuredContentId);
+    else if (id === "logoutbutton") {
+        this.app.models.configuration.logout(featuredContentId);
+        this.app.changeView("login");
     }
-};
-
-/**
- * click on the logout button logs the user out and
- * shows the login view
- */
-LogoutView.prototype.logout = function (featuredContentId) {
-    var config = this.app.models.configuration;
-    config.logout(featuredContentId);
-    this.app.changeView("login", featuredContentId);
 };

@@ -221,7 +221,7 @@ MoblerCards.prototype.setupLanguage = function () {
             $("#copyright").text(jQuery.i18n.prop('msg_copyright'));
             $("#openSource").text(jQuery.i18n.prop('msg_openSource'));
             $("#license").text(jQuery.i18n.prop('msg_license'));
-            $("#cardQuestionTitle").text(jQuery.i18n.prop('msg_question_title'));
+            $("#questiontitle").text(jQuery.i18n.prop('msg_question_title'));
         }
     });
 };
