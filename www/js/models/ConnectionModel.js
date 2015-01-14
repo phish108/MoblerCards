@@ -42,7 +42,7 @@ function ConnectionModel(controller) {
     this.controller = controller;
     this.checkConnection();
 
-    console.log("connection state during initialization: " + self.state);
+//    console.log("connection state during initialization: " + self.state);
 
     window.addEventListener("offline", self.goOffline, true);
     window.addEventListener("online", self.goOnline, true);
@@ -150,31 +150,31 @@ ConnectionModel.prototype.synchronizeData = function () {
          * **/
         $(document).trigger("errormessagehide");
 
-        console.log('check synchronization - course list');
+//        console.log('check synchronization - course list');
         // if a pending course list exist, load the course list from the server
         var pendingCourseList = localStorage.getItem("pendingCourseList");
         if (pendingCourseList) {
             this.controller.models.course.loadFromServer();
         }
 
-        console.log('check synchronization - question pools');
+//        console.log('check synchronization - question pools');
         // if a pending question pool exists, load the question pool from the server
         // FIXME improve /=void conditioning
         if (this.controller &&
             this.controller.models &&
             this.controller.models.course &&
             this.controller.models.course.courseList) {
-            console.log('got models ');
+//            console.log('got models ');
             var courseList = this.controller.models.course.courseList;
 
             if (courseList) {
-                console.log('interate course list ');
+//                console.log('interate course list ');
                 for (var c in courseList) {
-                    console.log('check course ' + c);
+//                    console.log('check course ' + c);
 
                     var pendingQuestionPools = localStorage.getItem("pendingQuestionPool_" + courseList[c].id);
                     if (pendingQuestionPools) {
-                        console.log('check synchronization - question pool missing for course ' + c);
+//                        console.log('check synchronization - question pool missing for course ' + c);
                         this.controller.models.questionpool.loadFromServer(courseList[c].id);
                     }
                 }
@@ -191,12 +191,12 @@ ConnectionModel.prototype.synchronizeData = function () {
             console.log('got models ');
             var featuredContentList = this.controller.models.featured.featuredContentList;
             if (featuredContentList) {
-                console.log('interate featured course list ');
+//                console.log('interate featured course list ');
                 //for ( var c in featuredContentList) {
-                console.log('check featured course ');
+//                console.log('check featured course ');
                 var pendingFeaturedQuestionPools = localStorage.getItem("pendingFeaturedContentList" + featuredContentList.id);
                 if (pendingFeaturedQuestionPools) {
-                    console.log('check synchronization - featured question pool missing for course ');
+//                    console.log('check synchronization - featured question pool missing for course ');
                     this.controller.models.featured.loadFromServer(featuredContentList.id);
                 }
                 //}
@@ -205,7 +205,7 @@ ConnectionModel.prototype.synchronizeData = function () {
 
         var statisticsModel = this.controller.models.statistics;
 
-        console.log('check synchronization - statistics');
+//        console.log('check synchronization - statistics');
         // if pending statistics exist, send them to the server
         var pendingStatistics = localStorage.getItem("pendingStatistics");
         if (pendingStatistics) {
@@ -219,14 +219,14 @@ ConnectionModel.prototype.synchronizeData = function () {
             if (!statisticsModel.lastSendToServer || 
                 statisticsModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) { 
                 // it was 24*60*60*1000 (check once every day)
-                console.log("statistics need to be synchronized in connection state model");
+//                console.log("statistics need to be synchronized in connection state model");
                 statisticsModel.sendToServer();
             }
         }
 
         var trackingModel = this.controller.models.tracking;
 
-        console.log('check synchronization - tracking');
+//        console.log('check synchronization - tracking');
         // if pending statistics exist, send them to the server
         var pendingTracking = localStorage.getItem("pendingTracking");
         if (pendingTracking) {
@@ -242,6 +242,6 @@ ConnectionModel.prototype.synchronizeData = function () {
                 trackingModel.sendToServer();
             }
         }
-        console.log('check synchronization DONE');
+//        console.log('check synchronization DONE');
     }
 };

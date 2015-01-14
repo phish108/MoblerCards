@@ -239,8 +239,8 @@ CourseModel.prototype.loadFromServer = function() {
 			  * It is triggered when the loading of the course list from the server has been finished
 			 * @event courselistupdate 
 			 **/
-			$(document).trigger("courselistupdate");
-			
+//			$(document).trigger("courselistupdate");
+
 			//download all the quesitons(questionlist) for each course
             var c;
 			for ( c in self.courseList) {
@@ -259,8 +259,12 @@ CourseModel.prototype.loadFromServer = function() {
  * @return the id of the current course
  */
 CourseModel.prototype.getId = function() {
-	return (this.index > this.courseList.length - 1) ? false
-			: this.courseList[this.index].id;
+//	return (this.index > this.courseList.length - 1) ? false
+//			: this.courseList[this.index].id;
+    if (this.courseList.length > this.index) {
+        return this.courseList[this.index].id;
+    }
+    return "false";
 };
 
 /**
@@ -269,8 +273,12 @@ CourseModel.prototype.getId = function() {
  * @return the title of the current course
  */
 CourseModel.prototype.getTitle = function() {
-	return (this.index > this.courseList.length - 1) ? false
-			: this.courseList[this.index].title;
+//	return (this.index > this.courseList.length - 1) ? false
+//			: this.courseList[this.index].title;
+    if (this.courseList.length > this.index) {
+        return this.courseList[this.index].title;
+    }
+    return "false";
 };
 
 /**
@@ -283,8 +291,12 @@ CourseModel.prototype.getTitle = function() {
  */
  
 CourseModel.prototype.getSyncState = function() {
-	return (this.index > this.courseList.length - 1) ? false
-			: this.courseList[this.index].syncState;
+//	return (this.index > this.courseList.length - 1) ? false
+//			: this.courseList[this.index].syncState;
+    if (this.courseList.length > this.index) {
+        return this.courseList[this.index].syncState;
+    }
+    return false;
 };
 
 /**

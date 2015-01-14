@@ -1,29 +1,10 @@
-/**	THIS COMMENT MUST NOT  REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Christian Glahn
  */
-
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**
  *Global properties/variables that show the number of values
@@ -92,9 +73,9 @@ function StatisticsModel(controller) {
      * @param: a callback function that
      * FIXME: the call back is undefined
      **/
-//    $(document).bind("checkachievements", function (p, courseId) {
-//        self.controller.models.cardburner.calculateValue(courseId);
-//    });
+    $(document).bind("checkachievements", function (p, courseId) {
+        self.controller.models.cardburner.calculateValue(courseId);
+    });
 }
 
 /**

@@ -1,30 +1,10 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
-
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
-
-/** @author Isabella Nake
- * @author Evangelia Mitsopoulou
- *
- * View for displaying the logout confimation
- */
-
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
+/** 
+ * @author Isabella Nake
+ * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
+ */
 
 /**
  * @Class LogoutView
@@ -45,7 +25,7 @@ LogoutView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
     
-    if (id === "closeIcon") {
+    if (id === "logoutclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
@@ -53,26 +33,8 @@ LogoutView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "logOut") {
-        this.logout(featuredContentId);
+    else if (id === "logoutbutton") {
+        this.app.models.configuration.logout(featuredContentId);
+        this.app.changeView("login");
     }
-};
-
-LogoutView.prototype.pinch = function () {
-    if (this.app.getLoginState()) {
-        this.app.changeView("settings");
-    }
-    else {
-        this.app.changeView("landing");
-    }
-};
-
-/**
- * click on the logout button logs the user out and
- * shows the login view
- */
-LogoutView.prototype.logout = function (featuredContentId) {
-    var config = this.app.models.configuration;
-    config.logout(featuredContentId);
-    this.app.changeView("login", featuredContentId);
 };
