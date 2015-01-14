@@ -62,23 +62,12 @@ function CourseView() {
             }
         }
     });
-
-    function setOrientation() {
-        self.setIconSize();
-    }
-
-    //when orientation changes, set the new width and height
-    //resize event should be caught, too, because not all devices
-    //send an orientationchange even
-    window.addEventListener("orientationchange", setOrientation, false);
-    window.addEventListener("resize", setOrientation, false);
 }
 
 CourseView.prototype.prepare = function () {
     console.log("[CourseView] opened");
     this.active = true;
     this.firstLoad = false;
-    this.setIconSize();
 };
 
 CourseView.prototype.update = function () {
@@ -92,10 +81,8 @@ CourseView.prototype.update = function () {
  * @function close
  **/
 CourseView.prototype.cleanup = function () {
-    console.log("clean course list view");
     this.active = false;
     this.app.models.course.loadFromServer();
-    $("#coursesList").empty();
 };
 
 CourseView.prototype.tap = function (event) {
@@ -117,7 +104,7 @@ CourseView.prototype.tap = function (event) {
     else {
         var course = id.split("_");
         
-        if (course[0] === "coursecontentbox") {
+        if (course[0] === "courselabel") {
             if (course.length === 4 &&
                 course[3] === "fd") {
                 this.app.selectCourseItem(course[3]);
@@ -126,8 +113,11 @@ CourseView.prototype.tap = function (event) {
                 this.app.selectCourseItem(course[2]);
             }
         }
-        else if (course[0] === "courselisticon") {
+        else if (course[0] === "courseimg") {
             this.app.changeView("statistics", course[2]);
+        }
+        else if (id === "courserefresh") {
+            this.update();
         }
     }
 };
@@ -137,7 +127,7 @@ CourseView.prototype.setCourse = function () {
     
     var courseModel = self.app.models.course;
     var ctmpl = this.app.templates.getTemplate("courselistbox");
-    var courseId;
+    var courseId, courseTitle;
     
     if (courseModel.courseList.length === 0) {
         ctmpl.attach("waiting");
@@ -146,13 +136,15 @@ CourseView.prototype.setCourse = function () {
     else {
         do {
             courseId = courseModel.getId();
-          
-            ctmpl.attach(courseId);
-            ctmpl.courselabel.text = courseModel.getTitle();
+            courseTitle = courseModel.getTitle();
             
-            this.setCourseIcon(ctmpl, courseModel, courseId);
+            if (courseTitle != "false" && courseId != "false") {
+                ctmpl.attach(courseId);
+                ctmpl.courselabel.text = courseModel.getTitle();
+            
+                this.setCourseIcon(ctmpl, courseModel, courseId);
+            }
         } while (courseModel.nextCourse());
-        self.setIconSize();
     }
 };
 
@@ -170,13 +162,13 @@ CourseView.prototype.setDefaultCourse = function () {
 };
 
 CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
-    if (model.isSynchronized(modelId)) {
+//    if (model.isSynchronized(modelId)) {
         ctmpl.courseimg.addClass("icon-bars");
-    }
-    else {
-        ctmpl.courseimage.addClass("icon-loading");
-        ctmpl.courseimage.addClass("loadingrotation");
-    }
+//    }
+//    else {
+//        ctmpl.courseimage.addClass("icon-loading");
+//        ctmpl.courseimage.addClass("loadingrotation");
+//    }
 };
 
 /**
@@ -188,17 +180,4 @@ CourseView.prototype.courseIsLoaded = function (courseId) {
     console.log("courseIsLoaded: " + courseId);
     console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);
     $("#course" + courseId + " .icon-loading").addClass("icon-bars").removeClass("icon-loading loadingrotation");
-};
-
-/**
- * sets the height property of the course list icon
- * @prototype
- * @function setIconSize
- */
-CourseView.prototype.setIconSize = function () {
-    $("#coursesList li").each(function () {
-        var height = $(this).height();
-        $(this).find(".courseListIcon").height(height);
-        $(this).find(".courseListIcon").css("line-height", height + "px");
-    });
 };
