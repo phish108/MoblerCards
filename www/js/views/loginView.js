@@ -38,14 +38,7 @@ function LoginView() {
         console.log(" hide error message loaded ");
         self.hideErrorMessage();
     });
-
-    // if keyboard is displayed, move the logos up
-    // if keyboard is not displayed anymore, move logos down
-    $("#usernameInput")[0].addEventListener("focus", self.focusLogos);
-    $("#password")[0].addEventListener("focus", self.focusLogos);
-    $("#usernameInput")[0].addEventListener("blur", self.unfocusLogos);
-    $("#password")[0].addEventListener("blur", self.unfocusLogos);
-} //end of constructor
+}
 
 /**
  * shows the login form after firstly hide the error messages
@@ -56,7 +49,6 @@ function LoginView() {
  **/
 LoginView.prototype.prepare = function () {
     console.log("loginView: open sesame");
-    $("#loginbutton").show();
     // hide unnecessary errors and warnings 
     this.hideErrorMessage();
     this.hideWarningMessage();
@@ -96,10 +88,6 @@ LoginView.prototype.tap = function (event) {
     else if (id === "loginclose") {
         this.clickCloseLoginButton();
     } 
-    else if (id === "usernameInput" &&
-             id === "password") {
-        this.focusLogos(event);
-    } 
     else if (id === "loginlmslabel") {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
@@ -107,21 +95,6 @@ LoginView.prototype.tap = function (event) {
         this.storeSelectedLMS();
         this.app.changeView("lms");
     }
-};
-
-LoginView.prototype.focusLogos = function () {
-    $("#loginbutton").removeClass("fixed");
-    var fixedRemoved = true;
-    $("#logos").removeClass("bottom");
-    $("#logos").addClass("static");
-};
-
-LoginView.prototype.unfocusLogos = function () {
-    $("#loginbutton").addClass("fixed");
-    $("#loginbutton").show();
-    var fixedRemoved = false;
-    $("#logos").addClass("bottom");
-    $("#logos").removeClass("static");
 };
 
 /**
@@ -203,9 +176,7 @@ LoginView.prototype.showForm = function () {
 
     this.hideErrorMessage();
     this.hideDeactivateMessage();
-//    $("#loginViewHeader").show();
-//    $("#loginViewBackIcon").show();
-
+    
     if (this.app.models.connection.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
     }
