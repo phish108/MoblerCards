@@ -54,13 +54,12 @@
         <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
     </div>
 
-    <div id="course" class="screen" data-view="CourseView" data-touch="tap pinch">
+    <div id="course" class="screen" data-view="CourseView" data-touch="tap">
         <div id="courseheader" class="headerbox">
             <div id="courseicon"  class="titleicon"><span class="icon-courses"></span></div>
-            <div id="coursetitle" class="headercontent">LMS list</div>
+            <div id="coursetitle" class="headercontent">Courses</div>
             <div id="coursecross" class="closeicon"><span id="coursesettings" class="icon-settings"></span></div>
         </div>
-
         <div id="coursecontent" class="contentbox">
             <ul id="coursebox">
                 <template id="courselistbox">
@@ -75,6 +74,9 @@
                     </li>
                 </template>
             </ul>
+        </div>
+        <div id="coursefooter" class="footerbox">
+            <div id="courserefresh" class="footerlabel"><span class=" icon-loading"></span></div>
         </div>
     </div>
     
@@ -121,18 +123,15 @@
                     <div id="deactivatemessage" class="loginMessage gradientMessages"></div>
                 </li>
             </ul>
-            <div id="loginbutton" class="forwardButton fixed">
-                <span class="icon-enter"></span>
-            </div>
+        </div>
+        <div id="loginfooter" class="footerbox">
+            <div id="loginbutton" class="footerlabel"><span class="icon-enter"></span></div>
         </div>
     </div>
 
     <div id="landing" class="screen" data-view="LandingView" data-touch="tap">
         <div id="landingheader" class="headerbox">
-            <div id="landingtitle" class="headercontent">
-                <span class="title1">Mobler </span>
-                <span class="title2">Cards</span>
-            </div>
+            <div id="landingtitle" class="headercontent">Mobler Cards</div>
         </div>
         <div id="landingcontent" class="contentbox">
             <ul id="landingelements">
@@ -164,42 +163,18 @@
         </div>
     </div>
 
-    <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
-
-    <div id="settings" class="screen" data-view="SettingsView" data-touch="tap pinch">
-        <div id="settingsHeader" class="headerContainer">
-            <div id="settingsIcon" class="titleiconOLD">
-                <span class="icon-settings"></span>
-            </div>
-            <div id="settingsTitle" class="title"></div>
+    <div id="settings" class="screen" data-view="SettingsView" data-touch="tap"> 
+        <div id="settingsheader" class="headerbox">
+            <div id="settingsicon"  class="titleicon"><span class="icon-settings"></span></div>
+            <div id="settingstitle" class="headercontent">Settings</div>
+            <div id="settingscross" class="closeicon"><span id="settingsclose" class="icon-cross"></span></div>
         </div>
-        <div id="closeSettingsIcon" class="closeButton">
-            <span class="icon-cross"></span>
-        </div>
-        <div class="content">
-            <div class="bottom left">
-                <div id="logOutSettings" class="forwardButton fixed">
-                    <span class="icon-exit"></span>
-                </div>
-            </div>
-            <div class="bottom right">
-                <div id="aboutMore" class="feedbackMore">
-                    <span class="icon-info"></span>
-                </div>
-            </div>
-
+        
+        <div id="settingscontent" class="contentbox">
             <ul id="settingsData" class="gradient2">
-                <li>
-                    <div class=" settingsLi lineContainer imageContainer ">
-                        <div class="imageoutline1">
-                            <div class="imageoutline2">
-                                <div class="innerShadow">
-                                    <img id="lmsLabelSet" class="imageLogo" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <span id="pfpItemSet"></span>
+                <li id="settingslist" class="listbox">
+                    <div id="settingslmslabel" class="listlabel"></div>
+                    <div id="settingslmsimage" class="listimage"><img id="settingslmsimg"/></div>
                 </li>
                 <li>
                     <div class="settingsLi">
@@ -231,51 +206,43 @@
                 </li>
             </ul>
         </div>
+        <div id="settingsfooter" class="footerbox">
+            <div id="settingsabout" class="footerleft">
+                <span class="icon-info"></span>
+            </div>
+            <div class="footerright">
+                <span id="settingslogout" class="icon-exit"></span>
+            </div>
+        </div>
     </div>
-
+    
     <div id="about" class="screen" data-view="AboutView" data-touch="tap">
-        <div id="aboutHeader" class=" headerContainer">
-            <div id="aboutTitle" class="title"></div>
+        <div id="aboutheader" class="headerbox">
+            <div id="abouticon"  class="titleicon"><span class="icon-info"></span></div>
+            <div id="abouttitle" class="headercontent">About</div>
+            <div id="aboutcross" class="closeicon"><span id="aboutclose" class="icon-cross"></span></div>
         </div>
-        <div id="closeAboutIcon" class="closeButton">
-            <span class="icon-cross"></span>
-        </div>
-        <div class="content full">
-            <div id="aboutMainTitle">
-                Mobler <span id="cardsTitle">Cards</span>
-            </div>
-            <ul id="aboutData" class="marginForButtons gradient2">
-                <li>
-                    <div class="settingsLi about">
-                        <span id="copyright" class="aboutLabel"></span>
+        <div id="aboutcontent" class="contentbox">
+            <ul>
+                <li class="listbox">
+                    <div class="listlabel">Mobler Cards</div>
+                </li>
+                <li class="listbox">
+                    <div id="copyright" class="listlabel"></div>
+                </li>
+                <li class="listbox">
+                    <div id="openSource" class="listlabel">
+                        <a href="https://github.com/ISN-Zurich/ISN-Learning-Cards" target="_blank">GitHub</a>
                     </div>
                 </li>
-                <li>
-                    <div class="settingsLi about">
-                        <span id="openSource" class="aboutLabel"></span>  <a href="https://github.com/ISN-Zurich/ISN-Learning-Cards" target="_blank">GitHub</a>
-                    </div>
+                <li class="listbox">
+                    <div id="license" class="listlabel"></div>
                 </li>
-                <li>
-                    <div class="settingsLi about">
-                        <span id="license" class="aboutLabel"></span>
-                    </div>
-                </li>
-                <li>
-                    <div id="shadowAbout" class="gradient1 shadowedLi"></div>
-                </li>
-            </ul>
-
-            <div>
-<!--
-                <div id="cardsAbout">
-                    <div id="card3About" class="card3">I</div>
-                    <div id="card2About" class="card2">S</div>
-                    <div id="card1About" class="card1">N</div>
-                </div>
--->
-            </div>
+            </ul> 
         </div>
     </div>
+
+    <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
 
     <div id="logout" class="screen" data-view="LogoutView" data-touch="tap">
         <div class="headerContainer">

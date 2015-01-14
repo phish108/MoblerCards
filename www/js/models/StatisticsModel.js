@@ -73,9 +73,9 @@ function StatisticsModel(controller) {
      * @param: a callback function that
      * FIXME: the call back is undefined
      **/
-//    $(document).bind("checkachievements", function (p, courseId) {
-//        self.controller.models.cardburner.calculateValue(courseId);
-//    });
+    $(document).bind("checkachievements", function (p, courseId) {
+        self.controller.models.cardburner.calculateValue(courseId);
+    });
 }
 
 /**

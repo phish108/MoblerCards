@@ -23,7 +23,7 @@
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-function StatisticsView() {
+function StatisticsView(courseId) {
     var self = this;
 
     this.tagID = this.app.viewId;
@@ -67,7 +67,8 @@ function StatisticsView() {
 StatisticsView.prototype.prepare = function () {
     var self = this;
     if (self.app.getLoginState()) {
-        if (this.featuredContentId || self.app.getConfigVariable("statisticsLoaded") === true) {
+        if (self.featuredContentId || 
+            self.app.getConfigVariable("statisticsLoaded") === true) {
             self.loadData();
         } else {
             self.showLoadingMessage();
@@ -80,7 +81,6 @@ StatisticsView.prototype.prepare = function () {
         self.loadData();
     }
     this.app.models.featured.loadFeaturedCourseFromServer();
-    this.changeOrientation();
 };
 
 StatisticsView.prototype.tap = function (event) {
@@ -98,33 +98,13 @@ StatisticsView.prototype.tap = function (event) {
     }
 };
 
-/**pinch leads to course list
- * @prototype
- * @function handlePinch
- **/
-StatisticsView.prototype.pinch = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    } else {
-        this.app.changeView("landing");
-    }
-};
-
-/**swipe does nothing
- * @prototype
- * @function handleSwipe
- **/
-StatisticsView.prototype.swipe = function (event) {
-    this.app.changeView("achievements", this.featuredContentId);
-};
-
 /**show loading message when statistics have not been fully loaded from the server
  * @prototype
  * @function showLoadingMessage
  **/
 StatisticsView.prototype.showLoadingMessage = function () {
-    $("#statisticsBody").hide();
-    $("#loadingMessage").show();
+//    $("#statisticsBody").hide();
+//    $("#loadingMessage").show();
 };
 
 /**loads the statistics data, whose values are calculated in the answer model
