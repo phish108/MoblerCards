@@ -1,5 +1,6 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
+/**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
 distributed with this work for additional information
@@ -15,17 +16,14 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
-
-
+under the License.
 */
 
 
-/** @author Isabella Nake
+/**
+ * @author Isabella Nake
  * @author Evangelia Mitsopoulou
-
-*/
-/*jslint vars: true, sloppy: true */
+ */
 
 function initModels() {
 

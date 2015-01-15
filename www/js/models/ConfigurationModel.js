@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -17,13 +19,10 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-/**@author Isabella Nake
+/**
+ * @author Isabella Nake
  * @author Evangelia Mitsopoulou
-
-*/
-
-/*jslint vars: true, sloppy: true */
-
+ */
 
 /**
  *A global property/variable that hosts the bundle id of the application
@@ -32,7 +31,6 @@ under the License.
  **/
 
 var APP_ID = "ch.ethz.isn.learningcards";
-
 
 /**
  * @class ConfigurationModel

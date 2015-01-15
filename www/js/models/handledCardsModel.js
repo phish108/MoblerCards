@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -17,8 +19,6 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-/*jslint vars: true, sloppy: true */
-
 /**
  * @class HandledCardsModel  
  * This model holds how many cards the users has handled for a course
@@ -34,7 +34,6 @@ function HandledCardsModel(statisticsModel){
     this.initQuery();
 }
 
-
 /**
  * Create the Query "how many questions the learner has handled for the specific course?"
  * From the counting of questions are excluded the cases when an achievement has been reached. 
@@ -45,8 +44,6 @@ function HandledCardsModel(statisticsModel){
 HandledCardsModel.prototype.initQuery = function(){
 	this.query = 'SELECT count(*) as c FROM statistics WHERE course_id=? AND duration!=-100 AND day>=? AND day<=?';
 };
-
-
 
 /**
  * Pass the current variables to the above query that will be
@@ -98,7 +95,6 @@ HandledCardsModel.prototype.calculateHandledCards = function(transaction, result
 	});
 
 };
-
 
 /**
  * Calculates the improvement of number of the handled cards in comparison to the last active day
