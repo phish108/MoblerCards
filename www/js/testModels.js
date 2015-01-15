@@ -19,7 +19,6 @@ specific language governing permissions and limitations
 under the License.
 */
 
-
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
