@@ -209,7 +209,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     }
 
     // show feedback more information, which is the same for all kinds of questions
-    $("#feedbackmore").hide();
+    $("#feedbackinfo").hide();
 
     var feedbackText = questionpoolModel.getWrongFeedback();
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
@@ -222,7 +222,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     if (feedbackText && feedbackText.length > 0) {
         //$("#feedbackTip").text(feedbackText);
         $("#feedbackTip").html(feedbackText);
-        $("#feedbackmore").show();
+        $("#feedbackinfo").show();
     }
 };
 
