@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -17,18 +19,16 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-
-/** @author Isabella Nake
+/** 
+ * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ */
 
-
+/**
  * Widget for displaying text sort questions
  * @param interactive
  * if true answerview is shown, otherwise feedback view
  */
-
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
-
 var MOBLERDEBUG = 0;
 
 function HorizontalTextSortWidget(interactive) {

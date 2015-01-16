@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -17,13 +19,10 @@ specific language governing permissions and limitations
 under the License.	
 */
 
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
-
-/** @author Isabella Nake
+/** 
+ * @author Isabella Nake
  * @author Evangelia Mitsopoulou
-   
-*/
-
+ */
 
 /**
  * @Class NumericQuestionWidget

@@ -1,3 +1,5 @@
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file 
@@ -21,9 +23,7 @@ under the License.
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Christian Glahn
- * */
-
-/*jslint vars: true, sloppy: true */
+ **/
 
 /**
  *A global property/variable that is used during the creation of a new table in the database.
