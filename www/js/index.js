@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,8 +16,21 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
+
+var $, jester, jQuery;
+if (window.$) {
+    $ = window.$;
+}
+
+if (window.jequery) {
+    jQuery = window.jQuery;
+}
+
+if (window.jester) {
+    jester = window.jester;
+}
 
 function MoblerCards() {
     var self = this;
@@ -26,9 +39,9 @@ function MoblerCards() {
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    
-    var featuredContentId = FEATURED_CONTENT_ID;
-    var startTime = new Date().getTime();
+
+   // var featuredContentId = FEATURED_CONTENT_ID;
+   // var startTime = new Date().getTime();
 
     jester().options({
         'avoidDoubleTap': true,
@@ -146,9 +159,10 @@ MoblerCards.prototype.migrate = function (thisVersion) {
 
 MoblerCards.prototype.migrateTo2 = function () {
     var configuration;
+    var configurationObject;
     try {
         //configuration=JSON.parse(localStorage.getItem("configuration"));
-        var configurationObject = localStorage.getItem("configuration");
+        configurationObject = localStorage.getItem("configuration");
         if (configurationObject) {
             configuration = JSON.parse(configurationObject);
         }
@@ -169,7 +183,7 @@ MoblerCards.prototype.migrateTo2 = function () {
                     "defaultLanguage": language_root
                 }
             }
-        }
+        };
 
         delete configuration.appAuthenticationKey;
         //var configurationObject=localStorage.getItem("configuration");
@@ -181,10 +195,10 @@ MoblerCards.prototype.migrateTo2 = function () {
 
     if (!configuration) {
         console.log("configuration object didn't exist during the migration");
-        var configurationObject = {
+        configurationObject = {
             loginState: "loggedOut",
             statisticsLoaded: "false"
-        }
+        };
         localStorage.setItem("configuration", JSON.stringify(configurationObject));
     }
 };
@@ -247,15 +261,17 @@ MoblerCards.prototype.setupLanguage = function () {
 
 /**
  * Transition to statistics view. The user can reach the statistics view in two ways: 1) either by clicking the statistics icon on the course list view or  2) from the achievements view.
- * TODO: Refactoring of the function
  * @prototype
  * @function transitionToStatistics
  **/
+
+ // TODO: Refactoring of the function
+
 MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsFlag) {
     //set the statistics waiting flag
     this.clickOutOfStatisticsIcon = false;
 
-    //The transition to statistics view is done by clicking the statistics icon in any list view. 
+    //The transition to statistics view is done by clicking the statistics icon in any list view.
     //In this case a courseID is assigned for the clicked option.
 
     if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
@@ -384,7 +400,7 @@ MoblerCards.prototype.injectStyle = function () {
         h = t;
     }
 
-    // calculate the heights once and forever. 
+    // calculate the heights once and forever.
     var cfl = w - 54,
         cfp = h - 54,
         cl = w - 102,
@@ -406,7 +422,7 @@ MoblerCards.prototype.injectStyle = function () {
     });
 
     $('head').append(e);
-}
+};
 
 /**
  * 	Does the aproropriate calculations when we click on a course item
@@ -417,7 +433,7 @@ MoblerCards.prototype.injectStyle = function () {
  * 	@ param{string or number}, courseId, the id of the current course
  * */
 MoblerCards.prototype.selectCourseItem = function (courseId) {
-    this.models.questionpool.reset(); 
+    this.models.questionpool.reset();
     //add it within the loadData, similar with statistics (setcurrentCourseId function)...
     this.models.questionpool.loadData(courseId);
     if (this.models.questionpool.dataAvailable()) {
@@ -427,4 +443,4 @@ MoblerCards.prototype.selectCourseItem = function (courseId) {
     } else {
         console.log("[ERROR]@selectCourseItem()");
     }
-}
+};
