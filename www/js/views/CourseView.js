@@ -42,6 +42,7 @@ function CourseView() {
     this.tagID = this.app.viewId;
     this.active = false;
     this.firstLoad = true;
+    
     var featuredContentId = FEATURED_CONTENT_ID;
 
     /**
@@ -95,15 +96,20 @@ CourseView.prototype.update = function () {
 };
 
 /**
- * empties the course list
+ *
  * @prototype
- * @function close
+ * @function cleanup
  **/
 CourseView.prototype.cleanup = function () {
     this.active = false;
     this.app.models.course.loadFromServer();
 };
 
+/*
+ * 
+ * @prototype
+ * @function tap
+ */
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
@@ -141,6 +147,11 @@ CourseView.prototype.tap = function (event) {
     }
 };
 
+/*
+ * generates all the current courses you are enrolled in.
+ * @prototype
+ * @function setCourse
+ */
 CourseView.prototype.setCourse = function () {
     var self = this;
     
@@ -167,6 +178,11 @@ CourseView.prototype.setCourse = function () {
     }
 };
 
+/*
+ * generates all the default course.
+ * @prototype
+ * @function setDefaultCourse
+ */
 CourseView.prototype.setDefaultCourse = function () {
     var self = this;
     
@@ -180,6 +196,12 @@ CourseView.prototype.setDefaultCourse = function () {
     this.setCourseIcon(ctmpl, featuredModel, featuredId);
 };
 
+/*
+ * generates the icon specific to your course, if your course is not synchronised a loading icon will appear.
+ * @prototype
+ * @function setCourseIcon
+ */
+//TODO the model synchronisation is not working properly
 CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
 //    if (model.isSynchronized(modelId)) {
         ctmpl.courseimg.addClass("icon-bars");
@@ -191,10 +213,11 @@ CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
 };
 
 /**
- * changes the loading icon to the statistics icon for the specified course id
+ * if the course has been synchronized the proper icon will be shown.
  * @prototype
  * @function courseIsLoaded
  */
+//FIXME the courseId and the elements id have changed.
 CourseView.prototype.courseIsLoaded = function (courseId) {
     console.log("courseIsLoaded: " + courseId);
     console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);
