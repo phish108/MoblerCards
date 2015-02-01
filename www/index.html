@@ -136,36 +136,21 @@
                     </li>
                 </template>
             </ul>
+            <ul>
+                <li id="addlmsbox" class="listbox gradient2">
+                    <div id="addlmsdash"  class="listdash"><span id="addlmsdash2"class="icon-dash"></span></div>
+                    <div id="addlmsplaceholder" class="listlabel">Add a New LMS</div>
+                    <div id="addlmsinputbox" class="listlabel hidden"><input id="addlmsinput" type="text" placeholder="LMS URL"></div>
+                    <div id="addlmsicon" class="listimage">
+                        <span id="addlmsbutton" class="icon-enter"></span>
+                        <span id="addlmsfail" class="red icon-cross hidden"></span>                             <span id="addlmswait" class="red icon-loading hidden"></span>
+                    </div>
+                </li>
+            </ul>
         </div>
         <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
+
     </div>
-
-    <div id="addlms" class="screen" data-view="AddLMSView" data-touch="tap pinch">
-        <div id="addlmsheader" class="headerbox">
-            <div id="addlmsicon"  class="titleicon"><span class="icon-lms"></span></div>
-            <div id="addlmstitle" class="headercontent">LMS list</div>
-            <div id="addlmscross" class="closeicon"><span id="lmsclose" class="icon-cross"></span></div>
-        </div>
-        <div id="addlmsbox" class="contentbox">
-            <component id="addlmsform">
-            <div>
-                <div id="addlmsdash"  class="listdash">
-                    <span class="icon-dash"></span>
-                </div>
-                <div id="addlmsnameplaceholder" class="fakeplaceholder">LMS URL</div>
-                <div id="addlmsname" class="hidden">
-                    <input id="addlmsnameinput" name="lmsname"/>
-                </div>
-            </div>
-
-            <div id="addlmsmessage" class="hidden"></div>
-            </component>
-        </div>
-        <div id="addlmsfooter" class="footerbox">
-            <div id="addlmsstorebutton" class="footerlabel">Save</div>
-        </div>
-    </div>
-
 
     <div id="course" class="screen" data-view="CourseView" data-touch="tap">
         <div id="courseheader" class="headerbox">
