@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,21 +16,21 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
 
 /**
  *A global property/variable that shows for how long the synchronization is valid.
- *The following default value shows the time period after which a new synchromization 
+ *The following default value shows the time period after which a new synchromization
  *should take place.
  *
- *@property DEFAULT_SYNC_TIMEOUT 
- *@default 60000 
+ *@property DEFAULT_SYNC_TIMEOUT
+ *@default 60000
  *
  **/
 
@@ -38,18 +38,18 @@ var DEFAULT_SYNC_TIMEOUT = 6000;
 
 
 /**
- * @class CourseModel  
+ * @class CourseModel
  * This model holds the course list and information about the current
  * synchronization of the data with the server
- * @constructor 
+ * @constructor
  * It sets and initializes basic properties such as:
  *  - index of the current course
  *  - the courseList
- *  - the state and date/time of the synchronization 
+ *  - the state and date/time of the synchronization
  * It loads data from the local storage
  * It listens to 3 events regarding the readiness of the system after the authentication and the loading of the data, which
  * means it listens when the authentication is ready, when the questionpool is ready and when internet connection is found
- * @param {String} controller 
+ * @param {String} controller
  */
 function CourseModel(controller) {
 	var self = this;
@@ -61,8 +61,8 @@ function CourseModel(controller) {
 	this.syncDateTime = 0;
 	this.syncState = false;
 	this.syncTimeOut = DEFAULT_SYNC_TIMEOUT;
-	
-	 /** 
+
+	 /**
 	 * It is binded when all the questions of a valid questionpol have been loaded from server
 	 * @event questionpoolready
 	 * @param: callback function in which are activated to true the flags that
@@ -73,19 +73,19 @@ function CourseModel(controller) {
 		self.courseIsLoaded(courseID);
 	});
 
-	 /** 
+	 /**
 	  * It it binded when an online connection is detected
 	 * @event switchtoonline
-	 * @param:  a call back function in which the courses(and any pending questions) 
+	 * @param:  a call back function in which the courses(and any pending questions)
 	 *          are loaded from the server
 	 * **/
-	
+
 	$(document).bind("online", function() {
 		self.switchToOnline();
 	});
-	
-    /**  
-	 * @event authenticationready 
+
+    /**
+	 * @event authenticationready
 	 * @param call back function in which the courses list is loaded from the server
 	 * **/
 	$(document).bind("authenticationready", function() {
@@ -138,7 +138,7 @@ CourseModel.prototype.loadData = function() {
 	this.index = 0;
 
 	this.checkForTimeOut();
-	
+
 	console.log("object courses is "+localStorage.getItem("courses"));
 	console.log("course list in load data is "+this.courseList);
 };
@@ -156,9 +156,12 @@ CourseModel.prototype.loadFromServer = function() {
 	console.log("loadFromServer-Course is called");
 	var self = this;
 	var syncStateCache = [];
-	var activeURL = self.controller.getActiveURL();
+	var activeURL = self.controller.models.lms.getServiceURL("Content:LMS Course");
 	self.checkForTimeOut();
-	if (self.controller.getLoginState() && !self.syncState) {
+	if (activeURL &&
+        activeURL.length &&
+        self.controller.getLoginState() &&
+        !self.syncState) {
 		// var sessionkey = self.controller.getSessionKey();
 		var sessionKey = self.controller.models.configuration.getSessionKey();
 
@@ -171,28 +174,28 @@ CourseModel.prototype.loadFromServer = function() {
 		}
 
 			$.ajax({
-					url:  activeURL + '/courses.php',
+					url:  activeURL,
 					type : 'GET',
 					dataType : 'json',
 					success : createCourseList,
 					error : function(request) {
 						var lmsModel=self.controller.models['lms'];
 						var servername=lmsModel.lmsData.activeServer;
-						
-						if (request.status === 403) { 
+
+						if (request.status === 403) {
 							if (lmsModel.lmsData.ServerData[servername].deactivateFlag==false){
 								turnOnDeactivate();
 								console.log("Error while loading course list from server");
 								showErrorResponses(request);
 							}
 						}
-					
-						if (request.status === 404) { 
+
+						if (request.status === 404) {
 							console.log("Error while loading course list from server");
 							showErrorResponses(request);
 						}
 					localStorage.setItem("pendingCourseList", true);
-					
+
 					},
 					beforeSend : setHeader
 				});
@@ -223,10 +226,10 @@ CourseModel.prototype.loadFromServer = function() {
 			self.syncState = true;
 			self.syncTimeOut = courseObject.syncTimeOut || DEFAULT_SYNC_TIMEOUT;
 			self.storeData();
-			
+
 			console.log("JSON CourseList: " + JSON.stringify(self.courseList));
 			self.reset();
-			
+
 			//if there was any saved sync state then assign it to the sync state of the courses of the course list
 			if (syncStateCache.length > 0) {
                 var c;
@@ -234,10 +237,10 @@ CourseModel.prototype.loadFromServer = function() {
 					self.courseList[c].syncState = syncStateCache[self.courseList[c].id];
 				}
 			}
-			
-			 /**  
+
+			 /**
 			  * It is triggered when the loading of the course list from the server has been finished
-			 * @event courselistupdate 
+			 * @event courselistupdate
 			 **/
 //			$(document).trigger("courselistupdate");
 
@@ -289,7 +292,7 @@ CourseModel.prototype.getTitle = function() {
  * @function getSyncState
  * @return the synchronization state of the current course
  */
- 
+
 CourseModel.prototype.getSyncState = function() {
 //	return (this.index > this.courseList.length - 1) ? false
 //			: this.courseList[this.index].syncState;
@@ -340,7 +343,7 @@ CourseModel.prototype.checkForTimeOut = function() {
  * @function isLoaded
  * @param {Number} courseId, the id of the current course
  * @return {Boolean}, if a course id is passed to the method, it returns true, if the course with
- * 						the specified id is loaded, otherwise false.  If no course id is passed, it returns true, 
+ * 						the specified id is loaded, otherwise false.  If no course id is passed, it returns true,
  * 						if the current course is loaded, otherwise false
  */
 CourseModel.prototype.isLoaded = function(courseId) {
@@ -453,7 +456,7 @@ CourseModel.prototype.getCourseList = function() {
 	var c;
 	var coursesIdList=[];
 	for ( c in this.courseList){
-	coursesIdList[c]=this.courseList[c].id;	
+	coursesIdList[c]=this.courseList[c].id;
 	}
 	console.log("courses id list is"+coursesIdList);
 	return coursesIdList;

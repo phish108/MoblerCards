@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,7 +16,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
@@ -45,12 +45,14 @@ var SUBMODEL_QUERY_FOUR = 4;
 
 /**
  *Global variable that stores the
- *duration of a day in miliseconds. 
- 
+ *duration of a day in miliseconds.
+
  *@property TWENTY_FOUR_HOURS
  *@default 1000 * 60 * 60 * 24
  **/
 var TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
+
+var $ = window.$;
 
 /**
  * @class StatisticsModel
@@ -67,18 +69,20 @@ var TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
  */
 function StatisticsModel(controller) {
     var self = this;
-    var featuredContent_id = FEATURED_CONTENT_ID;
+//    var featuredContent_id = FEATURED_CONTENT_ID;
+    // FIXME Get Rid off the Featured Content Alltogether
+    // var featuredContent_id = -1;
 
     self.controller = controller;
     //initialization of model's variables
-    this.lastSendToServer;
-    this.clickOutOfStatisticsIcon;
-    this.db = openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
+    this.lastSendToServer = 0;
+    this.clickOutOfStatisticsIcon = 0; // FIXME move UI Statements into views
+    this.db = window.openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
     this.currentCourseId = -1;
-    this.firstActiveDay;
-    this.lastActiveDay;
+    this.firstActiveDay = 0;
+    this.lastActiveDay = 0;
     this.checkLocalStorage();
-    this.cardBurner;
+    this.cardBurner = 0;
 
     /**
      * Check if time dependent achievements have been accomplished.
@@ -118,7 +122,7 @@ StatisticsModel.prototype.checkLocalStorage = function () {
  * @function setCurrentCourseId
  */
 StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
-    if (this.currentCourseId != courseId) {
+    if (this.currentCourseId !== courseId) {
         this.currentCourseId = undefined;
 
         // if the course id is one of the free content
@@ -128,7 +132,7 @@ StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
         console.log("course-id: " + courseId);
 
         // uncomment the following line for debugging purposes
-        // this.getAllDBEntries(); 
+        // this.getAllDBEntries();
 
         // WHY IS THE FOLLOWING LINE
         this.controller.models.questionpool.loadData(courseId);
@@ -191,12 +195,12 @@ StatisticsModel.prototype.getFirstActiveDay = function (courseId) {
             // the first time we launch the app
             // we dont get any min day, because we don't have
             // any statistics data.
-            // so we set the current time to be the first active day	
+            // so we set the current time to be the first active day
             else {
                 self.firstActiveDay = (new Date()).getTime();
                 console.log("get a new first active day");
             }
-            //check if there was any activity until one day(=24hours) 
+            //check if there was any activity until one day(=24hours)
             //before  the current time
             self.checkActivity((new Date()).getTime() - TWENTY_FOUR_HOURS, courseId);
         });
@@ -225,11 +229,11 @@ StatisticsModel.prototype.checkActivity = function (day, courseId) {
                     self.lastActiveDay = day;
                     self.calculateValues(courseId);
                 }
-                //if there was no activity in the past 24 hours 
+                //if there was no activity in the past 24 hours
                 //and if the previous day is not the first active day
-                // check the activity of the pre-previous day 
+                // check the activity of the pre-previous day
                 else {
-                    //continue checking the past activity 
+                    //continue checking the past activity
                     //by going each time 24 hours back
                     //until to reach the last active day
                     self.checkActivity(day - TWENTY_FOUR_HOURS, courseId);
@@ -238,11 +242,11 @@ StatisticsModel.prototype.checkActivity = function (day, courseId) {
     }
     //this is executed the first time we launch the app
     //the current day (day= new Date()).getTime() - TWENTY_FOUR_HOURS)
-    //is not more recent than the first active day (day < first active day) 
+    //is not more recent than the first active day (day < first active day)
     else {
         //the last active day is set to be the current active day
         self.lastActiveDay = day;
-        //we proceed and calculate the values 
+        //we proceed and calculate the values
         //for the statistics metrics
         self.calculateValues(courseId);
     }
@@ -385,16 +389,20 @@ StatisticsModel.prototype.dbErrorFunction = function (tx, e) {
 StatisticsModel.prototype.loadFromServer = function () {
     console.log("enter load statistis");
     var self = this;
-    var activeURL = self.controller.getActiveURL();
-    if (self.controller.models.configuration.isLoggedIn()) {
+
+    var activeURL = self.controller.models.lms.getServiceURL("Sensor:XAPI LRS");
+
+    if (activeURL && activeURL.length &&
+        self.controller.models.configuration.isLoggedIn()) {
         $
             .ajax({
-                url: activeURL + '/statistics.php',
+                url: activeURL,
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
                     console.log("success");
 
+                    // FIXME No Global Functions please!
                     turnOffDeactivate();
                     console.log("JSON: " + data);
                     var i, statisticsObject;
@@ -425,7 +433,7 @@ StatisticsModel.prototype.loadFromServer = function () {
                     var lmsModel = self.controller.models.lms;
                     var servername = lmsModel.lmsData.activeServer;
                     if (request.status === 403) {
-                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
+                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag === false) {
                             turnOnDeactivate();
                             console.log("Error while getting statistics data from server: " + errorString);
                             showErrorResponses(request);
@@ -454,29 +462,28 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
     var self = this;
     // console.log("day: " + statisticItem['day']);
 
-    self
-        .queryDB(
-            "SELECT id FROM statistics WHERE day = ?", [statisticItem['day']], function cbSelect(t, r) {
-                checkIfItemExists(t, r);
-            });
-
     function checkIfItemExists(transaction, results) {
         var item = statisticItem;
         if (results.rows.length === 0) {
-            console.log("No entry for day: " + item['day']);
-            query = "INSERT INTO statistics(course_id, question_id, day, score, duration) VALUES (?,?,?,?,?)";
-            values = [item['course_id'],
-              item['question_id'],
-              item['day'],
-              item['score'],
-              item['duration']];
+            console.log("No entry for day: " + item.day);
+            var query = "INSERT INTO statistics(course_id, question_id, day, score, duration) VALUES (?,?,?,?,?)";
+            var values = [item.course_id,
+              item.question_id,
+              item.day,
+              item.score,
+              item.duration];
             self.queryDB(query, values, function cbInsert(transaction,
                 results) {
                 //  console.log("after inserting in insertStatisticsItem "+JSON.stringify(statisticItem));
             });
         }
     }
-
+    self.queryDB(
+        "SELECT id FROM statistics WHERE day = ?",
+        [statisticItem.day],
+        function cbSelect(t, r) {
+            checkIfItemExists(t, r);
+        });
 };
 
 /**Send statistics data to the server after checking firstly if there are any pending statistics data from previous time.
@@ -492,13 +499,15 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
 StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
     console.log("enter sendToServer in statistics model");
     var self = this;
-    var activeURL = self.controller.getActiveURL();
+    var activeURL = self.controller.models.lms.getServiceURL("Sensor:XAPI LRS");
     //if (self.controller.getLoginState()) {
-    if (self.controller.models.configuration.configuration.userAuthenticationKey && 
+    if (activeURL &&
+        activeURL.length &&
+        self.controller.models.configuration.configuration.userAuthenticationKey &&
         self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
         console.log("we enter the get login state in sendToServer");
         //var url = self.controller.models['authentication'].urlToLMS + '/statistics.php';
-        var url = activeURL + '/statistics.php';
+        var url = activeURL;
         var courseList = self.controller.models.course.getCourseList();
         console.log("url statistics: " + url);
         // select all statistics data from the local table "statistics"
@@ -509,9 +518,6 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
         $.each(courseList, function () {
             qm.push("?");
         });
-        self.queryDB('SELECT * FROM statistics where course_id IN (' + qm.join(",") + ')', courseList, function (t, r) {
-            sendStatistics(t, r);
-        });
 
         function sendStatistics(transaction, results) {
             var row,
@@ -521,7 +527,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 sessionkey = "";
             //if there are any statistics data
             //that were not sent last time succesfully
-            //to the server, they are stored in the local object "pendingStatistics" 
+            //to the server, they are stored in the local object "pendingStatistics"
             if (localStorage.getItem("pendingStatistics")) {
                 console.log("there are pending statistics to the server");
                 var pendingStatistics = {};
@@ -548,7 +554,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     // console.log("sending " + i + ": " + JSON.stringify(row));
                 }
                 sessionkey = self.controller.models.configuration.getSessionKey();
-                uuid = device.uuid;
+                uuid = window.device.uuid;
             }
 
             console.log("count statistics=" + statistics.length);
@@ -575,10 +581,10 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     $(document).trigger("statisticssenttoserver");
                 },
                 error: function (request) {
-                    var lmsModel = self.controller.models['lms'];
+                    var lmsModel = self.controller.models.lms;
                     var servername = lmsModel.lmsData.activeServer;
                     if (request.status === 403) {
-                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
+                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag === false) {
                             turnOnDeactivate();
                             console.log("Error while sending statistics data to server");
                             showErrorResponses(request);
@@ -588,7 +594,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     var statisticsToStore = {
                         sessionkey: sessionkey,
                         activeServerUrl: activeURL,
-                        uuid: device.uuid,
+                        uuid: window.device.uuid,
                         statistics: statistics
                     };
                     localStorage.setItem("pendingStatistics", JSON.stringify(statisticsToStore));
@@ -597,10 +603,16 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 },
                 beforeSend: function setHeader(xhr) {
                     xhr.setRequestHeader('sessionkey', sessionkey);
-                    xhr.setRequestHeader('uuid', device.uuid);
+                    xhr.setRequestHeader('uuid', window.device.uuid);
                 }
             });
         }
+
+        self.queryDB('SELECT * FROM statistics where course_id IN (' + qm.join(",") + ')',
+                     courseList,
+                     function (t, r) {
+            sendStatistics(t, r);
+            });
     } // end of isLoginState
 };
 
@@ -619,7 +631,7 @@ StatisticsModel.prototype.getAllDBEntries = function () {
     function dataSelectHandler(transaction, results) {
         var i,
             row;
-        
+
         console.log("ALL ROWS: " + results.rows.length);
         for (i = 0; i < results.rows.length; i++) {
             row = results.rows.item(i);
@@ -636,7 +648,7 @@ StatisticsModel.prototype.getAllDBEntries = function () {
  */
 StatisticsModel.prototype.setClickOutOfStatisticsIcon = function () {
     this.clickOutOfStatisticsIcon = true;
-}
+};
 
 /**
  * Resets the flag variable that tracks if anything has been clicked after the user had clicked the statistics icon.
@@ -646,7 +658,7 @@ StatisticsModel.prototype.setClickOutOfStatisticsIcon = function () {
  */
 StatisticsModel.prototype.resetClickOutOfStatisticsIcon = function () {
     this.clickOutOfStatisticsIcon = false;
-}
+};
 
 /**
  * Checks if any other element of the view has been tapped/clicked
@@ -658,4 +670,4 @@ StatisticsModel.prototype.resetClickOutOfStatisticsIcon = function () {
 StatisticsModel.prototype.checkclickOutOfStatisticsIcon = function () {
     console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
     return this.clickOutOfStatisticsIcon;
-}
+};

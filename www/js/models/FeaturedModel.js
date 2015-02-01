@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Evangelia Mitsopoulou
  */
 
@@ -77,19 +77,19 @@ function FeaturedModel(controller) {
     this.syncTimeOut = DEFAULT_SYNC_TIMEOUT;
     this.queue = [];
 
-    /** 
+    /**
      * It is binded when an online connection is detected
      * @event switchtoonline
      * @param:  a call back function in which the featured(and any pending questions)
      *          are loaded from the server
-     * 
+     *
      */
 
     $(document).bind("online", function () {
         self.switchToOnline();
     });
 
-    //this.loadData(); //we will load data from local storage 
+    //this.loadData(); //we will load data from local storage
     //this.loadFeaturedCourseFromServer();
 
     //var featuredObject = JSON.parse(localStorage.getItem("featuredContent"));
@@ -130,7 +130,7 @@ FeaturedModel.prototype.loadData = function () {
 //    console.log("featured content list in load data is " + JSON.stringify(this.featuredContentList));
     //console.log("featured content id is"+JSON.stringify(this.featuredContentList[0]["id"]));
 //    console.log("featuredCourseId in load data " + this.featuredCourseId);
-    //$(document).trigger("featuredContentlistupdateLocal", this.featuredCourseId);	
+    //$(document).trigger("featuredContentlistupdateLocal", this.featuredCourseId);
     this.isFeaturedContentLocal = true;
 };
 
@@ -164,7 +164,6 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function () {
 //    console.log("loadFromServer-Featured Course is called");
     var self = this;
     var syncStateCache = [];
-    var activeURL = self.controller.getActiveURL();
     self.checkForTimeOut();
 
     // save current syncStates for this featured course
@@ -193,7 +192,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function () {
 
     function setHeader(xhr) {
         // xhr.setRequestHeader('sessionkey', sessionKey);
-        // we don't need to send anything 
+        // we don't need to send anything
     }
 
     function createFeaturedContentList(data) {
@@ -230,7 +229,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function () {
         //			console.log("position of last pointer: "+last);
         //			var list= x.substring(pos+l+2, x.length-2);
         //			console.log("featured questions are "+list);
-        //			
+        //
         self.syncDateTime = (new Date()).getTime();
         self.syncState = true;
         self.syncTimeOut = featuredObject.syncTimeOut || DEFAULT_SYNC_TIMEOUT;
@@ -250,7 +249,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function () {
 
         // 	var featuredCourseString=x.substring(0,pos-2).concat("}]");
         //	console.log("featured course string is"+featuredCourseString);
-        //	self.storeData(featuredCourseString);	
+        //	self.storeData(featuredCourseString);
 
         self.storeData();
         self.reset();
@@ -265,7 +264,7 @@ FeaturedModel.prototype.loadFeaturedCourseFromServer = function () {
             }
         }
 
-        /**  
+        /**
          * It is triggered when the loading of the course list from the server has been finished
          * @event courselistupdate
          **/

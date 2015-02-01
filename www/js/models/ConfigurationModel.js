@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,7 +16,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
@@ -122,7 +122,7 @@ ConfigurationModel.prototype.loadData = function () {
 
     console.log("configObject: " + JSON.stringify(configObject));
 
-    // when the app is launched and before the user logs in there is no local storage 
+    // when the app is launched and before the user logs in there is no local storage
     // in this case there is no configuration object and it is stated in one of its properties
     // that its login status is set to "loggedOut".
     if (!configObject) {
@@ -146,14 +146,17 @@ ConfigurationModel.prototype.loadData = function () {
  */
 ConfigurationModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.controller.getActiveURL();
+    var activeURL = self.controller.models.lms.getServiceURL("Identity:MBC Auth");
 
     //if the user is not authenticated yet
-    if (this.configuration.userAuthenticationKey && this.configuration.userAuthenicationKey !== "") {
+    if (activeURL &&
+        activeURL.length &&
+        this.configuration.userAuthenticationKey &&
+        this.configuration.userAuthenicationKey !== "") {
         // authenticate the user by "GETing" his data/learner information from the server
         $
             .ajax({
-                url: activeURL + '/authentication.php',
+                url: activeURL,
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
@@ -163,7 +166,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
                     console.log("JSON: " + data);
                     var authenticationObject;
                     try {
-                        //the authentication data are successfully received 
+                        //the authentication data are successfully received
                         //its object format is assigned to the authentication object variable
                         authenticationObject = data;
                         console.log("authenticationData from server");
@@ -172,7 +175,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
                         console.log("Error: Couldn't parse JSON for authentication");
                         authenticationObject = {};
                     }
-                    //assign as value to the learner information property of the configuration object 
+                    //assign as value to the learner information property of the configuration object
                     //the user authentication data, which were received from server
                     self.configuration.learnerInformation = authenticationObject.learnerInformation;
                     //store in the local storage the synchronization state
@@ -310,14 +313,14 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server");
     var self = this;
 
-    var activeURL = self.controller.getActiveURL();
-    console.log("url: " + self.urlToLMS + '/authentication.php');
+    var activeURL = self.controller.models.lms.getServiceURL('Identity:MBC Auth');
+    console.log("url: " + activeURL);
     $
         .ajax({
-            url: activeURL + '/authentication.php',
+            url: activeURL,
             type: 'POST',
             dataType: 'json',
-            //if any data are sent back during the authentication 
+            //if any data are sent back during the authentication
             success: function (data) {
                 //if  any data are sent during the authentication but they are wrong and they send back different error messages
                 if (data && data['message']) {
@@ -370,7 +373,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                         self.configuration.userAuthenticationKey);
                     console.log("authentication is ready, statistics can be loaded from the server");
                     //sets the language interface for the authenticated user
-                    //its language preferences were received during the authentication 
+                    //its language preferences were received during the authentication
 
                     self.controller.setupLanguage();
 
@@ -426,7 +429,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
 ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
     console.log("enter send logout to server");
     var sessionKey, self = this;
-    var activeURL = self.controller.getActiveURL();
+    var activeURL = self.controller.models.lms.getServiceURL("Identity:MBC Auth");
     if (userAuthenticationKey) {
         sessionKey = userAuthenticationKey;
     } else {
@@ -435,7 +438,7 @@ ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKe
 
     $
         .ajax({
-            url: activeURL + '/authentication.php',
+            url: activeURL,
             type: 'DELETE',
             dataType: 'json',
             success: function () {
@@ -547,14 +550,16 @@ ConfigurationModel.prototype.getEmailAddress = function () {
  * @return {String} language, the language of the user
  */
 ConfigurationModel.prototype.getLanguage = function () {
-    //return "el"; // JUST for testing
-    if (this.configuration.learnerInformation && this.configuration.learnerInformation.language && this.configuration.learnerInformation.language.length) {
+
+    if (this.configuration.learnerInformation &&
+        this.configuration.learnerInformation.language &&
+        this.configuration.learnerInformation.language.length) {
         return this.configuration.learnerInformation.language;
     }
 
     // if we don't know a user's language we try to use the phone's language.
-    language = navigator.language.split("-");
-    language_root = (language[0]);
+    var language = navigator.language.split("-");
+    var language_root = language[0];
 
     return this.configuration.defaultLanguage ? this.configuration.defaultLanguage : language_root;
 };

@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  *@author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
@@ -38,7 +38,7 @@ under the License.
  */
 function ConnectionModel(controller) {
     var self = this;
-    
+
     this.controller = controller;
     this.checkConnection();
 
@@ -65,7 +65,7 @@ ConnectionModel.prototype.checkConnection = function () {
 
     if (networkState === Connection.NONE) {
         this.state = false;
-    } 
+    }
     else {
         this.state = true;
     }
@@ -80,6 +80,10 @@ ConnectionModel.prototype.isOffline = function () {
     return !this.state;
 };
 
+ConnectionModel.prototype.isOnline = function () {
+    return this.state;
+};
+
 /**
  * when are an internet connection is detected then synchronize data
  * as long as the app is already loaded
@@ -90,10 +94,13 @@ ConnectionModel.prototype.goOnline = function () {
     console.log("**online**");
     this.state = true;
 
-    if (typeof this.controller != "undefined" &&   
+    // send a message to the system
+
+    if (typeof this.controller !== "undefined" &&
         this.controller.appLoaded) {
         this.synchronizeData();
     }
+    $(document).trigger("DEVICE_ONLINE");
 };
 
 
@@ -105,13 +112,13 @@ ConnectionModel.prototype.goOnline = function () {
 ConnectionModel.prototype.goOffline = function () {
     console.log("**offline**");
     var self = this;
-    
+
     this.state = false;
+    // send a better message to the system
+
     $(document).trigger("trackingEventDetected", "offline");
+    $(document).trigger("DEVICE_OFFLINE");
     // show no connection error message in login view
-    if (self.controller.views) {
-        self.controller.views.login.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
-    }
 };
 
 /**
@@ -125,7 +132,7 @@ ConnectionModel.prototype.goOffline = function () {
  */
 ConnectionModel.prototype.synchronizeData = function () {
     if (this.state) {
-        /** 
+        /**
          * It it triggered when the connection state is online
          * Additionally for statistics purposes we trigger the tracking event in order
          * to track the connectivity behavior
@@ -143,7 +150,7 @@ ConnectionModel.prototype.synchronizeData = function () {
 
         //hide no connection error message in login view
 
-        /** 
+        /**
          * It is triggered when an online connection is detected and consequently
          * the error message is hided
          * @event errormessagehide
@@ -216,8 +223,8 @@ ConnectionModel.prototype.synchronizeData = function () {
         if (this.controller &&
             this.controller.models &&
             this.controller.models.statistics) {
-            if (!statisticsModel.lastSendToServer || 
-                statisticsModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) { 
+            if (!statisticsModel.lastSendToServer ||
+                statisticsModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
                 // it was 24*60*60*1000 (check once every day)
 //                console.log("statistics need to be synchronized in connection state model");
                 statisticsModel.sendToServer();
@@ -234,10 +241,10 @@ ConnectionModel.prototype.synchronizeData = function () {
         }
         // if tracking data wasn't sent to the server for more than 24 hours
         // send the data to the server
-        if (this.controller && 
-            this.controller.models 
+        if (this.controller &&
+            this.controller.models
             && this.controller.models.tracking) {
-            if (!trackingModel.lastSendToServer || 
+            if (!trackingModel.lastSendToServer ||
                 trackingModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
                 trackingModel.sendToServer();
             }

@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
@@ -107,11 +107,11 @@ QuestionPoolModel.prototype.loadData = function (course_id) {
  */
 QuestionPoolModel.prototype.loadFromServer = function (courseId) {
     var self = this;
-    var activeURL = self.controller.getActiveURL();
+    var activeURL = self.controller.models.lms.getServiceURL("Content:LMS TestPool");
 
     $
         .ajax({
-            url: activeURL + "/questions.php/" + courseId,
+            url: activeURL + "/" + courseId,
             type: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -134,7 +134,7 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
                     if (questionPoolObject.length > 0) {
                         for (var j = 0; j < questionPoolObject.length; j++) {
                             var question = questionPoolObject[j];
-                            //clear the answertext 
+                            //clear the answertext
                             self.cleanupAnswertext(question, j);
 
                             //clear the question
@@ -143,7 +143,7 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
 
                             question["question"] = self.cleanupHTML(question["question"]);
 
-                            //clear the feedback-more 
+                            //clear the feedback-more
                             question["errorFeedback"] = self.cleanupHTML(question["errorFeedback"]);
                             question["correctFeedback"] = self.cleanupHTML(question["correctFeedback"]);
                         }
@@ -161,7 +161,7 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
 
                     localStorage.setItem("questionpool_" + data.courseID, questionPoolString);
 
-                    /**It is triggered after the successful loading of questions from the server 
+                    /**It is triggered after the successful loading of questions from the server
                      * @event questionpoolready
                      * @param:courseID
                      */
@@ -309,7 +309,7 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
 
         // we clean the correct gap definition as well, just to be safe.
         //NOTE:Ilias automatically correct the p, br and hr tags
-        //it keeps the b,i 
+        //it keeps the b,i
         var gapIndex,
             k;
         for (gapIndex = 0; gapIndex < jQuery(questionobject.answer.correctGaps).size(); gapIndex++) {
@@ -425,14 +425,14 @@ QuestionPoolModel.prototype.nextQuestion = function () {
         newId;
 
     do {
-        // generates a random number between 0 and questionList.length 
+        // generates a random number between 0 and questionList.length
         random = Math.floor((Math.random() * this.questionList.length));
 //        console.log("random:" + random);
         newId = this.questionList[random].id;
 //        console.log("New ID: " + newId);
         //keeps repeating the process of getting the id of the new random question of question list
-        //while the new random id is still the same with id of the current question or if this new random id is still 
-        //stored in the waiting queue 	
+        //while the new random id is still the same with id of the current question or if this new random id is still
+        //stored in the waiting queue
     } while (this.id === newId || (this.queue.length * 2 <= this.questionList.length && jQuery
         .inArray(newId, this.queue) >= 0));
 
