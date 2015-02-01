@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,13 +16,18 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
+ * @author Christian Glahn
  */
+
+// make JSLint happy
+var $ = window.$;
+var jQuery = window.jQuery;
 
 /**
  * @Class LMS View
@@ -38,13 +43,13 @@ under the License.
  */
 function LMSView() {
     var self = this;
-    
+
     this.tagID = this.app.viewId;
     this.active = false;
     this.firstLoad = true;
     this.didApologize = false;
     this.messageShown = false;
-    this.preServername;
+    this.preServername = "";
 
     /**It is triggered when an unregistered lms item is selected and and there is no internet connection
      * @event lmsOffline
@@ -56,15 +61,15 @@ function LMSView() {
         self.showLMSConnectionMessage(jQuery.i18n.prop('msg_lms_connection_message'), servername);
     });
 
-    /**It is triggered when an lms is online and failed to register for any reason. More specifically 
+    /**It is triggered when an lms is online and failed to register for any reason. More specifically
      * it is triggered when no more than 24 hours have been passed from the first failed attempt for registration.
      * @event lmsNotRegistrableYet
      * @param: a callback function that displays a message to the user that the server is not available and the
      * 		   registration cannot take place
      */
     $(document).bind("lmsNotRegistrableYet", function (e, servername) {
-        console.log("previouslms in bind is " + previousLMS);
         var previousLMS = self.app.models.lms.getPreviousServer();
+        console.log("previouslms in bind is " + previousLMS);
         self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername, previousLMS);
     });
 
@@ -74,8 +79,8 @@ function LMSView() {
      *		  registration cannot take place
      */
     $(document).bind("registrationfailed", function (e, servername) {
-        console.log("previous lms in bind 2 is " + previousLMS);
         var previousLMS = self.app.models.lms.getPreviousServer();
+        console.log("previous lms in bind 2 is " + previousLMS);
         self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername, previousLMS);
     });
 
@@ -97,6 +102,19 @@ function LMSView() {
         console.log("server name passed " + servername);
         self.showLoadingIcon(servername);
     });
+
+    function closeAddAndRefresh() {
+         // a new LMS has been successfully added
+        // clear the form an show the placeholder
+        $("#addlmsplaceholder").toggleClass("hidden");
+        $("#addlmsinputbox").toggleClass("hidden");
+        $("#addlmsinput")[0].value = "";
+        this.refresh(); // display the new LMS
+        // hide waiting cycle
+    }
+
+    $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
+    $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
 }
 
 /**
@@ -128,12 +146,16 @@ LMSView.prototype.cleanup = function () {
     console.log("close lms view");
     this.active = false;
     $("#lmsbody").empty();
-    
+
     $("#lmstemporaryregistrationwaitingmessage").remove();
     // this statement comes from the app TranstitionToLogin
     if (this.appLoaded) {
         this.app.changeView("login");
     }
+
+    $("#addlmsplaceholder").removeClass("hidden");
+    $("#addlmsinputbox").addClass("hidden");
+    $("#addlmsinput")[0].value = "";
 };
 
 /**
@@ -144,13 +166,50 @@ LMSView.prototype.cleanup = function () {
 LMSView.prototype.tap = function (event) {
     var id = event.target.id;
     var sn = id.substring(20);
-   
+
     console.log("[LMSView] tap registered: " + id + " " + sn);
-    
+
     if (id === "lmsclose") {
         this.back();
     }
-    else if (id.substring(0,8) === "lmslabel")  { 
+    else if (id.indexOf("addlms") === 0) {
+        if ($("#addlmsinputbox").hasClass("hidden")) {
+            // add a new LMS
+            // TODO if we are offline show a message that "we cannot add new lmses while offline"
+            $("#addlmsplaceholder").toggleClass("hidden");
+            $("#addlmsinputbox").toggleClass("hidden");
+            $("#addlmsinput")[0].value = "";
+            $("#addlmsbutton").removeClass("hidden");
+        }
+        else {
+            // check if we can connect to a new LMS
+            var lmsurl = $("#addlmsinput")[0].value;
+            var turl = lmsurl;
+            turl.replace(/^https?:\/\//i, "");
+
+            if (this.app.models.connection.isOnline() &&
+                lmsurl &&
+                lmsurl.length &&
+                turl &&
+                turl.length > 5) {
+
+                console.log("add a new LMS!");
+                this.app.models.lms.getServerRSD(lmsurl);
+                // display waiting circle
+                $("#addlmsbutton").addClass("hidden");
+                $("#addlmswait").removeClass("hidden");
+            }
+            else {
+                // simply close the form
+                $("#addlmsplaceholder").toggleClass("hidden");
+                $("#addlmsinputbox").toggleClass("hidden");
+                $("#addlmsinput")[0].value = "";
+                $("#addlmsbutton").removeClass("hidden");
+                $("#addlmswait").addClass("hidden")
+            }
+        }
+    }
+    else if (id.indexOf("lmslabel") === 0)  {
         this.clickLMSItem(sn, $(event.target));
         if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
             $("#lmslabel_lmslistbox_" + this.preServername).addClass("gradientSelected");
@@ -171,58 +230,45 @@ LMSView.prototype.tap = function (event) {
 LMSView.prototype.update = function () {
     var lmsObj = this.app.models.lms;
     console.log("[LMSView] refresh");
-    
-    var lmsData = lmsObj.getLMSData(), 
-        i = 0;
 
-    console.log("[LMSView] refresh, lmsData: " + lmsData[i]);
-    if (lmsData && lmsData.length) {
-        for (i = 0; i < lmsData.length; i++) {
-            this.createLMSItem(lmsData[i]);
-        }
-    }
-    else {
-        this.didApologize = true;
-        doApologize();
-    }
+    // console.log("[LMSView] refresh, lmsData: " + lmsData[i]);
+
+    lmsObj.eachLMS(function(entrydata) {
+        this.createLMSItem(entrydata);
+    }, this);
 };
 
 /**
  * creation of the lms list
  * @prototype
  * @function createLMSItem
- * @param {string} lmsData 
+ * @param {string} lmsData
  */
 LMSView.prototype.createLMSItem = function (lmsData) {
-    var self = this;
-    
-    var sn = lmsData.servername;
-    var lmsModel = self.app.models.lms;
+    var sn = lmsData.name;
     var lmstmpl = this.app.templates.getTemplate("lmslistbox");
-    var selectedLMS = this.app.models.lms.getSelectedLMS();
-    
+
     console.log("servername " + sn);
-    console.log("logoLabel " + lmsData.logoLabel);
+    console.log("logoLabel " + lmsData.logofile);
     lmstmpl.attach(sn);
 
-    if (selectedLMS === lmsData.logoLabel) {
+    if (lmsData.selected) {
         lmstmpl.lmslist.addClass("gradientSelected");
     }
     else {
         lmstmpl.lmslist.addClass("gradient2");
         lmstmpl.lmslist.addClass("textShadow");
     }
-    
-    if (lmsModel.isRegistrable(sn)) {
-        lmstmpl.lmswait.addClass("hidden");
-    }
-    else {
+
+    lmstmpl.lmsimg.addClass("hidden");
+    lmstmpl.lmslabel.addClass("lightgrey");
+
+    lmstmpl.lmslabel.text = lmsData.name;
+    lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
+    if (lmsData.inactive) {
         lmstmpl.lmsimg.addClass("hidden");
-        lmstmpl.lmslabel.addClass("lightgrey");
+        lmstmpl.lmswait.removeClass("hidden");
     }
-    
-    lmstmpl.lmslabel.text = lmsData.logoLabel;
-    lmstmpl.lmsimg.setAttribute("src", lmsData.logoImage);
 };
 
 /**
@@ -262,7 +308,7 @@ LMSView.prototype.deactivateLMS = function (servername) {
         $("#lmswait_lmslistbox_" + servername).removeClass("icon-loading loadingRotation hidden");
         $("#lmswait_lmslistbox_" + servername).addClass("icon-cross red");
         $("#lmsimg_lmslistbox_" + servername).addClass("hidden");
-    
+
         $("#lmslabel_lmslistbox_" + servername).addClass("lightgrey");
     }
     else {
@@ -270,7 +316,7 @@ LMSView.prototype.deactivateLMS = function (servername) {
     }
 };
 
-/**when an lms has been temporarily (for one hour) been abanded 
+/**when an lms has been temporarily (for one hour) been abanded
  * from trying to be registered due to an 403 server error.
  * the lms is activated when the one hour has passed.
  * @prototype
@@ -281,7 +327,7 @@ LMSView.prototype.activateLMS = function (servername) {
     if ($("#lmsimg_lmslistbox_" + servername).hasClass("hidden")) {
         $("#lmswait_lmslistbox_" + servername).addClass("hidden");
         $("#lmsimg_lmslistbox_" + servername).removeClass("hidden");
-    
+
         $("#lmslabel_lmslistbox_" + servername).removeClass("lightgrey");
     }
     else {
@@ -318,7 +364,7 @@ LMSView.prototype.toggleIconWait = function (servername) {
         $("#lmswait_lmslistbox_" + servername).addClass("icon-loading loadingRotation");
         $("#lmswait_lmslistbox_" + servername).removeClass("hidden");
         $("#lmsimg_lmslistbox_" + servername).addClass("hidden");
-    } 
+    }
     else {
         self.hideRotation(servername);
     }
@@ -334,12 +380,12 @@ LMSView.prototype.toggleIconWait = function (servername) {
 LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     var self = this;
     var lmsModel = self.app.models.lms;
- 
+
     if (!($("#lmslist_lmslistbox_" + servername).hasClass("gradientSelected"))) {
-        
+
         $("#lmslist_lmslistbox_" + servername).removeClass("gradientSelected");
         $("#lmslist_lmslistbox_" + servername).addClass("gradient2 textShadow");
-                
+
         lmsModel.storePreviousServer();
         this.preServername = lmsModel.getPreviousServer();
         this.selectItemVisuals(servername);
@@ -413,7 +459,7 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
     $("#lmsregistrationmessage" + servername).slideDown(600);
     console.log("lmsregistrationmessage for server" + servername);
 
-    // to display an error message that 
+    // to display an error message that
     // there is a problem with the specific server
     // and we cannot register
     console.log("enter show lms registration message");
@@ -463,7 +509,7 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
         $("#lmstemporaryregistrationwaitingmessage" + servername).slideUp(600);
     }, 2300);
 
-    //to make visually this lms as inactive 
+    //to make visually this lms as inactive
     //and activate the previously selected lms
     setTimeout(function () {
         self.deselectItemVisuals(servername);
@@ -475,9 +521,9 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
     }, 2800);
 
 
-    //	after one hour check if the server is active 
-    //	if yes activated it 
-    //	we need firstly to check if the active view is the lms list view	
+    //	after one hour check if the server is active
+    //	if yes activated it
+    //	we need firstly to check if the active view is the lms list view
     if (self.active) {
         console.log("lms is active, try setTimeOut again");
         setTimeout(function () {
