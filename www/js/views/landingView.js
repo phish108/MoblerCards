@@ -24,6 +24,8 @@ under the License.
  * @author Dijan Helbling
  */
 
+var $ = window.$, jQuery = window.jQuery;
+
 /**
  * @Class LandingView
  * View for displaying the first page that is visible to the user when the app is launched.
@@ -51,7 +53,7 @@ function LandingView() {
     });
 
     //this will be called when a synchronization update takes place
-    $(document).bind("featuredContentlistupdate", function (e, featuredCourseId) {
+    $(document).bind("featuredContentlistupdate", function () {
         self.showForm();
     });
 }
@@ -79,18 +81,23 @@ LandingView.prototype.showForm = function () {
 
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
-    var featuredContentId = FEATURED_CONTENT_ID;
+    var featuredContentId = window.FEATURED_CONTENT_ID;
 
-    console.log("[LandingView] tap registered: " + id);
+    console.log("[LandingView] tap registered: '" + id + "'");
 
-    if (id === "landingfeaturedimage") {
-        this.app.changeView("statistics");
-    } else if (id === "landingfeaturedlabel") {
-        this.app.selectCourseItem(featuredContentId);
-    } else if (id === "landingexclusivelabel") {
-
-        this.app.models.getActiveLMS(function(d) {
-            if (d.hasOwnProperty("id") && d.id.length) {
+    switch(id) {
+        case "landingfeaturedimage":
+            this.app.changeView("statistics");
+            break;
+        case "landingfeaturedlabel":
+            this.app.selectCourseItem(featuredContentId);
+            break;
+        case "landingexclusivelabel":
+            var al;
+            this.app.models.lms.getActiveLMS(function(d) {
+                al = d;
+            });
+            if (al && al.hasOwnProperty("id") && al.id.length) {
                 // we show the login view ONLY if the device has an LMS registered
                 this.app.changeView("login");
             }
@@ -100,7 +107,10 @@ LandingView.prototype.tap = function (event) {
                 // login view
                 this.app.changeView("lms");
             }
-        }, this);
+            break;
+        default:
+            console.log("undefined tap");
+            break;
     }
 };
 
