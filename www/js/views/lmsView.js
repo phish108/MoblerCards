@@ -106,15 +106,7 @@ function LMSView() {
     function closeAddAndRefresh() {
         // a new LMS has been successfully added
         // clear the form an show the placeholder
-        $("#addlmsplaceholder").toggleClass("hidden");
-        $("#addlmsinputbox").toggleClass("hidden");
-        $("#addlmsinput")[0].value = "";
-        $("#addlmsinput")[0].blur();
-
-        if ($("#addlmsbutton").hasClass("hidden")) {
-            $("#addlmsbutton").removeClass("hidden");
-            $("#addlmswait").addClass("hidden");
-        }
+        self.closeAddForm();
         self.refresh(); // display the new LMS
         // hide waiting cycle
     }
@@ -127,6 +119,8 @@ function LMSView() {
         ev.preventDefault(); // prevent reloading before we can have bugs
         console.log("form submit");
         var lmsurl = $("#addlmsinput")[0].value;
+        $("#addlmsinput")[0].blur();
+
         var turl = lmsurl;
         turl.replace(/^https?:\/\//i, "");
 
@@ -144,20 +138,22 @@ function LMSView() {
         }
         else {
             // simply close the form
-            console.log("LMSView.closeAddForm");
+            console.log("LMSView.closeAddForm " + lmsurl + " :: "+ turl);
             self.closeAddForm();
         }
     });
-
-    function cbCloseForm() {
-        self.closeAddForm();
-    }
-
-
 }
 
 LMSView.prototype.closeAddForm = function () {
+    $("#addlmsplaceholder").toggleClass("hidden");
+    $("#addlmsinputbox").toggleClass("hidden");
+    $("#addlmsinput")[0].value = "";
+    $("#addlmsinput")[0].blur();
 
+    if ($("#addlmsbutton").hasClass("hidden")) {
+        $("#addlmsbutton").removeClass("hidden");
+        $("#addlmswait").addClass("hidden");
+    }
 };
 
 /**
@@ -208,7 +204,7 @@ LMSView.prototype.cleanup = function () {
  **/
 LMSView.prototype.tap = function (event) {
     var id = event.target.id;
-    var sn = id.substring(20);
+    var sn = id.split("_").pop();
 
     console.log("[LMSView] tap registered: " + id + " " + sn);
 
@@ -295,7 +291,8 @@ LMSView.prototype.createLMSItem = function (lmsData) {
 
     console.log("servername " + sn);
     console.log("logoLabel " + lmsData.logofile);
-    lmstmpl.attach(sn);
+    console.log(JSON.stringify(lmsData));
+    lmstmpl.attach(lmsData.id);
 
     if (lmsData.selected) {
         lmstmpl.lmslist.addClass("gradientSelected");
@@ -310,7 +307,7 @@ LMSView.prototype.createLMSItem = function (lmsData) {
 
     lmstmpl.lmslabel.text = lmsData.name;
     lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
-    if (lmsData.inactive) {
+    if (lmsData.inactive === 1) {
         lmstmpl.lmsimg.addClass("hidden");
         lmstmpl.lmswait.removeClass("hidden");
     }
@@ -431,11 +428,12 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
         $("#lmslist_lmslistbox_" + servername).removeClass("gradientSelected");
         $("#lmslist_lmslistbox_" + servername).addClass("gradient2 textShadow");
 
-        lmsModel.storePreviousServer();
-        this.preServername = lmsModel.getPreviousServer();
-        this.selectItemVisuals(servername);
-        this.deselectItemVisuals(this.preServername);
-        lmsModel.setActiveServer(servername);
+//        lmsModel.storePreviousServer();
+//        this.preServername = lmsModel.getPreviousServer();
+//        this.selectItemVisuals(servername);
+//        this.deselectItemVisuals(this.preServername);
+        console.log("activate " + servername);
+        lmsModel.setActiveLMS(servername);
     }
 };
 

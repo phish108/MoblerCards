@@ -184,26 +184,55 @@
      * fetches the device key from the LMS' Auth service.
      */
     function registerDevice(serverRSD) {
+        var APP_ID = "MoblerCardsApp:Version:3.0";
+
+        function setHeaders(xhr) {
+            xhr.setRequestHeader('AppID', APP_ID);
+            xhr.setRequestHeader('UUID', w.device.uuid);
+        }
+
         function registerOK(data) {
-            serverRSD.keys.device = data.key;
+            console.log("device registration succeeded");
+            serverRSD.keys.device = data.ClientKey;
             storeData();
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerFail() {
+            console.log("device registration failed");
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
 
-        var authurl = getServiceURL(serverRSD, "Identity:MBC Auth");
-
+        console.log("try to register the app to the LMS");
+        // first check if the proper OAuth API is present
+        var authurl = getServiceURL(serverRSD, "Identity:OAuth");
         if (authurl && authurl.length) {
-            $.ajax({
-                "url": authurl + "/device",
-                "type": "PUT",
-                "data": JSON.stringify({"uuid": w.device.uuid}),
-                "success": registerOK,
-                "error": registerFail
-            });
+            console.log("try to register using the OAuth Scheme");
+            authurl = authurl + "/device";
+            if (authurl && authurl.length) {
+                $.ajax({
+                    "url": authurl,
+                    "type": "PUT",
+                    "data": JSON.stringify({"uuid": w.device.uuid}),
+                    "contentType": "application/json",
+                    "success": registerOK,
+                    "error": registerFail
+                });
+            }
+        }
+        else {
+            // if there is no OAuth try to use our own poor mans OAuth
+            authurl = getServiceURL(serverRSD, "Identity:MBC Register");
+            if (authurl && authurl.length) {
+                console.log("try to register using the Mobler Scheme");
+                $.ajax({
+                    "url": authurl,
+                    "type": "GET",
+                    "success": registerOK,
+                    "error": registerFail,
+                    "beforeSend": setHeaders
+                });
+            }
         }
     }
 
@@ -214,9 +243,11 @@
      *
      * If the RSD is valid, this method generates a new serverid and stores the
      * RSD data persistently into the LMS data
+     *
+     * FIXME: uncomment the proper RSD validation.
      */
     function validateRSD(rsddata) {
-        var apisfound = 0, eurl;
+        var apisfound = 0; //, eurl;
         console.log("validate RSD file");
 
         function storeRSD() {
@@ -243,6 +274,7 @@
             }
         }
 
+        /**
         function failCheck(req) {
             if (req.status > 0 &&
                 req.status !== 404) {
@@ -261,6 +293,7 @@
                 $(document).trigger("LMS_UNAVAILABLE");
             }
         }
+        */
 
         if (rsddata &&
             rsddata.hasOwnProperty("apis") &&
@@ -269,13 +302,14 @@
             rsddata.engine.link &&
             rsddata.engine.link.length
            ) {
-            eurl = rsddata.engine.link;
+            // eurl = rsddata.engine.link;
 
             console.log('rsd looks good check if the APIs exist');
 
             rsddata.apis.forEach(function (api) {
                 switch (api.name) {
                     case "Sensor:XAPI LRS":
+                    case "Sensor:MBC LRS":
                     case "Identity:MBC Auth":
                     case "Content:LMS TestPool":
                     case "Content:LMS Course":
@@ -283,16 +317,28 @@
 
                         // NOTE the "about" API MUST be present with all services
                         // without authentication
-                        $.ajax({
-                            "url":eurl + api.link + "/about",
-                            "success": storeRSD,
-                            "error": failCheck
-                        });
+
+                        // TODO: test the actual presence of the API
+                        // This has to remain commented for the time being due to the
+                        // bad code in the backend.
+//                        $.ajax({
+//                            "url":eurl + api.link + "/about",
+//                            "success": storeRSD,
+//                            "error": failCheck
+//                        });
+
+                        // fake validation
+                        storeRSD();
                         break;
                     default:
                         break;
                 }
             });
+            if (apisfound < 4) {
+                // not all apis are present
+                // FIXME: checking for the API Count is error prone
+                $(document).trigger("LMS_UNAVAILABLE");
+            }
         }
     }
 
@@ -396,7 +442,11 @@
         }
 
         // first check whether the URL is already registeed
-        if (!this.findServerByURL(serverURL)) {
+        if (this.findServerByURL(serverURL)) {
+            // nothing has to be done the LMS is already available
+            $(document).trigger("LMS_AVAILABLE");
+        }
+        else {
             // check for a trailing slash
             if (serverURL.search(/\/$/) === -1) {
                 // add a slash
@@ -411,10 +461,6 @@
                 "success": validateRSD,
                 "error": rsdCheckAgain
             });
-        }
-        else {
-            // nothing has to be done the LMS is already available
-            $(document).trigger("LMS_AVAILABLE");
         }
     };
 
@@ -450,13 +496,16 @@
                     storeData();
                 }
             }
-            var isActive = this.activeLMS.id === lmsid ? 1 : 0;
+            var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+
+            console.log('server is inaccessible? ' + rsd.inaccessible);
 
             cbFunc.call(bind, {"id": rsd.id,
                                "name": rsd.name,
                                "logofile": rsd.logolink,
-                               "inactive": (rsd.inaccessible > 0),
-                               "selected": isActive});
+                               "inactive": ((rsd.inaccessible &&
+                                            rsd.inaccessible > 0) ? 1 : 0),
+                               "selected": isSelected});
         });
     };
 
@@ -486,11 +535,13 @@
                     storeData();
                 }
             }
+            console.log('server is inaccessible? ' + rsd.inaccessible);
 
             cbFunc.call(bind, {"id": rsd.id,
                                "name": rsd.name,
                                "logofile": rsd.logolink,
-                               "inactive": (rsd.inaccessible > 0 ? 1 : 0),
+                               "inactive": ((rsd.inaccessible &&
+                                            rsd.inaccessible > 0) ? 1 : 0),
                                "selected": 1});
         }
     };
@@ -507,6 +558,7 @@
         this.previousLMS = this.activeLMS;
         var tmpLMS = lmsData[serverid];
         if (tmpLMS) {
+            console.log("activate LMS " + JSON.stringify(tmpLMS));
             this.activeLMS = tmpLMS;
             lmsData.activeServer = serverid;
             storeData();
