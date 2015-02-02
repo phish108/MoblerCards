@@ -119,7 +119,7 @@
     var lmsData = {};
 
     /**
-     * @function loadData()
+     * @private @function loadData()
      *
      * Loads the data from the local storage (key = "configuration") therefore the
      * string is converted into a json object
@@ -140,10 +140,10 @@
     }
 
     /**
+     * @private @function storeData
+     *
      * Stores the data into the local storage (key = "urlsToLMS") therefore the
      * json object is converted into a string
-     * @prototype
-     * @function storeData
      */
     function storeData() {
         try {
@@ -156,6 +156,15 @@
         }
     }
 
+    /**
+     * @private @function getServiceURL(rsd, serviceName)
+     * @param {Object} rsd - the service's RSD data object
+     * @param {String} serviceName - the name of the service
+     *
+     * getServiceURL() creates a fully qualified URL to the requested service API.
+     * This allows Models to request their APIs without considering any server side
+     * organisation or setup.
+     */
     function getServiceURL(rsd, serviceName) {
         var url = "";
         if (rsd && serviceName && serviceName.length) {
@@ -168,6 +177,12 @@
         return url;
     }
 
+    /**
+     * @private @function registerDevice(rsd)
+     * @param {Object} rsd - the service's RSD data object
+     *
+     * fetches the device key from the LMS' Auth service.
+     */
     function registerDevice(serverRSD) {
         function registerOK(data) {
             serverRSD.keys.device = data.key;
