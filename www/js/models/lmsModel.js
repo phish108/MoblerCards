@@ -386,6 +386,10 @@
                 "error": rsdCheckAgain
             });
         }
+        else {
+            // nothing has to be done the LMS is already available
+            $(document).trigger("LMS_AVAILABLE");
+        }
     };
 
     /**
@@ -445,7 +449,18 @@
         }
 
         if (this.activeLMS) {
-            var rsd = this.activeLMS;
+            var rsd = this.activeLMS,
+                ts = (new Date()).getTime();
+
+            // remove the inaccessible flag after some time.
+             if (rsd.inaccessible > 0) {
+                var delta = ts - rsd.inaccessible;
+                if (delta > 3600000) { // wait for one hour
+                    delete rsd.inaccessible;
+                    storeData();
+                }
+            }
+
             cbFunc.call(bind, {"id": rsd.id,
                                "name": rsd.name,
                                "logofile": rsd.logolink,
@@ -475,6 +490,7 @@
                 $(document).trigger("LMS_DEVICE_READY");
             }
             else {
+                // register the device in a second stage
                 registerDevice(tmpLMS);
             }
         }
