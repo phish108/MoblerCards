@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, todo: true, browser: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -104,18 +104,61 @@ function LMSView() {
     });
 
     function closeAddAndRefresh() {
-         // a new LMS has been successfully added
+        // a new LMS has been successfully added
         // clear the form an show the placeholder
         $("#addlmsplaceholder").toggleClass("hidden");
         $("#addlmsinputbox").toggleClass("hidden");
         $("#addlmsinput")[0].value = "";
-        this.refresh(); // display the new LMS
+        $("#addlmsinput")[0].blur();
+
+        if ($("#addlmsbutton").hasClass("hidden")) {
+            $("#addlmsbutton").removeClass("hidden");
+            $("#addlmswait").addClass("hidden");
+        }
+        self.refresh(); // display the new LMS
         // hide waiting cycle
     }
 
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
+
+
+    $("#addlmsform").bind("submit", function (ev) {
+        ev.preventDefault(); // prevent reloading before we can have bugs
+        console.log("form submit");
+        var lmsurl = $("#addlmsinput")[0].value;
+        var turl = lmsurl;
+        turl.replace(/^https?:\/\//i, "");
+
+        if (self.app.models.connection.isOnline() &&
+            lmsurl &&
+            lmsurl.length &&
+            turl &&
+            turl.length > 5) {
+
+            console.log("add a new LMS!");
+            self.app.models.lms.getServerRSD(lmsurl);
+            // display waiting circle
+            $("#addlmsbutton").addClass("hidden");
+            $("#addlmswait").removeClass("hidden");
+        }
+        else {
+            // simply close the form
+            console.log("LMSView.closeAddForm");
+            self.closeAddForm();
+        }
+    });
+
+    function cbCloseForm() {
+        self.closeAddForm();
+    }
+
+
 }
+
+LMSView.prototype.closeAddForm = function () {
+
+};
 
 /**
  * opens the view,
@@ -179,6 +222,7 @@ LMSView.prototype.tap = function (event) {
             $("#addlmsplaceholder").toggleClass("hidden");
             $("#addlmsinputbox").toggleClass("hidden");
             $("#addlmsinput")[0].value = "";
+            $("#addlmsinput")[0].blur();
             $("#addlmsbutton").removeClass("hidden");
         }
         else {
@@ -204,8 +248,9 @@ LMSView.prototype.tap = function (event) {
                 $("#addlmsplaceholder").toggleClass("hidden");
                 $("#addlmsinputbox").toggleClass("hidden");
                 $("#addlmsinput")[0].value = "";
+                $("#addlmsinput")[0].blur();
                 $("#addlmsbutton").removeClass("hidden");
-                $("#addlmswait").addClass("hidden")
+                $("#addlmswait").addClass("hidden");
             }
         }
     }
@@ -472,7 +517,6 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
         //self.hideRotation(servername);
         self.deselectItemVisuals(servername);
         self.deactivateLMS(servername);
-        console.log("previouslms is " + previouslms);
         // activate the previsous LMS before changing the visuals
         var previouslms = this.app.models.lms.getPreviousServer();
         self.app.models.lms.setActiveServer(previouslms);

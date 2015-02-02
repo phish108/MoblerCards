@@ -369,14 +369,20 @@
          * This method checks whether there is a dynamic version of the rsd.json
          * (we expect a php script for Ilias and Moodle)
          */
-        function rsdCheckAgain() {
-            console.log("check for dynamic rsd file");
-            $.ajax({
-                "url": serverURL + ".php",
-                "dataType": "json",
-                "success": validateRSD,
-                "error": rsdFail
-            });
+        function rsdCheckAgain(xhr) {
+            if (xhr.status > 0) {
+                console.log("check for dynamic rsd file ");
+                $.ajax({
+                    "url": serverURL + ".php",
+                    "dataType": "json",
+                    "success": validateRSD,
+                    "error": rsdFail
+                });
+            }
+            else {
+                // in this case we could not reach the target host
+                rsdFail();
+            }
         }
 
         serverURL.trim(); // remove whitespaces
@@ -391,6 +397,11 @@
 
         // first check whether the URL is already registeed
         if (!this.findServerByURL(serverURL)) {
+            // check for a trailing slash
+            if (serverURL.search(/\/$/) === -1) {
+                // add a slash
+                serverURL = serverURL + "/";
+            }
             // add the rsd.json to the URL
             serverURL = serverURL + "rsd";
 
