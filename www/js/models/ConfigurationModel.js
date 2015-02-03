@@ -30,7 +30,9 @@ under the License.
  *@default ch.ethz.isn.learningcards
  **/
 
-var APP_ID = "ch.ethz.isn.learningcards";
+//var APP_ID = "ch.ethz.isn.learningcards";
+//var APP_ID = "io.mobinaut.mobler";
+var APP_ID = "MoblerCardsApp:Version:3.0";
 
 /**
  * @class ConfigurationModel
@@ -310,7 +312,7 @@ ConfigurationModel.prototype.logout = function (featuredContent_id) {
  * @function sendAuthToServer
  */
 ConfigurationModel.prototype.sendAuthToServer = function (authData) {
-    console.log("enter send Auth to server");
+    console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
     var activeURL = self.controller.models.lms.getServiceURL('Identity:MBC Auth');
