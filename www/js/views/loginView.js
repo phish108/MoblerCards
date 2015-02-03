@@ -39,9 +39,46 @@ var $ = window.$, jQuery = window.jQuery;
 
 function LoginView() {
     var self = this;
-    this.tagID = this.app.viewId;
+    this.tagID = this.app.viewId; // obsolete
     this.active = false;
     this.fixedRemoved = false;
+
+    function cbLoginSuccess() {
+        if (self.active) {
+            console.log("is logIn");
+            $(document).trigger("trackingEventDetected", ["Login"]);
+            if (self.app.getLoginState()) {
+                self.app.changeView("course");
+            } else {
+                self.app.changeView("landing");
+            }
+        }
+    }
+
+    function cbLoginFailure(e, errormessage) {
+        console.log("authentication failed, reason: " + errormessage);
+        switch (errormessage) {
+        case "connectionerror":
+            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
+            break;
+        case "nouser":
+            console.log("no user error");
+            self.showErrorMessage(jQuery.i18n.prop('msg_authenticationFail_message'));
+            break;
+        case "invalidclientkey":
+            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
+            break;
+        default:
+            console.log("unknown error");
+            break;
+        }
+    }
+
+    function cbLoginTemporaryFailure(servername) {
+        console.log("enter cbLogin tempoerary failure");
+        console.log("will show the deactivate message");
+        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'));
+    }
 
     /**
      * It is triggered when an online connection is detected.
@@ -60,6 +97,11 @@ function LoginView() {
     $(document).bind("DEVICE_OFFLINE", function () {
         self.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
     });
+
+    $(document).bind("authenticationready", cbLoginSuccess);
+    $(document).bind("authenticationfailed", cbLoginFailure);
+    $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
+
 }
 
 /**
@@ -133,7 +175,6 @@ LoginView.prototype.tap = function (event) {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
 
-        this.storeSelectedLMS();
         this.app.changeView("lms");
     }
 };
@@ -148,51 +189,11 @@ LoginView.prototype.tap = function (event) {
 LoginView.prototype.clickLoginButton = function () {
     var self = this;
 
-    function cbLoginSuccess() {
-        if (self.active) {
-            console.log("is logIn");
-            $(document).trigger("trackingEventDetected", ["Login"]);
-            if (self.app.getLoginState()) {
-                self.app.changeView("course");
-            } else {
-                self.app.changeView("landing");
-            }
-        }
-    }
-
-    function cbLoginFailure(e, errormessage) {
-        console.log("authentication failed, reason: " + errormessage);
-        switch (errormessage) {
-        case "connectionerror":
-            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
-            break;
-        case "nouser":
-            console.log("no user error");
-            self.showErrorMessage(jQuery.i18n.prop('msg_authenticationFail_message'));
-            break;
-        case "invalidclientkey":
-            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
-            break;
-        default:
-            console.log("unknown error");
-            break;
-        }
-    }
-
-    function cbLoginTemporaryFailure(servername) {
-        console.log("enter cbLogin tempoerary failure");
-        console.log("will show the deactivate message");
-        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'));
-    }
 
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
         if (!self.app.models.connection.isOffline()) {
             console.log("has logIn data");
-
-            $(document).bind("authenticationready", cbLoginSuccess);
-            $(document).bind("authenticationfailed", cbLoginFailure);
-            $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
 
             self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
             this.app.models.configuration.login($("#usernameInput").val(), $("#password").val());
@@ -204,13 +205,6 @@ LoginView.prototype.clickLoginButton = function () {
         self.showErrorMessage(jQuery.i18n.prop('msg_authentication_message'));
     }
 };
-
-/**
- * displays the login form
- * @prototype
- * @function showForm
- */
-LoginView.prototype.showForm = function () {};
 
 /**
  * shows the specified error message
@@ -279,19 +273,6 @@ LoginView.prototype.hideDeactivateMessage = function () {
     $("#deactivatemessage").text("");
     $("#deactivatemessage").hide();
     console.log("hided deactivate message");
-};
-
-/**
- * storing the selected LMS  in an array
- * @prototype
- * @function storeSelectedLMS
- *
- * The active LMS is defined by the model not the login view
- * */
-LoginView.prototype.storeSelectedLMS = function () {
-    //var selectedLMS = $("#loginlmslabel").text();
-    // console.log("stored selected lms is" + JSON.stringify(selectedLMS));
-    // this.app.models.lms.setSelectedLMS(selectedLMS);
 };
 
 /**

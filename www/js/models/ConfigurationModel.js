@@ -338,7 +338,8 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                          * @event authenticationfailed
                          * @event invalidclientkey
                          */
-                        $(document).trigger("authenticationfailed", "invalidclientkey");
+                        $(document).trigger("authenticationfailed",
+                                            "invalidclientkey");
                         break;
                         //2. second error message is that the user name or password were wrong
                     case "wrong user data":
@@ -349,7 +350,8 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                          * @event authenticationfailed
                          * @event nouser
                          */
-                        $(document).trigger("authenticationfailed", "nouser");
+                        $(document).trigger("authenticationfailed",
+                                            "nouser");
                         break;
                     default:
                         break;
