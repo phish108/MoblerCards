@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -32,16 +32,11 @@ under the License.
  * the user is trying to authenticate,depending on the problem
  * fox example: lost of internet connectivity, wrong user name etc.
  * In the bottom part of the view are displayed the logos of the organisation
- *  @constructor
- *  - it sets the tag ID for the login view
- *  - assigns various event handlers when taping on the elements of the
- *    login form such as username, password, login button
- *  - it binds synhronization events such as the sending of statistics to the server,
- *    the update of courses and questions. It prevents the display of the appropriate
- *    views that are also binded with the aforementioned events by displaying the
- *    login form itself.
- *  @param {String} controller
+ *
+ * FIXME click event must not select the password input
  **/
+var $ = window.$, jQuery = window.jQuery;
+
 function LoginView() {
     var self = this;
     this.tagID = this.app.viewId;
@@ -82,6 +77,7 @@ LoginView.prototype.prepare = function () {
     this.hideDeactivateMessage();
     $("#selectLMS").removeClass("gradientSelected");
     this.active = true;
+    this.app.models.lms.registerDevice();
     this.app.models.featured.loadFeaturedCourseFromServer();
 };
 
@@ -94,7 +90,7 @@ LoginView.prototype.update = function () {
     $("#loginimg").attr("src", activeLMS.logofile);
 
     // TODO: TRANSFORM STRING TO i18n.prop
-    $("#loginlmslabel").text(activeLMS.name || "select an LMS");
+    $("#loginlmslabel").text(activeLMS.name);
 
     this.hideErrorMessage();
     this.hideDeactivateMessage();
@@ -150,7 +146,6 @@ LoginView.prototype.tap = function (event) {
  * @function clickLoginButton
  */
 LoginView.prototype.clickLoginButton = function () {
-    var user, password;
     var self = this;
 
     function cbLoginSuccess() {
@@ -187,7 +182,7 @@ LoginView.prototype.clickLoginButton = function () {
     function cbLoginTemporaryFailure(servername) {
         console.log("enter cbLogin tempoerary failure");
         console.log("will show the deactivate message");
-        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'))
+        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'));
     }
 
     console.log("check logIn data");
@@ -215,9 +210,7 @@ LoginView.prototype.clickLoginButton = function () {
  * @prototype
  * @function showForm
  */
-LoginView.prototype.showForm = function () {
-
-};
+LoginView.prototype.showForm = function () {};
 
 /**
  * shows the specified error message
@@ -309,7 +302,5 @@ LoginView.prototype.storeSelectedLMS = function () {
  * */
 LoginView.prototype.clickCloseLoginButton = function () {
     //set the active server to be the previous server
-    var lmsModel = this.app.models.lms;
-
     this.app.changeView("landing");
 };
