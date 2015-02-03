@@ -22,7 +22,10 @@ under the License.
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Christian Glahn
  */
+
+var $ = window.$, jQuery = window.jQuery;
 
 /**
  *A global property/variable that hosts the bundle id of the application
@@ -52,7 +55,6 @@ function ConfigurationModel(controller) {
     var self = this;
 
     this.controller = controller;
-    var featuredContent_id = FEATURED_CONTENT_ID;
     //initialization of model's variables
     this.configuration = {};
     this.urlToLMS = "";
@@ -164,7 +166,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
                 success: function (data) {
                     console.log("success");
                     console.log("in success before turining off deactivate");
-                    turnOffDeactivate();
+                    window.turnOffDeactivate(); // FROM common.js
                     console.log("JSON: " + data);
                     var authenticationObject;
                     try {
@@ -202,13 +204,10 @@ ConfigurationModel.prototype.loadFromServer = function () {
                 // the receive of authenticated data was failed
                 error: function (request) {
                     var lmsModel = self.controller.models.lms;
-                    var servername = lmsModel.lmsData.activeServer;
                     if (request.status === 403) {
-                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
-                            turnOnDeactivate();
-                            showErrorResponses(request);
-                            console.log("Error while authentication to server");
-                        }
+                        lmsModel.setInactiveFlag();
+                        window.showErrorResponses(request); // from common.js
+                        console.log("Error while authentication to server");
                         $(document).trigger("authenticationTemporaryfailed");
                     }
                     if (request.status === 404) {
@@ -218,7 +217,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
                          * the authenticationfailed event is triggered
                          * @event authenticationfailed
                          */
-                        showErrorResponses(request);
+                        window.showErrorResponses(request); // from common.js
                         $(document).trigger("authenticationfailed");
                     }
                 },
@@ -226,7 +225,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
                 // before the autentication takes plae and in order it to be validated or not
                 beforeSend: function setHeader(xhr) {
                     xhr.setRequestHeader('sessionkey',
-                        self.configuration.userAuthenticationKey);
+                                         self.configuration.userAuthenticationKey);
                 }
 
             });
@@ -245,14 +244,15 @@ ConfigurationModel.prototype.loadFromServer = function () {
  */
 ConfigurationModel.prototype.login = function (username, password) {
     var self = this;
+    var passwordHash, challenge;
     console.log("client key: " + self.controller.getActiveClientKey());
     //remove leading and trailing white spaces
     username = username.trim();
     //password is encrypted by an MD5 hash
-    passwordHash = faultylabs.MD5(password);
+    passwordHash = window.faultylabs.MD5(password);
     console.log("md5 password: " + passwordHash);
     //challenge is computed by applying an MD5 faulty labs function on username and hashed password
-    challenge = faultylabs.MD5(username + passwordHash.toUpperCase() + self.controller.getActiveClientKey());
+    challenge = window.faultylabs.MD5(username + passwordHash.toUpperCase() + self.controller.getActiveClientKey());
 
 
     var auth = {
@@ -279,16 +279,16 @@ ConfigurationModel.prototype.logout = function (featuredContent_id) {
     console.log("configuration login state in logout is " + this.configuration.loginState);
     this.controller.models.statistic.sendToServer(featuredContent_id);
 
-    var self = this;
-
     // remove all question pools and all pending question pool requests
     var c, courseList = this.controller.models.course.courseList;
     if (courseList) {
         for (c in courseList) {
-            console.log("clear local question pools");
-            if (courseList[c].id !== featuredContent_id) {
-                localStorage.removeItem("questionpool_" + courseList[c].id);
-                localStorage.removeItem("pendingQuestionPool_" + courseList[c].id);
+            if (courseList.hasOwnProperty(c)) {
+                console.log("clear local question pools");
+                if (courseList[c].id !== featuredContent_id) {
+                    localStorage.removeItem("questionpool_" + courseList[c].id);
+                    localStorage.removeItem("pendingQuestionPool_" + courseList[c].id);
+                }
             }
         }
     }
@@ -325,13 +325,13 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
             //if any data are sent back during the authentication
             success: function (data) {
                 //if  any data are sent during the authentication but they are wrong and they send back different error messages
-                if (data && data['message']) {
-                    switch (data['message']) {
+                if (data && data.message) {
+                    switch (data.message) {
                         //1. first error message is that the client key is invalid
                     case "invalid client key":
-                        console.log("invalid client key - reregister")
+                        console.log("invalid client key - reregister");
                         //if the client key is invalide, register in order to get a new one
-                        self.controller.models['lms'].register();
+                        self.controller.models.lms.register();
                         /**
                          * The authentication fails if no valid client key is received. An event is triggered
                          * in order notify about the failure and the reason of failure (invalid key)
@@ -342,7 +342,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                         break;
                         //2. second error message is that the user name or password were wrong
                     case "wrong user data":
-                        console.log("Wrong username or password!")
+                        console.log("Wrong username or password!");
                         /**
                          * The authentication fails if wrong user name or password are received. An event is triggered
                          * in order notify about the failure and the reason of failure (wrong data)
@@ -364,7 +364,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                     self.configuration.loginState = "loggedIn";
                     self.storeData();
 
-                    turnOffDeactivate();
+                    window.turnOffDeactivate();// from common.js
                     /**
                      * When all authentication data are received and stored in the local storage
                      * the authenticationready event is triggered
@@ -380,7 +380,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                     self.controller.setupLanguage();
 
                     //get statistics data from server
-                    self.controller.models['statistics'].loadFromServer();
+                    self.controller.models.statistics.loadFromServer();
                 } else {
                     //no error messages from the server and no userauthentication(session) key received
                     console.log("no error message from server and no session key received");
@@ -388,16 +388,12 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                 }
             },
             //the authentication to the server failed because of unknown reason
-            error: function (request, textStatus, errorThrown) {
+            error: function (request) {
 
                 if (request.status === 403) {
-                    var lmsModel = self.controller.models.lms;
-                    var servername = lmsModel.lmsData.activeServer;
-                    if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
-                        turnOnDeactivate();
-                        showErrorResponses(request);
-                        console.log("Error while authentication to server");
-                    }
+                    window.turnOnDeactivate(); //from common.js
+                    window.showErrorResponses(request); //from common.js
+                    console.log("Error while authentication to server");
                     $(document).trigger("authenticationTemporaryfailed");
                 } else {
                     console.log("Error while authentication to server: status:" + request.status + ", " + request.responseText);
@@ -412,7 +408,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
             },
             //the authentication data (uuid, appid, username, challenge) are sent to the server via headers
             beforeSend: function setHeader(xhr) {
-                xhr.setRequestHeader('uuid', device.uuid);
+                xhr.setRequestHeader('uuid', window.device.uuid);
                 xhr.setRequestHeader('appid', APP_ID);
                 xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
             }
@@ -445,16 +441,13 @@ ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKe
             dataType: 'json',
             success: function () {
                 console.log("success in logging out");
-                turnOffDeactivate();
+                window.turnOffDeactivate(); // from common.js
             },
             error: function (request) {
-                var lmsModel = self.controller.models.lms;
-                var servername = lmsModel.lmsData.activeServer;
+
                 if (request.status === 403) {
-                    if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
-                        turnOnDeactivate();
-                        console.log("Error while logging out from server");
-                    }
+                    window.turnOnDeactivate(); // from common.js
+                    console.log("Error while logging out from server");
                 }
 
                 //adding in the local storage the session key of the pending
@@ -563,7 +556,7 @@ ConfigurationModel.prototype.getLanguage = function () {
     var language = navigator.language.split("-");
     var language_root = language[0];
 
-    return this.configuration.defaultLanguage ? this.configuration.defaultLanguage : language_root;
+    return this.configuration.defaultLanguage || language_root;
 };
 
 /**
