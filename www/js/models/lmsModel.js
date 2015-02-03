@@ -192,14 +192,12 @@
         }
 
         function registerOK(data) {
-            console.log("device registration succeeded");
             serverRSD.keys.device = data.ClientKey;
             storeData();
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerFail() {
-            console.log("device registration failed");
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
 
@@ -214,6 +212,7 @@
                     "url": authurl,
                     "type": "PUT",
                     "data": JSON.stringify({"uuid": w.device.uuid}),
+                    "dataType": "json",
                     "contentType": "application/json",
                     "success": registerOK,
                     "error": registerFail
@@ -228,6 +227,7 @@
                 $.ajax({
                     "url": authurl,
                     "type": "GET",
+                    "dataType": "json",
                     "success": registerOK,
                     "error": registerFail,
                     "beforeSend": setHeaders
@@ -388,9 +388,20 @@
 
 
     LMSModel.prototype.registerDevice = function(serverid) {
-        registerDevice(this.findServerByID(serverid));
+        if (serverid && serverid.length) {
+            registerDevice(this.findServerByID(serverid));
+        }
+        else if (lmsData.activeServer && lmsData.activeServer.length){
+            // register active server
+            var rsd = lmsData[lmsData.activeServer];
+            if (!(rsd.keys &&
+                  rsd.keys.device &&
+                  rsd.keys.device.length)) {
+                console.log("missing device token, reregister!");
+                registerDevice(rsd);
+            }
+        }
     };
-
 
     /**
      * @function getServerRSD(serverURL)
@@ -487,25 +498,29 @@
 
         var ts = (new Date()).getTime();
 
+        console.log("LMS List: " + JSON.stringify(lmsData));
+
         Object.keys(lmsData).forEach(function (lmsid) {
-            var rsd = lmsData[lmsid];
-            if (rsd.inaccessible > 0) {
-                var delta = ts - rsd.inaccessible;
-                if (delta > 3600000) { // wait for one hour
-                    delete rsd.inaccessible;
-                    storeData();
+            if (lmsid !== "activeServer") {
+                var rsd = lmsData[lmsid];
+                if (rsd.inaccessible > 0) {
+                    var delta = ts - rsd.inaccessible;
+                    if (delta > 3600000) { // wait for one hour
+                        delete rsd.inaccessible;
+                        storeData();
+                    }
                 }
+                var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+
+                console.log('server is inaccessible? ' + rsd.inaccessible);
+
+                cbFunc.call(bind, {"id": rsd.id,
+                                   "name": rsd.name,
+                                   "logofile": rsd.logolink,
+                                   "inactive": ((rsd.inaccessible &&
+                                                rsd.inaccessible > 0) ? 1 : 0),
+                                   "selected": isSelected});
             }
-            var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
-
-            console.log('server is inaccessible? ' + rsd.inaccessible);
-
-            cbFunc.call(bind, {"id": rsd.id,
-                               "name": rsd.name,
-                               "logofile": rsd.logolink,
-                               "inactive": ((rsd.inaccessible &&
-                                            rsd.inaccessible > 0) ? 1 : 0),
-                               "selected": isSelected});
         });
     };
 
@@ -609,13 +624,42 @@
      * if the selected server is not available for some reason,
      * this function switches back to the previous active server.
      */
-    LMSModel.prototype.restoreActiveServer = function() {
+    LMSModel.prototype.restoreActiveServer = function () {
         if (this.previousLMS) {
             this.activeLMS = this.previousLMS;
             lmsData.activeServer = this.previousLMS.id;
             storeData();
             this.previousLMS = null;
         }
+    };
+
+    /**
+     * @public @function getActiveRequestToken()
+     *
+     * returns the requestToken (keys.device) for the activeServer
+     */
+    LMSModel.prototype.getActiveRequestToken = function () {
+        return lmsData[lmsData.activeServer].keys.device;
+    };
+
+    /**
+     * @public @method clearInactiveFlag()
+     *
+     * clears the inactive timestamp for the active server
+     */
+    LMSModel.prototype.clearInactiveFlag = function () {
+        delete lmsData[lmsData.activeServer].inactive;
+        storeData();
+    };
+
+    /**
+     * @public @method setInactiveFlag()
+     *
+     * sets the inactive timestamp for the active server
+     */
+    LMSModel.prototype.setInactiveFlag = function () {
+        lmsData[lmsData.activeServer].inactive = (new Date()).getTime();
+        storeData();
     };
 
     // in a future release the models should be moved into a static objects
