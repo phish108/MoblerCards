@@ -87,7 +87,8 @@ LandingView.prototype.tap = function (event) {
         this.app.changeView("statistics");
     } else if (id === "landingfeaturedlabel") {
         this.app.selectCourseItem(featuredContentId);
-    } else if (id === "landingexclusivelabel") {
+    } else if (id === "landingexclusivelabel" ||
+               id === "landingexclusiveimage") {
         this.app.changeView("login");
     }
 };
