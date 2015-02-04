@@ -77,23 +77,31 @@ SingleChoiceWidget.prototype.showAnswer = function () {
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
         var self = this;
 
         // returns an array containing the possible answers
         var answers = questionpoolModel.getAnswer();
-
         var mixedAnswers;
+        var c;
+        
+//        var tmpl = this.app.templates.getTemplate("answerlistbox");
+        
         if (!questionpoolModel.currAnswersMixed()) {
             questionpoolModel.mixAnswers();
         }
         mixedAnswers = questionpoolModel.getMixedAnswersArray();
 
         $("#cardAnswerBody").empty();
-
+        
+//        for (c = 0; c < mixedAnswers.length; c++) {
+//            console.log("answer number: " + c);
+//            console.log("answer text: " + answers[mixedAnswers[c]].answertext);
+//            tmpl.attach(mixedAnswers[c]);
+//            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
+//        }
         var ul = $("<ul/>", {}).appendTo("#cardAnswerBody");
 
-        for (var c = 0; c < mixedAnswers.length; c++) {
+        for (c = 0; c < mixedAnswers.length; c++) {
             // when an answer item is clicked a highlighted background color is
             // applied to it via "ticked" class
             var li = $(
@@ -151,8 +159,6 @@ SingleChoiceWidget.prototype.showAnswer = function () {
     }
 };
 
-
-
 /**
  * Creation of feedback body for single choice questions. It contains the list
  * with the possible solutions highlighted by both the correct answer and
@@ -171,7 +177,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
-
 
     //var clone = $("#cardAnswerBody ul").clone(); // clone the answerbody,
     //clone.appendTo("#feedbackBody");
@@ -257,7 +262,6 @@ SingleChoiceWidget.prototype.storeAnswers = function () {
 
     app.models.answer.setAnswers(answers);
 };
-
 
 /**
  * Sets the height of the list items that contain correct answers
