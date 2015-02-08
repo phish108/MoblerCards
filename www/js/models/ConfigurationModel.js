@@ -35,7 +35,7 @@ var $ = window.$, jQuery = window.jQuery;
 
 //var APP_ID = "ch.ethz.isn.learningcards";
 //var APP_ID = "io.mobinaut.mobler";
-var APP_ID = "MoblerCardsApp:Version:3.0";
+var APP_ID = "org.mobinaut.mobler";
 
 /**
  * @class ConfigurationModel
@@ -78,7 +78,7 @@ function ConfigurationModel(controller) {
      */
 
     $(document).bind("statisticssenttoserver", function () {
-        console.log("statistics sent to server is binded");
+        console.log("statistics sent to server is bound");
         console.log("self.controller.appLoaded is " + self.controller.appLoaded);
         console.log("self.configuration.loginState is" + self.configuration.loginState);
         if (self.controller.appLoaded && self.configuration.loginState === "loggedOut") {
@@ -150,7 +150,7 @@ ConfigurationModel.prototype.loadData = function () {
  */
 ConfigurationModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("Identity:MBC Auth");
+    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
 
     //if the user is not authenticated yet
     if (activeURL &&
@@ -315,7 +315,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var activeURL = self.controller.models.lms.getServiceURL('Identity:MBC Auth');
+    var activeURL = self.controller.models.lms.getServiceURL('ch.isn.lms.auth');
     console.log("url: " + activeURL);
     $
         .ajax({
@@ -429,7 +429,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
 ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
     console.log("enter send logout to server");
     var sessionKey, self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("Identity:MBC Auth");
+    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
     if (userAuthenticationKey) {
         sessionKey = userAuthenticationKey;
     } else {

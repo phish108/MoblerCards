@@ -184,7 +184,7 @@
      * fetches the device key from the LMS' Auth service.
      */
     function registerDevice(serverRSD) {
-        var APP_ID = "MoblerCardsApp:Version:3.0";
+        var APP_ID = "org.mobinaut.mobler";
 
         function setHeaders(xhr) {
             xhr.setRequestHeader('AppID', APP_ID);
@@ -203,7 +203,7 @@
 
         console.log("try to register the app to the LMS");
         // first check if the proper OAuth API is present
-        var authurl = getServiceURL(serverRSD, "Identity:OAuth");
+        var authurl = getServiceURL(serverRSD, "org.oauth.2");
         if (authurl && authurl.length) {
             console.log("try to register using the OAuth Scheme");
             authurl = authurl + "/device";
@@ -221,7 +221,7 @@
         }
         else {
             // if there is no OAuth try to use our own poor mans OAuth
-            authurl = getServiceURL(serverRSD, "Identity:MBC Register");
+            authurl = getServiceURL(serverRSD, "ch.isn.lms.device");
             if (authurl && authurl.length) {
                 console.log("try to register using the Mobler Scheme");
                 $.ajax({
@@ -308,15 +308,15 @@
 
             rsddata.apis.forEach(function (api) {
                 switch (api.name) {
-                    case "Sensor:XAPI LRS":
-                    case "Sensor:MBC LRS":
-                    case "Identity:MBC Auth":
-                    case "Content:LMS TestPool":
-                    case "Content:LMS Course":
+                    case "gov.adlnet.xapi.lrs":
+                    case "ch.isn.lms.statistics":
+                    case "ch.isn.lms.auth":
+                    case "ch.isn.lms.courses":
+                    case "ch.isn.lms.questions":
                         // verify that the APIs do not time out or respond with 404
 
                         // NOTE the "about" API MUST be present with all services
-                        // without authentication
+                        // without authentication. the legacy services will fail
 
                         // TODO: test the actual presence of the API
                         // This has to remain commented for the time being due to the

@@ -390,7 +390,7 @@ StatisticsModel.prototype.loadFromServer = function () {
     console.log("enter load statistis");
     var self = this;
 
-    var activeURL = self.controller.models.lms.getServiceURL("Sensor:XAPI LRS");
+    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.statistics");
 
     if (activeURL && activeURL.length &&
         self.controller.models.configuration.isLoggedIn()) {
@@ -499,7 +499,7 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
 StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
     console.log("enter sendToServer in statistics model");
     var self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("Sensor:XAPI LRS");
+    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.statistics");
     //if (self.controller.getLoginState()) {
     if (activeURL &&
         activeURL.length &&

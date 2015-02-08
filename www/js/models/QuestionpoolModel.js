@@ -107,7 +107,7 @@ QuestionPoolModel.prototype.loadData = function (course_id) {
  */
 QuestionPoolModel.prototype.loadFromServer = function (courseId) {
     var self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("Content:LMS TestPool");
+    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.questions");
 
     $
         .ajax({

@@ -156,7 +156,7 @@ CourseModel.prototype.loadFromServer = function() {
 	console.log("loadFromServer-Course is called");
 	var self = this;
 	var syncStateCache = [];
-	var activeURL = self.controller.models.lms.getServiceURL("Content:LMS Course");
+	var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.courses");
 	self.checkForTimeOut();
 	if (activeURL &&
         activeURL.length &&
