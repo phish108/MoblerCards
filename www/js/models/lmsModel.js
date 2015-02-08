@@ -171,6 +171,7 @@
             rsd.apis.forEach(function(api){
                 if (api.name === serviceName) {
                     url = rsd.engine.link + api.link;
+                    console.log("service URL is " + url);
                 }
             });
         }
@@ -327,6 +328,7 @@
 //                            "error": failCheck
 //                        });
 
+                        console.log("got 1 API " + api.name);
                         // fake validation
                         storeRSD();
                         break;
@@ -379,6 +381,7 @@
         }
         for (serverid in lmsData) {
             if (lmsData.hasOwnProperty(serverid) &&
+                lmsData[serverid].engine &&
                 lmsData[serverid].engine.link === serverURL) {
                 return lmsData[serverid];
             }

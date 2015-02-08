@@ -205,7 +205,7 @@ CourseModel.prototype.loadFromServer = function() {
 		}
 
 		function createCourseList(data) {
-			console.log("success in getting course list");
+			console.log("successfully getting course list " + JSON.stringify(data));
 			console.log("before enter turn off deactivate in course model");
 			turnOffDeactivate();
 			// if there was a pending course list, remove it from the storage

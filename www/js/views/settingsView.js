@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,13 +16,13 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
- * @author Dijan Helbling 
+ * @author Dijan Helbling
  */
 
 /**
@@ -39,7 +39,7 @@ under the License.
  **/
 function SettingsView() {
     var self = this;
-    
+
     this.tagID = this.app.viewId;
 
     /**
@@ -62,7 +62,7 @@ SettingsView.prototype.prepare = function () {
 
 SettingsView.prototype.tap = function (event) {
     var id = event.target.id;
-    
+
     if (id === "settingsclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
@@ -98,19 +98,20 @@ SettingsView.prototype.loadData = function () {
     var self = this;
     var config = this.app.models.configuration;
     var lmsModel = this.app.models.lms;
-    var servername = lmsModel.lmsData.activeServer;
+    lmsModel.getActiveLMS(function (lms) {
+        console.log("deactivate flag is " + lms.inactive);
+        if (lms.inactive === 1) {
+            console.log("deactivate flag is: will show deactive msg");
+            $("#deactivateLi").show();
+        } else {
+            console.log(" deactivate flag is: will NOT show deactivate msg");
+        }
+        $("#aboutMore").show();
 
-    console.log("deactivate flag is " + lmsModel.lmsData.ServerData[servername].deactivateFlag);
-    if (lmsModel.lmsData.ServerData[servername].deactivateFlag === true) {
-        console.log("deactivate flag is: will show deactive msg");
-        $("#deactivateLi").show();
-    } else {
-        console.log(" deactivate flag is: will NOT show deactivate msg");
-    }
+        $("#settingslmsimg").attr("src", lms.logofile);
+        $("#settingslmslabel").text(lms.name);
+    });
 
-    $("#aboutMore").show();
-    $("#settingslmsimg").attr("src", self.app.getActiveLogo());
-    $("#settingslmslabel").text(self.app.getActiveLabel());
     $("#nameItemSet").text(config.getDisplayName());
     $("#usernameItemSet").text(config.getUserName());
     $("#emailItemSet").text(config.getEmailAddress());
