@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Learning Cards</title>   
+    <title>Learning Cards</title>
 
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
@@ -18,7 +18,7 @@
 </head>
 
 <body id="myDoc">
-    
+
 <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED START <<<<<<<<<<<<<<<<<<<<<<<-->
     <div id="splash" class="screen active" data-view="SplashView">
         <div id="splashbox" class="loading">
@@ -27,12 +27,12 @@
             </div>
         </div>
     </div>
-    
+
     <div id="landing" class="screen" data-view="LandingView" data-touch="tap">
         <div id="landingheader" class="headerbox">
             <div id="landingtitle" class="headercontent">Mobler Cards</div>
         </div>
-        
+
         <div id="landingcontent" class="contentbox">
             <ul id="landingelements">
                 <li id="landingfeaturedlist" class="listbox gradient2">
@@ -62,14 +62,14 @@
             </ul>
         </div>
     </div>
-    
+
     <div id="login" class="screen" data-view="LoginView" data-touch="tap">
         <div id="loginheader" class="headerbox">
             <div id="loginicon"  class="titleicon"><span class="icon-lock"></span></div>
             <div id="logintitle" class="headercontent">Login</div>
             <div id="logincross" class="closeicon"><span id="loginclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="logincontent" class="contentbox">
             <ul id="loginelements">
 <!--                Username-->
@@ -108,7 +108,7 @@
                 </li>
             </ul>
         </div>
-        
+
         <div id="loginfooter" class="footerbox">
             <div id="loginbutton" class="footerlabel"><span class="icon-enter"></span></div>
         </div>
@@ -120,7 +120,7 @@
             <div id="lmstitle" class="headercontent">LMS list</div>
             <div id="lmscross" class="closeicon"><span id="lmsclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="lmscontent" class="contentbox">
             <ul id="lmsbox">
                 <template id="lmslistbox">
@@ -131,13 +131,27 @@
                         <div id="lmslabel" class="listlabel"></div>
                         <div id="lmsimage" class="listimage">
                             <img id="lmsimg"/>
-                            <span id="lmswait" class="red icon-cross"></span>
+                            <span id="lmswait" class="red icon-cross hidden"></span>
                         </div>
                     </li>
                 </template>
             </ul>
+            <ul>
+                <form id="addlmsform">
+                <li id="addlmsbox" class="listbox gradient2">
+                    <div id="addlmsdash"  class="listdash"><span id="addlmsdash2"class="icon-dash"></span></div>
+                    <div id="addlmsplaceholder" class="listlabel">Add a New LMS</div>
+                    <div id="addlmsinputbox" class="listlabel hidden"><input id="addlmsinput" type="text" placeholder="LMS URL"></div>
+                    <div id="addlmsicon" class="listimage">
+                        <span id="addlmsbutton" class="icon-enter"></span>
+                        <span id="addlmsfail" class="red icon-cross hidden"></span>                             <span id="addlmswait" class="red icon-loading hidden"></span>
+                    </div>
+                </li>
+                </form>
+            </ul>
         </div>
         <div id="lmsregistrationwaitingmessage" class="gradientSelected"></div>
+
     </div>
 
     <div id="course" class="screen" data-view="CourseView" data-touch="tap">
@@ -146,7 +160,7 @@
             <div id="coursetitle" class="headercontent">Courses</div>
             <div id="coursecross" class="closeicon"><span id="coursesettings" class="icon-settings"></span></div>
         </div>
-        
+
         <div id="coursecontent" class="contentbox">
             <ul id="coursebox">
                 <template id="courselistbox">
@@ -162,19 +176,19 @@
                 </template>
             </ul>
         </div>
-        
+
         <div id="coursefooter" class="footerbox">
             <div id="courserefresh" class="footerlabel"><span class="icon-loading"></span></div>
         </div>
     </div>
-    
-    <div id="settings" class="screen" data-view="SettingsView" data-touch="tap"> 
+
+    <div id="settings" class="screen" data-view="SettingsView" data-touch="tap">
         <div id="settingsheader" class="headerbox">
             <div id="settingsicon"  class="titleicon"><span class="icon-settings"></span></div>
             <div id="settingstitle" class="headercontent">Settings</div>
             <div id="settingscross" class="closeicon"><span id="settingsclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="settingscontent" class="contentbox">
             <ul id="settingsData" class="gradient2">
                 <li id="settingslist" class="listbox">
@@ -211,7 +225,7 @@
                 </li>
             </ul>
         </div>
-        
+
         <div id="settingsfooter" class="footerbox">
             <div id="settingsabout" class="footerleft">
                 <span class="icon-info"></span>
@@ -221,14 +235,14 @@
             </div>
         </div>
     </div>
-    
+
     <div id="about" class="screen" data-view="AboutView" data-touch="tap">
         <div id="aboutheader" class="headerbox">
             <div id="abouticon"  class="titleicon"><span class="icon-info"></span></div>
             <div id="abouttitle" class="headercontent">About</div>
             <div id="aboutcross" class="closeicon"><span id="aboutclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="aboutcontent" class="contentbox">
             <ul>
                 <li id="abouttitlelist" class="listbox">
@@ -245,7 +259,7 @@
                 <li class="listbox gradient2">
                     <div id="license" class="listlabel"></div>
                 </li>
-            </ul> 
+            </ul>
         </div>
     </div>
 
@@ -255,7 +269,7 @@
             <div id="logouttitle" class="headercontent">Logout</div>
             <div id="logoutcross" class="closeicon"><span id="logoutclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="logoutcontent" class="contentbox">
             <ul>
                 <li class="listbox gradient2">
@@ -263,19 +277,19 @@
                 </li>
             </ul>
         </div>
-        
+
         <div id="logoutfooter" class="footerbox">
             <div id="logoutbutton" class="footerlabel"><span class="icon-exit"></span></div>
         </div>
     </div>
-    
+
     <div id="question" class="screen" data-view="QuestionView" data-touch="tap">
         <div id="questionheader" class="headerbox">
             <div id="questionicon"  class="titleicon"><span id="questiondynamicicon"></span></div>
             <div id="questiontitle" class="headercontent"></div>
             <div id="questioncross" class="closeicon"><span id="questionclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="questioncontent" class="contentbox">
             <ul>
                 <li id="questionlist" class="listbox gradient2">
@@ -283,7 +297,7 @@
                 </li>
             </ul>
         </div>
-        
+
         <div id="questionfooter" class="footerbox">
             <div id="questionbutton" class="footerlabel"><span class="icon-enter"></span></div>
         </div>
@@ -313,7 +327,7 @@
             </div>
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
-        
+
         <div id="answerfooter" class="footerbox">
             <div id="answerbutton" class="footerlabel"><span class="icon-enter"></span></div>
         </div>
@@ -325,7 +339,7 @@
             <div id="feedbacktitle" class="headercontent"></div>
             <div id="feedbackcross" class="closeicon"><span id="feedbackclose" class="icon-cross"></span></div>
         </div>
-        
+
         <div id="feedbackcontent" class="contentbox">
             <div id="feedbackBody"></div>
             <div id="feedbackTipBody" class="">
@@ -339,7 +353,7 @@
                 </ul>
             </div>
         </div>
-        
+
         <div id="feedbackfooter" class="footerbox">
             <div id="feedbackbutton" class="footerleft">
                 <span class="icon-enter"></span>
@@ -567,38 +581,38 @@
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
     <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
     <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
-    <script type="text/javascript" src="js/models/LMSModel.js"></script>
+    <script type="text/javascript" src="js/models/lmsModel.js"></script>
     <script type="text/javascript" src="js/models/CourseModel.js"></script>
     <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
-    <script type="text/javascript" src="js/models/AnswerModel.js"></script>
+    <script type="text/javascript" src="js/models/answerModel.js"></script>
     <script type="text/javascript" src="js/models/StatisticsModel.js"></script>
     <script type="text/javascript" src="js/models/BestDayModel.js"></script>
-    <script type="text/javascript" src="js/models/HandledCardsModel.js"></script>
-    <script type="text/javascript" src="js/models/AverageScoreModel.js"></script>
-    <script type="text/javascript" src="js/models/ProgressModel.js"></script>
-    <script type="text/javascript" src="js/models/AverageSpeedModel.js"></script>
-    <script type="text/javascript" src="js/models/StackHandlerModel.js"></script>
-    <script type="text/javascript" src="js/models/CardBurnerModel.js"></script>
-    <script type="text/javascript" src="js/models/TrackingModel.js"></script>
+    <script type="text/javascript" src="js/models/handledCardsModel.js"></script>
+    <script type="text/javascript" src="js/models/averageScoreModel.js"></script>
+    <script type="text/javascript" src="js/models/progressModel.js"></script>
+    <script type="text/javascript" src="js/models/averageSpeedModel.js"></script>
+    <script type="text/javascript" src="js/models/stackHandlerModel.js"></script>
+    <script type="text/javascript" src="js/models/cardBurnerModel.js"></script>
+    <script type="text/javascript" src="js/models/trackingModel.js"></script>
 
-    <script type="text/javascript" src="js/views/SingleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/views/MultipleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/views/TextSortWidget.js"></script>
+    <script type="text/javascript" src="js/views/singleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/views/multipleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/views/textSortWidget.js"></script>
     <script type="text/javascript" src="js/views/ClozeQuestionTypeView.js"></script>
-    <script type="text/javascript" src="js/views/TextHorizontalSortWidget.js"></script>
-    <script type="text/javascript" src="js/views/NumericQuestionWidget.js"></script>
-    <script type="text/javascript" src="js/views/AnswerView.js"></script>
-    <script type="text/javascript" src="js/views/LMSView.js"></script>
+    <script type="text/javascript" src="js/views/textHorizontalSortWidget.js"></script>
+    <script type="text/javascript" src="js/views/numericQuestionWidget.js"></script>
+    <script type="text/javascript" src="js/views/answerView.js"></script>
+    <script type="text/javascript" src="js/views/lmsView.js"></script>
     <script type="text/javascript" src="js/views/CourseView.js"></script>
-    <script type="text/javascript" src="js/views/FeedbackView.js"></script>
-    <script type="text/javascript" src="js/views/LoginView.js"></script>
-    <script type="text/javascript" src="js/views/LandingView.js"></script>
-    <script type="text/javascript" src="js/views/LogoutView.js"></script>
-    <script type="text/javascript" src="js/views/QuestionView.js"></script>
-    <script type="text/javascript" src="js/views/SettingsView.js"></script>
-    <script type="text/javascript" src="js/views/StatisticsView.js"></script>
-    <script type="text/javascript" src="js/views/AchievementsView.js"></script>
-    <script type="text/javascript" src="js/views/AboutView.js"></script>
+    <script type="text/javascript" src="js/views/feedbackView.js"></script>
+    <script type="text/javascript" src="js/views/loginView.js"></script>
+    <script type="text/javascript" src="js/views/landingView.js"></script>
+    <script type="text/javascript" src="js/views/logoutView.js"></script>
+    <script type="text/javascript" src="js/views/questionView.js"></script>
+    <script type="text/javascript" src="js/views/settingsView.js"></script>
+    <script type="text/javascript" src="js/views/statisticsView.js"></script>
+    <script type="text/javascript" src="js/views/achievementsView.js"></script>
+    <script type="text/javascript" src="js/views/aboutView.js"></script>
     <script type="text/javascript" src="js/views/SplashView.js"></script>
 
     <script type="text/javascript">

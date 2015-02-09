@@ -1,6 +1,6 @@
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -14,7 +14,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
@@ -155,7 +155,7 @@ var URLS_TO_LMS = [
 
 
 
-/**Global way of switching on or off the console log messages in all scripts of the front end. 
+/**Global way of switching on or off the console log messages in all scripts of the front end.
  * @function console.log
  * @param {String}messagestring, the text message to be displayed in the console
  * */
@@ -167,7 +167,7 @@ function moblerlog(messagestring) {
     }
 }
 
-/**Global way of switching on or off the console log messages in all scripts of the front end. 
+/**Global way of switching on or off the console log messages in all scripts of the front end.
  * @function getActiveServer
  * @param {String}messagestring, the text message to be displayed in the console
  * */
@@ -233,7 +233,7 @@ function closeView() {
     $("#" + this.tagID).hide();
 }
 
-/**shows apologize message if not question data is loaded 
+/**shows apologize message if not question data is loaded
  * @function doApologize
  * */
 function doApologize() {
@@ -421,21 +421,13 @@ function elementContents(element) {
 }
 
 function turnOffDeactivate() {
-    console.log("enter turn off deactivate");
     var DEACTIVATE = false;
-    var lmsModel = this.app.models.lms;
-    var servername = lmsModel.lmsData.activeServer;
-    lmsModel.lmsData.ServerData[servername].deactivateFlag = false;
-    lmsModel.storeData();
+    this.app.models.lms.clearInactiveFlag();
 }
 
 function turnOnDeactivate() {
-    DEACTIVATE = true; //set the general deactivate status to true. 
-    var lmsModel = this.app.models.lms;
-    var servername = lmsModel.lmsData.activeServer;
-    lmsModel.lmsData.ServerData[servername] = {};
-    lmsModel.lmsData.ServerData[servername].deactivateFlag = true; //store and set the deactivate status to true
-    lmsModel.storeData();
+    DEACTIVATE = true; //set the general deactivate status to true.
+    this.app.models.lms.setInactiveFlag();
 }
 
 

@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,13 +16,15 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
  */
+
+var $ = window.$, jQuery = window.jQuery;
 
 /**
  * @Class LandingView
@@ -40,7 +42,7 @@ under the License.
 function LandingView() {
     var self = this;
 
-    /** 
+    /**
      * It is triggered when an online connection is detected.
      * @event errormessagehide
      * @param: a function that hides the error message from login view
@@ -49,10 +51,10 @@ function LandingView() {
         console.log(" hide error message loaded ");
         self.hideErrorMessage();
     });
-    
+
     //this will be called when a synchronization update takes place
-    $(document).bind("featuredContentlistupdate", function (e, featuredCourseId) {
-        self.showForm();     
+    $(document).bind("featuredContentlistupdate", function () {
+        self.showForm();
     });
 }
 
@@ -63,9 +65,9 @@ LandingView.prototype.prepare = function () {
 
 LandingView.prototype.showForm = function () {
     var featuredModel = this.app.models.featured;
-    
+
     this.hideErrorMessage();
-    
+
     if (this.app.models.connection.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
@@ -79,17 +81,36 @@ LandingView.prototype.showForm = function () {
 
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
-    var featuredContentId = FEATURED_CONTENT_ID;
+    var featuredContentId = window.FEATURED_CONTENT_ID;
 
-    console.log("[LandingView] tap registered: " + id);
+    console.log("[LandingView] tap registered: '" + id + "'");
 
-    if (id === "landingfeaturedimage") {
-        this.app.changeView("statistics");
-    } else if (id === "landingfeaturedlabel") {
-        this.app.selectCourseItem(featuredContentId);
-    } else if (id === "landingexclusivelabel" ||
-               id === "landingexclusiveimage") {
-        this.app.changeView("login");
+    switch(id) {
+        case "landingfeaturedimage":
+            this.app.changeView("statistics");
+            break;
+        case "landingfeaturedlabel":
+            this.app.selectCourseItem(featuredContentId);
+            break;
+        case "landingexclusivelabel":
+            var al;
+            this.app.models.lms.getActiveLMS(function(d) {
+                al = d;
+            });
+            if (al && al.hasOwnProperty("id") && al.id.length) {
+                // we show the login view ONLY if the device has an LMS registered
+                this.app.changeView("login");
+            }
+            else {
+                // otherwise, the app asks to which LMS it should connect
+                // This means the user does not need to select "choose LMS" from the
+                // login view
+                this.app.changeView("lms");
+            }
+            break;
+        default:
+            console.log("undefined tap");
+            break;
     }
 };
 

@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -55,7 +55,7 @@ function CourseView() {
      *        that the specific course including all its questions has been fully loaded
      */
     $(document).bind("questionpoolready", function (e, courseID) {
-        if ((self.app.isActiveView(self.tagID)) && 
+        if ((self.app.isActiveView(self.tagID)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("view questionPool ready called " + courseID);
             self.courseIsLoaded(courseID);
@@ -72,7 +72,7 @@ function CourseView() {
      */
 
     $(document).bind("courselistupdate", function (e) {
-        if ((self.app.isActiveView(self.tagID)) && 
+        if ((self.app.isActiveView(self.tagID)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("course list update called");
             self.firstLoad = false;
@@ -117,7 +117,7 @@ CourseView.prototype.tap = function (event) {
     var featuredId = this.app.models.featured.getId();
 
     console.log("[CourseView] tap registered " + id);
-    
+
     if (id === "coursesettings") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
@@ -128,7 +128,7 @@ CourseView.prototype.tap = function (event) {
     }
     else {
         var course = id.split("_");
-        
+
         if (course[0] === "courselabel") {
             if (course.length === 4 &&
                 course[3] === "fd") {
@@ -142,7 +142,10 @@ CourseView.prototype.tap = function (event) {
             this.app.changeView("statistics", course[2]);
         }
         else if (id === "courserefresh") {
-            this.update();
+            // should fetch data from the server
+            this.app.models.course.loadFromServer();
+            // and wait ...
+            // this.update();
         }
     }
 };
@@ -154,24 +157,24 @@ CourseView.prototype.tap = function (event) {
  */
 CourseView.prototype.setCourse = function () {
     var self = this;
-    
+
     var courseModel = self.app.models.course;
     var ctmpl = this.app.templates.getTemplate("courselistbox");
     var courseId, courseTitle;
-    
+
     if (courseModel.courseList.length === 0) {
         ctmpl.attach("waiting");
-        ctmpl.courselistelement.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
-    } 
+        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
+    }
     else {
         do {
             courseId = courseModel.getId();
             courseTitle = courseModel.getTitle();
-            
+
             if (courseTitle != "false" && courseId != "false") {
                 ctmpl.attach(courseId);
                 ctmpl.courselabel.text = courseModel.getTitle();
-            
+
                 this.setCourseIcon(ctmpl, courseModel, courseId);
             }
         } while (courseModel.nextCourse());
@@ -185,14 +188,14 @@ CourseView.prototype.setCourse = function () {
  */
 CourseView.prototype.setDefaultCourse = function () {
     var self = this;
-    
+
     var featuredModel = self.app.models.featured;
     var ctmpl = this.app.templates.getTemplate("courselistbox");
     var featuredId = featuredModel.getId();
-    
+
     ctmpl.attach(featuredId + "_fd");
     ctmpl.courselabel.text = featuredModel.getTitle();
-    
+
     this.setCourseIcon(ctmpl, featuredModel, featuredId);
 };
 

@@ -1,8 +1,8 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,7 +16,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
@@ -32,100 +32,16 @@ under the License.
  * the user is trying to authenticate,depending on the problem
  * fox example: lost of internet connectivity, wrong user name etc.
  * In the bottom part of the view are displayed the logos of the organisation
- *  @constructor
- *  - it sets the tag ID for the login view
- *  - assigns various event handlers when taping on the elements of the
- *    login form such as username, password, login button
- *  - it binds synhronization events such as the sending of statistics to the server,
- *    the update of courses and questions. It prevents the display of the appropriate
- *    views that are also binded with the aforementioned events by displaying the
- *    login form itself.
- *  @param {String} controller
+ *
+ * FIXME click event must not select the password input
  **/
+var $ = window.$, jQuery = window.jQuery;
+
 function LoginView() {
     var self = this;
-    this.tagID = this.app.viewId;
+    this.tagID = this.app.viewId; // obsolete
     this.active = false;
     this.fixedRemoved = false;
-
-    /** 
-     * It is triggered when an online connection is detected.
-     * @event errormessagehide
-     * @param: a function that hides the error message from login view
-     * **/
-    $(document).bind("errormessagehide", function () {
-        console.log(" hide error message loaded ");
-        self.hideErrorMessage();
-    });
-}
-
-/**
- * shows the login form after firstly hide the error messages
- * that might be displayed because of connection failure
- * due to various reasons (wrong data, no internet etc)
- * @prototype
- * @function open
- **/
-LoginView.prototype.prepare = function () {
-    console.log("loginView: open sesame");
-    // hide unnecessary errors and warnings 
-    this.hideErrorMessage();
-    this.hideWarningMessage();
-    this.hideDeactivateMessage();
-    $("#selectLMS").removeClass("gradientSelected");
-    this.showForm();
-    this.active = true;
-    this.app.models.featured.loadFeaturedCourseFromServer();
-};
-
-/**
- * closes the view after firstly clearing
- * the input fields of the login form
- * @prototype
- * @function close
- **/
-LoginView.prototype.cleanup = function () {
-    $("#password").val("");
-    $("#usernameInput").val("");
-    $("#password").blur();
-    $("#usernameInput").blur();
-    this.active = false;
-    this.app.injectStyle();
-};
-
-/**
- * @prototype
- * @function handleTap
- **/
-LoginView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log("[LoginView] tap registered: " + id);
-
-    if (id === "loginbutton") {
-        this.clickLoginButton();
-    } 
-    else if (id === "loginclose") {
-        this.clickCloseLoginButton();
-    } 
-    else if (id === "loginlmslabel") {
-        $("#selectLMS").removeClass("textShadow");
-        $("#selectLMS").addClass("gradientSelected");
-
-        this.storeSelectedLMS();
-        this.app.changeView("lms");
-    }
-};
-
-/**
- * click on the login button sends data to the authentication model,
- * data is only sent if input fields contain some values
- * after successful login the course list is displayed
- * @prototype
- * @function clickLoginButton
- */
-LoginView.prototype.clickLoginButton = function () {
-    var user, password;
-    var self = this;
 
     function cbLoginSuccess() {
         if (self.active) {
@@ -161,43 +77,132 @@ LoginView.prototype.clickLoginButton = function () {
     function cbLoginTemporaryFailure(servername) {
         console.log("enter cbLogin tempoerary failure");
         console.log("will show the deactivate message");
-        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'))
+        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'));
     }
+
+    /**
+     * It is triggered when an online connection is detected.
+     * @event errormessagehide
+     * @param: a function that hides the error message from login view
+     * **/
+    $(document).bind("errormessagehide", function () {
+        console.log(" hide error message loaded ");
+        self.hideErrorMessage();
+    });
+
+    $(document).bind("DEVICE_ONLINE", function () {
+        self.hideErrorMessage();
+    });
+
+    $(document).bind("DEVICE_OFFLINE", function () {
+        self.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
+    });
+
+    $(document).bind("authenticationready", cbLoginSuccess);
+    $(document).bind("authenticationfailed", cbLoginFailure);
+    $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
+
+}
+
+/**
+ * shows the login form after firstly hide the error messages
+ * that might be displayed because of connection failure
+ * due to various reasons (wrong data, no internet etc)
+ * @prototype
+ * @function open
+ **/
+LoginView.prototype.prepare = function () {
+    console.log("loginView: open sesame");
+    // hide unnecessary errors and warnings
+    this.hideErrorMessage();
+    this.hideWarningMessage();
+    this.hideDeactivateMessage();
+    $("#selectLMS").removeClass("gradientSelected");
+    this.active = true;
+    this.app.models.lms.registerDevice();
+    this.app.models.featured.loadFeaturedCourseFromServer();
+};
+
+LoginView.prototype.update = function () {
+    var activeLMS = {};
+    this.app.models.lms.getActiveLMS(function (data) {
+        activeLMS = data;
+    });
+
+    $("#loginimg").attr("src", activeLMS.logofile);
+
+    // TODO: TRANSFORM STRING TO i18n.prop
+    $("#loginlmslabel").text(activeLMS.name);
+
+    this.hideErrorMessage();
+    this.hideDeactivateMessage();
+
+    if (this.app.models.connection.isOffline()) {
+        this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
+    }
+};
+
+/**
+ * closes the view after firstly clearing
+ * the input fields of the login form
+ * @prototype
+ * @function close
+ **/
+LoginView.prototype.cleanup = function () {
+    $("#password").val("");
+    $("#usernameInput").val("");
+    $("#password").blur();
+    $("#usernameInput").blur();
+    this.active = false;
+    this.app.injectStyle();
+};
+
+/**
+ * @prototype
+ * @function handleTap
+ **/
+LoginView.prototype.tap = function (event) {
+    var id = event.target.id;
+    console.log("[LoginView] tap registered: " + id);
+
+    if (id === "loginbutton") {
+        this.clickLoginButton();
+    }
+    else if (id === "loginclose") {
+        this.clickCloseLoginButton();
+    }
+    else if (id === "loginlmslabel") {
+        $("#selectLMS").removeClass("textShadow");
+        $("#selectLMS").addClass("gradientSelected");
+
+        this.app.changeView("lms");
+    }
+};
+
+/**
+ * click on the login button sends data to the authentication model,
+ * data is only sent if input fields contain some values
+ * after successful login the course list is displayed
+ * @prototype
+ * @function clickLoginButton
+ */
+LoginView.prototype.clickLoginButton = function () {
+    var self = this;
+
 
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
         if (!self.app.models.connection.isOffline()) {
             console.log("has logIn data");
 
-            $(document).bind("authenticationready", cbLoginSuccess);
-            $(document).bind("authenticationfailed", cbLoginFailure);
-            $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
-
             self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
             this.app.models.configuration.login($("#usernameInput").val(), $("#password").val());
-        } 
+        }
     // use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
     // the isOffline seems to work not properly
-    } 
+    }
     else {
         self.showErrorMessage(jQuery.i18n.prop('msg_authentication_message'));
-    }
-};
-
-/**
- * displays the login form
- * @prototype
- * @function showForm
- */
-LoginView.prototype.showForm = function () {
-    $("#loginimg").attr("src", this.app.getActiveLogo());
-    $("#loginlmslabel").text(this.app.getActiveLabel());
-
-    this.hideErrorMessage();
-    this.hideDeactivateMessage();
-    
-    if (this.app.models.connection.isOffline()) {
-        this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
     }
 };
 
@@ -270,17 +275,6 @@ LoginView.prototype.hideDeactivateMessage = function () {
     console.log("hided deactivate message");
 };
 
-/** 
- * storing the selected LMS  in an array
- * @prototype
- * @function storeSelectedLMS
- * */
-LoginView.prototype.storeSelectedLMS = function () {
-    var selectedLMS = $("#loginlmslabel").text();
-    console.log("stored selected lms is" + JSON.stringify(selectedLMS));
-    this.app.models.lms.setSelectedLMS(selectedLMS);
-};
-
 /**
  * transition to landing view when tapping on the
  * ,pr button on the up right corner of login view
@@ -289,9 +283,5 @@ LoginView.prototype.storeSelectedLMS = function () {
  * */
 LoginView.prototype.clickCloseLoginButton = function () {
     //set the active server to be the previous server
-    var lmsModel = this.app.models.lms;
-    var activeServer = lmsModel.getActiveServer();
-
-    lmsModel.storePreviousServer(activeServer);
     this.app.changeView("landing");
 };

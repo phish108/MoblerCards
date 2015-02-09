@@ -1,605 +1,672 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
+ * http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
 
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.	
-*/
-
-/**
- *  @author Evangelia Mitsopoulou
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author Evangelia Mitsopoulou
+ * @author Christian Glahn
  */
 
 /**
  * @class LMSModel
- * This model holds the data about the different servers of the various lms's.
- * @constructor
- * It loads data from the local storage. In the first time there are no data in the local storage and sets
- * as active server the default server.
- * It initializes:
- *   - the last time an unsuccessful attempt was made in order an lms to be registered
- * It sets the active server. During the initialization of the app, the call of this function will
- * register the default server and will do the setting of the rest variables
- * It stores the last unsuccesfful date when a registration attempt failed for a server in order to accordingly visualize this to the user.
- * @param {String} controller
+ *
+ * The LMSModel represents the super set of all LMSes that are registered with
+ * Mobler Cards. It is useful to other models for providing the URLs to the
+ * service APIs.
+ *
+ * This model is responsible for managing the connections to the different LMSes the device
+ * is registered to. The model accepts to connect to any URL, but it will check whether the
+ * URL is actually backed by the valid Service interfaces.
+ *
+ * The LMS needs to provide at its core URL a file called rsd.json (rsd stands for really simple
+ * discovery). Instead of the original XML format the TLA uses a JSON variation using the following
+ * format.
+ *
+ * ```json
+ * {
+ *      "engine": {
+ *          "link": "http(s)://your.lmshost.edu/your/lms/basepath",
+ *          "type": "Ilias",
+ *          "version": "4.4"
+ *      },
+ *      "name": "YOUR LMS OFFICIAL NAME",
+ *      "logolink": "relative/path/to/logo.png",
+ *      "tlaversion": "MBC.1.0"
+ *      "language": "en",
+ *      "apis": [
+ *         {
+ *              "name": "Official API name (e.g. XAPILRS)",
+ *              "link": "relative/path/to/api"
+ *          }
+ *      ]
+ * }
+ * ```
+ *
+ * The LMS Model expects an RSD to provide the system's default interface language,
+ * so it can switch to that language one the lms is selected or activated.
+ *
+ * A working system needs to provide 4 APIs
+ *
+ *  * LRS (statistics) service (name = "Sensor:XAPI LRS")
+ *  * Identity service for devices and user registration (name = "Identity:MBC AUTH")
+ *  * QTI service that returns all questions for a course (name = "Content:LMS TestPool")
+ *  * Course Service to get all courses for the active user (name = "Content:LMS Course")
+ *
+ * The baseurl needs to be the same as the base url for the RSD file.
+ * The logo url needs to point to a valid PNG file with the size of 32x32 pixels.
+ *
+ * All API urls have to be relative to the baseurl.
+ *
+ * The TLA version has to be "MBC.1.0" to indicate the initial non-standard
+ * interface.
+ *
+ * The LMS Model will connect to any LMS that satisfies the following steps
+ * 1. Responds with a valid rsd.json file.
+ * 2. Provides the APIs for the 4 required services in the RSD.
+ * 3. Responds with 200 and content-type "image/png"
+ * 4. Responds with 200 to /about requests to all 4 services using the urls given in the rsd.json.
+ * 5. Allows the device to register against the Identity service
+ *
+ * The LMS will get added to the LMS list if step 1-3 succeed.
+ * The LMS will be only selectable by the user if step 4 and 5 succeed as well. These steps may
+ * fail due to system maintenance. However, they MUST NOT return 404 errors in this case the
+ * system is flagged as invalid.
+ *
+ * As soon a LMS is registered for the device the LMS is stored in the app's LMS list.
+ * The model extends the service object with an "key" object. This key object holds three keys:
+ *  * "device"
+ *  * "userid"
+ *  * "userkey"
+ *
+ * These keys are used to authenticate the individual requests against the various services.
+ *
+ * Finally, the model generates an internal serverid that identifies a LMS uniquely in the
+ * context of the app on the device.
+ *
+ * This model sends the following signals
+ *
+ * LMS_AVAILABLE: sent if a new LMS has been successfully registered to the app
+ * LMS_UNAVAILABLE: sent if a LMS URL cannot be registered to the app
+ * LMS_DEVICE_READY: send if the LMS as provided a device key to the app
+ * LMS_DEVICE_NOTALLOWED: sent the app is not allowed to register itself for the LMS
+ * LMS_NOSERVICE: sent if a service for a registered LMS is responding with an error
  */
 
-function LMSModel(controller) {
-    this.controller = controller;
-    this.selectedLMSList = [];
-    this.previousLMS = "";
-    this.loadData();
-    this.lastTryToRegister = [];
-    this.temporaryFailure = "";
-    this.setActiveServer(this.lmsData.activeServer);
-}
+(function (w) {
+    var $ = w.$;
 
-/**
- * Finds information from the server
- * @prototype
- * @function findServerInfo
- */
-LMSModel.prototype.findServerInfo = function (servername) {
-    var serverinfo = {},
-        i;
-    for (i = 0; i < URLS_TO_LMS.length; i++) {
-        if (URLS_TO_LMS[i].servername === servername) {
-            serverinfo = URLS_TO_LMS[i];
-        }
-    }
-    return serverinfo;
-};
+    /**
+     * @private @property lmsData
+     *
+     * The list of registered LMSes.
+     * This list is actually an object that refers each serverID to the registered RSD info.
+     */
+    var lmsData = {};
 
-
-/**
- * Loads the data from the local storage (key = "configuration") therefore the
- * string is converted into a json object
- * @prototype
- * @function loadData
- */
-LMSModel.prototype.loadData = function () {
-    var lmsObject;
-    var lmsString = localStorage.getItem("urlsToLMS");
-    //if there is an item in the local storage with the name "configuration"
-    //then get it by parsing the string and convert it into a json object
-    if (lmsString && lmsString.length > 0) {
+    /**
+     * @private @function loadData()
+     *
+     * Loads the data from the local storage (key = "configuration") therefore the
+     * string is converted into a json object
+     */
+    function loadData() {
         try {
-            lmsObject = JSON.parse(lmsString);
-        } catch (err) {
-            console.log("error! while loading");
+            lmsData = JSON.parse(localStorage.getItem("LMSData"));
         }
-    } else {
-        //create a data structure for storing lms info in the local storage
-        // ServerData will store clientkey and default language for each server
-        lmsObject = {
-            //"activeServer": DEFAULT_SERVER,
-            "activeServer": getActiveServer(),
-            "previousServer": "",
-            "ServerData": {}
-        };
-        localStorage.setItem("urlsToLMS", JSON.stringify(lmsObject));
-    }
-    console.log("lmsObject in localstorage: " + JSON.stringify(lmsObject));
-    this.lmsData = lmsObject;
-};
-
-/**
- * Stores the data into the local storage (key = "urlsToLMS") therefore the
- * json object is converted into a string
- * @prototype
- * @function storeData
- */
-LMSModel.prototype.storeData = function () {
-    var lmsString;
-    try {
-        lmsString = JSON.stringify(this.lmsData);
-    } catch (err) {
-        lmsString = "";
-        console.log("error while storing");
-    }
-    console.log("lms string" + lmsString);
-    localStorage.setItem("urlsToLMS", lmsString);
-    console.log("LMS Storage after storeData: " + localStorage.getItem("urlsToLMS"));
-};
-
-/**
- * This function makes use of the static variable URLS_TO_LMS
- * that stores information for all servers
- * @prototype
- * @function getLMSData
- * @return {Array} the array that contains the content of the global URLS_TO_LMS variable
- */
-LMSModel.prototype.getLMSData = function () {
-    return debugActivate();
-};
-
-/**
- * @prototype
- * @function getActiveServerImage
- * @return {String} logoimage, the Url of the logo image of the active server
- */
-LMSModel.prototype.getActiveServerImage = function () {
-    return this.activeServerInfo.logoImage;
-};
-
-/**
- * @prototypegetActiveServerLabel
- * @function getActiveServerLabel
- * @return {String} logolabel, the info label of the active server
- */
-LMSModel.prototype.getActiveServerLabel = function () {
-    return this.activeServerInfo.logoLabel;
-};
-
-/**
- * @prototype
- * @function getActiveServerURL
- * @return {String} url, the url  of the active server
- */
-
-LMSModel.prototype.getActiveServerURL = function () {
-    //http://yellowjacket.ethz.ch/ilias_4_2/restservice/learningcards
-    var api = this.getActiveServerAPI();
-    if (api === "v1") {
-        console.log("calculate activer server url for v1");
-        return this.activeServerInfo.url;
-    } else {
-        //http://yellowjacket.ethz.ch/ilias_4_2/restservice/
-        console.log("calculate activer server url for v2");
-        return this.activeServerInfo.url2;
-    }
-};
-
-
-/**
- * @prototype
- * @function getActiveServerName
- * @return {String} servername, the name of the active server
- */
-LMSModel.prototype.getActiveServerName = function () {
-    return this.activeServerInfo.servername;
-};
-
-
-/**
- * @prototype
- * @function getActiveServerAPI
- * @return {String} serverapi, the version of API of the backend on which the lms is running
- * */
-LMSModel.prototype.getActiveServerAPI = function () {
-    return this.activeServerInfo.API;
-};
-
-
-/**
- * @prototype
- * @function getActiveRequestToken
- * @return {String} activeRequestToken, the client key of the active server
- */
-LMSModel.prototype.getActiveRequestToken = function () {
-    return this.activeRequestToken;
-};
-
-/**
- * @prototype
- * @function getDefaultLanguage
- * @return {String} defaultLanguage, the default language of the active/selected server
- */
-LMSModel.prototype.getDefaultLanguage = function () {
-    return this.defaultLanguage;
-};
-
-/**
- * This function is executed when we click on an item on the lms list view
- *	the selected server is set by
- *- registering itself if has not been previously registered
- *- by setting itself as the active server and store this info in the local storage
- *- by storing its client key (request token) in the local storage
- *- by storing its default language in the local storage
- * It triggers 3 events depending on internet connectivity status, on the successful or not
- * registration to the server and on the recent failed attempt to register to the server.
- * @function setActiveServer
- * @param {String} servername, the activated server
- *
- * THIS FUNCTION IS ONLY USED BY THE LMSVIEW or the constructor
- */
-LMSModel.prototype.setActiveServer = function (servername) {
-    var self = this;
-    var urlsToLMS, lmsObject;
-    this.activeServerInfo = this.findServerInfo(servername);
-
-    self.loadData();
-
-    var requestToken;
-    var lastRegister;
-    var deactivate;
-    var lmsObject = self.lmsData.ServerData;
-    console.log("setActiveServer: where is the serverdata? " + lmsObject);
-    // a sanity check if the selected lms exists in the local storage
-    // in order to get its client key only in this case
-    if (lmsObject[servername]) {
-        console.log("the current lms has already a client key");
-        // then get this client key from the local storage 
-        requestToken = lmsObject[servername].requestToken;
-    }
-    if (!requestToken || requestToken.length === 0) {
-        console.log("registration  should be done");
-        //register the app with the server in order to get an app/client key
-        if (self.controller.models.connection.isOffline()) {
-            console.log("offline and cannot click and register");
-            $(document).trigger("lmsOffline", servername);
-        } else { // we are online 
-            console.log("will try to do a registration because we are online");
-            if (lmsObject[servername]) {
-                lastRegister = lmsObject[servername].lastRegister;
-            }
-            // if we had tried to register for the specific server 
-            // and we failed and if this failure took place less than 24 hours ago
-            // then display to the user the lms registation message 
-            //if	(self.lastTryToRegister[servername] > ((new Date()).getTime() - 24*60*60*1000)){
-            if (lastRegister > ((new Date()).getTime() - 60 * 60 * 1000) && DEACTIVATE) { //it was 24*60*60*1000 once every day
-                console.log("less than 24 hours have passed for server" + servername);
-
-                $(document).trigger("lmsNotRegistrableYet", [servername]);
-            } else {
-                console.log("do the registration for server" + servername);
-                $(document).trigger("registrationIsStarted", servername);
-                var api = this.getActiveServerAPI(servername);
-                //TODO:based on the value of the API of the lms run either the (old) register function of this model
-                // or run a the new register function that will call the new backend. This new function will be created here, in the lms model.
-                if (api === "v1") {
-                    self.register(servername);
-                    //we will get a client key
-                } else {
-                    self.registerApi2(servername);
-                }
-
-            } //end of else
+        catch (err) {
+            lmsData = {};
+            localStorage.setItem("LMSData", "{}");
         }
 
-    } else {
-        //	if the server was not the active one
-        // we do this sanity check because in the case
-        // of the default server it has already the active = true in the constructor.
-        if (this.lmsData.activeServer !== servername) {
-            this.lmsData.activeServer = servername;
+        if (lmsData === null && typeof lmsData === "object") {
+            lmsData = {};
+            localStorage.setItem("LMSData", "{}");
         }
-
-        this.storeData();
-        this.defaultLanguage = lmsObject[servername].defaultLanguage;
-        this.activeRequestToken = requestToken;
-        $(document).trigger("activeServerReady");
     }
-};
-
-/**
- * Stores in the local storage the active server
- * This step is executed within the set active server function above.
- * However it is need in cases we just want the storing of the active server to take place
- * without any further registration and transition to login view. This is happening in the cases where
- * a server cannot be registered  and automatically the previously selected lms should be stored as
- * the active server before we close the view.
- * @prototype
- * @function storeActiveServer
- * @param {string} servername, the name of the previously selected lms
- */
-LMSModel.prototype.storeActiveServer = function (servername) {
-    this.loadData();
-    this.activeServerInfo = this.findServerInfo(servername);
-    this.lmsData.activeServer = servername;
-    console.log("active server set ");
-    this.storeData();
-};
-
-/**
- *
- * @prototype
- * @function getActiveServer
- * @param {string} servername, the name of the active server
- */
-LMSModel.prototype.getActiveServer = function () {
-    //this.activeServerInfo = this.findServerInfo(servername);
-    //this.lmsData.activeServer=servername;
-    return this.lmsData.activeServer;
-};
-
-/**
- * Stores in the local storage the previous selected lms
- * @prototype
- * @function storePreviousServer
- * @param {string} servername, the name of the previously selected lms
- */
-LMSModel.prototype.storePreviousServer = function () {
-    this.loadData();
-    this.lmsData.previousServer = this.getActiveServer();
-    console.log("previous server ");
-    this.storeData();
-};
-
-/**
- * Returns the previously selected LMS
- * @prototype
- * @function getPreviousServer
- * @return {string} servername, the name of the previously selected lms
- */
-LMSModel.prototype.getPreviousServer = function () {
-    return this.lmsData.previousServer;
-};
-
-/**
- * Sends the registration request (appId ,device id) to the server and waiting to get back the app key
- * It is called whenever the client(app) key is empty
- * @prototype
- * @function register
- * @param {string, string} servername, previousLMS, the name of the currently selected lms and the name of the previously selected lms
- */
-LMSModel.prototype.register = function (servername) {
-    var self = this;
-    console.log("enters regsitration");
-    
-    //phone gap property to get the id of a device
-    var deviceID = device.uuid;
-    var activeURL = self.getActiveServerURL();
-    console.log("active url in register function is " + activeURL);
-
-    $.ajax({
-            url: activeURL + '/registration.php',
-            type: 'GET',
-            dataType: 'json',
-            success: appRegistration,
-            // if no registration is done, then use the request parameter
-            // to display the error that created the problem in the console
-            error: function (request) {
-                // remember in lmsData that the server made a booboo
-
-                //***************DEACTIVATE CHECK******************************
-                //if we get an error because of a probable error on the server i.e. deactivation of backend
-                if (request.status === 403) {
-                    if (!DEACTIVATE) {
-                        DEACTIVATE = true; //set the general deactivate status to true. 
-                        self.lmsData.ServerData[servername] = {};
-                        self.lmsData.ServerData[servername].deactivateFlag = true; //store and set the deactivate status to true
-                        self.storeData();
-                        var previousLMS = self.lmsData.ServerData[servername].previousServer;
-                        showErrorResponses(request);
-                        console.log("Error while registering the app with the backend");
-                    }
-                    $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
-                }
-                if (request.status === 404 || request.status === 500) {
-                    self.lastTryToRegister[servername] = (new Date()).getTime();
-                    self.lmsData.ServerData[servername] = {};
-                    self.lmsData.ServerData[servername].lastRegister = self.lastTryToRegister[servername];
-                    self.storeData();
-                    $(document).trigger("registrationfailed", [servername, previousLMS]);
-                }
-
-            },
-            //during the registration we send via headers the app id and the device id
-            beforeSend: setHeaders
-        });
-
-    function setHeaders(xhr) {
-        xhr.setRequestHeader('AppID', APP_ID);
-        xhr.setRequestHeader('UUID', deviceID);
-        console.log("register uuid:" + deviceID);
-    }
-
 
     /**
-     * In case of a successful registration we store in the local storage the client/app key
-     * that we received from the server. Additionally we store locally
-     * the language for the interface of the app.
-     * @prototype
-     * @function appRegistration
-     * @param {String} data, the data exchanged with the server during the registration
+     * @private @function storeData
+     *
+     * Stores the data into the local storage (key = "urlsToLMS") therefore the
+     * json object is converted into a string
      */
-    function appRegistration(data) {
-        var DEACTIVATE = false;
-        // if we don't know a user's language we try to use the phone's language.
-        language = navigator.language.split("-");
-        language_root = (language[0]);
-
-        console.log("in app registration");
-        // load server data from local storage
-        self.loadData();
-
-        //create an empty structure for the client keys of the different servers
-        self.lmsData.ServerData[servername] = {};
-        // store server data in local storage
-        // requestToken refers to OAuth terminology
-        console.log("data in register is " + data);
-        self.lmsData.ServerData[servername].requestToken = data.ClientKey;
-        self.lmsData.ServerData[servername].defaultLanguage = data.defaultLanguage || language_root;
-        self.lmsData.ServerData[servername].deactivateFlag = false;
-        //self.lmsData.servername.activeServername = servername;
-        self.storeData();
-        self.setActiveServer(servername);
+    function storeData() {
+        try {
+            localStorage.setItem("LMSData", JSON.stringify(lmsData));
+        }
+        catch (err) {
+            // console.log("error while storing");
+            localStorage.setItem("LMSData", "{}");
+            lmsData = {};
+        }
     }
-};
-
-/**
- *  This is the first step of the OAuth-Process.
- *  We send the uuid and the appkey and we receive back the Consumer Key
- *  and Consumer Secret.
- *
- */
-
-LMSModel.prototype.registerApi2 = function (servername) {
-    var self = this;
-    console.log("enters regsitration in API 2");
-    //phone gap property to get the id of a device
-    var deviceID = device.uuid;
-    var activeURL = self.getActiveServerURL();
-    console.log("active url in register 2 function is " + activeURL);
-    var method = "PUT";
-    var data = {
-        "APPID": APP_ID,
-        "UUID": deviceID
-    }
-
-    $
-        .ajax({
-            url: activeURL + '/oauth.php/register',
-            type: method,
-            data: data,
-            dataType: 'json',
-            success: appRegistration,
-            // if no registration is done, then use the request parameter
-            // to display the error that created the problem in the console
-            error: function (request) {
-
-                // remember in lmsData that the server made a booboo
-
-                //***************DEACTIVATE CHECK******************************
-                //if we get an error because of a probable error on the server i.e. deactivation of backend
-                if (request.status === 403) {
-                    if (!DEACTIVATE) {
-                        DEACTIVATE = true; //set the general deactivate status to true. 
-                        self.lmsData.ServerData[servername] = {};
-                        self.lmsData.ServerData[servername].deactivateFlag = true; //store and set the deactivate status to true
-                        self.storeData();
-                        var previousLMS = self.lmsData.ServerData[servername].previousServer;
-                        showErrorResponses(request);
-                        console.log("Error while registering2 the app with the backend");
-                    }
-                    $(document).trigger("registrationTemporaryfailed", [servername, previousLMS]);
-                }
-                if (request.status === 404 || request.status === 500) {
-                    self.lastTryToRegister[servername] = (new Date()).getTime();
-                    self.lmsData.ServerData[servername] = {};
-                    self.lmsData.ServerData[servername].lastRegister = self.lastTryToRegister[servername];
-                    self.storeData();
-                    $(document).trigger("registrationfailed", [servername, previousLMS]);
-                }
-            },
-            //during the registration we send via headers the app id and the device id
-            beforeSend: setHeaders
-        });
-
-    function setHeaders(xhr) {}
 
     /**
-     * In case of a successful registration we store in the local storage the client/app key
-     * that we received from the server. Additionally we store locally
-     * the language for the interface of the app.
-     * @prototype
-     * @function appRegistration
-     * @param {String} data, the data exchanged with the server during the registration
+     * @private @function getServiceURL(rsd, serviceName)
+     * @param {Object} rsd - the service's RSD data object
+     * @param {String} serviceName - the name of the service
+     *
+     * getServiceURL() creates a fully qualified URL to the requested service API.
+     * This allows Models to request their APIs without considering any server side
+     * organisation or setup.
      */
-    function appRegistration(data) {
-        var DEACTIVATE = false;
-        
-        // if we don't know a user's language we try to use the phone's language.
-        language = navigator.language.split("-");
-        language_root = (language[0]);
-
-        console.log("in app registration");
-        // load server data from local storage
-        self.loadData();
-
-        //create an empty structure for the client keys of the different servers
-        self.lmsData.ServerData[servername] = {};
-        // store server data in local storage
-        // requestToken refers to OAuth terminology
-        console.log("data in register is " + data);
-
-        //stote consumer credentials (key and secret) in the local storage
-        self.lmsData.ServerData[servername].consumerKey = data.consumerKey;
-        self.lmsData.ServerData[servername].consumerSecret = data.consumerSecret;
-        self.lmsData.ServerData[servername].defaultLanguage = data.defaultLanguage || language_root;
-        self.lmsData.ServerData[servername].deactivateFlag = false;
-        //self.lmsData.servername.activeServername = servername;
-        self.storeData();
-        self.setActiveServer(servername);
-        $(document).trigger("consumerReady");
+    function getServiceURL(rsd, serviceName) {
+        var url = "";
+        if (rsd && serviceName && serviceName.length) {
+            rsd.apis.forEach(function(api){
+                if (api.name === serviceName) {
+                    url = rsd.engine.link + api.link;
+                    console.log("service URL is " + url);
+                }
+            });
+        }
+        return url;
     }
-};
 
-/**
- * sets the list with the selected lms
- * (it will contain one lms)
- * @prototype
- * @function setSelectedLMS
- * @param {string} servername, the name of the currently selected lms
- */
-LMSModel.prototype.setSelectedLMS = function (selectedLMS) {
-    console.log("set selected lms");
-    this.selectedLMSList = selectedLMS;
-};
+    /**
+     * @private @function registerDevice(rsd)
+     * @param {Object} rsd - the service's RSD data object
+     *
+     * fetches the device key from the LMS' Auth service.
+     */
+    function registerDevice(serverRSD) {
+        var APP_ID = "org.mobinaut.mobler";
 
-/**
- * gets the selected lms
- * @prototype
- * @function getSelectedLMS
- */
-LMSModel.prototype.getSelectedLMS = function () {
-    return this.selectedLMSList;
-};
+        function setHeaders(xhr) {
+            xhr.setRequestHeader('AppID', APP_ID);
+            xhr.setRequestHeader('UUID', w.device.uuid);
+        }
 
-/**
- * check if an lms has tried to register in order to display when the lms view opens, either the
- * deactivated mode(red cross, light grey) or the normal mode(image, text font)
- * @prototype
- * @function isRegistrable
- * @param{string} servername, the name of the activated server
- */
-LMSModel.prototype.isRegistrable = function (servername) {
-    console.log("enterisRegistrable for server" + servername);
-    var self = this;
-    var i = 0;
-    var lastRegister;
-    var lmsObject = self.lmsData.ServerData;
-    
-    self.loadData();
-    
-    if (lmsObject[servername]) {
-        lastRegister = lmsObject[servername].lastRegister;
+        function registerOK(data) {
+            serverRSD.keys.device = data.ClientKey;
+            storeData();
+            $(document).trigger("LMS_DEVICE_READY");
+        }
+
+        function registerFail() {
+            $(document).trigger("LMS_DEVICE_NOTALLOWED");
+        }
+
+        console.log("try to register the app to the LMS");
+        // first check if the proper OAuth API is present
+        var authurl = getServiceURL(serverRSD, "org.oauth.2");
+        if (authurl && authurl.length) {
+            console.log("try to register using the OAuth Scheme");
+            authurl = authurl + "/device";
+            if (authurl && authurl.length) {
+                $.ajax({
+                    "url": authurl,
+                    "type": "PUT",
+                    "data": JSON.stringify({"uuid": w.device.uuid}),
+                    "dataType": "json",
+                    "contentType": "application/json",
+                    "success": registerOK,
+                    "error": registerFail
+                });
+            }
+        }
+        else {
+            // if there is no OAuth try to use our own poor mans OAuth
+            authurl = getServiceURL(serverRSD, "ch.isn.lms.device");
+            if (authurl && authurl.length) {
+                console.log("try to register using the Mobler Scheme");
+                $.ajax({
+                    "url": authurl,
+                    "type": "GET",
+                    "dataType": "json",
+                    "success": registerOK,
+                    "error": registerFail,
+                    "beforeSend": setHeaders
+                });
+            }
+        }
     }
-    
-    for (i = 0; i < URLS_TO_LMS.length; i++) {
-        console.log("enter in for loop");
-        if (lmsObject[servername] && lmsObject[servername].lastRegister) {
-            if (lastRegister > (new Date()).getTime() - 24 * 60 * 60 * 1000) {
-                console.log("lms is not registrable yet");
-                return false;
-                //}else if (lastRegister < (new Date()).getTime() - 24*60*60*1000 || (lmsObject[servername] && !lmsObject[servername].deactivateFlag)){
-            } else {
-                $("#selectLMSitem" + servername).prop("disabled", false);
-                console.log("lms is registrable for server" + servername);
-                return true;
+
+    /**
+     * @private @method validateRSD(rsddata)
+     *
+     * helper function to validate the rsd response from a server.
+     *
+     * If the RSD is valid, this method generates a new serverid and stores the
+     * RSD data persistently into the LMS data
+     *
+     * FIXME: uncomment the proper RSD validation.
+     */
+    function validateRSD(rsddata) {
+        var apisfound = 0; //, eurl;
+        console.log("validate RSD file");
+
+        function storeRSD() {
+            apisfound++;
+            if (apisfound >= 4) {
+                console.log("detected a valid RSD");
+                // got my APIs from the rsd, generate a new ID
+                var ts = (new Date()).getTime();
+                rsddata.id = "lms" + ts;
+                rsddata.keys = {};
+
+                lmsData["lms" + ts] = rsddata;
+                storeData();
+
+                // inform the app that the service is OK
+                $(document).trigger("LMS_AVAILABLE");
+
+                if (!rsddata.hasOwnProperty("inaccessible")) {
+                    console.log("register  the device to the new system");
+                    registerDevice(rsddata);
+
+                    // TODO: fetch the logo
+                }
             }
         }
 
-        if (lmsObject[servername] && lmsObject[servername].deactivateFlag) { //if the specific lms item was inactive because of an 403 error
-            console.log("already 403 for server" + servername);
-            //try to send a registration request
-            self.models.lms.storeActiveServer(servername);
-            self.register(servername);
+        /**
+        function failCheck(req) {
+            if (req.status > 0 &&
+                req.status !== 404) {
+                // the server responds and the service is found
+                console.log("server is available but the service appear to be inactive");
 
-            // this case should be handled in the success handler of the register request.
-            if (!lmsObject[servername].deactivateFlag) {
-                $("#selectLMSitem" + servername).prop("disabled", false);
-                console.log("specific lms is active again ");
-                return true;
+                // store the time when the service was last accessed
+                // so we won't immediately try to access the APIs
+                // NOTE: if 1 API fails the entire server won't be accessible!
+                rsddata.inaccessible = (new Date()).getTime();
+                storeRSD();
             }
-
-            console.log("specific lms is still deactivate");
-            return false;
+            else {
+                // inform the app that an important service is missing
+                console.log("server is not available");
+                $(document).trigger("LMS_UNAVAILABLE");
+            }
         }
-        return true;
-    } //end for
-};
+        */
+
+        if (rsddata &&
+            rsddata.hasOwnProperty("apis") &&
+            rsddata.apis.length &&
+            rsddata.hasOwnProperty("engine") &&
+            rsddata.engine.link &&
+            rsddata.engine.link.length
+           ) {
+            // eurl = rsddata.engine.link;
+
+            console.log('rsd looks good check if the APIs exist');
+
+            rsddata.apis.forEach(function (api) {
+                switch (api.name) {
+                    case "gov.adlnet.xapi.lrs":
+                    case "ch.isn.lms.statistics":
+                    case "ch.isn.lms.auth":
+                    case "ch.isn.lms.courses":
+                    case "ch.isn.lms.questions":
+                        // verify that the APIs do not time out or respond with 404
+
+                        // NOTE the "about" API MUST be present with all services
+                        // without authentication. the legacy services will fail
+
+                        // TODO: test the actual presence of the API
+                        // This has to remain commented for the time being due to the
+                        // bad code in the backend.
+//                        $.ajax({
+//                            "url":eurl + api.link + "/about",
+//                            "success": storeRSD,
+//                            "error": failCheck
+//                        });
+
+                        console.log("got 1 API " + api.name);
+                        // fake validation
+                        storeRSD();
+                        break;
+                    default:
+                        break;
+                }
+            });
+            if (apisfound < 4) {
+                // not all apis are present
+                // FIXME: checking for the API Count is error prone
+                $(document).trigger("LMS_UNAVAILABLE");
+            }
+        }
+    }
+
+    /**
+     * @constructor
+     * It loads data from the local storage. In the first time there are no data
+     * in the local storage and sets as active server the default server.
+     */
+    function LMSModel() {
+        loadData();
+        if (lmsData.activeServer) {
+            this.activeLMS = lmsData[lmsData.activeServer];
+        }
+        else {
+            this.activeLMS = null;
+        }
+        this.previousLMS = null;
+    }
+
+    /**
+     * @function findServerInfo(serverid)
+     *
+     * Finds the serverid in the internal LMS list and returns the server info
+     *
+     * If the server id is not found this method returns undefined.
+     */
+    LMSModel.prototype.findServerByID = function (serverid) {
+        return lmsData[serverid];
+    };
+
+    LMSModel.prototype.findServerByURL = function (serverURL) {
+        serverURL.trim();
+        var serverid;
+
+        if (serverURL.search(/^https?:\/\//i) !== 0) {
+            // add the protocol to the front. assume https, refuse anything else
+            serverURL = "https://" + serverURL;
+        }
+        for (serverid in lmsData) {
+            if (lmsData.hasOwnProperty(serverid) &&
+                lmsData[serverid].engine &&
+                lmsData[serverid].engine.link === serverURL) {
+                return lmsData[serverid];
+            }
+        }
+        return undefined;
+    };
+
+
+    LMSModel.prototype.registerDevice = function(serverid) {
+        if (serverid && serverid.length) {
+            registerDevice(this.findServerByID(serverid));
+        }
+        else if (lmsData.activeServer && lmsData.activeServer.length){
+            // register active server
+            var rsd = lmsData[lmsData.activeServer];
+            if (!(rsd.keys &&
+                  rsd.keys.device &&
+                  rsd.keys.device.length)) {
+                console.log("missing device token, reregister!");
+                registerDevice(rsd);
+            }
+        }
+    };
+
+    /**
+     * @function getServerRSD(serverURL)
+     *
+     * tries to fetch the rsd.json for the given serverURL
+     */
+    LMSModel.prototype.getServerRSD = function getServerRSD(serverURL) {
+        /**
+         * @private @method rsdFail()
+         *
+         * informs the app that the provided URL is not available for our app.
+         * The UI needs to provide sufficient information to the user.
+         */
+        function rsdFail() {
+            console.log("failed to load the rsd, server not found");
+            $(document).trigger("LMS_UNAVAILABLE");
+        }
+
+        /**
+         * @private @method rsdCheckAgain
+         *
+         * This method checks whether there is a dynamic version of the rsd.json
+         * (we expect a php script for Ilias and Moodle)
+         */
+        function rsdCheckAgain(xhr) {
+            if (xhr.status > 0) {
+                console.log("check for dynamic rsd file ");
+                $.ajax({
+                    "url": serverURL + ".php",
+                    "dataType": "json",
+                    "success": validateRSD,
+                    "error": rsdFail
+                });
+            }
+            else {
+                // in this case we could not reach the target host
+                rsdFail();
+            }
+        }
+
+        serverURL.trim(); // remove whitespaces
+
+        // strip any "index.*" from the end of the URL
+        serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/"); // i means case insensitive
+
+        if (serverURL.search(/^https?:\/\//i) !== 0) {
+            // add the protocol to the front. assume https, refuse anything else
+            serverURL = "https://" + serverURL;
+        }
+
+        // first check whether the URL is already registeed
+        if (this.findServerByURL(serverURL)) {
+            // nothing has to be done the LMS is already available
+            $(document).trigger("LMS_AVAILABLE");
+        }
+        else {
+            // check for a trailing slash
+            if (serverURL.search(/\/$/) === -1) {
+                // add a slash
+                serverURL = serverURL + "/";
+            }
+            // add the rsd.json to the URL
+            serverURL = serverURL + "rsd";
+
+            $.ajax({
+                "url": serverURL + ".json",
+                "dataType": "json",
+                "success": validateRSD,
+                "error": rsdCheckAgain
+            });
+        }
+    };
+
+    /**
+     * @public @method eachLMS(callbackFunction, bindObject)
+     * @param callback - the callback function to handle the LMS data
+     * @param bindObject - the object that should be used as this for the callback
+     *
+     * This method loops through the registered LMSes and passes a simplified RSD
+     * to the callback function. The callback function accepts 1 parameter. This
+     * parameter is an object with the following keys.
+     *
+     *  * "name"      - the displayname of the LMS
+     *  * "id"        - the app ID of the LMS
+     *  * "logofile" - the file for the logo associated with the LMS
+     *
+     * This is list can be used to display the list of registered LMSes for the
+     * app. I suppose that most users have only one or two LMSes registered.
+     */
+    LMSModel.prototype.eachLMS = function (cbFunc, bind) {
+        if (!bind) {
+            bind = this;
+        }
+
+        var ts = (new Date()).getTime();
+
+        console.log("LMS List: " + JSON.stringify(lmsData));
+
+        Object.keys(lmsData).forEach(function (lmsid) {
+            if (lmsid !== "activeServer") {
+                var rsd = lmsData[lmsid];
+                if (rsd.inaccessible > 0) {
+                    var delta = ts - rsd.inaccessible;
+                    if (delta > 3600000) { // wait for one hour
+                        delete rsd.inaccessible;
+                        storeData();
+                    }
+                }
+                var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+
+                console.log('server is inaccessible? ' + rsd.inaccessible);
+
+                cbFunc.call(bind, {"id": rsd.id,
+                                   "name": rsd.name,
+                                   "logofile": rsd.logolink,
+                                   "inactive": ((rsd.inaccessible &&
+                                                rsd.inaccessible > 0) ? 1 : 0),
+                                   "selected": isSelected});
+            }
+        });
+    };
+
+    /**
+     * @public @method activeLMS(callback, bindObject)
+     *
+     * @param callback - the callback function to handle the LMS data
+     * @param bindObject - the object that should be used as this for the callback
+     *
+     * activeLMS returns the simplified RSD for the active LMS. It provides the same data to
+     * the callback as eachLMS().
+     */
+    LMSModel.prototype.getActiveLMS = function (cbFunc, bind) {
+        if (!bind) {
+            bind = this;
+        }
+
+        if (this.activeLMS) {
+            var rsd = this.activeLMS,
+                ts = (new Date()).getTime();
+
+            // remove the inaccessible flag after some time.
+             if (rsd.inaccessible > 0) {
+                var delta = ts - rsd.inaccessible;
+                if (delta > 3600000) { // wait for one hour
+                    delete rsd.inaccessible;
+                    storeData();
+                }
+            }
+            console.log('server is inaccessible? ' + rsd.inaccessible);
+
+            cbFunc.call(bind, {"id": rsd.id,
+                               "name": rsd.name,
+                               "logofile": rsd.logolink,
+                               "inactive": ((rsd.inaccessible &&
+                                            rsd.inaccessible > 0) ? 1 : 0),
+                               "selected": 1});
+        }
+    };
+
+    /**
+     * @public @method setActiveLMS(serverid)
+     * @param serverid - the lms id for the presently active server.
+     *
+     * This method sets the active LMS that is used for the following LMS operations.
+     *
+     * Presently, it is used only for authentication and request signing.
+     */
+    LMSModel.prototype.setActiveLMS = function (serverid) {
+        this.previousLMS = this.activeLMS;
+        var tmpLMS = lmsData[serverid];
+        if (tmpLMS) {
+            console.log("activate LMS " + JSON.stringify(tmpLMS));
+            this.activeLMS = tmpLMS;
+            lmsData.activeServer = serverid;
+            storeData();
+
+            if (tmpLMS.keys &&
+                tmpLMS.keys.hasOwnProperty("device")) {
+                $(document).trigger("LMS_DEVICE_READY");
+            }
+            else {
+                // register the device in a second stage
+                registerDevice(tmpLMS);
+            }
+        }
+    };
+
+    /**
+     * @function getDefaultLanguage
+     * @return {String} defaultLanguage, the default language of the active/selected server
+     *
+     * This is function takes only the default language for the active server into account.
+     * It does NOT reflect the device language or the user's preferred language.
+     * This information must get extracted from the configuration or the identity model.
+     */
+    LMSModel.prototype.getDefaultLanguage = function () {
+        if (this.activeLMS &&
+            this.activeLMS.language &&
+            this.activeLMS.language.length) {
+            return this.activeLMS.language;
+        }
+        return undefined;
+    };
+
+    /**
+     * @public @function getServiceURL(serviceName)
+     * @param {String} serviceName - the name of the service
+     * @return {String} serviceURL - the url to the service for the active server.
+     *
+     * getServiceURL() returns the full URL to a service for the active LMS. If the
+     * service is not provided by the LMS, the response will be undefined.
+     */
+    LMSModel.prototype.getServiceURL = function (serviceName) {
+        return getServiceURL(this.activeLMS, serviceName);
+    };
+
+    /**
+     * @public @method restoreActiveServer()
+     *
+     * if the selected server is not available for some reason,
+     * this function switches back to the previous active server.
+     */
+    LMSModel.prototype.restoreActiveServer = function () {
+        if (this.previousLMS) {
+            this.activeLMS = this.previousLMS;
+            lmsData.activeServer = this.previousLMS.id;
+            storeData();
+            this.previousLMS = null;
+        }
+    };
+
+    /**
+     * @public @function getActiveRequestToken()
+     *
+     * returns the requestToken (keys.device) for the activeServer
+     */
+    LMSModel.prototype.getActiveRequestToken = function () {
+        return lmsData[lmsData.activeServer].keys.device;
+    };
+
+    /**
+     * @public @method clearInactiveFlag()
+     *
+     * clears the inactive timestamp for the active server
+     */
+    LMSModel.prototype.clearInactiveFlag = function () {
+        delete lmsData[lmsData.activeServer].inactive;
+        storeData();
+    };
+
+    /**
+     * @public @method setInactiveFlag()
+     *
+     * sets the inactive timestamp for the active server
+     */
+    LMSModel.prototype.setInactiveFlag = function () {
+        lmsData[lmsData.activeServer].inactive = (new Date()).getTime();
+        storeData();
+    };
+
+    // in a future release the models should be moved into a static objects
+    // under the window object, so they are already instantiated when the
+    // views come into play.
+    w.LMSModel = LMSModel;
+}(window));

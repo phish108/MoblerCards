@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="ch.ethz.isn.moblercards" version="3.0.1">
+<widget id="org.mobinaut.moblercards" version="3.0.1">
     <name>Mobler Cards</name>
     <description>
 A simple training and practicing app that connects to your LMS
     </description>
-    <author email="e-learning@sipo.gess.ethz.ch" href="http://www.isn.ethz.ch">
+    <author email="app@mobinaut.io" href="http://www.mobinaut.io">
         ISN/CSS?ETH Zürich
     </author>
     <content src="index.html"/>
     <access origin="*"/>
     <preference name="DisallowOverscroll" value="true"/>
-    
+
     <feature name="Network Information">
         <param name="id" value="org.apache.cordova.network-information"/>
     </feature>

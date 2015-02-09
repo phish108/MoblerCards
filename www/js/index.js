@@ -1,8 +1,8 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,8 +16,21 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
+
+var $, jester, jQuery;
+if (window.$) {
+    $ = window.$;
+}
+
+if (window.jQuery) {
+    jQuery = window.jQuery;
+}
+
+if (window.jester) {
+    jester = window.jester;
+}
 
 function MoblerCards() {
     var self = this;
@@ -26,9 +39,9 @@ function MoblerCards() {
     self.MoblerVersion = 2.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    
-    var featuredContentId = FEATURED_CONTENT_ID;
-    var startTime = new Date().getTime();
+
+   // var featuredContentId = FEATURED_CONTENT_ID;
+   // var startTime = new Date().getTime();
 
     jester().options({
         'avoidDoubleTap': true,
@@ -106,11 +119,15 @@ function MoblerCards() {
     });
 }
 
-MoblerCards.prototype.onPause = function () {};
+MoblerCards.prototype.initialize = function() {
+    this.setupLanguage();
+};
 
-MoblerCards.prototype.onResume = function () {};
+//MoblerCards.prototype.onPause = function () {};
 
-MoblerCards.prototype.onBack = function () {};
+//MoblerCards.prototype.onResume = function () {};
+
+//MoblerCards.prototype.onBack = function () {};
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
@@ -146,9 +163,10 @@ MoblerCards.prototype.migrate = function (thisVersion) {
 
 MoblerCards.prototype.migrateTo2 = function () {
     var configuration;
+    var configurationObject;
     try {
         //configuration=JSON.parse(localStorage.getItem("configuration"));
-        var configurationObject = localStorage.getItem("configuration");
+        configurationObject = localStorage.getItem("configuration");
         if (configurationObject) {
             configuration = JSON.parse(configurationObject);
         }
@@ -169,7 +187,7 @@ MoblerCards.prototype.migrateTo2 = function () {
                     "defaultLanguage": language_root
                 }
             }
-        }
+        };
 
         delete configuration.appAuthenticationKey;
         //var configurationObject=localStorage.getItem("configuration");
@@ -181,10 +199,10 @@ MoblerCards.prototype.migrateTo2 = function () {
 
     if (!configuration) {
         console.log("configuration object didn't exist during the migration");
-        var configurationObject = {
+        configurationObject = {
             loginState: "loggedOut",
             statisticsLoaded: "false"
-        }
+        };
         localStorage.setItem("configuration", JSON.stringify(configurationObject));
     }
 };
@@ -201,38 +219,41 @@ MoblerCards.prototype.setupLanguage = function () {
         mode: 'both',
         language: this.models.configuration.getLanguage(),
         callback: function () { // initialize the static strings on all views
-            $("#usernameInput").attr("placeholder", msg_placeholder_username);
-            $("#numberInput").attr("placeholder", msg_placeholder_numberinput);
-            $("#password").attr("placeholder", msg_placeholder_password);
-            $("#coursesListTitle").text(msg_courses_list_title);
-            $("#lmsListTitle").text(msg_lms_list_title);
-            $("#settingsTitle").text(msg_settings_title);
-            $("#logoutConfirmationTitle").text(msg_logout_title);
-            $("#statBestDayTitle").text(msg_bestDay_title);
-            $("#statBestScoreTitle").text(msg_bestScore_title);
-            $("#statsBestScoreInfo").text(msg_bestScore_info);
-            $("#achievementsReference").text(msg_achievements_reference);
-            $("#statHandledCardsTitle").text(msg_handledCards_title);
-            $("#statAverageScoreTitle").text(msg_averageScore_title);
-            $("#statProgressTitle").text(msg_progress_title);
-            $("#statsProgressInfo").text(msg_progress_info);
-            $("#statSpeedTitle").text(msg_speed_title);
+            $("#usernameInput").attr("placeholder",
+                                     jQuery.i18n.prop('msg_placeholder_username'));
+            $("#numberInput").attr("placeholder",
+                                   jQuery.i18n.prop('msg_placeholder_numberinput'));
+            $("#password").attr("placeholder",
+                                jQuery.i18n.prop('msg_placeholder_password'));
+            $("#coursesListTitle").text(jQuery.i18n.prop('msg_courses_list_title'));
+            $("#lmsListTitle").text(jQuery.i18n.prop('msg_lms_list_title'));
+            $("#settingsTitle").text(jQuery.i18n.prop('msg_settings_title'));
+            $("#logoutConfirmationTitle").text(jQuery.i18n.prop('msg_logout_title'));
+            $("#statBestDayTitle").text(jQuery.i18n.prop('msg_bestDay_title'));
+            $("#statBestScoreTitle").text(jQuery.i18n.prop('msg_bestScore_title'));
+            $("#statsBestScoreInfo").text(jQuery.i18n.prop('msg_bestScore_info'));
+            $("#achievementsReference").text(jQuery.i18n.prop('msg_achievements_reference'));
+            $("#statHandledCardsTitle").text(jQuery.i18n.prop('msg_handledCards_title'));
+            $("#statAverageScoreTitle").text(jQuery.i18n.prop('msg_averageScore_title'));
+            $("#statProgressTitle").text(jQuery.i18n.prop('msg_progress_title'));
+            $("#statsProgressInfo").text(jQuery.i18n.prop('msg_progress_info'));
+            $("#statSpeedTitle").text(jQuery.i18n.prop('msg_speed_title'));
             //$("#statsSpeedinfo").text(msg_speed_info);
-            $("#achievementsTitle").text(msg_achievements_title);
-            $("#stackHandlerIcon").addClass(msg_achievements_Handler_icon);
-            $("#stackHandlerTitle").text(msg_achievementsHandler_title);
-            $("#stackHandlerExplanation").text(msg_achievementsHandler_explanation);
-            $("#starterStackHandler").text(msg_achievements_text1);
-            $("#loadingMessage").text(msg_loading_message);
-            $("#loadingMessageAchievements").text(msg_achievementsLoading_message);
-            $("#doneStackHandler").text(msg_achievements_text2);
-            $("#cardBurnerIcon").addClass(msg_achievements_Burner_icon);
-            $("#cardBurnerTitle").text(msg_achievementsBurner_title);
-            $("#cardBurnerExplanation").text(msg_achievementsBurner_explanation);
-            $("#starterCardBurner").text(msg_achievements_text1);
-            $("#doneCardBurner").text(msg_achievements_text2);
-            $("#aboutTitle").text(msg_about_title);
-            $("#logoutText").text(msg_logout_body);
+            $("#achievementsTitle").text(jQuery.i18n.prop('msg_achievements_title'));
+            $("#stackHandlerIcon").addClass(jQuery.i18n.prop('msg_achievements_Handler_icon'));
+            $("#stackHandlerTitle").text(jQuery.i18n.prop('msg_achievementsHandler_title'));
+            $("#stackHandlerExplanation").text(jQuery.i18n.prop('msg_achievementsHandler_explanation'));
+            $("#starterStackHandler").text(jQuery.i18n.prop('msg_achievements_text1'));
+            $("#loadingMessage").text(jQuery.i18n.prop('msg_loading_message'));
+            $("#loadingMessageAchievements").text(jQuery.i18n.prop('msg_achievementsLoading_message'));
+            $("#doneStackHandler").text(jQuery.i18n.prop('msg_achievements_text2'));
+            $("#cardBurnerIcon").addClass(jQuery.i18n.prop('msg_achievements_Burner_icon'));
+            $("#cardBurnerTitle").text(jQuery.i18n.prop('msg_achievementsBurner_title'));
+            $("#cardBurnerExplanation").text(jQuery.i18n.prop('msg_achievementsBurner_explanation'));
+            $("#starterCardBurner").text(jQuery.i18n.prop('msg_achievements_text1'));
+            $("#doneCardBurner").text(jQuery.i18n.prop('msg_achievements_text2'));
+            $("#aboutTitle").text(jQuery.i18n.prop('msg_about_title'));
+            $("#logoutText").text(jQuery.i18n.prop('msg_logout_body'));
             $("#nameLabelSet").text(jQuery.i18n.prop('msg_fullname'));
             $("#usernameLabelSet").text(jQuery.i18n.prop('msg_username'));
             $("#emailLabelSet").text(jQuery.i18n.prop('msg_email'));
@@ -247,15 +268,17 @@ MoblerCards.prototype.setupLanguage = function () {
 
 /**
  * Transition to statistics view. The user can reach the statistics view in two ways: 1) either by clicking the statistics icon on the course list view or  2) from the achievements view.
- * TODO: Refactoring of the function
  * @prototype
  * @function transitionToStatistics
  **/
+
+ // TODO: Refactoring of the function
+
 MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsFlag) {
     //set the statistics waiting flag
     this.clickOutOfStatisticsIcon = false;
 
-    //The transition to statistics view is done by clicking the statistics icon in any list view. 
+    //The transition to statistics view is done by clicking the statistics icon in any list view.
     //In this case a courseID is assigned for the clicked option.
 
     if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
@@ -302,25 +325,7 @@ MoblerCards.prototype.getActiveClientKey = function () {
  * @return {String} url, url of the active server
  **/
 MoblerCards.prototype.getActiveURL = function () {
-    return this.models.lms.getActiveServerURL();
-};
-
-/**
- * @prototype
- * @function getActiveLogo
- * @return {String} url, url of the image of the active server
- **/
-MoblerCards.prototype.getActiveLogo = function () {
-    return this.models.lms.getActiveServerImage();
-};
-
-/**
- * @prototype
- * @function getActiveLabel
- * @return {String} label, the label of the active server
- **/
-MoblerCards.prototype.getActiveLabel = function () {
-    return this.models.lms.getActiveServerLabel();
+    return "";
 };
 
 /**
@@ -349,11 +354,11 @@ MoblerCards.prototype.setConfigVariable = function (varname, varvalue) {
 
 MoblerCards.prototype.resizeHandler = function () {
     //   new Orientation Layout
-    var orientationLayout = false; // e.g. Portrait mode
+//    var orientationLayout = false; // e.g. Portrait mode
     var w = $(window).width(),
         h = $(window).height();
     if (w / h > 1) {
-        orientationLayout = true;
+//        orientationLayout = true;
         console.log("we are in landscape mode");
     } // e.g. Landscape mode
     // window.width / window.height > 1 portrait
@@ -384,7 +389,7 @@ MoblerCards.prototype.injectStyle = function () {
         h = t;
     }
 
-    // calculate the heights once and forever. 
+    // calculate the heights once and forever.
     var cfl = w - 54,
         cfp = h - 54,
         cl = w - 102,
@@ -406,7 +411,7 @@ MoblerCards.prototype.injectStyle = function () {
     });
 
     $('head').append(e);
-}
+};
 
 /**
  * 	Does the aproropriate calculations when we click on a course item
@@ -417,7 +422,7 @@ MoblerCards.prototype.injectStyle = function () {
  * 	@ param{string or number}, courseId, the id of the current course
  * */
 MoblerCards.prototype.selectCourseItem = function (courseId) {
-    this.models.questionpool.reset(); 
+    this.models.questionpool.reset();
     //add it within the loadData, similar with statistics (setcurrentCourseId function)...
     this.models.questionpool.loadData(courseId);
     if (this.models.questionpool.dataAvailable()) {
@@ -427,4 +432,4 @@ MoblerCards.prototype.selectCourseItem = function (courseId) {
     } else {
         console.log("[ERROR]@selectCourseItem()");
     }
-}
+};
