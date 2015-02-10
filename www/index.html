@@ -41,7 +41,7 @@
                     </div>
                     <div id="landingfeaturedlabel" class="listlabel"></div>
                     <div class="listimage blue">
-                        <span id="landingfeaturedimage" class="icon-bars"></span>
+                        <span id="landingfeaturedimage" class="separator2 icon-bars"></span>
                     </div>
                 </li>
                 <li id="landingexclusivelist" class="listbox gradient2">
@@ -50,7 +50,7 @@
                     </div>
                     <div id="landingexclusivelabel" class="listlabel">Exclusive Content</div>
                     <div class="listimage blue">
-                        <span id="landingexclusiveimage" class="icon-enter" ></span>
+                        <span id="landingexclusiveimage" class="separator2 icon-enter" ></span>
                     </div>
                 </li>
                 <li class="borderRemoval">
@@ -116,7 +116,7 @@
 
     <div id="lms" class="screen" data-view="LMSView" data-touch="tap">
         <div id="lmsheader" class="headerbox">
-            <div id="lmsicon"  class="titleicon"><span class="icon-lms"></span></div>
+            <div id="lmsicon"  class="titleicon"><span class="icon-courses"></span></div>
             <div id="lmstitle" class="headercontent">LMS list</div>
             <div id="lmscross" class="closeicon"><span id="lmsclose" class="icon-cross"></span></div>
         </div>
@@ -165,12 +165,12 @@
             <ul id="coursebox">
                 <template id="courselistbox">
                     <li id="courselist" class="listbox gradient2">
-                        <div id="coursedash"  class="listdash white">
+                        <div id="coursedash"  class="listdash">
                             <span class="icon-dash"></span>
                         </div>
                         <div id="courselabel" class="listlabel"></div>
-                        <div id="courseimage" class="listimage white">
-                            <span id="courseimg"></span>
+                        <div id="courseimage" class="listimage">
+                            <span id="courseimg" class="separator"></span>
                         </div>
                     </li>
                 </template>
@@ -581,38 +581,38 @@
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
     <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
     <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
-    <script type="text/javascript" src="js/models/lmsModel.js"></script>
+    <script type="text/javascript" src="js/models/LmsModel.js"></script>
     <script type="text/javascript" src="js/models/CourseModel.js"></script>
     <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
-    <script type="text/javascript" src="js/models/answerModel.js"></script>
+    <script type="text/javascript" src="js/models/AnswerModel.js"></script>
     <script type="text/javascript" src="js/models/StatisticsModel.js"></script>
     <script type="text/javascript" src="js/models/BestDayModel.js"></script>
-    <script type="text/javascript" src="js/models/handledCardsModel.js"></script>
-    <script type="text/javascript" src="js/models/averageScoreModel.js"></script>
-    <script type="text/javascript" src="js/models/progressModel.js"></script>
-    <script type="text/javascript" src="js/models/averageSpeedModel.js"></script>
-    <script type="text/javascript" src="js/models/stackHandlerModel.js"></script>
-    <script type="text/javascript" src="js/models/cardBurnerModel.js"></script>
-    <script type="text/javascript" src="js/models/trackingModel.js"></script>
+    <script type="text/javascript" src="js/models/HandledCardsModel.js"></script>
+    <script type="text/javascript" src="js/models/AverageScoreModel.js"></script>
+    <script type="text/javascript" src="js/models/ProgressModel.js"></script>
+    <script type="text/javascript" src="js/models/AverageSpeedModel.js"></script>
+    <script type="text/javascript" src="js/models/StackHandlerModel.js"></script>
+    <script type="text/javascript" src="js/models/CardBurnerModel.js"></script>
+    <script type="text/javascript" src="js/models/TrackingModel.js"></script>
 
-    <script type="text/javascript" src="js/views/singleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/views/multipleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/views/textSortWidget.js"></script>
+    <script type="text/javascript" src="js/views/SingleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/views/MultipleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/views/TextSortWidget.js"></script>
     <script type="text/javascript" src="js/views/ClozeQuestionTypeView.js"></script>
-    <script type="text/javascript" src="js/views/textHorizontalSortWidget.js"></script>
-    <script type="text/javascript" src="js/views/numericQuestionWidget.js"></script>
-    <script type="text/javascript" src="js/views/answerView.js"></script>
-    <script type="text/javascript" src="js/views/lmsView.js"></script>
+    <script type="text/javascript" src="js/views/TextHorizontalSortWidget.js"></script>
+    <script type="text/javascript" src="js/views/NumericQuestionWidget.js"></script>
+    <script type="text/javascript" src="js/views/AnswerView.js"></script>
+    <script type="text/javascript" src="js/views/LmsView.js"></script>
     <script type="text/javascript" src="js/views/CourseView.js"></script>
-    <script type="text/javascript" src="js/views/feedbackView.js"></script>
-    <script type="text/javascript" src="js/views/loginView.js"></script>
-    <script type="text/javascript" src="js/views/landingView.js"></script>
-    <script type="text/javascript" src="js/views/logoutView.js"></script>
-    <script type="text/javascript" src="js/views/questionView.js"></script>
-    <script type="text/javascript" src="js/views/settingsView.js"></script>
-    <script type="text/javascript" src="js/views/statisticsView.js"></script>
-    <script type="text/javascript" src="js/views/achievementsView.js"></script>
-    <script type="text/javascript" src="js/views/aboutView.js"></script>
+    <script type="text/javascript" src="js/views/FeedbackView.js"></script>
+    <script type="text/javascript" src="js/views/LoginView.js"></script>
+    <script type="text/javascript" src="js/views/LandingView.js"></script>
+    <script type="text/javascript" src="js/views/LogoutView.js"></script>
+    <script type="text/javascript" src="js/views/QuestionView.js"></script>
+    <script type="text/javascript" src="js/views/SettingsView.js"></script>
+    <script type="text/javascript" src="js/views/StatisticsView.js"></script>
+    <script type="text/javascript" src="js/views/AchievementsView.js"></script>
+    <script type="text/javascript" src="js/views/AboutView.js"></script>
     <script type="text/javascript" src="js/views/SplashView.js"></script>
 
     <script type="text/javascript">
