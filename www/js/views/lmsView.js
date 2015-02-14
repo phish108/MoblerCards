@@ -209,6 +209,7 @@ LMSView.prototype.tap = function (event) {
     console.log("[LMSView] tap registered: " + id + " " + sn);
 
     if (id === "lmsclose") {
+        // TODO if lms added return to login view instead of landing view
         this.back();
     }
     else if (id.indexOf("addlms") === 0) {
