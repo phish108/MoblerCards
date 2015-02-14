@@ -93,6 +93,7 @@ QuestionView.prototype.tap = function (event) {
     console.log("[QuestionView] tap registered: " + id);
 
     if (id === "questionbutton" ||
+        id === "questionlisttext" ||
         id === "questioncontent") {
         if (this.app.models.answer.answerScore > -1) {
             this.app.changeView("feedback");
