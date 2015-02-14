@@ -196,8 +196,14 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
                                            'data':      {get: function () {return self.viewData;}}
                                           });
 
-    // allow normal view delegates to trigger our functions. Exclude widgets from doing so.
-    if (!(typeof delegateName === "string" && delegateName.length)) {
+    if (typeof delegateName === "string" && delegateName.length) {
+        // widgets/subviews should know their masterview (READ ONLY)
+        Object.defineProperties(delegateBase, {
+            'master': {'get': function () { return self.delegate; }}
+        });
+    }
+    else {
+        // allow normal view delegates to trigger our functions. Exclude widgets from doing so.
         delegateBase.back         = function () { self.back(); };
         delegateBase.open         = function () { self.open(); };
         delegateBase.close        = function () { self.close(); };
@@ -231,6 +237,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
             case "template":
             case "active":
             case "data":
+            case "master":
             case "back":
             case "open":
             case "close":
