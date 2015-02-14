@@ -26,7 +26,7 @@ function CoreView(app, domid, theDelegate) {
     function callMyTap(ev) {
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["tap_"+this.id] === 'function')) {
+            if (typeof d["tap_"+this.id] === 'function') {
                 d["tap_"+this.id](ev);
             }
             else {
@@ -38,7 +38,7 @@ function CoreView(app, domid, theDelegate) {
     function callMyClick(ev) {
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["click_"+this.id] === 'function')) {
+            if (typeof d["click_"+this.id] === 'function') {
                 d["click_"+this.id](ev);
             }
             else {
@@ -51,7 +51,7 @@ function CoreView(app, domid, theDelegate) {
         console.log("blur ");
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["blur_"+this.id] === 'function')) {
+            if (typeof d["blur_"+this.id] === 'function') {
                 d["blur_"+this.id](ev);
             }
             else {
@@ -63,7 +63,7 @@ function CoreView(app, domid, theDelegate) {
     function callMyFocus(ev) {
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["focus_"+this.id] === 'function')) {
+            if (typeof d["focus_"+this.id] === 'function') {
                 d["focus_"+this.id](ev);
             }
             else {
@@ -210,7 +210,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
         delegateBase.refresh      = function () { self.refresh(); };
         delegateBase.clear        = function () { self.clear(); };
         delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
-        delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) self.initDelegate(dClass, dName); };
+        delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) { self.initDelegate(dClass, dName);}};
     }
 
     delegateBase.update     = noop;
@@ -254,7 +254,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
     });
 
     if (typeof delegateName === "string" && delegateName.length) {
-        if (!(delegateName in self.widgets)) {
+        if (!(self.widgets.hasOwnProperty(delegateName))) {
             // initialize the same widget name only once
             self.widgets[delegateName] = new theDelegate();
         }
@@ -330,7 +330,7 @@ CoreView.prototype.close = function () {
     this.delegate.cleanup();
 };
 
-    if (!('CoreView' in a)) {
+    if (!(a.hasOwnProperty('CoreView'))) {
         a.CoreView = CoreView;
     }
 })(window);
