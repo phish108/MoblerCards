@@ -38,33 +38,30 @@ under the License.
  *   and an appropriate message is displayed to the user.
  * @param {Boolean} interactive
  */
-function MultipleChoiceWidget(interactive) {
+function MultipleChoiceWidget (interactive) {
     var self = this;
-
-    self.tickedAnswers = app.models.answer.getAnswers(); // a list with the currently selected answers
-    self.interactive = interactive;
-
-    // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
-    this.didApologize = false;
+        
     //Check the boolean value of interactive. This is set through the answer and feedback view.
+    self.interactive = interactive;
+    
+    // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
+    self.didApologize = false;
+    
+    // a list with the currently selected answers
+    self.tickedAnswers = app.models.answer.getAnswers(); 
+    
+    // current selected Answer
+    self.selectedAnswer = null;
+    
     if (self.interactive) {
+        // when answer view is active, then interactive variable is set to true.
+        // displays the answer body of the multiple choice widget
         self.showAnswer();
-        console.log("interactive true");
     } else {
-        console.log("interactive false");
         //displays the feedback body of the multiple choice widget
         self.showFeedback();
     }
-} // end of constructor
-
-
-/**
- * doNothing
- * @prototype
- * @function cleanup
- **/
-MultipleChoiceWidget.prototype.cleanup = function () {};
-
+}
 
 /**
  * Creation of answer body for multiple choice questions.
@@ -76,80 +73,86 @@ MultipleChoiceWidget.prototype.cleanup = function () {};
 MultipleChoiceWidget.prototype.showAnswer = function () {
     var questionpoolModel = app.models.questionpool;
 
-    $("#cardAnswerBody").empty();
-
+    console.log("[MultipleChoiceWidget] showAnswer");
+    
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
-
+        
         questionpoolModel = app.models.questionpool;
-        var answers = questionpoolModel.getAnswer(); //returns an array containing the possible answers
-        var mixedAnswers;
+        
+        //returns an array containing the possible answers
+        var answers = questionpoolModel.getAnswer(); 
+        var mixedAnswers = questionpoolModel.getMixedAnswersArray();
+        var c;
+        
+        var tmpl = app.templates.getTemplate("answerlistbox");
+        
         //mix answer items in an random order
         if (!questionpoolModel.currAnswersMixed()) {
             questionpoolModel.mixAnswers();
         }
-        mixedAnswers = questionpoolModel.getMixedAnswersArray();
+        
+        for (c = 0; c < mixedAnswers.length; c++) {
+            tmpl.attach(mixedAnswers[c]);
+            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
+        }
 
-        var viewId = $("#cardAnswerView");
-        //creation of an unordered list to host the possible answers
-        var ul = $("<ul/>", {}).appendTo("#cardAnswerBody");
-
-
-        for (var c = 0; c < mixedAnswers.length; c++) {
-            // when an answer item is clicked a highlighted background color is
-            // applied to it via "ticked" class
-            var li = $(
-                "<li/>", {
-                    "id": "answer" + mixedAnswers[c],
-                    "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected " : "gradient2 "),
-                }).appendTo(ul);
-            // handler when taping on an item on the answer list
-            jester(li[0]).tap(function () {
-                self.clickMultipleAnswerItem($(this));
-            });
-
-
-            var rightDiv = $("<div/>", {
-                "class": "right"
-            }).appendTo(li);
-
-            var separator = $("<div/>", {
-                "id": "separator" + mixedAnswers[c],
-                "class": " lineContainer separatorContainerCourses radial marginSeparatorTop"
-            }).appendTo(rightDiv);
-
-
-            var div = $("<div/>", {
-                //"class" : "courseListIcon right gradient2"
-                "id": "iconContainer" + mixedAnswers[c],
-                "class": "courseListIconFeedback lineContainer"
-            }).appendTo(rightDiv);
-
-
-
-            // displays the text value for each answer item on the single choice
-            // list
-            var div = $("<div/>", {
-                "id": "title" + mixedAnswers[c],
-                "class": "text",
-                text: answers[mixedAnswers[c]].answertext
-            }).appendTo(li);
-
-        } //end of for
-        var lastli = $("<li/>", {}).appendTo(ul);
-
-        var shadoweddiv = $("<div/>", {
-            "id": "shadowedAnswerLi",
-            "class": "gradient1 shadowedLi"
-        }).appendTo(lastli);
-
-        var marginLi = $("<li/>", {
-            "class": "spacerMargin"
-        }).insertAfter(shadoweddiv);
-
-
-    } else {
+//        var ul = $("<ul/>", {}).appendTo("#cardAnswerBody");
+//
+//        for (var c = 0; c < mixedAnswers.length; c++) {
+//            // when an answer item is clicked a highlighted background color is
+//            // applied to it via "ticked" class
+//            var li = $(
+//                "<li/>", {
+//                    "id": "answer" + mixedAnswers[c],
+//                    "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected " : "gradient2 "),
+//                }).appendTo(ul);
+//            // handler when taping on an item on the answer list
+//            jester(li[0]).tap(function () {
+//                self.clickMultipleAnswerItem($(this));
+//            });
+//
+//
+//            var rightDiv = $("<div/>", {
+//                "class": "right"
+//            }).appendTo(li);
+//
+//            var separator = $("<div/>", {
+//                "id": "separator" + mixedAnswers[c],
+//                "class": " lineContainer separatorContainerCourses radial marginSeparatorTop"
+//            }).appendTo(rightDiv);
+//
+//
+//            var div = $("<div/>", {
+//                //"class" : "courseListIcon right gradient2"
+//                "id": "iconContainer" + mixedAnswers[c],
+//                "class": "courseListIconFeedback lineContainer"
+//            }).appendTo(rightDiv);
+//
+//
+//
+//            // displays the text value for each answer item on the single choice
+//            // list
+//            var div = $("<div/>", {
+//                "id": "title" + mixedAnswers[c],
+//                "class": "text",
+//                text: answers[mixedAnswers[c]].answertext
+//            }).appendTo(li);
+//
+//        } //end of for
+//        var lastli = $("<li/>", {}).appendTo(ul);
+//
+//        var shadoweddiv = $("<div/>", {
+//            "id": "shadowedAnswerLi",
+//            "class": "gradient1 shadowedLi"
+//        }).appendTo(lastli);
+//
+//        var marginLi = $("<li/>", {
+//            "class": "spacerMargin"
+//        }).insertAfter(shadoweddiv);
+    } 
+    else {
         //if there are no data for a question or there is no questionpool then display the error message
         this.didApologize = true;
         doApologize();
@@ -170,60 +173,61 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
     var self = this;
-    var questionpoolModel = app.models.questionpool;
+    var questionpoolModel = self.theApp.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
+    var c;
 
-    var ul = $("<ul/>", {
-        "z-index": " 7"
-    }).appendTo("#feedbackBody");
-
-    for (var c = 0; c < mixedAnswers.length; c++) {
-        // when an answer item is clicked a highlighted background color is
-        // applied to it via "ticked" class
-        var li = $(
-            "<li/>", {
-                "id": "answer" + mixedAnswers[c],
-                "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
-            }).appendTo(ul);
-
-        var rightDiv = $("<div/>", {
-            "class": "right"
-        }).appendTo(li);
-
-        var separator = $("<div/>", {
-            "id": "separator" + mixedAnswers[c],
-            "class": "radialCourses lineContainer separatorContainerCourses"
-        }).appendTo(rightDiv);
-
-
-        div = $("<div/>", {
-            //"class" : "courseListIcon right gradient2"
-            "id": "iconContainer" + mixedAnswers[c],
-            "class": "courseListIconFeedback lineContainer "
-        }).appendTo(rightDiv);
-
-        span = $("<span/>", {
-            "id": "courseListIcon" + mixedAnswers[c],
-            "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
-        }).appendTo(div);
-
-        var div = $("<div/>", {
-            "class": "text",
-            text: answers[mixedAnswers[c]].answertext
-        }).appendTo(li);
-    }
-
-    var lastli = $("<li/>", {}).appendTo(ul);
-
-    var shadoweddiv = $("<div/>", {
-        "id": "shadowedFeedbackLi",
-        "class": "gradient1 shadowedLi"
-    }).appendTo(lastli);
-
-    var marginLi = $("<li/>", {
-        "class": "spacerMargin"
-    }).insertAfter(shadoweddiv);
+//    var ul = $("<ul/>", {
+//        "z-index": " 7"
+//    }).appendTo("#feedbackBody");
+//
+//    for (c = 0; c < mixedAnswers.length; c++) {
+//        // when an answer item is clicked a highlighted background color is
+//        // applied to it via "ticked" class
+//        var li = $(
+//            "<li/>", {
+//                "id": "answer" + mixedAnswers[c],
+//                "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
+//            }).appendTo(ul);
+//
+//        var rightDiv = $("<div/>", {
+//            "class": "right"
+//        }).appendTo(li);
+//
+//        var separator = $("<div/>", {
+//            "id": "separator" + mixedAnswers[c],
+//            "class": "radialCourses lineContainer separatorContainerCourses"
+//        }).appendTo(rightDiv);
+//
+//
+//        div = $("<div/>", {
+//            //"class" : "courseListIcon right gradient2"
+//            "id": "iconContainer" + mixedAnswers[c],
+//            "class": "courseListIconFeedback lineContainer "
+//        }).appendTo(rightDiv);
+//
+//        span = $("<span/>", {
+//            "id": "courseListIcon" + mixedAnswers[c],
+//            "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
+//        }).appendTo(div);
+//
+//        var div = $("<div/>", {
+//            "class": "text",
+//            text: answers[mixedAnswers[c]].answertext
+//        }).appendTo(li);
+//    }
+//
+//    var lastli = $("<li/>", {}).appendTo(ul);
+//
+//    var shadoweddiv = $("<div/>", {
+//        "id": "shadowedFeedbackLi",
+//        "class": "gradient1 shadowedLi"
+//    }).appendTo(lastli);
+//
+//    var marginLi = $("<li/>", {
+//        "class": "spacerMargin"
+//    }).insertAfter(shadoweddiv);
 
     console.log("enter feedback view after switching from question view");
 };
@@ -234,10 +238,15 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
  * @prototype
  * @function clickMultipleAnswerItem
  **/
-MultipleChoiceWidget.prototype.clickMultipleAnswerItem = function (
-    clickedElement) {
-    // the ticked item is highlighted with a background color or unhighlighted, depending its previous state
-    clickedElement.toggleClass("gradientSelected");
+MultipleChoiceWidget.prototype.handleTap = function (event) {
+    var id = event.target.id;
+    
+    if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
+        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+    }
+    else {
+        $("#" + id).closest("li").addClass("gradient2").removeClass("gradientSelected");
+    }
 };
 
 /**
