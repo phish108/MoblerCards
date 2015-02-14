@@ -24,20 +24,47 @@ function CoreView(app, domid, theDelegate) {
 
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
-        if (self.active) self.delegate.tap(ev, this.id);
+        if (self.active) {
+            if (self.updateDelegate)
+                self.updateDelegate.tap(ev, this.id);
+            }
+            else {
+                self.delegate.tap(ev, this.id);
+            }
+        }
     }
 
     function callMyClick(ev) {
-        if (self.active) self.delegate.click(ev, this.id);
+        if (self.active) {
+            if (self.updateDelegate)
+                self.updateDelegate.click(ev, this.id);
+            }
+            else {
+                self.delegate.click(ev, this.id);
+            }
+        }
     }
 
     function callMyBlur(ev) {
         console.log("blur ");
-        if (self.active) self.delegate.blur(ev, this.id);
+        if (self.active) {
+            if (self.updateDelegate)
+                self.updateDelegate.blur(ev, this.id);
+            }
+            else {
+                self.delegate.blur(ev, this.id);
+            }
+        }
     }
 
     function callMyFocus(ev) {
-        if (self.active) self.delegate.focus(ev, this.id);
+        if (self.active) {
+            if (self.updateDelegate)
+                self.updateDelegate.focus(ev, this.id);
+            }
+            else {
+                self.delegate.focus(ev, this.id);
+            }
     }
 
     this.isVisible = false;
@@ -220,6 +247,10 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
     delegateBase.update   = noop;
     delegateBase.prepare  = noop;
     delegateBase.cleanup  = noop;
+    delegateBase.tap      = noop;
+    delegateBase.click    = noop;
+    delegateBase.blur     = noop;
+    delegateBase.focus    = noop;
 
     // subclass the delegate.
     theDelegate.prototype = Object.create(delegateBase);
@@ -250,7 +281,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
 
     if (typeof delegateName === "string" && delegateName.length) {
         if (!(delegateName in self.widgets)) {
-            // initialize the same widget only once
+            // initialize the same widget name only once
             self.widgets[delegateName] = new theDelegate();
         }
     }
