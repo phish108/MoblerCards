@@ -182,7 +182,16 @@ Object.defineProperties(CoreView.prototype, {
     }
 });
 
-CoreView.prototype.initDelegate     = function (theDelegate) {
+CoreView.prototype.useDelegate      = function (delegateName) {
+    if (typeof delegateName === "string" &&
+        this.widgets &&
+        this.widgets.length &&
+        this.widgets.hasOwnProperty(delegateName)) {
+        this.updateDelegate = this.widgets[delegateName];
+    }
+};
+
+CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
     var self = this;
 
     var delegateProto = theDelegate.prototype;
@@ -197,29 +206,58 @@ CoreView.prototype.initDelegate     = function (theDelegate) {
                                            'data':      {get: function () {return self.viewData;}}
                                           });
 
-    // allow delegate to trigger our functions.
-    delegateBase.back     = function () { self.back(); };
-    delegateBase.open     = function () { self.open(); };
-    delegateBase.close    = function () { self.close(); };
-    delegateBase.refresh  = function () { self.refresh(); };
-    delegateBase.clear    = function () { self.clear(); };
+    // allow normal view delegates to trigger our functions. Exclude widgets from doing so.
+    if (!(typeof delegateName === "string" && delegateName.length)) {
+        delegateBase.back         = function () { self.back(); };
+        delegateBase.open         = function () { self.open(); };
+        delegateBase.close        = function () { self.close(); };
+        delegateBase.refresh      = function () { self.refresh(); };
+        delegateBase.clear        = function () { self.clear(); };
+        delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
+        delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) self.initDelegate(dClass, dName); };
+    }
+
+    delegateBase.update   = noop;
+    delegateBase.prepare  = noop;
+    delegateBase.cleanup  = noop;
 
     // subclass the delegate.
     theDelegate.prototype = Object.create(delegateBase);
 
-    // roll back the delegate functions (and overload the bas functions where required)
+    // roll back the delegate functions (and overload the functions where required)
     Object.getOwnPropertyNames(delegateProto).forEach(function (pname) {
-        Object.defineProperty(theDelegate.prototype, pname, Object.getOwnPropertyDescriptor(delegateProto, pname));
-    });
-
-    // ensure minimum prototype requirements
-    ['update', 'prepare', 'cleanup'].forEach(function (pname) {
-        if (!(pname in delegateProto)) { // only default if the delegate did not implement them.
-            theDelegate.prototype[pname] = noop;
+        switch (pname) {
+            case "app":
+            case "container":
+            case "content":
+            case "template":
+            case "active":
+            case "data":
+            case "back":
+            case "open":
+            case "close":
+            case "refresh":
+            case "clear":
+            case "delegate":
+            case "useDelegate":
+                // don't override core view internals
+                break;
+            default:
+                Object.defineProperty(theDelegate.prototype, pname, Object.getOwnPropertyDescriptor(delegateProto, pname));
+                break;
         }
     });
 
-    self.delegate = new theDelegate();
+    if (typeof delegateName === "string" && delegateName.length) {
+        if (!(delegateName in self.widgets)) {
+            // initialize the same widget only once
+            self.widgets[delegateName] = new theDelegate();
+        }
+    }
+    else {
+        self.widgets = {};
+        self.delegate = new theDelegate();
+    }
 };
 
 CoreView.prototype.back = function () {
@@ -253,6 +291,10 @@ CoreView.prototype.clear = function () {
 CoreView.prototype.refresh = function () {
     if (this.active) {
         this.clear();
+        if (this.updateDelegate) {
+            this.updateDelegate.update();
+        }
+        // allow the view to still do updates to itself
         this.delegate.update();
     }
 };
@@ -260,6 +302,9 @@ CoreView.prototype.refresh = function () {
 CoreView.prototype.open = function (viewData) {
     this.viewData = viewData || {};
     this.delegate.prepare();
+    if (this.updateDelegate) {
+        this.updateDelegate.prepare();
+    }
     this.refresh();
     if (this.container) {
         this.container.addClass('active');
@@ -272,6 +317,10 @@ CoreView.prototype.close = function () {
     this.isVisible = false;
     if (this.container) {
         this.container.removeClass('active');
+    }
+    if (this.updateDelegate) {
+        this.updateDelegate.cleanup();
+        this.updateDelegate = null;
     }
     this.delegate.cleanup();
 };
