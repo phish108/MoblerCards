@@ -79,7 +79,10 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
         
-        questionpoolModel = app.models.questionpool;
+        //mix answer items in an random order
+        if (!questionpoolModel.currAnswersMixed()) {
+            questionpoolModel.mixAnswers();
+        }
         
         //returns an array containing the possible answers
         var answers = questionpoolModel.getAnswer(); 
@@ -87,11 +90,6 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
         var c;
         
         var tmpl = app.templates.getTemplate("answerlistbox");
-        
-        //mix answer items in an random order
-        if (!questionpoolModel.currAnswersMixed()) {
-            questionpoolModel.mixAnswers();
-        }
         
         for (c = 0; c < mixedAnswers.length; c++) {
             tmpl.attach(mixedAnswers[c]);

@@ -68,6 +68,10 @@ function FeedbackView() {
     });
 }
 
+FeedbackView.prototype.prepare = function () {
+    $("#feebacktip").hide();
+}
+
 FeedbackView.prototype.update = function () {
     if (this.app.models.answer.answerScore === -1) {
         this.app.models.answer.calculateScore();
@@ -75,6 +79,11 @@ FeedbackView.prototype.update = function () {
 
     this.showFeedbackBody();
     this.showFeedbackTitle();
+};
+
+FeedbackView.prototype.cleanup = function () {
+    $("#feedbackbox").show();
+    $("#feedbacktip").hide();
 };
 
 FeedbackView.prototype.tap = function (event) {
@@ -113,9 +122,8 @@ FeedbackView.prototype.clickFeedbackDoneButton = function () {
  * @function clickFeedbackMore
  **/
 FeedbackView.prototype.clickFeedbackMore = function () {
-//    $("#feedbackBody").toggle();
-//    console.log("closed feedback normal");
-//    $("#feedbackTipBody").toggle();
+    $("#feedbackbox").toggle();
+    $("#feedbacktip").toggle();
 };
 
 
@@ -194,7 +202,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
 
     if (feedbackText && feedbackText.length > 0) {
         //$("#feedbackTip").text(feedbackText);
-        $("#feedbackTip").html(feedbackText);
+        $("#feedbacktip").html(feedbackText);
         $("#feedbackinfo").show();
     }
 };

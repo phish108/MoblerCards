@@ -78,9 +78,7 @@ SingleChoiceWidget.prototype.showAnswer = function () {
     // question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
-        
-//        questionpoolModel = app.models.questionpool;
-        
+                
         if (!questionpoolModel.currAnswersMixed()) {
             questionpoolModel.mixAnswers();
         }
