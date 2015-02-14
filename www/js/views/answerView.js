@@ -51,26 +51,26 @@ function AnswerView() {
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
-//    $(document).bind("loadstatisticsfromserver", function () {
-//        if ((self.app.isActiveView(self.tagID)) && 
-//            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-//            console.log("enters load statistics from server is done in answer view 1");
-//            self.refresh();
-//        }
-//    });
+    $(document).bind("loadstatisticsfromserver", function () {
+        if ((self.app.isActiveView(self.tagID)) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("enters load statistics from server is done in answer view 1");
+            self.update();
+        }
+    });
 
     /**It is triggered when the calculation of all the statistics metrics is done
      * @event allstatisticcalculationsdone
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
-//    $(document).bind("allstatisticcalculationsdone", function () {
-//        console.log("enters in calculations done in question view1 ");
-//        if ((self.app.isActiveView(self.tagID)) && 
-//            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-//            console.log("enters in calculations done in  answer view 2 ");
-//            self.refresh();
-//        }
-//    });
+    $(document).bind("allstatisticcalculationsdone", function () {
+        console.log("enters in calculations done in question view1 ");
+        if ((self.app.isActiveView(self.tagID)) && 
+            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+            console.log("enters in calculations done in  answer view 2 ");
+            self.update();
+        }
+    });
 }
 
 AnswerView.prototype.tap = function (event) {
@@ -97,7 +97,7 @@ AnswerView.prototype.tap = function (event) {
         answer = id.split("_"); 
         if (answer[0] === "answertext" || 
             answer[0] === "answertick") {
-            this.widget.handleTap(event);
+            this.widget.tap(event);
         }
     }
 };
@@ -164,7 +164,7 @@ AnswerView.prototype.clickDoneButton = function () {
     var questionpoolModel = this.app.models.questionpool;
     var statisticsModel = this.app.models.statistics;
     var answerModel = this.app.models.answer;
-    console.log('check apology ' + this.widget.didApologize);
+
     if (this.widget.didApologize) {
         // if there was a problem with the data, the widget knows
         // in this case we proceed to the next question

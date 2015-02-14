@@ -97,60 +97,6 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
             tmpl.attach(mixedAnswers[c]);
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
-
-//        var ul = $("<ul/>", {}).appendTo("#cardAnswerBody");
-//
-//        for (var c = 0; c < mixedAnswers.length; c++) {
-//            // when an answer item is clicked a highlighted background color is
-//            // applied to it via "ticked" class
-//            var li = $(
-//                "<li/>", {
-//                    "id": "answer" + mixedAnswers[c],
-//                    "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected " : "gradient2 "),
-//                }).appendTo(ul);
-//            // handler when taping on an item on the answer list
-//            jester(li[0]).tap(function () {
-//                self.clickMultipleAnswerItem($(this));
-//            });
-//
-//
-//            var rightDiv = $("<div/>", {
-//                "class": "right"
-//            }).appendTo(li);
-//
-//            var separator = $("<div/>", {
-//                "id": "separator" + mixedAnswers[c],
-//                "class": " lineContainer separatorContainerCourses radial marginSeparatorTop"
-//            }).appendTo(rightDiv);
-//
-//
-//            var div = $("<div/>", {
-//                //"class" : "courseListIcon right gradient2"
-//                "id": "iconContainer" + mixedAnswers[c],
-//                "class": "courseListIconFeedback lineContainer"
-//            }).appendTo(rightDiv);
-//
-//
-//
-//            // displays the text value for each answer item on the single choice
-//            // list
-//            var div = $("<div/>", {
-//                "id": "title" + mixedAnswers[c],
-//                "class": "text",
-//                text: answers[mixedAnswers[c]].answertext
-//            }).appendTo(li);
-//
-//        } //end of for
-//        var lastli = $("<li/>", {}).appendTo(ul);
-//
-//        var shadoweddiv = $("<div/>", {
-//            "id": "shadowedAnswerLi",
-//            "class": "gradient1 shadowedLi"
-//        }).appendTo(lastli);
-//
-//        var marginLi = $("<li/>", {
-//            "class": "spacerMargin"
-//        }).insertAfter(shadoweddiv);
     } 
     else {
         //if there are no data for a question or there is no questionpool then display the error message
@@ -170,66 +116,28 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
 MultipleChoiceWidget.prototype.showFeedback = function () {
     console.log("start show feedback in multiple choice");
 
-    $("#feedbackBody").empty();
-    $("#feedbackTip").empty();
     var self = this;
-    var questionpoolModel = self.theApp.models.questionpool;
+    var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
     var c;
 
-//    var ul = $("<ul/>", {
-//        "z-index": " 7"
-//    }).appendTo("#feedbackBody");
-//
-//    for (c = 0; c < mixedAnswers.length; c++) {
-//        // when an answer item is clicked a highlighted background color is
-//        // applied to it via "ticked" class
-//        var li = $(
-//            "<li/>", {
-//                "id": "answer" + mixedAnswers[c],
-//                "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
-//            }).appendTo(ul);
-//
-//        var rightDiv = $("<div/>", {
-//            "class": "right"
-//        }).appendTo(li);
-//
-//        var separator = $("<div/>", {
-//            "id": "separator" + mixedAnswers[c],
-//            "class": "radialCourses lineContainer separatorContainerCourses"
-//        }).appendTo(rightDiv);
-//
-//
-//        div = $("<div/>", {
-//            //"class" : "courseListIcon right gradient2"
-//            "id": "iconContainer" + mixedAnswers[c],
-//            "class": "courseListIconFeedback lineContainer "
-//        }).appendTo(rightDiv);
-//
-//        span = $("<span/>", {
-//            "id": "courseListIcon" + mixedAnswers[c],
-//            "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
-//        }).appendTo(div);
-//
-//        var div = $("<div/>", {
-//            "class": "text",
-//            text: answers[mixedAnswers[c]].answertext
-//        }).appendTo(li);
-//    }
-//
-//    var lastli = $("<li/>", {}).appendTo(ul);
-//
-//    var shadoweddiv = $("<div/>", {
-//        "id": "shadowedFeedbackLi",
-//        "class": "gradient1 shadowedLi"
-//    }).appendTo(lastli);
-//
-//    var marginLi = $("<li/>", {
-//        "class": "spacerMargin"
-//    }).insertAfter(shadoweddiv);
+    var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
-    console.log("enter feedback view after switching from question view");
+    for (c = 0; c < mixedAnswers.length; c++) {
+        fTmpl.attach(mixedAnswers[c]);
+        fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
+
+//        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
+//            fTmpl.feedbacklist.removeClass("gradient2");
+//            fTmpl.feedbacklist.addClass("gradientSelected");
+//        }
+                    
+        if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("glow2");
+        }
+    }
 };
 
 /**
@@ -238,7 +146,7 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
  * @prototype
  * @function clickMultipleAnswerItem
  **/
-MultipleChoiceWidget.prototype.handleTap = function (event) {
+MultipleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
@@ -258,25 +166,10 @@ MultipleChoiceWidget.prototype.storeAnswers = function () {
     var answers = new Array();
     var questionpoolModel = app.models.questionpool;
 
-    $("#cardAnswerBody li").each(function (index) {
-        if ($(this).hasClass("gradientSelected")) {
-            var tickedIndex = parseInt($(this).attr('id').substring(6));
-            answers.push(tickedIndex);
-        }
-    });
+    if (this.selectedAnswer !== null) {
+        console.log("[MultipleChoiceWidget] selected Answer has number: " + this.selectedAnswer.split("_")[2]);
+        answers.push(this.selectedAnswer.split("_")[2]);
+    }
 
     app.models.answer.setAnswers(answers);
-};
-
-/**
- * Sets the height of the list items that contain correct answers
- * @prototype
- * @function setCorrectAnswerTickHeight
- **/
-MultipleChoiceWidget.prototype.setCorrectAnswerTickHeight = function () {
-    $("#feedbackBody ul li").each(function () {
-        height = $(this).height();
-        $(this).find(".correctAnswer").height(height);
-        $(this).find(".correctAnswer").css("line-height", height + "px");
-    });
 };

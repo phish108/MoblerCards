@@ -52,7 +52,7 @@ function SingleChoiceWidget(interactive) {
  
     // current selected Answer
     self.selectedAnswer = null;
-    
+
     if (self.interactive) {
         // when answer view is active, then interactive variable is set to true.
         // displays the answer body of the single choice widget
@@ -73,82 +73,29 @@ function SingleChoiceWidget(interactive) {
  **/
 SingleChoiceWidget.prototype.showAnswer = function () {
     var questionpoolModel = app.models.questionpool;
-
-    console.log("[SingleChoiceWidget] showAnswer");
-    
+  
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
         
-        questionpoolModel = app.models.questionpool;
+//        questionpoolModel = app.models.questionpool;
+        
+        if (!questionpoolModel.currAnswersMixed()) {
+            questionpoolModel.mixAnswers();
+        }
         
         // returns an array containing the possible answers
         var answers = questionpoolModel.getAnswer();
         var mixedAnswers = questionpoolModel.getMixedAnswersArray();
         var c;
 
-        var tmpl = app.templates.getTemplate("answerlistbox");
-        
-        if (!questionpoolModel.currAnswersMixed()) {
-            questionpoolModel.mixAnswers();
-        }
+        var aTmpl = app.templates.getTemplate("answerlistbox");
         
         for (c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c]);
-            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
+            aTmpl.attach(mixedAnswers[c]);
+            aTmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
-//        var ul = $("<ul/>", {}).appendTo("#cardAnswerBody");
-//
-//        for (c = 0; c < mixedAnswers.length; c++) {
-//            // when an answer item is clicked a highlighted background color is
-//            // applied to it via "ticked" class
-//            var li = $(
-//                "<li/>", {
-//                    "id": "answer" + mixedAnswers[c],
-//                    "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) != -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
-//                }).appendTo(ul);
-//            // handler when taping on an item on the answer list
-//            jester(li[0]).tap(function () {
-//                self.clickSingleAnswerItem($(this));
-//            });
-//
-//            var rightDiv = $("<div/>", {
-//                "class": "right"
-//            }).appendTo(li);
-//
-//            var separator = $("<div/>", {
-//                "id": "separator" + mixedAnswers[c],
-//                "class": " radial lineContainer separatorContainerCourses marginSeparatorTop"
-//            }).appendTo(rightDiv);
-//
-//            div = $("<div/>", {
-//                //"class" : "courseListIcon right gradient2"
-//                "id": "iconContainer" + mixedAnswers[c],
-//                "class": "courseListIconFeedback lineContainer"
-//            }).appendTo(rightDiv);
-//
-//
-//            // displays the text value for each answer item on the single choice
-//            // list
-//            var div = $("<div/>", {
-//                "class": "text",
-//                text: answers[mixedAnswers[c]].answertext
-//            }).appendTo(li);
-//        }
-//
-//        var lastli = $("<li/>", {}).appendTo(ul);
-//
-//        var shadoweddiv = $("<div/>", {
-//            "id": "shadowedSingleAnswerLi",
-//            "class": "gradient1 shadowedLi"
-//        }).appendTo(lastli);
-//
-//        //	//add some space, so that to enable scrolling in landscape mode
-//        var marginli = $("<li/>", {
-//            "class": "spacerMargin"
-//        }).appendTo(ul);
-//
     } 
     else {
         // if there are no data for a question or there is no questionpool then display the error message
@@ -165,71 +112,32 @@ SingleChoiceWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 SingleChoiceWidget.prototype.showFeedback = function () {
-
     console.log("enter feedback view after switching from question view");
-
-    $("#feedbackBody").empty();
-    $("#feedbackTip").empty();
 
     var self = this;
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
     var c;
+    
+    var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
-    //var clone = $("#cardAnswerBody ul").clone(); // clone the answerbody,
-    //clone.appendTo("#feedbackBody");
+    for (c = 0; c < mixedAnswers.length; c++) {
+        fTmpl.attach(mixedAnswers[c]);
+        fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
-//    var ul = $("<ul/>", {}).appendTo("#feedbackBody");
-//
-//    for (c = 0; c < mixedAnswers.length; c++) {
-//        // when an answer item is clicked a highlighted background color is
-//        // applied to it via "ticked" class
-//        var li = $("<li/>", {
-//            "id": "answer" + mixedAnswers[c],
-//            "class": (self.tickedAnswers.indexOf(mixedAnswers[c]) !== -1 ? " gradientSelected" : "gradient2") //"answerLi" + 
-//            }).appendTo(ul);
-//
-//        var rightDiv = $("<div/>", {
-//            "class": "right"
-//        }).appendTo(li);
-//
-//        var separator = $("<div/>", {
-//            "id": "separator" + mixedAnswers[c],
-//            "class": "radialCourses lineContainer separatorContainerCourses marginSeparatorTop"
-//        }).appendTo(rightDiv);
-//
-//
-//        div = $("<div/>", {
-//            "id": "iconContainer" + mixedAnswers[c],
-//            "class": "courseListIconFeedback lineContainer background"
-//        }).appendTo(rightDiv);
-//
-//        span = $("<div/>", {
-//            "id": "courseListIcon" + mixedAnswers[c],
-//            "class": (questionpoolModel.getScore(parseInt($(li).attr('id').substring(6))) > 0 ? (($(li).hasClass("gradientSelected")) ? "right icon-checkmark glow2 background" : "right icon-checkmark glowNone") : "")
-//        }).appendTo(div);
-//
-//        //41 replaced icon-checkmark
-//        //icon-App-Icons replaced icon-cross
-//        // displays the text value for each answer item on the single choice
-//        // list
-//        var div = $("<div/>", {
-//            "class": "text",
-//            text: answers[mixedAnswers[c]].answertext
-//        }).appendTo(li);
-//    }
-//
-//    var lastli = $("<li/>", {}).appendTo(ul);
-//
-//    var shadoweddiv = $("<div/>", {
-//        "id": "shadowedSigleFeedbackLi",
-//        "class": "gradient1 shadowedLi"
-//    }).appendTo(lastli);
-//
-//    var marginLi = $("<li/>", {
-//        "class": "spacerMargin"
-//    }).appendTo(ul);
+//        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
+//            console.log("feedback make it selected");
+//            
+//            fTmpl.feedbacklist.removeClass("gradient2");
+//            fTmpl.feedbacklist.addClass("gradientSelected");
+//        }
+                    
+        if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("glow2");
+        }
+    }
 };
 
 /**
@@ -237,11 +145,11 @@ SingleChoiceWidget.prototype.showFeedback = function () {
  * @prototype
  * @function clickSingleAnswerItem
  **/
-SingleChoiceWidget.prototype.handleTap = function (event) {
+SingleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
     
-    if (this.selectedAnswer != null &&
-        this.selectedAnswer != id &&
+    if (this.selectedAnswer !== null &&
+        this.selectedAnswer !== id &&
         $("#" + this.selectedAnswer).closest("li").hasClass("gradientSelected")) {
         $("#" + this.selectedAnswer).closest("li").removeClass("gradientSelected").addClass("gradient2");   
     }
@@ -260,25 +168,9 @@ SingleChoiceWidget.prototype.handleTap = function (event) {
 SingleChoiceWidget.prototype.storeAnswers = function () {
     var answers = new Array();
 
-    $("#cardAnswerBody li").each(function (index) {
-        if ($(this).hasClass("gradientSelected")) {
-            var tickedIndex = parseInt($(this).attr('id').substring(6));
-            answers.push(tickedIndex);
-        }
-    });
-
+    if (this.selectedAnswer !== null) {
+        answers.push(this.selectedAnswer.split("_")[2]);
+    }
+    
     app.models.answer.setAnswers(answers);
-};
-
-/**
- * Sets the height of the list items that contain correct answers
- * @prototype
- * @function setCorrectAnswerTickHeight
- **/
-SingleChoiceWidget.prototype.setCorrectAnswerTickHeight = function () {
-    $("#feedbackBody ul li").each(function () {
-        var height = $(this).height();
-        $(this).find(".correctAnswer").height(height);
-        $(this).find(".correctAnswer").css("line-height", height + "px");
-    });
 };
