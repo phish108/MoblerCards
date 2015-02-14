@@ -25,22 +25,24 @@ function CoreView(app, domid, theDelegate) {
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
         if (self.active) {
-            if (self.updateDelegate)
-                self.updateDelegate.tap(ev, this.id);
+            var d = self.updateDelegate || self.delegate;
+            if (typeof d["tap_"+this.id] === 'function')) {
+                d["tap_"+this.id](ev);
             }
             else {
-                self.delegate.tap(ev, this.id);
+                d.tap(ev, this.id);
             }
         }
     }
 
     function callMyClick(ev) {
         if (self.active) {
-            if (self.updateDelegate)
-                self.updateDelegate.click(ev, this.id);
+            var d = self.updateDelegate || self.delegate;
+            if (typeof d["click_"+this.id] === 'function')) {
+                d["click_"+this.id](ev);
             }
             else {
-                self.delegate.click(ev, this.id);
+                d.click(ev, this.id);
             }
         }
     }
@@ -48,23 +50,26 @@ function CoreView(app, domid, theDelegate) {
     function callMyBlur(ev) {
         console.log("blur ");
         if (self.active) {
-            if (self.updateDelegate)
-                self.updateDelegate.blur(ev, this.id);
+            var d = self.updateDelegate || self.delegate;
+            if (typeof d["blur_"+this.id] === 'function')) {
+                d["blur_"+this.id](ev);
             }
             else {
-                self.delegate.blur(ev, this.id);
+                d.blur(ev, this.id);
             }
         }
     }
 
     function callMyFocus(ev) {
         if (self.active) {
-            if (self.updateDelegate)
-                self.updateDelegate.focus(ev, this.id);
+            var d = self.updateDelegate || self.delegate;
+            if (typeof d["focus_"+this.id] === 'function')) {
+                d["focus_"+this.id](ev);
             }
             else {
-                self.delegate.focus(ev, this.id);
+                d.focus(ev, this.id);
             }
+        }
     }
 
     this.isVisible = false;
@@ -111,90 +116,48 @@ function CoreView(app, domid, theDelegate) {
 
         if (touch.indexOf('move') >= 0) {
             var bMove = false;
-            ['startMove', 'duringMove', 'endMove'].forEach(function (pname) {
-                if (!(pname in self.delegate)) {
-                    self.delegate[pname] = noop;
+            jester(this.container[0]).start(function (e,t) {
+                var d = self.updateDelegate || self.delegate;
+                if (self.active && t.numTouches() === 1) {
+                    bMove = true; d.startMove(e,t);
                 }
             });
-
-            jester(this.container[0]).start(function (e,t) {if (self.active && t.numTouches() === 1) {bMove = true; self.delegate.startMove(e,t);}});
-            jester(window).move(function (e,t) {if (self.active && bMove && t.numTouches() === 1) {self.delegate.duringMove(e,t);}});
-            jester(window).end( function (e,t) {if (self.active && bMove) {self.delegate.endMove(e,t); bMove = false;}});
+            jester(window).move(function (e,t) {
+                var d = self.updateDelegate || self.delegate;
+                if (self.active && bMove && t.numTouches() === 1) {
+                    d.duringMove(e,t);
+                }
+            });
+            jester(window).end( function (e,t) {
+                var d = self.updateDelegate || self.delegate;
+                if (self.active && bMove) {
+                    d.endMove(e,t);
+                    bMove = false;
+                }
+            });
         }
 
         if (touch.indexOf('tap') >= 0) {
-            if (!('tap' in this.delegate)) {
-                this.delegate.tap = noop;
-            }
             jester(this.container[0]).tap(callMyTap);
         }
 
         if (touch.indexOf('pinch') >= 0) {
-            if (!('pinch' in self.delegate)) {
-                self.delegate.pinch = noop;
-            }
-            jester(window).pinchwiden(function (e,t) {if (self.active) { self.delegate.pinch(e,t,1);}});
-            jester(window).pinchnarrow(function (e,t) {if (self.active) { self.delegate.pinch(e,t,-1);}});
+            jester(window).pinchwiden(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,1);}});
+            jester(window).pinchnarrow(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,-1);}});
         }
 
         if (mouse.indexOf('click') >= 0) {
-            if (!('click' in this.delegate)) {
-                this.delegate.click = noop;
-            }
             this.container[0].addEventListener('click', callMyClick, false);
         }
 
         if (keyboard.indexOf('blur') >= 0) {
             console.log("register blur call back");
-            if (!('blur' in this.delegate)) {
-                this.delegate.blur = noop;
-            }
             this.container[0].addEventListener('blur', callMyBlur, false);
         }
 
         if (keyboard.indexOf('focus') >= 0) {
-            if (!('focus' in this.delegate)) {
-                this.delegate.focus = noop;
-            }
             this.container[0].addEventListener('focus', callMyFocus, false);
         }
-
-
-        // the gesture and mouse events for decending elemets are mapped directly to the
-        // target elements, where possible
-        // NOTE - the tap class won't work with list templates! Map the tap event to the
-        // wrapping element outside of the template
-        this.container.find('[data-touch~=tap]').each(function () {
-            var tapid = this.id;
-            if (tapid && tapid.length) {
-                var tName = 'tap_' + tapid;
-                // only register the tap event if an appropriate tap handler is defined
-                // tap handlers require the format 'tap_tagid' where tagid is the id
-                // of the tag with the tap class
-                if (tName in self.delegate && typeof self.delegate[tName] === 'function') {
-                    jester(this).tap(function (e) {self.delegate[tName](e, this.id);});
-                }
-                else {
-                    jester(this).tap(callMyTap);
-                }
-            }
-        });
-
-        this.container.find('[data-mouse~=click]').each(function () {
-           var tapid = this.id;
-            if (tapid && tapid.length) {
-                var tName = 'click_' + tapid;
-                // only register the tap event if an appropriate tap handler is defined
-                // tap handlers require the format 'tap_tagid' where tagid is the id
-                // of the tag with the tap class
-                if (tName in self.delegate && typeof self.delegate[tName] === 'function') {
-                    this.addEventListener('click', function (e) {self.delegate[tName](e, this.id);}, false);
-                }
-                else {
-                    this.addEventListener('click', callMyClick, false);
-                }
-            }
-        });
     }
 }
 
@@ -244,13 +207,17 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
         delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) self.initDelegate(dClass, dName); };
     }
 
-    delegateBase.update   = noop;
-    delegateBase.prepare  = noop;
-    delegateBase.cleanup  = noop;
-    delegateBase.tap      = noop;
-    delegateBase.click    = noop;
-    delegateBase.blur     = noop;
-    delegateBase.focus    = noop;
+    delegateBase.update     = noop;
+    delegateBase.prepare    = noop;
+    delegateBase.cleanup    = noop;
+    delegateBase.tap        = noop;
+    delegateBase.click      = noop;
+    delegateBase.blur       = noop;
+    delegateBase.focus      = noop;
+    delegateBase.pinch      = noop;
+    delegateBase.startMove  = noop;
+    delegateBase.duringMove = noop;
+    delegateBase.endMove    = noop;
 
     // subclass the delegate.
     theDelegate.prototype = Object.create(delegateBase);
