@@ -24,6 +24,7 @@ function CoreView(app, domid, theDelegate) {
 
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
+        console.log("cv tap");
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
             if (typeof d["tap_"+this.id] === 'function') {
@@ -96,6 +97,12 @@ function CoreView(app, domid, theDelegate) {
         if (this.container[0].dataset) {
             var tmpT = this.container[0].dataset.touch;
             var tmpM = this.container[0].dataset.mouse;
+            if (!tmpT && this.content[0]) {
+                tmpT = this.content[0].dataset.touch;
+            }
+            if (!tmpM && this.content[0]) {
+                tmpM = this.content[0].dataset.mouse;
+            }
             if (tmpT) {
                 touch = tmpT.split(' ');
             }
@@ -138,6 +145,7 @@ function CoreView(app, domid, theDelegate) {
         }
 
         if (touch.indexOf('tap') >= 0) {
+            console.log("register tap on container " + domid);
             jester(this.container[0]).tap(callMyTap);
         }
 
