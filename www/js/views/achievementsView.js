@@ -100,30 +100,9 @@ AchievementsView.prototype.prepare = function () {
 AchievementsView.prototype.tap = function (event) {
     var id = event.target.id;
     
-    if (id === "closeAchievementsIcon") {
-        this.app.changeView("statistics", 1);
+    if (id === "achievementsclose") {
+        this.app.changeView("statistics");
     }
-};
-
-/**
- * Pinch leads to statistics view.
- * It works currently only on iOS devices.
- * @prototype
- * @function handlePinch
- **/
-AchievementsView.prototype.pinch = function (event) {
-    console.log("pinch in AchievementsView");
-    this.app.changeView("statistics", 1);
-};
-
-/**
- * swipe leads to statistics view
- * @prototype
- * @function handleSwipe
- **/
-AchievementsView.prototype.swipe = function (event) {
-    console.log("swipe in AchievementsView");
-    this.app.changeView("statistics", 1);
 };
 
 // TODO TEMPLATES
@@ -171,5 +150,4 @@ AchievementsView.prototype.showLoadingMessage = function () {
     $("#StackHandlerContainer").hide();
     $("#CardBurnerContainer").hide();
     $("#loadingMessageAchievements").show();
-
 };
