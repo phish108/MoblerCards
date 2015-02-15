@@ -53,6 +53,9 @@ function SingleChoiceWidget(interactive) {
     // current selected Answer
     self.selectedAnswer = null;
 
+    // stating whether the widget allows moving
+    self.moveEnabled = false;
+    
     if (self.interactive) {
         // when answer view is active, then interactive variable is set to true.
         // displays the answer body of the single choice widget
@@ -124,12 +127,12 @@ SingleChoiceWidget.prototype.showFeedback = function () {
         fTmpl.attach(mixedAnswers[c]);
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
-//        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
-//            console.log("feedback make it selected");
-//            
-//            fTmpl.feedbacklist.removeClass("gradient2");
-//            fTmpl.feedbacklist.addClass("gradientSelected");
-//        }
+        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
+            console.log("feedback make it selected");
+            
+            fTmpl.feedbacklist.removeClass("gradient2");
+            fTmpl.feedbacklist.addClass("gradientSelected");
+        }
                     
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");

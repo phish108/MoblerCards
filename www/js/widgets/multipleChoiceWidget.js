@@ -53,6 +53,9 @@ function MultipleChoiceWidget (interactive) {
     // current selected Answer
     self.selectedAnswer = null;
     
+    // stating whether the widget allows moving
+    self.moveEnabled = false;
+    
     if (self.interactive) {
         // when answer view is active, then interactive variable is set to true.
         // displays the answer body of the multiple choice widget

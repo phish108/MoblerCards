@@ -47,12 +47,14 @@ under the License.
 function TextSortWidget(interactive) {
     var self = this;
 
-    // loads answers from model for displaying already by the user ordered
-    // elements
+    // loads answers from model for displaying already by the user ordered elements
 
     self.tickedAnswers = app.models.answer.getAnswers();
     self.interactive = interactive;
-
+    
+    // stating whether the widget allows moving
+    self.moveEnabled = true;
+    
     this.didApologize = false;
 
     if (self.interactive) {
@@ -62,32 +64,43 @@ function TextSortWidget(interactive) {
     }
 }
 
+TextSortWidget.prototype.tap = function () {};
 
-/**Does nothing
- * @prototype
- * @function cleanup
- **/
-TextSortWidget.prototype.cleanup = doNothing;
+TextSortWidget.prototype.startMove = function (event) {
+    var id = event.target.id;
+    console.log("[TextSortWidget] startMove detected: " + id);
+    
+    if (id.split("_")[0] === "answertext") {
+        
+    }
+};
 
+TextSortWidget.prototype.duringMove = function () {
+    var id = event.target.id;
+    console.log("[TextSortWidget] duringMove detected: " + id);
+    
+};
 
-/**displays the answer for text sort questions
+TextSortWidget.prototype.endMove = function () {
+    var id = event.target.id;
+    console.log("[TextSortWidget] endMove detected: " + id);
+    
+};
+
+/**
+ * displays the answer for text sort questions
  * @prototype
  * @function showAnswer
- **/
+ */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
 
-    $("#cardAnswerBody").empty();
-
+    console.log("<<<<<<<<<<<<<<<<<<<<< SORT WIDGET >>>>>>>>>>>>>>>>>>>>>>>>");
+    
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
-        // create a new unordered list
-        var ul = $("<ul/>", {
-            "class": "sortable gradient2"
-        }).appendTo("#cardAnswerBody");
 
         var mixedAnswers;
 
@@ -98,70 +111,44 @@ TextSortWidget.prototype.showAnswer = function () {
                 tmp_answerModel.deleteData();
                 questionpoolModel.mixAnswers();
                 mixedAnswers = questionpoolModel.getMixedAnswersArray();
-                //if the order of mixed answers is correct or partially correct, 
-                //generate a new order
+                //if the order of mixed answers is correct or partially correct, generate a new order
                 tmp_answerModel.setAnswers(mixedAnswers);
                 tmp_answerModel.calculateTextSortScore();
             } while (tmp_answerModel.getAnswerResults() != "Wrong");
-        } else {
+        }
+        else {
             mixedAnswers = this.tickedAnswers;
         }
+        var tmpl = app.templates.getTemplate("answerlistbox");
 
         // for each possible answer create a list item
         for (var c = 0; c < mixedAnswers.length; c++) {
-            var li = $("<li/>", {
-                "id": "answer" + mixedAnswers[c],
-                "class": "sortableListItem"
-            }).appendTo(ul);
-
-
-
-            var div = $("<div/>", {
-                "class": "text textShadow marginForCourseList",
-                text: answers[mixedAnswers[c]].answertext
-            }).appendTo(li);
-
-
+            tmpl.attach(mixedAnswers[c]);
+            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
-
-
-        var lastli = $("<li/>", {}).appendTo(ul);
-
-        var shadoweddiv = $("<div/>", {
-            "id": "shadowedSortingAnswerLi",
-            "class": "gradient1 shadowedLi"
-        }).appendTo(lastli);
-
-        //		var marginLi= $("<li/>", {
-        //			"class": "spacerMargin"
-        //		}).appendTo(ul);
-
-
         // make the list sortable using JQuery UI's function
-        $(".sortable").sortable({
-            placeholder: "placeholder",
-            scrollSensitivity: 10,
-            disabled: false,
-            start: function (event, ui) {
-                $(ui.item).addClass("currentSortedItem");
-                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
+//        $(".sortable").sortable({
+//            placeholder: "placeholder",
+//            scrollSensitivity: 10,
+//            disabled: false,
+//            start: function (event, ui) {
+//                $(ui.item).addClass("currentSortedItem");
+//                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
+//            },
+//            stop: function (event, ui) {
+//                (ui.item).removeClass("currentSortedItem");
+//                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
+//            }
+//        });
+//        $(".sortable").disableSelection();
 
-            },
-            stop: function (event, ui) {
-                (ui.item).removeClass("currentSortedItem");
-                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
-            }
-        });
-        $(".sortable").disableSelection();
-
-        self.enableSorting();
-    } else {
+//        self.enableSorting();
+    }
+    else {
         this.didApologize = true;
         doApologize();
     }
-
 };
-
 
 /**displays the feedback for text sort questions
  * @prototype
@@ -221,10 +208,8 @@ TextSortWidget.prototype.showFeedback = function () {
         } else {
             $("#FeedbackMore").hide();
         }
-
     }
 };
-
 
 /**stores the current sorting order in the answer model
  * @prototype
@@ -233,13 +218,16 @@ TextSortWidget.prototype.showFeedback = function () {
 TextSortWidget.prototype.storeAnswers = function () {
     var answers = new Array();
 
-    $("#cardAnswerBody").find("li.sortableListItem").each(function (index) {
-        var id = $(this).attr("id").substring(6);
-        answers.push(id);
-    });
-    controller.models["answers"].setAnswers(answers);
+//    $("#cardAnswerBody").find("li.sortableListItem").each(function (index) {
+//        var id = $(this).attr("id").substring(6);
+//        answers.push(id);
+//    });
+//    $("#answerbox").find("li.sortableListItem").each(function (index) {
+//        var id = $(this).attr("id").substring(6);
+//        answers.push(id);
+//    });
+//    app.models.answers.setAnswers(answers);
 };
-
 
 /**catches touch events and creates correspoding mouse events this has to be
  * done because JQuery UI's sortable function listens for mouse events
@@ -247,7 +235,6 @@ TextSortWidget.prototype.storeAnswers = function () {
  * @function enableSorting
  **/
 TextSortWidget.prototype.enableSorting = function () {
-
     jester($(".sortable")[0]).start(function (touches, event) {
         console.log("ScrollTop " + $("ul#cardAnswerBody").scrollTop());
         createEvent("mousedown", event);
@@ -279,16 +266,15 @@ TextSortWidget.prototype.enableSorting = function () {
  * @prototype
  * @function setCorrectAnswerTickHeight
  **/
-TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
-    $("#feedbackBody ul li").each(function () {
-        height = $(this).height();
-        $(this).find(".correctAnswer").height(height);
-        $(this).find(".correctAnswer").css("line-height", height + "px");
-    });
-}
+//TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
+//    $("#feedbackBody ul li").each(function () {
+//        height = $(this).height();
+//        $(this).find(".correctAnswer").height(height);
+//        $(this).find(".correctAnswer").css("line-height", height + "px");
+//    });
+//}
 
 //creates a new mouse event of the specified type
-
 function createEvent(type, event) {
     var first = event.changedTouches[0];
     var simulatedEvent = document.createEvent("MouseEvent");
