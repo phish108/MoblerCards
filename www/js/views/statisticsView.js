@@ -90,13 +90,12 @@ StatisticsView.prototype.prepare = function () {
         if (self.featuredContentId || 
             self.app.getConfigVariable("statisticsLoaded") === true) {
             self.loadData();
-        } else {
+        } 
+        else {
             self.showLoadingMessage();
         }
-
-    } //end of is logged in
-    else //if we are not logged in 
-    {
+    }
+    else {
         console.log("open statistics view in featured course context");
         self.loadData();
     }
@@ -105,16 +104,19 @@ StatisticsView.prototype.prepare = function () {
 
 StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
+    console.log("[StatisticsView] tap registered: " + id);
     
-    if (id === "closeStatisticsIcon") {
+    if (id === "statisticsclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
-        } else {
+        } 
+        else {
             this.app.changeView("landing");
         }
     }
-    else if (id === "statsSlot3") {
-        this.app.changeView("achievements", this.featuredContentId);
+    else if (id === "achievementsReference" ||
+             id === "selectAchievements") {
+        this.app.changeView("achievements");
     }
 };
 
@@ -137,7 +139,8 @@ StatisticsView.prototype.showLoadingMessage = function () {
 StatisticsView.prototype.loadData = function () {
     var self = this;
     var statisticsModel = this.app.models.statistics;
-
+    
+    console.dir(statisticsModel);
 
     console.log("init values for statistics");
     //starts the calculation of the values of the various
