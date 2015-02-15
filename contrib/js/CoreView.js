@@ -13,6 +13,16 @@
 
     function noop() {}
 
+    function findIDEl(el){
+        while (el.parentElement) {
+            if (el.id && el.id.length) {
+                return el.id;
+            }
+            el = el.parentElement;
+        }
+        return undefined;
+    }
+
 function CoreView(app, domid, theDelegate) {
     var self = this;
 
@@ -24,14 +34,14 @@ function CoreView(app, domid, theDelegate) {
 
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
-        console.log("cv tap");
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["tap_"+this.id] === 'function') {
-                d["tap_"+this.id](ev);
+            var id = findIDEl(ev.target);
+            if (id && typeof d["tap_"+id] === 'function') {
+                d["tap_"+id](ev, id);
             }
             else {
-                d.tap(ev, this.id);
+                d.tap(ev, id);
             }
         }
     }
@@ -39,11 +49,12 @@ function CoreView(app, domid, theDelegate) {
     function callMyClick(ev) {
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["click_"+this.id] === 'function') {
-                d["click_"+this.id](ev);
+            var id = findIDEl(ev.target);
+            if (id && typeof d["click_"+id] === 'function') {
+                d["click_"+id](ev);
             }
             else {
-                d.click(ev, this.id);
+                d.click(ev, id);
             }
         }
     }
@@ -52,11 +63,12 @@ function CoreView(app, domid, theDelegate) {
         console.log("blur ");
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["blur_"+this.id] === 'function') {
-                d["blur_"+this.id](ev);
+            var id = findIDEl(ev.target);
+            if (id && typeof d["blur_"+id] === 'function') {
+                d["blur_"+id](ev);
             }
             else {
-                d.blur(ev, this.id);
+                d.blur(ev, id);
             }
         }
     }
@@ -64,11 +76,13 @@ function CoreView(app, domid, theDelegate) {
     function callMyFocus(ev) {
         if (self.active) {
             var d = self.updateDelegate || self.delegate;
-            if (typeof d["focus_"+this.id] === 'function') {
-                d["focus_"+this.id](ev);
+            var id = findIDEl(ev.target);
+
+            if (id && typeof d["focus_"+id] === 'function') {
+                d["focus_"+id](ev);
             }
             else {
-                d.focus(ev, this.id);
+                d.focus(ev, id);
             }
         }
     }
@@ -119,27 +133,14 @@ function CoreView(app, domid, theDelegate) {
         // find interactive elements
         // .move - register start, move, end
         // .tap   - register tap
-
+        var bMove = false, tMove = false;
 
         if (touch.indexOf('move') >= 0) {
-            var bMove = false;
+            tMove = true;
             jester(this.container[0]).start(function (e,t) {
                 var d = self.updateDelegate || self.delegate;
                 if (self.active && t.numTouches() === 1) {
                     bMove = true; d.startMove(e,t);
-                }
-            });
-            jester(window).move(function (e,t) {
-                var d = self.updateDelegate || self.delegate;
-                if (self.active && bMove && t.numTouches() === 1) {
-                    d.duringMove(e,t);
-                }
-            });
-            jester(window).end( function (e,t) {
-                var d = self.updateDelegate || self.delegate;
-                if (self.active && bMove) {
-                    d.endMove(e,t);
-                    bMove = false;
                 }
             });
         }
@@ -165,6 +166,41 @@ function CoreView(app, domid, theDelegate) {
 
         if (keyboard.indexOf('focus') >= 0) {
             this.container[0].addEventListener('focus', callMyFocus, false);
+        }
+
+        this.container.find("[data-touch]").each(function() {
+            var seTouch = this.dataset.touch.split(' ');
+            if (seTouch.indexOf('tap') >= 0) {
+                console.log("register tap on container " + this.id);
+                jester(this).tap(callMyTap);
+            }
+
+            if (seTouch.indexOf('move') >= 0) {
+                tMove = true;
+                jester(this).start(function (e,t) {
+                    var d = self.updateDelegate || self.delegate;
+                    if (self.active && t.numTouches() === 1) {
+                        bMove = true; d.startMove(e,t);
+                    }
+                });
+            }
+        });
+
+        if (tMove) {
+            // register the move and end events only once per view
+            jester(window).move(function (e,t) {
+                var d = self.updateDelegate || self.delegate;
+                if (self.active && bMove && t.numTouches() === 1) {
+                    d.duringMove(e,t);
+                }
+            });
+            jester(window).end( function (e,t) {
+                var d = self.updateDelegate || self.delegate;
+                if (self.active && bMove) {
+                    d.endMove(e,t);
+                    bMove = false;
+                }
+            });
         }
     }
 }
@@ -243,7 +279,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
             case "container":
             case "content":
             case "template":
-            case "active":
+            //case "active":
             case "data":
             case "master":
             case "back":
