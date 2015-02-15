@@ -50,14 +50,12 @@ CardBurnerModel.prototype.initQuery = function(){
 	this.query = "SELECT count(*) as c FROM statistics WHERE course_id=? AND duration!=-100 AND day>=? AND day<=?";
 };
 
-
 /**
  * Execute the query by using the global function  queryDatabase.
  * @prototype
  * @function queryDB
  */
 CardBurnerModel.prototype.queryDB = queryDatabase;
-
 
 /**
  * Before calculating the card burner it checks whether it has been achieved or not
@@ -68,7 +66,6 @@ CardBurnerModel.prototype.calculateValue = function(courseId){
 	this.courseId = courseId;
 	this.calculateValueHelper();
 };
-
 
 /**
  * Check if the achievement has been reached or not by using the 
@@ -88,12 +85,11 @@ CardBurnerModel.prototype.calculateValueHelper = checkAchievement;
  */
 CardBurnerModel.prototype.calculateAchievementValues = function(){
 	var self = this;
-    self.values= self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
+    self.values = self.superModel.getCurrentValues(SUBMODEL_QUERY_THREE);
 	console.log("current values for card burner"+self.values);
 	self.queryDB( 
 		function cbSH(t,r) {self.calculateCardBurner(t,r);});
 };
-
 
 /**
  * Calculates the card burner achievement
