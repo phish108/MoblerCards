@@ -59,7 +59,8 @@ function AnswerView() {
         }
     });
 
-    /**It is triggered when the calculation of all the statistics metrics is done
+    /**
+     * It is triggered when the calculation of all the statistics metrics is done
      * @event allstatisticcalculationsdone
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
@@ -82,14 +83,17 @@ AnswerView.prototype.tap = function (event) {
     if (id === "answerclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
-        } else {
+        }
+        else {
             this.app.changeView("landing");
         }
-    } 
-    else if (id === "answerbutton") {
+    }
+    else if (id === "answerbutton" ||
+             id === "answercontent") {
         this.clickDoneButton();
     }
-    else if (id === "answertitle" || id === "answericon") {
+    else if (id === "answertitle" || 
+             id === "answericon") {
         this.widget.storeAnswers();
         this.app.changeView("question");
     }
@@ -102,6 +106,27 @@ AnswerView.prototype.tap = function (event) {
     }
 };
 
+AnswerView.prototype.startMove = function (event) {
+    var id = event.target.id;
+    console.log("[AnswerView] startMove detected: " + id);
+    
+    if (this.widget.moveEnabled) {this.widget.startMove(event);};
+};
+
+AnswerView.prototype.duringMove = function (event) {
+    var id = event.target.id;
+    console.log("[AnswerView] duringMove detected: " + id);
+    
+    if (this.widget.moveEnabled) {this.widget.duringMove(event);};
+};
+
+AnswerView.prototype.endMove = function (event) {
+    var id = event.target.id;
+    console.log("[AnswerView] endMove detected: " + id);
+    
+    if (this.widget.moveEnabled) {this.widget.endMove(event);};
+};
+
 /**Loads a subview-widget based on the specific question type
  * It is displayed within the main body area of the answer view
  * @prototype
@@ -112,7 +137,6 @@ AnswerView.prototype.update = function () {
 
     $("#dataErrorMessage").empty();
     $("#dataErrorMessage").hide();
-//    $("#cardAnswerBody").empty();
 
     var questionType = this.app.models.questionpool.getQuestionType();
     // a flag used to distinguish between answer and feedback view. 
@@ -154,7 +178,6 @@ AnswerView.prototype.showAnswerTitle = function () {
     $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
 };
-
 
 /**Handling the behavior of the "forward-done" button on the answer view
  * @prototype
