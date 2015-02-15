@@ -8,7 +8,7 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
 
-    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel, BestDayModel, HandledCardsModel, AverageScoreModel, ProgressModel, AverageSpeedModel, StackHandlerModel, CardBurnerModel" />
+    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel" />
 
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -197,22 +197,22 @@
                 </li>
                 <li>
                     <div class="settingsLi">
-                        <span id="nameLabelSet" class="settingsLabel"></span><span id="nameItemSet"></span>
+                        <span id="nameLabelSet" class="settingslabel"></span><span id="nameItemSet"></span>
                     </div>
                 </li>
                 <li>
                     <div class="settingsLi">
-                        <span id="usernameLabelSet" class="settingsLabel"></span><span id="usernameItemSet"></span>
+                        <span id="usernameLabelSet" class="settingslabel"></span><span id="usernameItemSet"></span>
                     </div>
                 </li>
                 <li>
                     <div class="settingsLi">
-                        <span id="emailLabelSet" class="settingsLabel"></span><span id="emailItemSet"></span>
+                        <span id="emailLabelSet" class="settingslabel"></span><span id="emailItemSet"></span>
                     </div>
                 </li>
                 <li>
                     <div class="settingsLi">
-                        <span id="languageLabelSet" class="settingsLabel"></span><span id="languageItemSet"></span>
+                        <span id="languageLabelSet" class="settingslabel"></span><span id="languageItemSet"></span>
                     </div>
                 </li>
                 <li id="deactivateLi" class="hidden">
@@ -303,7 +303,7 @@
         </div>
     </div>
 
-    <div id="answer" class="screen" data-view="AnswerView" data-touch="tap">
+    <div id="answer" class="screen" data-view="AnswerView" data-touch="tap move">
         <div id="answerheader" class="headerbox">
             <div id="answericon"  class="titleicon"><span id="answerdynamicicon"></span></div>
             <div id="answertitle" class="headercontent"></div>
@@ -311,20 +311,13 @@
         </div>
 
         <div id="answercontent" class="contentbox" >
-<!--            <div id="cardAnswerBody">-->
-                <ul id="answerbox">
-                    <template id="answerlistbox">
-                        <li id"answerlist" class="listbox gradient2">
-                            <div id="answertext" class="listlabel"></div>
-<!--
-                            <div id="answertick" class="listimage">
-                                <span class="courseListIconFeedback"></span>
-                            </div>
--->
-                        </li>
-                    </template>
-                </ul>
-<!--            </div>-->
+            <ul id="answerbox">
+                <template id="answerlistbox">
+                    <li id"answerlist" class="listbox gradient2">
+                        <div id="answertext" class="listlabel"></div>
+                    </li>
+                </template>
+            </ul>
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
 
@@ -366,16 +359,13 @@
 
     <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
 
-    <div id="statistics" class="screen" data-view="StatisticsView" data-touch="tap pinch swipe">
-        <div id="statisticsHeader" class="headerContainer">
-            <div id="statisticsIcon" class="titleiconOLD">
-                <span class="icon-bars"></span>
-            </div>
-            <div id="statisticsTitle" class="title">Statistics</div>
+    <div id="statistics" class="screen" data-view="StatisticsView" data-touch="tap">
+        <div id="statisticsheader" class="headerbox">
+            <div id="statisticsicon"  class="titleicon"><span class="icon-bars"></span></div>
+            <div id="statisticstitle" class="headercontent">Statistics</div>
+            <div id="statisticscross" class="closeicon"><span id="statisticsclose" class="icon-cross"></span></div>
         </div>
-        <div id="closeStatisticsIcon" class="closeButton">
-            <span class="icon-cross"></span>
-        </div>
+        
         <div class="content full">
             <ul id="statisticsBody" class="">
                 <li id="statsSlot1" class="gradient1">
@@ -496,6 +486,12 @@
     </div>
 
     <div id="achievements" class="screen" data-view="AchievementsView" data-touch="tap swipe pinch">
+        <div id="statisticsheader" class="headerbox">
+            <div id="achievementsicon"  class="titleicon"><span class="icon-happy"></span></div>
+            <div id="achievementstitle" class="headercontent">Achievements</div>
+            <div id="achievementscross" class="closeicon"><span id="achievementsclose" class="icon-cross"></span></div>
+        </div>
+<!--
         <div id="achievementsHeader" class=" headerContainer">
             <div id="closeAchievementsIcon" class="closeButton">
                 <span class="icon-cross"></span>
@@ -505,6 +501,7 @@
                 <span class="icon-happy"></span>
             </div>
         </div>
+-->
         <div class="content full">
             <ul>
                 <li class="courseLiContainer gradient2">
@@ -586,14 +583,15 @@
     <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
     <script type="text/javascript" src="js/models/answerModel.js"></script>
     <script type="text/javascript" src="js/models/StatisticsModel.js"></script>
-    <script type="text/javascript" src="js/models/BestDayModel.js"></script>
-    <script type="text/javascript" src="js/models/handledCardsModel.js"></script>
-    <script type="text/javascript" src="js/models/averageScoreModel.js"></script>
-    <script type="text/javascript" src="js/models/progressModel.js"></script>
-    <script type="text/javascript" src="js/models/averageSpeedModel.js"></script>
-    <script type="text/javascript" src="js/models/stackHandlerModel.js"></script>
-    <script type="text/javascript" src="js/models/cardBurnerModel.js"></script>
     <script type="text/javascript" src="js/models/trackingModel.js"></script>
+    
+    <script type="text/javascript" src="js/models/statistics/BestDayModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/handledCardsModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/averageScoreModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/progressModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/averageSpeedModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/stackHandlerModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/cardBurnerModel.js"></script>
 
     <script type="text/javascript" src="js/views/ClozeQuestionTypeView.js"></script>
     <script type="text/javascript" src="js/views/answerView.js"></script>
