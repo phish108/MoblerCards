@@ -47,10 +47,8 @@ function TrackingModel(controller){
 	$(document).bind("trackingEventDetected", function(e,type) {
 		console.log(" tracking event loaded ");
 		self.storeTrackData((new Date()).getTime(),type);
-	});		
-	
+	});
 }
-
 
 /**
  * Inserts a new tracking item into the database
@@ -59,7 +57,6 @@ function TrackingModel(controller){
  * @param time, type
  */
 TrackingModel.prototype.storeTrackData = function(time, type){
-	
 	this.db.transaction(function(transaction) {
 		transaction
 		.executeSql('INSERT INTO tracking(time_stamp,event_type) VALUES(?,?)',
@@ -69,14 +66,12 @@ TrackingModel.prototype.storeTrackData = function(time, type){
 			console.log("error! NOT inserted: "+ e.message);
 		});
 	});
-
 };
 
-
 /**
- * creates the database table if it doesn't exist yet 
+ * creates the database table if it doesn't exist yet
  * @prototype
- * @function initDB  
+ * @function initDB
  */
 TrackingModel.prototype.initDB = function() {
 	var self = this;
@@ -96,14 +91,11 @@ TrackingModel.prototype.initDB = function() {
 	});
 };
 
-
-
 /**
  * Sends the tracking data to the server 
  * @prototype
  * @function sendToServer   
  */
- 
 TrackingModel.prototype.sendToServer = function(){
 	var self = this;
 	if (self.controller.getLoginState() ) {
@@ -116,7 +108,6 @@ TrackingModel.prototype.sendToServer = function(){
 			transaction
 			.executeSql('SELECT * FROM tracking', [], function(t,r) {sendTracking(t,r);});
 		});
-
 
 		function sendTracking(transaction, results) {
 			var tracking = [];
