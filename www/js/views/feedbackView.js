@@ -69,7 +69,7 @@ function FeedbackView() {
 }
 
 FeedbackView.prototype.prepare = function () {
-    $("#feebacktip").hide();
+    $("#feedbacktip").hide();
 }
 
 FeedbackView.prototype.update = function () {
@@ -90,7 +90,8 @@ FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
     
-    if (id === "feedbackbutton") {
+    if (id === "feedbackbutton" ||
+        id === "feedbackcontent") {
         this.clickFeedbackDoneButton();
     }
     else if (id === "feedbackmore") {
@@ -126,8 +127,6 @@ FeedbackView.prototype.clickFeedbackMore = function () {
     $("#feedbacktip").toggle();
 };
 
-
-
 /**click on the course list button leads to course list
  * @prototype
  * @function clickCourseListButton
@@ -142,7 +141,6 @@ FeedbackView.prototype.clickCourseListButton = function () {
     }
 };
 
-
 /**Shows the title area of the feedback view,
  * containing title and corresponding icon
  * @prototype
@@ -154,7 +152,6 @@ FeedbackView.prototype.showFeedbackTitle = function () {
     $("#feedbacktitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
     $("#feedbackdynamicicon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
 };
-
 
 /**Calls the appropriate widget to show the feedback body
  * based on the specific question type
