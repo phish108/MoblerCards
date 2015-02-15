@@ -696,13 +696,11 @@ li {
     color: #008CC7;
 }
 /*********************** Settings View ***********************/
-
-/*
 .settingsLi {
     padding-bottom: 5px;
     padding-left: 7px;
 }
-.settingsLabel {
+.settingslabel {
     font-size: 14px;
     color: #999;
     display: inline-block;
@@ -741,7 +739,6 @@ li {
     margin-top: 20px;
     padding-left: 5px;
 }
-*/
 /*********************** About View ***********************/
 #cardsTitle {
     color: #008CC7;
