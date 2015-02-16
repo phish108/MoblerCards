@@ -97,7 +97,8 @@ AnswerView.prototype.tap = function (event) {
         this.widget.storeAnswers();
         this.app.changeView("question");
     }
-    else if (id.split("_").length === 3) {
+    else if (!this.widget.moveEnabled &&
+             id.split("_").length === 3) {
         answer = id.split("_"); 
         if (answer[0] === "answertext" || 
             answer[0] === "answertick") {
