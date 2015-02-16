@@ -535,11 +535,11 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 console.log("results length: " + results.rows.length);
                 for (i = 0; i < results.rows.length; i++) {
                     row = results.rows.item(i);
-                    	console.log("sent statistics row to the server"+row);
+//                    	console.log("sent statistics row to the server"+row);
 //                    	rowCourse = row.course_id;
 //                    	console.log("course id is " + rowCourse);
                     statistics.push(row);
-                    console.log("sending " + i + ": " + JSON.stringify(row));
+//                    console.log("sending " + i + ": " + JSON.stringify(row));
                 }
                 sessionkey = self.controller.models.configuration.getSessionKey();
                 uuid = window.device.uuid;
