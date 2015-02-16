@@ -64,8 +64,6 @@ function TextSortWidget(interactive) {
     }
 }
 
-TextSortWidget.prototype.tap = function () {};
-
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
@@ -97,8 +95,6 @@ TextSortWidget.prototype.showAnswer = function () {
 
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
-
-    console.log("<<<<<<<<<<<<<<<<<<<<< SORT WIDGET >>>>>>>>>>>>>>>>>>>>>>>>");
     
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
 
@@ -158,13 +154,13 @@ TextSortWidget.prototype.showFeedback = function () {
     $("#feedbackBody").empty();
     $("#feedbackTip").empty();
 
-    $(".sortable").sortable({
-        disabled: true
-    });
+//    $(".sortable").sortable({
+//        disabled: true
+//    });
 
-    var ul = $("<ul/>", {
-        "class": "gradient2"
-    }).appendTo("#feedbackBody");
+//    var ul = $("<ul/>", {
+//        "class": "gradient2"
+//    }).appendTo("#feedbackBody");
 
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
@@ -173,21 +169,21 @@ TextSortWidget.prototype.showFeedback = function () {
 
     // iterate over all answers
     for (var i = 0; i < answers.length; i++) {
-        var li = $("<li/>", {
-            //if a ticked answer is in the correct place or in a sequence then use a blue background color
-            "class": (scores[i] == "1" || scores[i] == "1.5") ? "gradientSelected" : "gradient2 "
-        }).appendTo(ul);
+//        var li = $("<li/>", {
+//            //if a ticked answer is in the correct place or in a sequence then use a blue background color
+//            "class": (scores[i] == "1" || scores[i] == "1.5") ? "gradientSelected" : "gradient2 "
+//        }).appendTo(ul);
 
-        var div = $("<div/>", {
-            "class": "text",
-            text: answers[i].answertext
-        }).appendTo(li);
+//        var div = $("<div/>", {
+//            "class": "text",
+//            text: answers[i].answertext
+//        }).appendTo(li);
 
         // if score is 0.5 or 1.5 show a checkmark
         if (scores[i] == "0.5" || scores[i] == "1.5") {
-            var div = $("<div/>", {
-                "class": "right correctAnswer icon-checkmark"
-            }).prependTo(li);
+//            var div = $("<div/>", {
+//                "class": "right correctAnswer icon-checkmark"
+//            }).prependTo(li);
         }
     }
 
