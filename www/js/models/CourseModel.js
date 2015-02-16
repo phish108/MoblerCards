@@ -179,8 +179,8 @@ CourseModel.prototype.loadFromServer = function() {
 					dataType : 'json',
 					success : createCourseList,
 					error : function(request) {
-						var lmsModel=self.controller.models['lms'];
-						var servername=lmsModel.lmsData.activeServer;
+						var lmsModel = self.controller.models['lms'];
+						var servername = lmsModel.lmsData.activeServer;
 
 						if (request.status === 403) {
 							if (lmsModel.lmsData.ServerData[servername].deactivateFlag==false){
