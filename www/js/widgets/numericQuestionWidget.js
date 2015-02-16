@@ -42,19 +42,20 @@ under the License.
 function NumericQuestionWidget(interactive) {
     var self = this;
 
-    self.tickedAnswers = app.models.answers.getAnswers(); // a list with the typed answer
+    self.tickedAnswers = app.models.answer.getAnswers(); // a list with the typed answer
+    
     self.interactive = interactive;
     
     // stating whether the widget allows moving
     self.moveEnabled = false;    
     
-    this.didApologize = false; // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
+    self.didApologize = false; // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     //Check the boolean value of interactive. This is set through the answer and feedback view.
+    
     if (self.interactive) {
         self.showAnswer();
-        console.log("interactive true");
-    } else {
-        console.log("interactive false");
+    }
+    else {
         self.showFeedback(); //displays the feedback body of the multiple choice widget
     }
 }
@@ -81,27 +82,28 @@ NumericQuestionWidget.prototype.showAnswer = function () {
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()) {
         console.log("entered numeric answer body");
+
 //        var ul = $("<ul/>", {
 //            "id": "numericElements"
 //        }).appendTo("#cardAnswerBody");
-//
+
 //        var li = $(
 //            "<li/>", {}).appendTo(ul);
-//
+
 //        var div1 = $("<div/>", {
 //            "class": "left lineContainer selectItemContainer"
 //        }).appendTo(li);
-//
+
 //        var span = $("<span/>", {
 //            "id": "numberInputDash",
 //            "class": "dashGrey icon-dash"
 //        }).appendTo(div1);
-//
+
 //        var div2 = $("<div/>", {
 //            "id": "numberInputContainer",
 //            "class": "inputBorder gradient2"
 //        }).appendTo(li);
-//
+
 //        var input = $("<input/>", {
 //            "id": "numberInput",
 //            "class": "loginInputCloze textShadow",
@@ -111,17 +113,11 @@ NumericQuestionWidget.prototype.showAnswer = function () {
 //            "placeholder": "type a number",
 //            "value": self.tickedAnswers.length != 0 ? self.tickedAnswers : ""
 //        }).appendTo(div2);
-//
-//        var lastli = $("<li/>", {}).appendTo(ul);
-//
-//        var shadoweddiv = $("<div/>", {
-//            "id": "shadowedNumericLi",
-//            "class": "gradient1 shadowedLi"
-//        }).appendTo(lastli);
-//
+
 //        $("#numberInput")[0].addEventListener("blur", function () {
 //            setButtonHeight();
 //        });
+
     } else {
         //if there are no data for a question or there is no questionpool then display the error message
         this.didApologize = true;
@@ -140,7 +136,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 //    $("#feedbackBody").empty();
 //    $("#feedbackTip").empty();
     var questionpoolModel = app.models.questionpool;
-    var answerModel = app.models.answers;
+    var answerModel = app.models.answer;
     var typedAnswer = answerModel.getAnswers();
     console.log("typed answer is " + typedAnswer);
     var correctAnswer = questionpoolModel.getAnswer()[0];
@@ -163,7 +159,6 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 //            "class": "radialCourses lineContainer separatorContainerCourses marginSeparatorTop"
 //        }).appendTo(rightDiv);
 //
-//
 //        div = $("<div/>", {
 //            "class": "courseListIconFeedback lineContainer background"
 //        }).appendTo(rightDiv);
@@ -183,7 +178,8 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 //            "id": "shadowedNumericAnswerLi",
 //            "class": "gradient1 shadowedLi"
 //        }).appendTo(lastli);
-    } else {
+    }
+    else {
         // if the typed numeric answer is wrong
         console.log('handle answer results');
 //
@@ -224,7 +220,6 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 //            "class": "radialCourses lineContainer separatorContainerCourses marginSeparatorTop"
 //        }).appendTo(rightDiv2);
 //
-//
 //        divCorrect = $("<div/>", {
 //            "class": "courseListIconFeedback lineContainer background"
 //        }).appendTo(rightDiv2);
@@ -256,12 +251,5 @@ NumericQuestionWidget.prototype.storeAnswers = function () {
     var questionpoolModel = app.models.questionpool;
     var numericAnswer = $("#numberInput").val();
 
-    this.app.models.answers.setAnswers(numericAnswer);
+    app.models.answer.setAnswers(numericAnswer);
 };
-
-/**
- * This method does nothing for the numeric widget
- * @prototype
- * @function setCorrectAnswerTickHeight
- **/
-//NumericQuestionWidget.prototype.setCorrectAnswerTickHeight = doNothing;

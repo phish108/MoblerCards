@@ -107,15 +107,18 @@ AnswerView.prototype.tap = function (event) {
     }
 };
 
-AnswerView.prototype.startMove = function (event) {    
+AnswerView.prototype.startMove = function (event, touches) {    
     if (this.widget.moveEnabled) {this.widget.startMove(event);};
 };
 
-AnswerView.prototype.duringMove = function (event) {
-    if (this.widget.moveEnabled) {this.widget.duringMove(event);};
+AnswerView.prototype.duringMove = function (event, touches) {
+    if (this.widget.moveEnabled &&
+        this.widget.dragActive) {
+        this.widget.duringMove(event);
+    };
 };
 
-AnswerView.prototype.endMove = function (event) {    
+AnswerView.prototype.endMove = function (event, touches) {    
     if (this.widget.moveEnabled) {this.widget.endMove(event);};
 };
 

@@ -47,19 +47,23 @@ under the License.
 function TextSortWidget(interactive) {
     var self = this;
 
-    // loads answers from model for displaying already by the user ordered elements
-
-    self.tickedAnswers = app.models.answer.getAnswers();
     self.interactive = interactive;
+    
+    // loads answers from model for displaying already by the user ordered elements
+    self.tickedAnswers = app.models.answer.getAnswers();
     
     // stating whether the widget allows moving
     self.moveEnabled = true;
-    
-    this.didApologize = false;
+    self.dragActive = false;
+
+    self.threshold = 5;
+
+    self.didApologize = false;
 
     if (self.interactive) {
         self.showAnswer();
-    } else {
+    }
+    else {
         self.showFeedback();
     }
 }
@@ -69,19 +73,24 @@ TextSortWidget.prototype.startMove = function (event) {
     console.log("[TextSortWidget] startMove detected: " + id);
     
     if (id.split("_")[0] === "answertext") {
-        
+        this.dragActive = true
     }
 };
 
-TextSortWidget.prototype.duringMove = function () {
+TextSortWidget.prototype.duringMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] duringMove detected: " + id);
-    
+
 };
 
-TextSortWidget.prototype.endMove = function () {
+TextSortWidget.prototype.endMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] endMove detected: " + id);
+    this.dragActive = false;
+    this.snap();
+};
+
+TextSortWidget.prototype.snap = function () {
     
 };
 
@@ -95,6 +104,7 @@ TextSortWidget.prototype.showAnswer = function () {
 
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
+    var tmpl = app.templates.getTemplate("answerlistbox");
     
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
 
@@ -107,16 +117,16 @@ TextSortWidget.prototype.showAnswer = function () {
                 tmp_answerModel.deleteData();
                 questionpoolModel.mixAnswers();
                 mixedAnswers = questionpoolModel.getMixedAnswersArray();
+                
                 //if the order of mixed answers is correct or partially correct, generate a new order
                 tmp_answerModel.setAnswers(mixedAnswers);
                 tmp_answerModel.calculateTextSortScore();
-            } while (tmp_answerModel.getAnswerResults() != "Wrong");
+            } while (tmp_answerModel.getAnswerResults() !== "Wrong");
         }
         else {
             mixedAnswers = this.tickedAnswers;
         }
-        var tmpl = app.templates.getTemplate("answerlistbox");
-
+        
         // for each possible answer create a list item
         for (var c = 0; c < mixedAnswers.length; c++) {
             tmpl.attach(mixedAnswers[c]);
@@ -151,8 +161,8 @@ TextSortWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 TextSortWidget.prototype.showFeedback = function () {
-    $("#feedbackBody").empty();
-    $("#feedbackTip").empty();
+//    $("#feedbackBody").empty();
+//    $("#feedbackTip").empty();
 
 //    $(".sortable").sortable({
 //        disabled: true
@@ -166,9 +176,12 @@ TextSortWidget.prototype.showFeedback = function () {
     var answers = questionpoolModel.getAnswer();
     var answerModel = app.models.answer;
     var scores = answerModel.getScoreList();
+    var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
     // iterate over all answers
     for (var i = 0; i < answers.length; i++) {
+        fTmpl.attach(i);
+        fTmpl.feedbacktext.text = answers[i].answertext;
 //        var li = $("<li/>", {
 //            //if a ticked answer is in the correct place or in a sequence then use a blue background color
 //            "class": (scores[i] == "1" || scores[i] == "1.5") ? "gradientSelected" : "gradient2 "
@@ -180,31 +193,31 @@ TextSortWidget.prototype.showFeedback = function () {
 //        }).appendTo(li);
 
         // if score is 0.5 or 1.5 show a checkmark
-        if (scores[i] == "0.5" || scores[i] == "1.5") {
+//        if (scores[i] == "0.5" || scores[i] == "1.5") {
 //            var div = $("<div/>", {
 //                "class": "right correctAnswer icon-checkmark"
 //            }).prependTo(li);
-        }
+//        }
     }
 
-    var currentFeedbackTitle = answerModel.getAnswerResults();
-    if (currentFeedbackTitle == "Excellent") {
-        var correctText = questionpoolModel.getCorrectFeedback();
-        if (correctText && correctText.length > 0) {
-            $("#FeedbackMore").show();
-            $("#feedbackTip").text(correctText);
-        } else {
-            $("#FeedbackMore").hide();
-        }
-    } else {
-        var wrongText = questionpoolModel.getWrongFeedback();
-        if (wrongText && wrongText.length > 0) {
-            $("#FeedbackMore").show();
-            $("#feedbackTip").text(wrongText);
-        } else {
-            $("#FeedbackMore").hide();
-        }
-    }
+//    var currentFeedbackTitle = answerModel.getAnswerResults();
+//    if (currentFeedbackTitle == "Excellent") {
+//        var correctText = questionpoolModel.getCorrectFeedback();
+//        if (correctText && correctText.length > 0) {
+//            $("#FeedbackMore").show();
+//            $("#feedbackTip").text(correctText);
+//        } else {
+//            $("#FeedbackMore").hide();
+//        }
+//    } else {
+//        var wrongText = questionpoolModel.getWrongFeedback();
+//        if (wrongText && wrongText.length > 0) {
+//            $("#FeedbackMore").show();
+//            $("#feedbackTip").text(wrongText);
+//        } else {
+//            $("#FeedbackMore").hide();
+//        }
+//    }
 };
 
 /**stores the current sorting order in the answer model
