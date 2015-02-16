@@ -107,24 +107,15 @@ AnswerView.prototype.tap = function (event) {
     }
 };
 
-AnswerView.prototype.startMove = function (event) {
-    var id = event.target.id;
-    console.log("[AnswerView] startMove detected: " + id);
-    
+AnswerView.prototype.startMove = function (event) {    
     if (this.widget.moveEnabled) {this.widget.startMove(event);};
 };
 
 AnswerView.prototype.duringMove = function (event) {
-    var id = event.target.id;
-    console.log("[AnswerView] duringMove detected: " + id);
-    
     if (this.widget.moveEnabled) {this.widget.duringMove(event);};
 };
 
-AnswerView.prototype.endMove = function (event) {
-    var id = event.target.id;
-    console.log("[AnswerView] endMove detected: " + id);
-    
+AnswerView.prototype.endMove = function (event) {    
     if (this.widget.moveEnabled) {this.widget.endMove(event);};
 };
 
@@ -153,7 +144,6 @@ AnswerView.prototype.update = function () {
         break;
     case 'assOrderingQuestion':
     case 'assOrderingHorizontal':
-        console.log("[AnswerView] textsortwidget not functional");
         this.widget = new TextSortWidget(interactive);
         break;
     case 'assNumeric':
