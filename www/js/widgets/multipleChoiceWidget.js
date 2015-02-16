@@ -51,7 +51,7 @@ function MultipleChoiceWidget (interactive) {
     self.tickedAnswers = app.models.answer.getAnswers(); 
     
     // current selected Answer
-    self.selectedAnswer = null;
+    self.selectedAnswer = new Array();
     
     // stating whether the widget allows moving
     self.moveEnabled = false;
@@ -129,11 +129,11 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
         fTmpl.attach(mixedAnswers[c]);
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
-//        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
-//            fTmpl.feedbacklist.removeClass("gradient2");
-//            fTmpl.feedbacklist.addClass("gradientSelected");
-//        }
-                    
+        if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
+            fTmpl.feedbacklist.removeClass("gradient2");
+            fTmpl.feedbacklist.addClass("gradientSelected");
+        }
+        
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacktickicon.addClass("glow2");
@@ -152,9 +152,13 @@ MultipleChoiceWidget.prototype.tap = function (event) {
     
     if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
         $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+        this.selectedAnswer.push(id.split("_")[2]);
+        console.log(this.selectedAnswer);
     }
     else {
         $("#" + id).closest("li").addClass("gradient2").removeClass("gradientSelected");
+        this.selectedAnswer.splice(this.selectedAnswer.indexOf(id.split("_")[2]), 1);
+        console.log(this.selectedAnswer);
     }
 };
 
@@ -164,13 +168,5 @@ MultipleChoiceWidget.prototype.tap = function (event) {
  * @function storeAnswers
  **/
 MultipleChoiceWidget.prototype.storeAnswers = function () {
-    var answers = new Array();
-    var questionpoolModel = app.models.questionpool;
-
-    if (this.selectedAnswer !== null) {
-        console.log("[MultipleChoiceWidget] selected Answer has number: " + this.selectedAnswer.split("_")[2]);
-        answers.push(this.selectedAnswer.split("_")[2]);
-    }
-
-    app.models.answer.setAnswers(answers);
+    app.models.answer.setAnswers(this.selectedAnswer);
 };

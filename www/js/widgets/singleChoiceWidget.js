@@ -51,7 +51,7 @@ function SingleChoiceWidget(interactive) {
     self.tickedAnswers = app.models.answer.getAnswers();
  
     // current selected Answer
-    self.selectedAnswer = null;
+    self.selectedAnswer = new Array();
 
     // stating whether the widget allows moving
     self.moveEnabled = false;
@@ -127,9 +127,7 @@ SingleChoiceWidget.prototype.showFeedback = function () {
         fTmpl.attach(mixedAnswers[c]);
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
-        if (app.models.answer.getAnswers()[0] === mixedAnswers[c]) {
-            console.log("feedback make it selected");
-            
+        if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
@@ -148,16 +146,17 @@ SingleChoiceWidget.prototype.showFeedback = function () {
  **/
 SingleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
+    var answerId = "answertext_answerlistbox_";
     
-    if (this.selectedAnswer !== null &&
-        this.selectedAnswer !== id &&
-        $("#" + this.selectedAnswer).closest("li").hasClass("gradientSelected")) {
-        $("#" + this.selectedAnswer).closest("li").removeClass("gradientSelected").addClass("gradient2");   
+    if (this.selectedAnswer.length > -1 &&
+        this.selectedAnswer[0] !== id.split("_")[2] && 
+        $("#" + answerId + this.selectedAnswer[0]).closest("li").hasClass("gradientSelected")) {
+        $("#" + answerId + this.selectedAnswer[0]).closest("li").removeClass("gradientSelected").addClass("gradient2");   
     }
     
-    if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
+    if ($("#" + id).closest("li").hasClass("gradient2")) {
         $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer = id;
+        this.selectedAnswer[0] = id.split("_")[2];    
     }
 };
 
@@ -167,11 +166,5 @@ SingleChoiceWidget.prototype.tap = function (event) {
  * @function storeAnswers
  **/
 SingleChoiceWidget.prototype.storeAnswers = function () {
-    var answers = new Array();
-
-    if (this.selectedAnswer !== null) {
-        answers.push(this.selectedAnswer.split("_")[2]);
-    }
-    
-    app.models.answer.setAnswers(answers);
+    app.models.answer.setAnswers(this.selectedAnswer);
 };
