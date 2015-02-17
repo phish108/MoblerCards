@@ -69,20 +69,19 @@ var $ = window.$;
  */
 function StatisticsModel(controller) {
     var self = this;
-//    var featuredContent_id = FEATURED_CONTENT_ID;
-    // FIXME Get Rid off the Featured Content Alltogether
-    // var featuredContent_id = -1;
 
-    self.controller = controller;
-    //initialization of model's variables
+    this.controller = controller;
+
     this.lastSendToServer = 0;
     this.clickOutOfStatisticsIcon = 0; // FIXME move UI Statements into views
     this.db = window.openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
     this.currentCourseId = -1;
     this.firstActiveDay = 0;
     this.lastActiveDay = 0;
+    this.boolAllDone = 0;
     this.checkLocalStorage();
-    this.cardBurner = 0;
+
+    this.initSubModels();
 
     /**
      * Check if time dependent achievements have been accomplished.
@@ -94,10 +93,9 @@ function StatisticsModel(controller) {
      *
      * @event checkachievements
      * @param: a callback function that
-     * FIXME: the call back is undefined
      **/
     $(document).bind("checkachievements", function (p, courseId) {
-        self.controller.models.cardburner.calculateValue(courseId);
+        self.cardBurner.calculateValue(courseId);
     });
 }
 
@@ -107,8 +105,8 @@ function StatisticsModel(controller) {
  */
 StatisticsModel.prototype.checkLocalStorage = function () {
     var self = this;
-    if (self.controller.getConfigVariable("statisticsLoaded") === false && self.controller.getLoginState()) {
-        console.log("statistics to be loaded from server");
+    if (self.controller.getConfigVariable("statisticsLoaded") === false && 
+        self.controller.getLoginState()) {
         self.loadFromServer();
     }
 };
@@ -123,16 +121,11 @@ StatisticsModel.prototype.checkLocalStorage = function () {
  */
 StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
     if (this.currentCourseId !== courseId) {
-        this.currentCourseId = undefined;
-
-        // if the course id is one of the free content
-        // OR if the authenticated user has access to the course id
-
         this.currentCourseId = courseId;
         console.log("course-id: " + courseId);
 
         // uncomment the following line for debugging purposes
-        // this.getAllDBEntries();
+//        this.getAllDBEntries();
 
         // WHY IS THE FOLLOWING LINE
         this.controller.models.questionpool.loadData(courseId);
@@ -140,7 +133,7 @@ StatisticsModel.prototype.setCurrentCourseId = function (courseId) {
         console.log("statistics are loaded? " + (this.controller.getConfigVariable("statisticsLoaded") ? "yes2" : "no2"));
 
         //if statistics are loaded
-        if ((this.controller.getConfigVariable("statisticsLoaded") === true) || this.currentCourseId === "fd") {
+        if (this.controller.getConfigVariable("statisticsLoaded") || this.currentCourseId === "fd") {
             this.getFirstActiveDay(courseId);
         } else {
             // this case is only used if the statistics are not yet loaded from the server
@@ -166,7 +159,6 @@ StatisticsModel.prototype.dataAvailable = function () {
     }
     return false;
 };
-
 
 /**
  * Gets the timestamp of the first activity
@@ -212,7 +204,6 @@ StatisticsModel.prototype.getFirstActiveDay = function (courseId) {
  * current timestamp
  * @prototype
  * @function checkActivity
- *
  */
 StatisticsModel.prototype.checkActivity = function (day, courseId) {
     var self = this;
@@ -291,7 +282,6 @@ StatisticsModel.prototype.getCurrentValues = function (val) {
  * @function getLastActiveValues
  * @param {Boolean} progressVal, it is passed as true to these statistics metrics that calculate improvement
  * @return {Array}, containing the values of the parameters of the query for the last active day
- *
  */
 StatisticsModel.prototype.getLastActiveValues = function (progressVal) {
     var lastActiveDay24hBefore = this.lastActiveDay - TWENTY_FOUR_HOURS;
@@ -310,7 +300,7 @@ StatisticsModel.prototype.getLastActiveValues = function (progressVal) {
  */
 StatisticsModel.prototype.calculateValues = function (courseId) {
     var self = this;
-
+    
     self.boolAllDone = 0;
     self.bestDay.calculateValue(courseId);
     self.handledCards.calculateValue(courseId);
@@ -322,8 +312,6 @@ StatisticsModel.prototype.calculateValues = function (courseId) {
     self.stackHandler.calculateValue(courseId);
     self.checkAchievements(this.currentCourseId);
 };
-
-
 
 /**
  * It triggeres an event when all stastistics caluclations is done. The logic is
@@ -360,14 +348,14 @@ StatisticsModel.prototype.queryDB = function (query, values, cbResult) {
 };
 
 /**
- *Checks if any achievements have been achieved for the specific course
+ * Checks if any achievements have been achieved for the specific course
  * @prototype
  * @function checkAchievements
  * @param {Number}, courseId
  */
 StatisticsModel.prototype.checkAchievements = function (courseId) {
     //check if cardburner was already achieved
-//    this.controller.models.cardburner.calculateValue(courseId);
+    this.cardBurner.calculateValue(courseId);
 };
 
 /**
@@ -419,7 +407,7 @@ StatisticsModel.prototype.loadFromServer = function () {
 
                     for (i = 0; i < statisticsObject.length; i++) {
                         self.insertStatisticItem(statisticsObject[i]);
-                        //console.log("i is "+i+" and the length of statistics object is "+statisticsObject.length);
+                        console.log("i is "+i+" and the length of statistics object is "+statisticsObject.length);
                     }
                     console.log("after inserting statistics from server");
                     // trigger event statistics are loaded from server
@@ -460,7 +448,7 @@ StatisticsModel.prototype.loadFromServer = function () {
  */
 StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
     var self = this;
-    // console.log("day: " + statisticItem['day']);
+    console.log("day: " + statisticItem['day']);
 
     function checkIfItemExists(transaction, results) {
         var item = statisticItem;
@@ -474,7 +462,7 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
               item.duration];
             self.queryDB(query, values, function cbInsert(transaction,
                 results) {
-                //  console.log("after inserting in insertStatisticsItem "+JSON.stringify(statisticItem));
+                console.log("after inserting in insertStatisticsItem " + JSON.stringify(statisticItem));
             });
         }
     }
@@ -538,7 +526,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 }
                 //
                 sessionkey = pendingStatistics.sessionkey;
-                uuid = pendingStatistics.uuid;
+                uuid       = pendingStatistics.uuid;
                 statistics = pendingStatistics.statistics;
                 numberOfStatisticsItems = statistics.length;
             } else {
@@ -547,11 +535,11 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 console.log("results length: " + results.rows.length);
                 for (i = 0; i < results.rows.length; i++) {
                     row = results.rows.item(i);
-                    //	console.log("sent statistics row to the server"+row);
-                    //	rowCourse= row.course_id;
-                    //	console.log("course id is "+rowCourse);
+//                    	console.log("sent statistics row to the server"+row);
+//                    	rowCourse = row.course_id;
+//                    	console.log("course id is " + rowCourse);
                     statistics.push(row);
-                    // console.log("sending " + i + ": " + JSON.stringify(row));
+//                    console.log("sending " + i + ": " + JSON.stringify(row));
                 }
                 sessionkey = self.controller.models.configuration.getSessionKey();
                 uuid = window.device.uuid;
@@ -648,6 +636,20 @@ StatisticsModel.prototype.getAllDBEntries = function () {
  */
 StatisticsModel.prototype.setClickOutOfStatisticsIcon = function () {
     this.clickOutOfStatisticsIcon = true;
+};
+
+/**
+ * Initialization of sub models
+ * @function initSubModels
+ */
+StatisticsModel.prototype.initSubModels = function () {
+	this.bestDay      = new BestDayModel(this);
+	this.handledCards = new HandledCardsModel(this);
+	this.averageScore = new AverageScoreModel(this);
+	this.progress     = new ProgressModel(this);
+	this.averageSpeed = new AverageSpeedModel(this);
+	this.stackHandler = new StackHandlerModel(this);
+	this.cardBurner   = new CardBurnerModel(this);
 };
 
 /**

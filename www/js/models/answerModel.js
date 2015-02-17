@@ -134,7 +134,8 @@ AnswerModel.prototype.calculateSingleChoiceScore = function () {
     if (this.controller.models.questionpool.getScore(clickedAnswerIndex) > 0) {
         console.log("the score is 1");
         this.answerScore = 1;
-    } else {
+    } 
+    else {
         this.answerScore = 0;
     }
 };
@@ -170,9 +171,10 @@ AnswerModel.prototype.calculateMultipleChoiceScore = function () {
                 corr_ticked++;
                 console.log("corr_ticked");
             }
-        } else {
+        }
+        else {
             //the user has clicked on the wrong answer item
-            if (this.answerList.indexOf(i) !== -1) {
+            if (this.answerList.indexOf(i) === -1) {
                 wrong_ticked++;
                 console.log("wrong_ticked");
             }

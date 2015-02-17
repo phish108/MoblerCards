@@ -50,7 +50,7 @@ function FeedbackView() {
         if ((self.app.isActiveView(self.tagID)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in feedback view 1");
-            self.showFeedbackBody();
+            self.update();
         }
     });
 
@@ -63,47 +63,35 @@ function FeedbackView() {
         if ((self.app.isActiveView(self.tagId)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in feedback view 2 ");
-            self.showFeedbackBody();
+            self.update();
         }
     });
 }
 
-/**hows feedback title and body
- * @prototype
- * @function open
- **/
 FeedbackView.prototype.prepare = function () {
-    if (this.app.models.answer.answerScore == -1) {
-        console.log("feedbackview opened after returning from answerview");
+    $("#feedbacktip").hide();
+}
+
+FeedbackView.prototype.update = function () {
+    if (this.app.models.answer.answerScore === -1) {
         this.app.models.answer.calculateScore();
     }
 
     this.showFeedbackBody();
     this.showFeedbackTitle();
-
-    console.log("feedback open");
-    this.widget.setCorrectAnswerTickHeight();
 };
 
-/**Closing of the feedback view
- * @prototype
- * @function close
- **/
 FeedbackView.prototype.cleanup = function () {
-    $("#feedbackBody").empty();
-    $("#feedbackTip").empty();
+    $("#feedbackbox").show();
+    $("#feedbacktip").hide();
 };
 
-/**
- * No action is executed when taping on the feedback view
- * @prototype
- * @function handleTap
- **/
 FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
     
-    if (id === "feedbackbutton") {
+    if (id === "feedbackbutton" ||
+        id === "feedbackcontent") {
         this.clickFeedbackDoneButton();
     }
     else if (id === "feedbackmore") {
@@ -117,7 +105,7 @@ FeedbackView.prototype.tap = function (event) {
     else if (id === "feedbacktitle") {
         this.clickTitleArea();
     }
-}
+};
 
 /**click on feedback done button leads to new question
  * @prototype
@@ -125,8 +113,6 @@ FeedbackView.prototype.tap = function (event) {
  **/
 FeedbackView.prototype.clickFeedbackDoneButton = function () {
     this.app.models.answer.deleteData();
-    $("#feedbackTipBody").hide();
-    $("#feedbackBody").show();
     this.app.models.questionpool.nextQuestion();
     this.app.changeView("question");
 };
@@ -137,12 +123,9 @@ FeedbackView.prototype.clickFeedbackDoneButton = function () {
  * @function clickFeedbackMore
  **/
 FeedbackView.prototype.clickFeedbackMore = function () {
-    $("#feedbackBody").toggle();
-    console.log("closed feedback normal");
-    $("#feedbackTipBody").toggle();
+    $("#feedbackbox").toggle();
+    $("#feedbacktip").toggle();
 };
-
-
 
 /**click on the course list button leads to course list
  * @prototype
@@ -151,17 +134,12 @@ FeedbackView.prototype.clickFeedbackMore = function () {
 FeedbackView.prototype.clickCourseListButton = function () {
     this.app.models.answer.deleteData();
     
-    $("#feedbackTip").empty();
-    $("#feedbackTipBody").hide();
-    $("#feedbackBody").show();
-    
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     } else {
         this.app.changeView("landing");
     }
 };
-
 
 /**Shows the title area of the feedback view,
  * containing title and corresponding icon
@@ -175,7 +153,6 @@ FeedbackView.prototype.showFeedbackTitle = function () {
     $("#feedbackdynamicicon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
 };
 
-
 /**Calls the appropriate widget to show the feedback body
  * based on the specific question type
  * It is displayed within the main body area of the feedback view
@@ -186,26 +163,27 @@ FeedbackView.prototype.showFeedbackBody = function () {
     var questionpoolModel = this.app.models.questionpool;
     var questionType = questionpoolModel.getQuestionType();
     var interactive = false;
+    
     switch (questionType) {
-    case 'assSingleChoice':
-        this.widget = new SingleChoiceWidget(interactive);
-        break;
-    case 'assMultipleChoice':
-        this.widget = new MultipleChoiceWidget(interactive);
-        break;
-    case 'assNumeric':
-        this.widget = new NumericQuestionWidget(interactive);
-        break;
-    case 'assOrderingHorizontal':
-    case 'assOrderingQuestion':
-        this.widget = new TextSortWidget(interactive);
-        break;
-    case 'assClozeTest':
-        this.widget = new ClozeQuestionType(interactive);
-        break;
-    default:
-        console.log("didn't find questiontype");
-        break;
+        case 'assSingleChoice':
+            this.widget = new SingleChoiceWidget(interactive);
+            break;
+        case 'assMultipleChoice':
+            this.widget = new MultipleChoiceWidget(interactive);
+            break;
+        case 'assNumeric':
+            this.widget = new NumericQuestionWidget(interactive);
+            break;
+        case 'assOrderingHorizontal':
+        case 'assOrderingQuestion':
+            this.widget = new TextSortWidget(interactive);
+            break;
+        case 'assClozeTest':
+            this.widget = new ClozeQuestionType(interactive);
+            break;
+        default:
+            console.log("didn't find questiontype");
+            break;
     }
 
     // show feedback more information, which is the same for all kinds of questions
@@ -221,7 +199,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
 
     if (feedbackText && feedbackText.length > 0) {
         //$("#feedbackTip").text(feedbackText);
-        $("#feedbackTip").html(feedbackText);
+        $("#feedbacktip").html(feedbackText);
         $("#feedbackinfo").show();
     }
 };

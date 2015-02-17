@@ -42,11 +42,10 @@ under the License.
  */
 function AnswerView() {
     var self = this;
+    
     this.tagID = this.app.viewId;
     this.widget = null;
     
-    var featuredContentId = FEATURED_CONTENT_ID;
-
     /**It is triggered after statistics are loaded locally from the server. This can happen during the 
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
@@ -56,11 +55,12 @@ function AnswerView() {
         if ((self.app.isActiveView(self.tagID)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in answer view 1");
-            self.showAnswerBody();
+            self.update();
         }
     });
 
-    /**It is triggered when the calculation of all the statistics metrics is done
+    /**
+     * It is triggered when the calculation of all the statistics metrics is done
      * @event allstatisticcalculationsdone
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
@@ -69,39 +69,57 @@ function AnswerView() {
         if ((self.app.isActiveView(self.tagID)) && 
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in  answer view 2 ");
-            self.showAnswerBody();
+            self.update();
         }
     });
 }
 
-/**Opening of answer view. The parts of the container div element that are loaded dynamically 
- * are explicitly defined/created here
- * @prototype
- * @function open
- **/
-AnswerView.prototype.prepare = function (featuredContent_id) {
-    this.showAnswerTitle();
-    this.showAnswerBody();
-};
-
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
+    var answer, type;
+    
     console.log("[AnswerView] tap registered: " + id);
     
     if (id === "answerclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
-        } else {
+        }
+        else {
             this.app.changeView("landing");
         }
-    } 
-    else if (id === "answerbutton") {
+    }
+    else if (id === "answerbutton" ||
+             id === "answercontent") {
         this.clickDoneButton();
     }
-    else if (id === "answertitle" || id === "answericon") {
+    else if (id === "answertitle" || 
+             id === "answericon") {
         this.widget.storeAnswers();
         this.app.changeView("question");
+    }
+    else if (!this.widget.moveEnabled &&
+             id.split("_").length === 3) {
+        answer = id.split("_"); 
+        if (answer[0] === "answertext" || 
+            answer[0] === "answertick") {
+            this.widget.tap(event);
+        }
+    }
+};
+
+AnswerView.prototype.startMove = function (event, touches) {    
+    if (this.widget.moveEnabled) {this.widget.startMove(event);};
+};
+
+AnswerView.prototype.duringMove = function (event, touches) {
+    if (this.widget.moveEnabled &&
+        this.widget.dragActive) {
+        this.widget.duringMove(event);
     };
+};
+
+AnswerView.prototype.endMove = function (event, touches) {    
+    if (this.widget.moveEnabled) {this.widget.endMove(event);};
 };
 
 /**Loads a subview-widget based on the specific question type
@@ -109,18 +127,17 @@ AnswerView.prototype.tap = function (event) {
  * @prototype
  * @function showAnswerBody
  **/
-AnswerView.prototype.showAnswerBody = function () {
+AnswerView.prototype.update = function () {
+    this.showAnswerTitle();
+
     $("#dataErrorMessage").empty();
     $("#dataErrorMessage").hide();
-    $("#cardAnswerBody").empty();
 
-    var questionpoolModel = this.app.models.questionpool;
-
-    var questionType = questionpoolModel.getQuestionType();
+    var questionType = this.app.models.questionpool.getQuestionType();
     // a flag used to distinguish between answer and feedback view. 
     //Interactivity is true because the user can interact (answer questions) with the view on the answer view
     var interactive = true;
-
+    
     switch (questionType) {
     case 'assSingleChoice':
         this.widget = new SingleChoiceWidget(interactive);
@@ -142,9 +159,7 @@ AnswerView.prototype.showAnswerBody = function () {
         console.log("no Questiontype found");
         break;
     }
-
 };
-
 
 /**Displays the title area of the answer view,
  * containing a title icon and the title text
@@ -158,7 +173,6 @@ AnswerView.prototype.showAnswerTitle = function () {
     $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
 };
 
-
 /**Handling the behavior of the "forward-done" button on the answer view
  * @prototype
  * @function clickDoneButton
@@ -167,7 +181,7 @@ AnswerView.prototype.clickDoneButton = function () {
     var questionpoolModel = this.app.models.questionpool;
     var statisticsModel = this.app.models.statistics;
     var answerModel = this.app.models.answer;
-    console.log('check apology ' + this.widget.didApologize);
+
     if (this.widget.didApologize) {
         // if there was a problem with the data, the widget knows
         // in this case we proceed to the next question
