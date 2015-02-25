@@ -95,7 +95,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
         var tmpl = app.templates.getTemplate("answerlistbox");
         
         for (c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c]);
+            tmpl.attach(mixedAnswers[c].toString());
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
     } 
@@ -126,7 +126,7 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
     for (c = 0; c < mixedAnswers.length; c++) {
-        fTmpl.attach(mixedAnswers[c]);
+        fTmpl.attach(mixedAnswers[c].toString());
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
         if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {

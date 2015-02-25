@@ -46,7 +46,7 @@ under the License.
  */
 function TextSortWidget(interactive) {
     var self = this;
-
+    
     self.interactive = interactive;
     
     // loads answers from model for displaying already by the user ordered elements
@@ -55,11 +55,12 @@ function TextSortWidget(interactive) {
     // stating whether the widget allows moving
     self.moveEnabled = true;
     self.dragActive = false;
-
-    self.threshold = 5;
-
+    
+    self.startPosition;
+    self.listLength = 0;
+    
     self.didApologize = false;
-
+    
     if (self.interactive) {
         self.showAnswer();
     }
@@ -73,21 +74,67 @@ TextSortWidget.prototype.startMove = function (event) {
     console.log("[TextSortWidget] startMove detected: " + id);
     
     if (id.split("_")[0] === "answertext") {
+        var li = $("#" + id).closest("li");
+        
+        this.startPosition = li.offset().top;
         this.dragActive = true
+        this.lockPosition();
+        li.css("z-index", 2);
     }
 };
 
-TextSortWidget.prototype.duringMove = function (event) {
-    var id = event.target.id;
+TextSortWidget.prototype.duringMove = function (event, touches) {
+    var id = event.target.id,
+        li = $("#" + id).closest("li"),
+        ty = touches.touch(0).total.y(),
+        newPos = this.startPosition + ty, 
+        maxPos = this.listLength * 60 + 2;
+    
+    event.preventDefault();
     console.log("[TextSortWidget] duringMove detected: " + id);
-
+    
+    if (this.dragActive) {
+        if (newPos < 62) {
+            li.css("top", "62px");
+        }
+        else if (newPos > maxPos) {
+            li.css("top", maxPos + "px");
+        }
+        else {
+            li.css("top", newPos + "px");
+        }
+    }
 };
 
 TextSortWidget.prototype.endMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] endMove detected: " + id);
+    
     this.dragActive = false;
+    this.listLength = 0;
+    this.unlockPosition();
     this.snap();
+};
+
+TextSortWidget.prototype.lockPosition = function () {
+    var ul = document.getElementById("answerbox"),
+        list = ul.getElementsByTagName("li");
+    var i;
+    
+    this.listLength = list.length;
+    
+    for (i = 0; i < list.length; i++) {
+        list[i].style.position = "fixed";
+        list[i].style.top = (60 * (i + 1) + 2) + "px";
+    }
+};
+
+TextSortWidget.prototype.unlockPosition = function () {
+    
+};
+
+TextSortWidget.prototype.swap = function () {
+    
 };
 
 TextSortWidget.prototype.snap = function () {
@@ -101,15 +148,15 @@ TextSortWidget.prototype.snap = function () {
  */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
-
+    
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var tmpl = app.templates.getTemplate("answerlistbox");
     
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
+        
         var mixedAnswers;
-
+        
         // if sorting has not started yet, mix the answers
         if (!questionpoolModel.currAnswersMixed()) {
             var tmp_answerModel = new AnswerModel();
@@ -129,7 +176,7 @@ TextSortWidget.prototype.showAnswer = function () {
         
         // for each possible answer create a list item
         for (var c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c]);
+            tmpl.attach(mixedAnswers[c].toString());
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
         // make the list sortable using JQuery UI's function
@@ -180,7 +227,7 @@ TextSortWidget.prototype.showFeedback = function () {
 
     // iterate over all answers
     for (var i = 0; i < answers.length; i++) {
-        fTmpl.attach(i);
+        fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
 //        var li = $("<li/>", {
 //            //if a ticked answer is in the correct place or in a sequence then use a blue background color
