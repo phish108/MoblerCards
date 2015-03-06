@@ -22,6 +22,7 @@ under the License.
 /** 
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -61,6 +62,22 @@ function TextSortWidget(interactive) {
     
     if (self.interactive) {
         self.showAnswer();
+        // make the list sortable using JQuery UI's function
+        $("#answerbox").sortable({
+            axis: "y",
+            scroll: true,
+            scrollSensitivity: 60,
+            scrollSpeed: 10,
+            disabled: false,
+            start: function (event, ui) {
+                $(ui.item).addClass("currentSortedItem");
+            },
+            stop: function (event, ui) {
+                $(ui.item).removeClass("currentSortedItem");
+            }
+        });
+        
+        $("#answerbox").disableSelection();
     }
     else {
         self.showFeedback();
@@ -152,25 +169,6 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.attach(mixedAnswers[i].toString());
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
         }
-        
-        // make the list sortable using JQuery UI's function
-        $("#answerbox").sortable({
-            axis: "y",
-            scroll: true,
-            scrollSensitivity: 10,
-            scrollSpeed: 20,
-            disabled: false,
-            start: function (event, ui) {
-                $(ui.item).addClass("currentSortedItem");
-                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
-            },
-            stop: function (event, ui) {
-                (ui.item).removeClass("currentSortedItem");
-                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
-            }
-        });
-        
-        $("#answerbox").disableSelection();
     }
     else {
         this.didApologize = true;
@@ -208,25 +206,6 @@ TextSortWidget.prototype.showFeedback = function () {
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
     }
-
-    var currentFeedbackTitle = answerModel.getAnswerResults();
-    if (currentFeedbackTitle == "Excellent") {
-        var correctText = questionpoolModel.getCorrectFeedback();
-        if (correctText && correctText.length > 0) {
-//            $("#FeedbackMore").show();
-//            $("#feedbackTip").text(correctText);
-        } else {
-//            $("#FeedbackMore").hide();
-        }
-    } else {
-        var wrongText = questionpoolModel.getWrongFeedback();
-        if (wrongText && wrongText.length > 0) {
-//            $("#FeedbackMore").show();
-//            $("#feedbackTip").text(wrongText);
-        } else {
-//            $("#FeedbackMore").hide();
-        }
-    }
 };
 
 /**stores the current sorting order in the answer model
@@ -243,5 +222,3 @@ TextSortWidget.prototype.storeAnswers = function () {
 
     app.models.answer.setAnswers(answers);
 };
-
-

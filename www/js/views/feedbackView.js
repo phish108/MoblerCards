@@ -22,6 +22,7 @@ under the License.
 /** 
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -195,6 +196,9 @@ FeedbackView.prototype.showFeedbackBody = function () {
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
         feedbackText = questionpoolModel.getCorrectFeedback();
+    }
+    else {
+        feedbackText = questionpoolModel.getWrongFeedback();
     }
 
     if (feedbackText && feedbackText.length > 0) {

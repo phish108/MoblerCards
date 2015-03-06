@@ -22,6 +22,7 @@ under the License.
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**

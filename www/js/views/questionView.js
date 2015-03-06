@@ -117,7 +117,8 @@ QuestionView.prototype.tap = function (event) {
  **/
 QuestionView.prototype.showQuestionBody = function () {
     var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
-
+    console.log("current question: " + currentQuestionBody);
+    
     $("#questionlisttext").html(currentQuestionBody);
 };
 
