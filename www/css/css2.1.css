@@ -1,5 +1,4 @@
 /*********************** General ***********************/
-
 body {
     width: device-width;
     height: device-height;
@@ -98,10 +97,11 @@ body {
 /*********************** List templates *************************/
 .listbox {
     display: table;
-    height: 59px;
+    height: 60px;
     width: 100%;
     margin: 0px;
-    padding: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     z-index: 1;
 }
 .listdash {
@@ -120,16 +120,16 @@ body {
 }
 .listimage {
     display: table-cell;
-    width: 63px;
-    padding-top: 10px;
+    width: 57px;
+    line-height: 60px;
+    padding-right: 5px;
     font-size: 38px;
 }
 .separator {
-    padding-left: 13px;
-    border-left: 1px solid black;
+    border-left: 1px solid #646464;
 }
 .separator2 {
-    padding-left: 13px;
+    padding-left: 14px;
 }
 input {
     height: 59px;
@@ -636,7 +636,6 @@ li {
     background: #ccc;
 }
 /*********************** Answer View ***********************/
-
 .marginForButtons {
     margin-right: 52px;
     border: 1px solid white;
@@ -674,6 +673,9 @@ li {
     text-align: left;
 }
 #dataErrorMessage {
+    display: none;
+}
+.inactive {
     display: none;
 }
 /*********************** Statistics View ***********************/
