@@ -78,6 +78,8 @@ function TextSortWidget(interactive) {
         });
         
         $("#answerbox").disableSelection();
+//        $("#scrolltop").removeClass("inactive");
+//        $("#scrollbot").removeClass("inactive");
     }
     else {
         self.showFeedback();
@@ -94,6 +96,17 @@ function createEvent(type, event) {
 
     first.target.dispatchEvent(simulatedEvent);
 }
+
+TextSortWidget.prototype.tap = function (event) {
+    var id = event.target.id;
+    
+    if (id === "scrolltop") {
+        // TODO scroll top
+    }
+    else if (id === "scrollbot") {
+        // TODO scroll bot
+    }
+};
 
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
@@ -168,6 +181,7 @@ TextSortWidget.prototype.showAnswer = function () {
         for (i = 0; i < mixedAnswers.length; i++) {
             tmpl.attach(mixedAnswers[i].toString());
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
+            tmpl.answertick.removeClass("separator");
         }
     }
     else {

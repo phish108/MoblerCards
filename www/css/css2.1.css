@@ -122,7 +122,8 @@ body {
     display: table-cell;
     width: 57px;
     line-height: 60px;
-    padding-right: 5px;
+    padding-left: 5px;
+    text-align: center;
     font-size: 38px;
 }
 .separator {
@@ -138,6 +139,34 @@ input {
     background-color: transparent;
     border: none;
     font-size: 20px;
+}
+input.listlabel {
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+/*********************** Scrollbutton ***********************/
+#scrolltop {
+    position: fixed;
+    top: 78px;
+    right: 13px;
+    line-height: 39px;
+}
+#scrollbot {
+    position: fixed;
+    bottom: 65px;
+    right: 13px;
+    line-height: 39px;
+}
+.scrollbutton {
+    width: 38px;
+    height: 38px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 24px;
+    color: white;
+    background: linear-gradient(#008cc7, #0072a2);
+    z-index: 99;
 }
 /*********************** Views ***********************/
 .screen {
@@ -253,7 +282,8 @@ input {
     -webkit-text-stroke-width: 1px;
     -webkit-text-fill-color: #59fa56;
     z-index: 12;
-    padding-left: 15px;
+    padding-right: 5px;
+    text-align: center;
 }
 .glowNone {
     text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;

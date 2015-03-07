@@ -77,7 +77,8 @@ NumericQuestionWidget.prototype.showAnswer = function () {
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()) {
         tmpl.attach("answerbox");
         tmpl.answerinput.removeClass("inactive");
-        tmpl.answertickicon.addClass("inactive");
+        tmpl.answertick.addClass("inactive");
+        tmpl.answertext.addClass("inactive");
     } else {
         //if there are no data for a question or there is no questionpool then display the error message
         this.didApologize = true;
@@ -107,11 +108,13 @@ NumericQuestionWidget.prototype.showFeedback = function () {
     
     tmpl.attach("feedbackbox");
     tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
-
+    tmpl.feedbacktick.addClass("inactive");
+    
     if (currentFeedbackTitle != "Excellent") {
         // if the typed numeric answer is wrong
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
+        tmpl.feedbacktick.addClass("inactive");
     }
 };
 
