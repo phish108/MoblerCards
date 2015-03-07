@@ -101,10 +101,14 @@ TextSortWidget.prototype.tap = function (event) {
     var id = event.target.id;
     
     if (id === "scrolltop") {
-        // TODO scroll top
+//        $("#answerbox").animate({
+//            scrollTo: $("#answertop").offset().top
+//        }, 2000);
     }
     else if (id === "scrollbot") {
-        // TODO scroll bot
+//        $("#answerbox").animate({
+//            scrollTo: $("#answerbot").offset().top
+//        }, 2000);
     }
 };
 
@@ -205,8 +209,8 @@ TextSortWidget.prototype.showFeedback = function () {
     for (i = 0; i < answers.length; i++) {
         fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
+        fTmpl.feedbacktick.addClass("inactive");
         
-        console.log("[FeedbackView] current score for i " + i + " is: " + scores[i]);
         if (scores[i] === 0.5) {
             fTmpl.feedbacklist.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");

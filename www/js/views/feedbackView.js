@@ -92,6 +92,7 @@ FeedbackView.prototype.tap = function (event) {
     console.log("[FeedbackView] tap registered: " + id);
     
     if (id === "feedbackbutton" ||
+        id === "feedbackbuttonenter" ||
         id === "feedbackcontent") {
         this.clickFeedbackDoneButton();
     }
