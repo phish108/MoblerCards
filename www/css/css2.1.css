@@ -138,6 +138,7 @@ input {
     width: 100%;
     background-color: transparent;
     border: none;
+    outline: none;
     font-size: 20px;
 }
 input.listlabel {
@@ -515,10 +516,6 @@ ul {
     /*background-color: #ddd;
 	color:#696969;*/
     list-style-type: none;
-    /*font-size: 14pt;*/
-    /*font-style: normal;
-	font-style:none;
-	font-variant: normal;*/
     text-align: left;
     padding: 0px;
     margin: 0px;
@@ -546,9 +543,7 @@ li {
     list-style-type: none;
     list-style-position: inside;
     font-size: 18px;
-    /*font-style: bold;
-	font-variant: bold;*/
-    font-style: none;
+    font-style: normal;
     border: 0px solid red;
     border-bottom: 1px solid white;
     text-align: left;

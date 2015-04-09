@@ -47,20 +47,21 @@ under the License.
  */
 function TextSortWidget(interactive) {
     var self = this;
-    
-    self.interactive = interactive;
-    
+        
     // loads answers from model for displaying already by the user ordered elements
     self.tickedAnswers = app.models.answer.getAnswers();
     
-    // stating whether the widget allows moving
+    // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
 
+    // boolean value to check if a drag is taking place.
     self.dragActive = false;
-        
+    
+    // Handles the Error messages.
     self.didApologize = false;
     
-    if (self.interactive) {
+    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
+    if (interactive) {
         self.showAnswer();
         // make the list sortable using JQuery UI's function
         $("#answerbox").sortable({
@@ -78,6 +79,8 @@ function TextSortWidget(interactive) {
         });
         
         $("#answerbox").disableSelection();
+        
+        // shows the buttons for scroll handling.
 //        $("#scrolltop").removeClass("inactive");
 //        $("#scrollbot").removeClass("inactive");
     }
@@ -100,6 +103,7 @@ function createEvent(type, event) {
 TextSortWidget.prototype.tap = function (event) {
     var id = event.target.id;
     
+    // scroll handling
     if (id === "scrolltop") {
 //        $("#answerbox").animate({
 //            scrollTo: $("#answertop").offset().top
@@ -115,7 +119,7 @@ TextSortWidget.prototype.tap = function (event) {
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
-
+    
     if (id.split("_")[0] === "answertext") {
         createEvent("mousedown", event);
         this.dragActive = true;

@@ -128,7 +128,7 @@ LoginView.prototype.update = function () {
     this.app.models.lms.getActiveLMS(function (data) {
         activeLMS = data;
     });
-
+    
     $("#loginimg").attr("src", activeLMS.logofile);
 
     // TODO: TRANSFORM STRING TO i18n.prop

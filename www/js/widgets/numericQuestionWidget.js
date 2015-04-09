@@ -43,22 +43,21 @@ under the License.
 function NumericQuestionWidget(interactive) {
     var self = this;
 
-    self.tickedAnswers = app.models.answer.getAnswers(); // a list with the typed answer
-    
-    self.interactive = interactive;
-    
-    // stating whether the widget allows moving
+    // a list with the typed answer
+    self.tickedAnswers = app.models.answer.getAnswers();
+        
+    // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;    
     
-    self.didApologize = false; 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
-    //Check the boolean value of interactive. This is set through the answer and feedback view.
+    self.didApologize = false; 
     
-    if (self.interactive) {
+    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
+    if (interactive) {
         self.showAnswer();
     }
     else {
-        self.showFeedback(); //displays the feedback body of the multiple choice widget
+        self.showFeedback();
     }
 }
 
