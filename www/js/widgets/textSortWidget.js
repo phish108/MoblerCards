@@ -105,13 +105,13 @@ TextSortWidget.prototype.tap = function (event) {
     
     // scroll handling
     if (id === "scrolltop") {
-//        $("#answerbox").animate({
-//            scrollTo: $("#answertop").offset().top
-//        }, 2000);
+//        $("#answercontent").animate({
+//            scrollTop: 200
+//        });
     }
     else if (id === "scrollbot") {
-//        $("#answerbox").animate({
-//            scrollTo: $("#answerbot").offset().top
+//        $("#answercontent").animate({
+//            scrollTop: $("#answerbot").offset().top
 //        }, 2000);
     }
 };

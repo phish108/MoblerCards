@@ -14,6 +14,7 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
+
 /* refactured  start */
 /*********************** Header ***********************/
 .headerbox {
@@ -149,7 +150,7 @@ input.listlabel {
 /*********************** Scrollbutton ***********************/
 #scrolltop {
     position: fixed;
-    top: 78px;
+    top: 75px;
     right: 13px;
     line-height: 39px;
 }
