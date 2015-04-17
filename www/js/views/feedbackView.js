@@ -22,6 +22,7 @@ under the License.
 /** 
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -91,6 +92,7 @@ FeedbackView.prototype.tap = function (event) {
     console.log("[FeedbackView] tap registered: " + id);
     
     if (id === "feedbackbutton" ||
+        id === "feedbackbuttonenter" ||
         id === "feedbackcontent") {
         this.clickFeedbackDoneButton();
     }
@@ -195,6 +197,9 @@ FeedbackView.prototype.showFeedbackBody = function () {
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
         feedbackText = questionpoolModel.getCorrectFeedback();
+    }
+    else {
+        feedbackText = questionpoolModel.getWrongFeedback();
     }
 
     if (feedbackText && feedbackText.length > 0) {
