@@ -41,7 +41,7 @@
                     </div>
                     <div id="landingfeaturedlabel" class="listlabel"></div>
                     <div class="listimage blue">
-                        <span id="landingfeaturedimage" class="separator2 icon-bars"></span>
+                        <span id="landingfeaturedimage" class="icon-bars"></span>
                     </div>
                 </li>
                 <li id="landingexclusivelist" class="listbox gradient2">
@@ -50,7 +50,7 @@
                     </div>
                     <div id="landingexclusivelabel" class="listlabel">Exclusive Content</div>
                     <div class="listimage blue">
-                        <span id="landingexclusiveimage" class="separator2 icon-enter" ></span>
+                        <span id="landingexclusiveimage" class="icon-enter" ></span>
                     </div>
                 </li>
                 <li class="borderRemoval">
@@ -78,7 +78,8 @@
                         <span class="icon-dash"></span>
                     </div>
                     <div id="loginnamelabel" class="listlabel">
-                        <input id="usernameInput" required="required" type="text" placeholder="username"/>
+                        <input id="usernameInput" required="required" type="text" 
+                               placeholder="username" name="username">
                     </div>
                 </li>
 <!--                Password-->
@@ -87,7 +88,8 @@
                         <span class="icon-dash"></span>
                     </div>
                     <div id="loginpwlabel" class="listlabel">
-                        <input id="password" required="required" type="password" placeholder="password" name="password"/>
+                        <input id="password" required="required" type="password" 
+                               placeholder="password" name="password" autofocus>
                     </div>
                 </li>
 <!--                LMS selection-->
@@ -169,8 +171,8 @@
                             <span class="icon-dash"></span>
                         </div>
                         <div id="courselabel" class="listlabel"></div>
-                        <div id="courseimage" class="listimage">
-                            <span id="courseimg" class="separator"></span>
+                        <div id="courseimage" class="listimage separator">
+                            <span id="courseimg"></span>
                         </div>
                     </li>
                 </template>
@@ -226,11 +228,6 @@
                         <span id="deactivateSettings" class="settingsDeactivate">Deactivated Backend</span><span></span>
                     </div>
                 </li>
-<!--
-                <li>
-                    <div id="shadowSettings" class="gradient1 shadowedLi"></div>
-                </li>
--->
             </ul>
         </div>
 
@@ -302,12 +299,15 @@
             <ul>
                 <li id="questionlist" class="listbox gradient2">
                     <div id="questionlisttext" class="listlabel"></div>
+                    <div id="questiontick" class="listimage"></div>
                 </li>
             </ul>
         </div>
 
         <div id="questionfooter" class="footerbox">
-            <div id="questionbutton" class="footerlabel"><span class="icon-enter"></span></div>
+            <div id="questionbutton" class="footerlabel">
+                <span id="questionbuttonenter" class="icon-enter"></span>
+            </div>
         </div>
     </div>
 
@@ -322,19 +322,27 @@
         </div>
 
         <div id="answercontent" class="contentbox" >
+            <div id="answertop"></div>
             <ul id="answerbox">
                 <template id="answerlistbox">
                     <li id="answerlist" class="listbox gradient2">
                         <div id="answertext" class="listlabel"></div>
+                        <div id="answertick" class="listimage separator">
+                            <span id="answertickicon"></span>
+                        </div>
+                        <input id="answerinput" class="listlabel inactive" placeholder="##" type="number" required="required"/>
                     </li>
                 </template>
             </ul>
+            <div id="answerbot"></div>
+            <div id="scrolltop" class="scrollbutton inactive icon-arrow-up"></div>
+            <div id="scrollbot" class="scrollbutton inactive icon-arrow-down"></div>
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
 
         <div id="answerfooter" class="footerbox">
             <div id="answerbutton" class="footerlabel">
-                <span class="icon-enter"></span>
+                <span id="answerbuttonenter" class="icon-enter"></span>
             </div>
         </div>
     </div>
@@ -351,7 +359,7 @@
                 <template id="feedbacklistbox">
                     <li id="feedbacklist" class="listbox gradient2">
                         <div id="feedbacktext" class="listlabel"></div>
-                        <div id="feedbacktick" class="listimage">
+                        <div id="feedbacktick" class="listimage separator">
                             <span id="feedbacktickicon"></span>
                         </div>
                     </li>
@@ -362,7 +370,7 @@
 
         <div id="feedbackfooter" class="footerbox">
             <div id="feedbackbutton" class="footerleft">
-                <span class="icon-enter"></span>
+                <span id="feedbackbuttonenter" class="icon-enter"></span>
             </div>
             <div id="feedbackinfo" class="footerright">
                 <span id="feedbackmore" class="icon-question"></span>

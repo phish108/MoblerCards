@@ -89,6 +89,7 @@ AnswerView.prototype.tap = function (event) {
         }
     }
     else if (id === "answerbutton" ||
+             id === "answerbuttonenter" ||
              id === "answercontent") {
         this.clickDoneButton();
     }
@@ -107,20 +108,27 @@ AnswerView.prototype.tap = function (event) {
     }
 };
 
-AnswerView.prototype.startMove = function (event, touches) {    
+AnswerView.prototype.startMove = function (event) {    
     if (this.widget.moveEnabled) {this.widget.startMove(event);};
 };
 
 AnswerView.prototype.duringMove = function (event, touches) {
     if (this.widget.moveEnabled &&
         this.widget.dragActive) {
-        this.widget.duringMove(event);
+        this.widget.duringMove(event, touches);
     };
 };
 
-AnswerView.prototype.endMove = function (event, touches) {    
+AnswerView.prototype.endMove = function (event) {    
     if (this.widget.moveEnabled) {this.widget.endMove(event);};
 };
+
+AnswerView.prototype.cleanup = function () {
+    if (!$("#scrolltop").hasClass("inactive")) {
+        $("#scrolltop").addClass("inactive");
+        $("#scrollbot").addClass("inactive");
+    }
+}
 
 /**Loads a subview-widget based on the specific question type
  * It is displayed within the main body area of the answer view

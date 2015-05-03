@@ -22,6 +22,7 @@ under the License.
 /** 
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -68,6 +69,27 @@ function SingleChoiceWidget(interactive) {
 }
 
 /**
+ * Handling behavior when click on the an item of the single answers list
+ * @prototype
+ * @function clickSingleAnswerItem
+ **/
+SingleChoiceWidget.prototype.tap = function (event) {
+    var id = event.target.id;
+    var answerId = "answertext_answerlistbox_";
+    var li = $("#" + answerId + this.selectedAnswer[0]).closest("li");
+    if (this.selectedAnswer.length > -1 &&
+        this.selectedAnswer[0] !== id.split("_")[2] && 
+        li.hasClass("gradientSelected")) {
+        li.removeClass("gradientSelected").addClass("gradient2");   
+    }
+    
+    if ($("#" + id).closest("li").hasClass("gradient2")) {
+        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+        this.selectedAnswer[0] = id.split("_")[2];    
+    }
+};
+
+/**
  * Creation of answer body for single choice questions. It contains a list with
  * the possible solutions which have been firstly mixed in a random order.
  * Only one of them can be ticked each time.
@@ -94,12 +116,12 @@ SingleChoiceWidget.prototype.showAnswer = function () {
         var aTmpl = app.templates.getTemplate("answerlistbox");
         
         for (c = 0; c < mixedAnswers.length; c++) {
-            aTmpl.attach(mixedAnswers[c]);
+            aTmpl.attach(mixedAnswers[c].toString());
             aTmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
     } 
-    else {
-        // if there are no data for a question or there is no questionpool then display the error message
+    // if there are no data for a question or there is no questionpool then display the error message
+    else {  
         this.didApologize = true;
         doApologize();
     }
@@ -124,39 +146,20 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
     for (c = 0; c < mixedAnswers.length; c++) {
-        fTmpl.attach(mixedAnswers[c]);
+        fTmpl.attach(mixedAnswers[c].toString());
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
+        // the selected answer will be in gradientSelected
         if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
-                    
+        
+        // the correct answer will be marked with a green tick
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacktickicon.addClass("glow2");
         }
-    }
-};
-
-/**
- * Handling behavior when click on the an item of the single answers list
- * @prototype
- * @function clickSingleAnswerItem
- **/
-SingleChoiceWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-    var answerId = "answertext_answerlistbox_";
-    
-    if (this.selectedAnswer.length > -1 &&
-        this.selectedAnswer[0] !== id.split("_")[2] && 
-        $("#" + answerId + this.selectedAnswer[0]).closest("li").hasClass("gradientSelected")) {
-        $("#" + answerId + this.selectedAnswer[0]).closest("li").removeClass("gradientSelected").addClass("gradient2");   
-    }
-    
-    if ($("#" + id).closest("li").hasClass("gradient2")) {
-        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer[0] = id.split("_")[2];    
     }
 };
 
