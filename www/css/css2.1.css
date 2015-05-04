@@ -1,5 +1,4 @@
 /*********************** General ***********************/
-
 body {
     width: device-width;
     height: device-height;
@@ -15,6 +14,7 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
+
 /* refactured  start */
 /*********************** Header ***********************/
 .headerbox {
@@ -98,10 +98,12 @@ body {
 /*********************** List templates *************************/
 .listbox {
     display: table;
-    height: 59px;
+    height: 60px;
     width: 100%;
     margin: 0px;
-    padding: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    z-index: 1;
 }
 .listdash {
     display: table-cell;
@@ -119,16 +121,17 @@ body {
 }
 .listimage {
     display: table-cell;
-    width: 63px;
-    padding-top: 10px;
+    width: 57px;
+    line-height: 60px;
+    padding-left: 5px;
+    text-align: center;
     font-size: 38px;
 }
 .separator {
-    padding-left: 13px;
-    border-left: 1px solid black;
+    border-left: 1px solid #646464;
 }
 .separator2 {
-    padding-left: 13px;
+    padding-left: 14px;
 }
 input {
     height: 59px;
@@ -136,7 +139,36 @@ input {
     width: 100%;
     background-color: transparent;
     border: none;
+    outline: none;
     font-size: 20px;
+}
+input.listlabel {
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+/*********************** Scrollbutton ***********************/
+#scrolltop {
+    position: fixed;
+    top: 75px;
+    right: 13px;
+    line-height: 39px;
+}
+#scrollbot {
+    position: fixed;
+    bottom: 65px;
+    right: 13px;
+    line-height: 39px;
+}
+.scrollbutton {
+    width: 38px;
+    height: 38px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 24px;
+    color: white;
+    background: linear-gradient(#008cc7, #0072a2);
+    z-index: 99;
 }
 /*********************** Views ***********************/
 .screen {
@@ -252,7 +284,8 @@ input {
     -webkit-text-stroke-width: 1px;
     -webkit-text-fill-color: #59fa56;
     z-index: 12;
-    padding-left: 15px;
+    padding-right: 5px;
+    text-align: center;
 }
 .glowNone {
     text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
@@ -484,10 +517,6 @@ ul {
     /*background-color: #ddd;
 	color:#696969;*/
     list-style-type: none;
-    /*font-size: 14pt;*/
-    /*font-style: normal;
-	font-style:none;
-	font-variant: normal;*/
     text-align: left;
     padding: 0px;
     margin: 0px;
@@ -515,9 +544,7 @@ li {
     list-style-type: none;
     list-style-position: inside;
     font-size: 18px;
-    /*font-style: bold;
-	font-variant: bold;*/
-    font-style: none;
+    font-style: normal;
     border: 0px solid red;
     border-bottom: 1px solid white;
     text-align: left;
@@ -635,7 +662,6 @@ li {
     background: #ccc;
 }
 /*********************** Answer View ***********************/
-
 .marginForButtons {
     margin-right: 52px;
     border: 1px solid white;
@@ -673,6 +699,9 @@ li {
     text-align: left;
 }
 #dataErrorMessage {
+    display: none;
+}
+.inactive {
     display: none;
 }
 /*********************** Statistics View ***********************/

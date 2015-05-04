@@ -93,6 +93,7 @@ QuestionView.prototype.tap = function (event) {
     console.log("[QuestionView] tap registered: " + id);
 
     if (id === "questionbutton" ||
+        id === "questionbuttonenter" ||
         id === "questionlisttext" ||
         id === "questioncontent") {
         if (this.app.models.answer.answerScore > -1) {
@@ -117,7 +118,8 @@ QuestionView.prototype.tap = function (event) {
  **/
 QuestionView.prototype.showQuestionBody = function () {
     var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
-
+    console.log("current question: " + currentQuestionBody);
+    
     $("#questionlisttext").html(currentQuestionBody);
 };
 

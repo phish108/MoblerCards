@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -128,12 +128,12 @@ LoginView.prototype.update = function () {
     this.app.models.lms.getActiveLMS(function (data) {
         activeLMS = data;
     });
-
+    
     $("#loginimg").attr("src", activeLMS.logofile);
 
     // TODO: TRANSFORM STRING TO i18n.prop
     $("#loginlmslabel").text(activeLMS.name);
-
+    
     this.hideErrorMessage();
     this.hideDeactivateMessage();
 

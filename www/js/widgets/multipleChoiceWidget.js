@@ -22,6 +22,7 @@ under the License.
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -59,12 +60,34 @@ function MultipleChoiceWidget (interactive) {
     if (self.interactive) {
         // when answer view is active, then interactive variable is set to true.
         // displays the answer body of the multiple choice widget
-        self.showAnswer();
-    } else {
-        //displays the feedback body of the multiple choice widget
+       self.showAnswer();
+    }
+    else {
         self.showFeedback();
     }
 }
+
+
+/**
+ * Handling behavior when click on the an item of the multiple answers list
+ * Adds or removes the blue background color depending on what was the previous state.
+ * @prototype
+ * @function clickMultipleAnswerItem
+ **/
+MultipleChoiceWidget.prototype.tap = function (event) {
+    var id = event.target.id;
+
+    if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
+        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+        this.selectedAnswer.push(id.split("_")[2]);
+        console.log(this.selectedAnswer);
+    }
+    else {
+        $("#" + id).closest("li").addClass("gradient2").removeClass("gradientSelected");
+        this.selectedAnswer.splice(this.selectedAnswer.indexOf(id.split("_")[2]), 1);
+        console.log(this.selectedAnswer);
+    }
+};
 
 /**
  * Creation of answer body for multiple choice questions.
@@ -95,7 +118,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
         var tmpl = app.templates.getTemplate("answerlistbox");
 
         for (c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c]);
+            tmpl.attach(mixedAnswers[c].toString());
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
     }
@@ -126,7 +149,7 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
     for (c = 0; c < mixedAnswers.length; c++) {
-        fTmpl.attach(mixedAnswers[c]);
+        fTmpl.attach(mixedAnswers[c].toString());
         fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
 
         if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {

@@ -277,7 +277,7 @@ ConfigurationModel.prototype.logout = function (featuredContent_id) {
     var configString = JSON.stringify(this.configuration);
     localStorage.setItem("configuration", configString);
     console.log("configuration login state in logout is " + this.configuration.loginState);
-    this.controller.models.statistic.sendToServer(featuredContent_id);
+    this.controller.models.statistics.sendToServer(featuredContent_id);
 
     // remove all question pools and all pending question pool requests
     var c, courseList = this.controller.models.course.courseList;

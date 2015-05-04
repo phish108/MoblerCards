@@ -462,7 +462,7 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
               item.duration];
             self.queryDB(query, values, function cbInsert(transaction,
                 results) {
-                console.log("after inserting in insertStatisticsItem " + JSON.stringify(statisticItem));
+//                console.log("after inserting in insertStatisticsItem " + JSON.stringify(statisticItem));
             });
         }
     }

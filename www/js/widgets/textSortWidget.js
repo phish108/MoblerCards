@@ -22,6 +22,7 @@ under the License.
 /** 
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
+ * @author Dijan Helbling
  */
 
 /**
@@ -46,52 +47,108 @@ under the License.
  */
 function TextSortWidget(interactive) {
     var self = this;
-
-    self.interactive = interactive;
-    
+        
     // loads answers from model for displaying already by the user ordered elements
     self.tickedAnswers = app.models.answer.getAnswers();
     
-    // stating whether the widget allows moving
+    // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
+
+    // boolean value to check if a drag is taking place.
     self.dragActive = false;
-
-    self.threshold = 5;
-
+    
+    // Handles the Error messages.
     self.didApologize = false;
-
-    if (self.interactive) {
+    
+    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
+    if (interactive) {
         self.showAnswer();
+        // make the list sortable using JQuery UI's function
+        $("#answerbox").sortable({
+            axis: "y",
+            scroll: true,
+            scrollSensitivity: 60,
+            scrollSpeed: 10,
+            disabled: false,
+            start: function (event, ui) {
+                $(ui.item).addClass("currentSortedItem");
+            },
+            stop: function (event, ui) {
+                $(ui.item).removeClass("currentSortedItem");
+            }
+        });
+        
+        $("#answerbox").disableSelection();
+        
+        // shows the buttons for scroll handling.
+//        $("#scrolltop").removeClass("inactive");
+//        $("#scrollbot").removeClass("inactive");
     }
     else {
         self.showFeedback();
     }
 }
 
+//creates a new mouse event of the specified type
+function createEvent(type, event) {
+    var first = event.changedTouches[0];
+    var simulatedEvent = document.createEvent("MouseEvent");
+    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX,
+        first.screenY, first.clientX, first.clientY, false, false, false,
+        false, 0, null);
+
+    first.target.dispatchEvent(simulatedEvent);
+}
+
+TextSortWidget.prototype.tap = function (event) {
+    var id = event.target.id;
+    
+    // scroll handling
+    if (id === "scrolltop") {
+//        $("#answercontent").animate({
+//            scrollTop: 200
+//        });
+    }
+    else if (id === "scrollbot") {
+//        $("#answercontent").animate({
+//            scrollTop: $("#answerbot").offset().top
+//        }, 2000);
+    }
+};
+
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
     
     if (id.split("_")[0] === "answertext") {
-        this.dragActive = true
+        createEvent("mousedown", event);
+        this.dragActive = true;
     }
 };
 
-TextSortWidget.prototype.duringMove = function (event) {
-    var id = event.target.id;
-    console.log("[TextSortWidget] duringMove detected: " + id);
+TextSortWidget.prototype.duringMove = function (event, touches) {
+    event.preventDefault();
+    createEvent("mousemove", event);
 
+    // if an element is dragged on the header, scroll the list down
+    var y = event.changedTouches[0].screenY;
+    
+    if (this.dragActive && y < 60) {
+        if (window.pageYOffset > y) {
+            var scroll = y > 20 ? y - 20 : 0;
+            window.scrollTo(0, scroll);
+        }
+    }
 };
 
 TextSortWidget.prototype.endMove = function (event) {
-    var id = event.target.id;
-    console.log("[TextSortWidget] endMove detected: " + id);
-    this.dragActive = false;
-    this.snap();
-};
-
-TextSortWidget.prototype.snap = function () {
+    createEvent("mouseup", event);
+    var y = event.changedTouches[0].screenY;
     
+    if (this.dragActive && y < 60) {
+        window.scrollTo(0, 0);
+        this.dragActive = false;
+    }
 };
 
 /**
@@ -101,15 +158,16 @@ TextSortWidget.prototype.snap = function () {
  */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
-
+    
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var tmpl = app.templates.getTemplate("answerlistbox");
+    var i;
     
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
+        
         var mixedAnswers;
-
+        
         // if sorting has not started yet, mix the answers
         if (!questionpoolModel.currAnswersMixed()) {
             var tmp_answerModel = new AnswerModel();
@@ -128,27 +186,11 @@ TextSortWidget.prototype.showAnswer = function () {
         }
         
         // for each possible answer create a list item
-        for (var c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c]);
-            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
+        for (i = 0; i < mixedAnswers.length; i++) {
+            tmpl.attach(mixedAnswers[i].toString());
+            tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
+            tmpl.answertick.removeClass("separator");
         }
-        // make the list sortable using JQuery UI's function
-//        $(".sortable").sortable({
-//            placeholder: "placeholder",
-//            scrollSensitivity: 10,
-//            disabled: false,
-//            start: function (event, ui) {
-//                $(ui.item).addClass("currentSortedItem");
-//                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
-//            },
-//            stop: function (event, ui) {
-//                (ui.item).removeClass("currentSortedItem");
-//                //$("#sortGraber"+mixedAnswers[c]).addClass("currentSortedItem gradientSelected");
-//            }
-//        });
-//        $(".sortable").disableSelection();
-
-//        self.enableSorting();
     }
     else {
         this.didApologize = true;
@@ -161,63 +203,31 @@ TextSortWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 TextSortWidget.prototype.showFeedback = function () {
-//    $("#feedbackBody").empty();
-//    $("#feedbackTip").empty();
-
-//    $(".sortable").sortable({
-//        disabled: true
-//    });
-
-//    var ul = $("<ul/>", {
-//        "class": "gradient2"
-//    }).appendTo("#feedbackBody");
-
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var answerModel = app.models.answer;
     var scores = answerModel.getScoreList();
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
-
-    // iterate over all answers
-    for (var i = 0; i < answers.length; i++) {
-        fTmpl.attach(i);
+    var i;
+    
+    for (i = 0; i < answers.length; i++) {
+        fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
-//        var li = $("<li/>", {
-//            //if a ticked answer is in the correct place or in a sequence then use a blue background color
-//            "class": (scores[i] == "1" || scores[i] == "1.5") ? "gradientSelected" : "gradient2 "
-//        }).appendTo(ul);
-
-//        var div = $("<div/>", {
-//            "class": "text",
-//            text: answers[i].answertext
-//        }).appendTo(li);
-
-        // if score is 0.5 or 1.5 show a checkmark
-//        if (scores[i] == "0.5" || scores[i] == "1.5") {
-//            var div = $("<div/>", {
-//                "class": "right correctAnswer icon-checkmark"
-//            }).prependTo(li);
-//        }
+        fTmpl.feedbacktick.addClass("inactive");
+        
+        if (scores[i] === 0.5) {
+            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacklist.addClass("glow2");
+        }
+        else if (scores[i] === 1) {
+            fTmpl.feedbacklist.addClass("gradientSelected");
+        }
+        else if (scores[i] === 1.5) {
+            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacklist.addClass("glow2");
+            fTmpl.feedbacklist.addClass("gradientSelected");
+        }
     }
-
-//    var currentFeedbackTitle = answerModel.getAnswerResults();
-//    if (currentFeedbackTitle == "Excellent") {
-//        var correctText = questionpoolModel.getCorrectFeedback();
-//        if (correctText && correctText.length > 0) {
-//            $("#FeedbackMore").show();
-//            $("#feedbackTip").text(correctText);
-//        } else {
-//            $("#FeedbackMore").hide();
-//        }
-//    } else {
-//        var wrongText = questionpoolModel.getWrongFeedback();
-//        if (wrongText && wrongText.length > 0) {
-//            $("#FeedbackMore").show();
-//            $("#feedbackTip").text(wrongText);
-//        } else {
-//            $("#FeedbackMore").hide();
-//        }
-//    }
 };
 
 /**stores the current sorting order in the answer model
@@ -225,71 +235,12 @@ TextSortWidget.prototype.showFeedback = function () {
  * @function storeAnswers
  **/
 TextSortWidget.prototype.storeAnswers = function () {
-    var answers = new Array();
+    var answers = [];
 
-//    $("#cardAnswerBody").find("li.sortableListItem").each(function (index) {
-//        var id = $(this).attr("id").substring(6);
-//        answers.push(id);
-//    });
-//    $("#answerbox").find("li.sortableListItem").each(function (index) {
-//        var id = $(this).attr("id").substring(6);
-//        answers.push(id);
-//    });
-//    app.models.answers.setAnswers(answers);
+    $("#answerbox").find("li").each(function (index) {
+        var id = $(this).attr("id").split("_")[2];
+        answers.push(id);
+    });
+
+    app.models.answer.setAnswers(answers);
 };
-
-/**catches touch events and creates correspoding mouse events this has to be
- * done because JQuery UI's sortable function listens for mouse events
- * @prototype
- * @function enableSorting
- **/
-TextSortWidget.prototype.enableSorting = function () {
-    jester($(".sortable")[0]).start(function (touches, event) {
-        console.log("ScrollTop " + $("ul#cardAnswerBody").scrollTop());
-        createEvent("mousedown", event);
-    });
-
-    jester($(".sortable")[0]).during(function (touches, event) {
-        createEvent("mousemove", event);
-
-        // if an element is dragged on the header, scroll the list down
-        var y = event.changedTouches[0].screenY;
-        if (y < 60) {
-            if (window.pageYOffset > y) {
-                var scroll = y > 20 ? y - 20 : 0;
-                window.scrollTo(0, scroll);
-            }
-        }
-    });
-
-    jester($(".sortable")[0]).end(function (touches, event) {
-        createEvent("mouseup", event);
-        var y = event.changedTouches[0].screenY;
-        if (y < 60) {
-            window.scrollTo(0, 0);
-        }
-    });
-};
-
-/**sets the height property of the list items that contain correct answers
- * @prototype
- * @function setCorrectAnswerTickHeight
- **/
-//TextSortWidget.prototype.setCorrectAnswerTickHeight = function () {
-//    $("#feedbackBody ul li").each(function () {
-//        height = $(this).height();
-//        $(this).find(".correctAnswer").height(height);
-//        $(this).find(".correctAnswer").css("line-height", height + "px");
-//    });
-//}
-
-//creates a new mouse event of the specified type
-function createEvent(type, event) {
-    var first = event.changedTouches[0];
-    var simulatedEvent = document.createEvent("MouseEvent");
-    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX,
-        first.screenY, first.clientX, first.clientY, false, false, false,
-        false, 0, null);
-
-    first.target.dispatchEvent(simulatedEvent);
-}
