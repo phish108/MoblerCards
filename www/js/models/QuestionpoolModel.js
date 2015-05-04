@@ -478,7 +478,7 @@ QuestionPoolModel.prototype.getAnswerChoice = function () {
  * */
 QuestionPoolModel.prototype.getScore = function (index) {
     if (index >= 0 && index < this.activeQuestion.answers.length) {
-        return this.activeQuestion.answers[index].points;
+        return this.activeQuestion.answers[index].points || this.activeQuestion.answers[index].points_checked;
     }
     return -1;
 };
