@@ -137,6 +137,8 @@
             lmsData = {};
             localStorage.setItem("LMSData", "{}");
         }
+
+        console.log("loaded data >> "+JSON.stringify(lmsData));
     }
 
     /**
@@ -154,6 +156,8 @@
             localStorage.setItem("LMSData", "{}");
             lmsData = {};
         }
+
+        console.log("stored data >> "+JSON.stringify(lmsData));
     }
 
     /**
@@ -466,6 +470,12 @@
                 // add a slash
                 serverURL = serverURL + "/";
             }
+
+            // our RSD files are always inside the TLA directory
+            if (serverURL.search(/\/tla\//) === -1) {
+                serverURL = serverURL + "tla/";
+            }
+
             // add the rsd.json to the URL
             serverURL = serverURL + "rsd";
 

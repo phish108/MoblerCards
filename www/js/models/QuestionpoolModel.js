@@ -171,9 +171,9 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
             },
             error: function (request) {
                 var lmsModel = self.controller.models.lms;
-                var servername = lmsModel.lmsData.activeServer;
+//                var servername = lmsModel.activeLMS.id;
                 if (request.status === 403) {
-                    if (lmsModel.lmsData.ServerData[servername].deactivateFlag == false) {
+                    if (lmsModel.activeLMS.deactivateFlag == false) {
                         turnOnDeactivate();
 //                        console.log("Error while loading question pool from server");
                         showErrorResponses(request);
@@ -294,8 +294,8 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
     case "assOrderingQuestion":
     case "assOrderingHorizontal":
         //the answer is an array, so we need to loop
-        for (var i = 0; i < questionobject.answer.length; i++) {
-            questionobject.answer[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answer[i].answertext).text();
+        for (var i = 0; i < questionobject.answers.length; i++) {
+            questionobject.answers[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answers[i].answertext).text();
             console.log("passed clearing answer view for various question types");
             $("#modelHelperQuestionpool").empty();
         }
@@ -305,18 +305,18 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
         // this is a bit more complicated
         // for the cloze Text
 //        console.log("cloze text is" + questionobject.answer["clozeText"]);
-        questionobject.answer["clozeText"] = this.cleanupHTML(questionobject.answer["clozeText"]);
+        questionobject.answers["clozeText"] = this.cleanupHTML(questionobject.answers["clozeText"]);
 
         // we clean the correct gap definition as well, just to be safe.
         //NOTE:Ilias automatically correct the p, br and hr tags
         //it keeps the b,i
         var gapIndex,
             k;
-        for (gapIndex = 0; gapIndex < jQuery(questionobject.answer.correctGaps).size(); gapIndex++) {
+        for (gapIndex = 0; gapIndex < jQuery(questionobject.answers.correctGaps).size(); gapIndex++) {
             var items = questionobject.answer.correctGaps[gapIndex]["items"];
             for (k = 0; k < jQuery(items).size(); k++) {
                 //items[k]["answertext"]=$("#modelHelperQuestionpool").html(items[k]["answertext"]).text();
-                questionobject.answer.correctGaps[gapIndex].items[k]["answertext"] = $("#modelHelperQuestionpool").html(items[k]["answertext"]).text();
+                questionobject.answers.correctGaps[gapIndex].items[k]["answertext"] = $("#modelHelperQuestionpool").html(items[k]["answertext"]).text();
                 $("#modelHelperQuestionpool").empty();
             }
         }
@@ -367,7 +367,7 @@ QuestionPoolModel.prototype.getQuestionBody = function () {
  * @return {Array} answer, the answer of the current active question in an array format which consists of answer items
  */
 QuestionPoolModel.prototype.getAnswer = function () {
-    return this.activeQuestion.answer;
+    return this.activeQuestion.answers;
 };
 
 /**
@@ -395,7 +395,7 @@ QuestionPoolModel.prototype.currAnswersMixed = function () {
  * @function mixAnswers
  */
 QuestionPoolModel.prototype.mixAnswers = function () {
-    var answers = this.activeQuestion.answer;
+    var answers = this.activeQuestion.answers;
     this.mixedAnswers = [];
     while (this.mixedAnswers.length < answers.length) {
         var random = Math.floor((Math.random() * answers.length));
@@ -463,7 +463,7 @@ QuestionPoolModel.prototype.queueCurrentQuestion = function () {
  * @return {String} answertext, the text of the current answer item of the current  active question
  */
 QuestionPoolModel.prototype.getAnswerChoice = function () {
-    return this.activeQuestion.answer[this.indexAnswer].answertext;
+    return this.activeQuestion.answers[this.indexAnswer].answertext;
 };
 
 /**
@@ -477,8 +477,8 @@ QuestionPoolModel.prototype.getAnswerChoice = function () {
  * @return -1 if no score is specified for the specific answer item
  * */
 QuestionPoolModel.prototype.getScore = function (index) {
-    if (index >= 0 && index < this.activeQuestion.answer.length) {
-        return this.activeQuestion.answer[index].points;
+    if (index >= 0 && index < this.activeQuestion.answers.length) {
+        return this.activeQuestion.answers[index].points;
     }
     return -1;
 };

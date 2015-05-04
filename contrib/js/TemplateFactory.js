@@ -214,7 +214,9 @@ function TemplateFactory() {
     function flattenObjectId(objectid) {
         // forbidden css selectors
         // !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, :, ;, <, =, >, ?, @, [, \, ], ^, `, {, |, }, and ~.
-        objectid = objectid.replace(/[\!\"\'\#\$\^\<\>\=\?\*\.\/\\\]\[\{\}\`\~\%\&\-\(\)\+\s\,\:\;\@\|]+/g, '');
+        if(objectid && objectid.length) {
+            objectid = objectid.replace(/[\!\"\'\#\$\^\<\>\=\?\*\.\/\\\]\[\{\}\`\~\%\&\-\(\)\+\s\,\:\;\@\|]+/g, '');
+        }
         return objectid;
     }
 

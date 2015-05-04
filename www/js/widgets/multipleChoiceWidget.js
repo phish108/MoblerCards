@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,7 +16,7 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
@@ -40,22 +40,22 @@ under the License.
  */
 function MultipleChoiceWidget (interactive) {
     var self = this;
-        
+
     //Check the boolean value of interactive. This is set through the answer and feedback view.
     self.interactive = interactive;
-    
+
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
-    
+
     // a list with the currently selected answers
-    self.tickedAnswers = app.models.answer.getAnswers(); 
-    
+    self.tickedAnswers = app.models.answer.getAnswers();
+
     // current selected Answer
     self.selectedAnswer = new Array();
-    
+
     // stating whether the widget allows moving
     self.moveEnabled = false;
-    
+
     if (self.interactive) {
         // when answer view is active, then interactive variable is set to true.
         // displays the answer body of the multiple choice widget
@@ -77,28 +77,28 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     var questionpoolModel = app.models.questionpool;
 
     console.log("[MultipleChoiceWidget] showAnswer");
-    
+
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
-        
+
         //mix answer items in an random order
         if (!questionpoolModel.currAnswersMixed()) {
             questionpoolModel.mixAnswers();
         }
-        
+
         //returns an array containing the possible answers
-        var answers = questionpoolModel.getAnswer(); 
+        var answers = questionpoolModel.getAnswer();
         var mixedAnswers = questionpoolModel.getMixedAnswersArray();
         var c;
-        
+
         var tmpl = app.templates.getTemplate("answerlistbox");
-        
+
         for (c = 0; c < mixedAnswers.length; c++) {
             tmpl.attach(mixedAnswers[c]);
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
-    } 
+    }
     else {
         //if there are no data for a question or there is no questionpool then display the error message
         this.didApologize = true;
@@ -133,7 +133,7 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
-        
+
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacktickicon.addClass("glow2");
@@ -149,7 +149,7 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
  **/
 MultipleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
-    
+
     if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
         $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
         this.selectedAnswer.push(id.split("_")[2]);

@@ -180,7 +180,7 @@ CourseModel.prototype.loadFromServer = function() {
 					success : createCourseList,
 					error : function(request) {
 						var lmsModel = self.controller.models['lms'];
-						var servername = lmsModel.lmsData.activeServer;
+						var servername = lmsModel.activeLMS.id;
 
 						if (request.status === 403) {
 							if (lmsModel.lmsData.ServerData[servername].deactivateFlag==false){

@@ -105,7 +105,7 @@ function StatisticsModel(controller) {
  */
 StatisticsModel.prototype.checkLocalStorage = function () {
     var self = this;
-    if (self.controller.getConfigVariable("statisticsLoaded") === false && 
+    if (self.controller.getConfigVariable("statisticsLoaded") === false &&
         self.controller.getLoginState()) {
         self.loadFromServer();
     }
@@ -300,7 +300,7 @@ StatisticsModel.prototype.getLastActiveValues = function (progressVal) {
  */
 StatisticsModel.prototype.calculateValues = function (courseId) {
     var self = this;
-    
+
     self.boolAllDone = 0;
     self.bestDay.calculateValue(courseId);
     self.handledCards.calculateValue(courseId);
@@ -419,9 +419,9 @@ StatisticsModel.prototype.loadFromServer = function () {
                 },
                 error: function (xhr, err, errorString, request) {
                     var lmsModel = self.controller.models.lms;
-                    var servername = lmsModel.lmsData.activeServer;
+                    // var servername = lmsModel.activeLMS.id;
                     if (request.status === 403) {
-                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag === false) {
+                        if (lmsModel.activeLMS.deactivateFlag === false) {
                             turnOnDeactivate();
                             console.log("Error while getting statistics data from server: " + errorString);
                             showErrorResponses(request);
@@ -570,9 +570,9 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                 },
                 error: function (request) {
                     var lmsModel = self.controller.models.lms;
-                    var servername = lmsModel.lmsData.activeServer;
+                    // var servername = lmsModel.lmsData.activeServer;
                     if (request.status === 403) {
-                        if (lmsModel.lmsData.ServerData[servername].deactivateFlag === false) {
+                        if (lmsModel.activeLMS.deactivateFlag === false) {
                             turnOnDeactivate();
                             console.log("Error while sending statistics data to server");
                             showErrorResponses(request);

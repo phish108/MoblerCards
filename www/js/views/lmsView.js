@@ -78,7 +78,7 @@ function LMSView() {
      * @param:a callback function that displays a message to the user that the server is not available and the
      *		  registration cannot take place
      */
-    $(document).bind("registrationfailed", function (e, servername) {
+    $(document).bind("LMS_DEVICE_NOTALLOWED", function (e, servername) {
         var previousLMS = self.app.models.lms.getPreviousServer();
         console.log("previous lms in bind 2 is " + previousLMS);
         self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername, previousLMS);
@@ -111,6 +111,7 @@ function LMSView() {
         // hide waiting cycle
     }
 
+    $(document).bind("LMS_DEVICE_READY", closeAddAndRefresh);
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
 
@@ -122,7 +123,8 @@ function LMSView() {
         $("#addlmsinput")[0].blur();
 
         var turl = lmsurl;
-        turl.replace(/^https?:\/\//i, "");
+        // keep the http if present
+        //turl.replace(/^https?:\/\//i, "");
 
         if (self.app.models.connection.isOnline() &&
             lmsurl &&
