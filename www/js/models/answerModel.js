@@ -300,7 +300,7 @@ AnswerModel.prototype.calculateNumericScore = function () {
  * @return {number} answerScore, it can be either 0, 0.5 or 1.
  **/
 AnswerModel.prototype.calculateClozeQuestionScore = function () {
-    var answerModel = this.controller.models.answer;
+    var answerModel = this; //FIXME
     var filledAnswers = answerModel.getAnswers();
     var gaps = [], // a helper array that will store the result of the comparison between 
         i; 

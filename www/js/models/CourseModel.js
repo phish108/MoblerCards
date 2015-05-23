@@ -315,6 +315,7 @@ CourseModel.prototype.nextCourse = function() {
 
 /**
  * Sets index to 0
+ * Resets the courseList index, so we can use: nextCourse() properly.
  * @prototype
  * @function reset
  */

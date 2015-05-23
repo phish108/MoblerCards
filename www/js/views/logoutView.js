@@ -46,6 +46,7 @@ LogoutView.prototype.tap = function (event) {
     
     if (id === "logoutclose") {
         if (this.app.getLoginState()) {
+            this.app.models.connection.goOffline();
             this.app.changeView("settings");
         }
         else {
@@ -54,6 +55,6 @@ LogoutView.prototype.tap = function (event) {
     }
     else if (id === "logoutbutton") {
         this.app.models.configuration.logout(featuredContentId);
-        this.app.changeView("login");
+        this.app.changeView("landing");
     }
 };

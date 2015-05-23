@@ -294,6 +294,7 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
     case "assOrderingQuestion":
     case "assOrderingHorizontal":
         //the answer is an array, so we need to loop
+            console.log("[Questionpool] lenght problem: " + questionobject.answers.length);
         for (var i = 0; i < questionobject.answers.length; i++) {
             questionobject.answers[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answers[i].answertext).text();
             console.log("passed clearing answer view for various question types");

@@ -388,11 +388,11 @@ StatisticsModel.prototype.loadFromServer = function () {
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    console.log("success");
+//                    console.log("success");
 
                     // FIXME No Global Functions please!
                     turnOffDeactivate();
-                    console.log("JSON: " + data);
+//                    console.log("JSON: " + data);
                     var i, statisticsObject;
                     try {
                         statisticsObject = data;
@@ -407,7 +407,7 @@ StatisticsModel.prototype.loadFromServer = function () {
 
                     for (i = 0; i < statisticsObject.length; i++) {
                         self.insertStatisticItem(statisticsObject[i]);
-                        console.log("i is "+i+" and the length of statistics object is "+statisticsObject.length);
+//                        console.log("i is "+i+" and the length of statistics object is "+statisticsObject.length);
                     }
                     console.log("after inserting statistics from server");
                     // trigger event statistics are loaded from server
@@ -448,12 +448,12 @@ StatisticsModel.prototype.loadFromServer = function () {
  */
 StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
     var self = this;
-    console.log("day: " + statisticItem['day']);
+//    console.log("day: " + statisticItem['day']);
 
     function checkIfItemExists(transaction, results) {
         var item = statisticItem;
         if (results.rows.length === 0) {
-            console.log("No entry for day: " + item.day);
+//            console.log("No entry for day: " + item.day);
             var query = "INSERT INTO statistics(course_id, question_id, day, score, duration) VALUES (?,?,?,?,?)";
             var values = [item.course_id,
               item.question_id,
