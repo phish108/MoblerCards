@@ -80,7 +80,7 @@ AnswerView.prototype.tap = function (event) {
     
     console.log("[AnswerView] tap registered: " + id);
     
-    if (id === "answerclose") {
+    if (id === "answercross") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         }
@@ -88,21 +88,18 @@ AnswerView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "answerbutton" ||
-             id === "answerbuttonenter" ||
+    else if (id === "answerfooter" ||
              id === "answercontent") {
         this.clickDoneButton();
     }
-    else if (id === "answertitle" || 
-             id === "answericon") {
+    else if (id === "answerheader") {
         this.widget.storeAnswers();
         this.app.changeView("question");
     }
     else if (!this.widget.moveEnabled &&
              id.split("_").length === 3) {
         answer = id.split("_"); 
-        if (answer[0] === "answertext" || 
-            answer[0] === "answertick") {
+        if (answer[0] === "answerlist") {
             this.widget.tap(event);
         }
     }
