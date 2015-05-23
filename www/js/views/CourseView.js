@@ -86,6 +86,12 @@ function CourseView() {
 
 CourseView.prototype.prepare = function () {
     console.log("[CourseView] opened");
+    // TODO Check login state ? not (sent to landing view) 
+    // ensure people who are not logged in to be redirected
+    if (!this.app.getLoginState()) {
+        this.app.changeView("landing");   
+    }
+    
     this.active = true;
     this.firstLoad = false;
 };
@@ -102,7 +108,7 @@ CourseView.prototype.update = function () {
  **/
 CourseView.prototype.cleanup = function () {
     this.active = false;
-    this.app.models.course.loadFromServer();
+    this.app.models.course.loadFromServer();   
 };
 
 /*
@@ -154,6 +160,7 @@ CourseView.prototype.tap = function (event) {
  * generates all the current courses you are enrolled in.
  * @prototype
  * @function setCourse
+ * TODO rename to setCourse() 
  */
 CourseView.prototype.setCourse = function () {
     var self = this;
@@ -167,6 +174,7 @@ CourseView.prototype.setCourse = function () {
         ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
     }
     else {
+        courseModel.reset();
         do {
             courseId = courseModel.getId();
             courseTitle = courseModel.getTitle();

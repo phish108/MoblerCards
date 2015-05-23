@@ -60,6 +60,11 @@ function LandingView() {
 
 LandingView.prototype.prepare = function () {
     console.log("[landingView] prepare");
+    
+    // TODO check login state ? redirect to coursView ;
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
     this.showForm();
 };
 

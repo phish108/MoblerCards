@@ -101,7 +101,9 @@ SingleChoiceWidget.prototype.showAnswer = function () {
   
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    if (questionpoolModel.questionList && 
+        typeof questionpoolModel.getAnswer() != "undefined" &&
+        questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
                 
         if (!questionpoolModel.currAnswersMixed()) {
@@ -122,6 +124,7 @@ SingleChoiceWidget.prototype.showAnswer = function () {
     } 
     // if there are no data for a question or there is no questionpool then display the error message
     else {  
+        console.log("there might have been a problem with the getAnsewr() object");
         this.didApologize = true;
         doApologize();
     }
