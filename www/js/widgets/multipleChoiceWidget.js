@@ -102,7 +102,9 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     console.log("[MultipleChoiceWidget] showAnswer");
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    if (questionpoolModel.questionList && 
+        typeof questionpoolModel.getAnswer() != "undefined" &&
+        questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
 
         //mix answer items in an random order

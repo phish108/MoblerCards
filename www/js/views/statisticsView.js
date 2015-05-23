@@ -106,7 +106,7 @@ StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[StatisticsView] tap registered: " + id);
     
-    if (id === "statisticsclose") {
+    if (id === "statisticscross") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         } 
@@ -114,8 +114,7 @@ StatisticsView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "achievementsReference" ||
-             id === "selectAchievements") {
+    else if (id === "statsSlot3") {
         this.app.changeView("achievements");
     }
 };
