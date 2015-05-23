@@ -44,7 +44,7 @@ LogoutView.prototype.tap = function (event) {
     var id = event.target.id;
     var featuredContentId = FEATURED_CONTENT_ID;
     
-    if (id === "logoutclose") {
+    if (id === "logoutcross") {
         if (this.app.getLoginState()) {
             this.app.models.connection.goOffline();
             this.app.changeView("settings");
@@ -53,7 +53,7 @@ LogoutView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "logoutbutton") {
+    else if (id === "logoutfooter") {
         this.app.models.configuration.logout(featuredContentId);
         this.app.changeView("landing");
     }

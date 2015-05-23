@@ -164,7 +164,9 @@ TextSortWidget.prototype.showAnswer = function () {
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
     
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    if (questionpoolModel.questionList && 
+        typeof questionpoolModel.getAnswer() != "undefined" &&
+        questionpoolModel.getAnswer()[0].answertext) {
         
         var mixedAnswers;
         

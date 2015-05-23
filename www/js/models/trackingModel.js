@@ -61,9 +61,9 @@ TrackingModel.prototype.storeTrackData = function(time, type){
 		transaction
 		.executeSql('INSERT INTO tracking(time_stamp,event_type) VALUES(?,?)',
 				[ time, type ],function() {
-			console.log("successfully inserted in tracking model");
+//			console.log("successfully inserted in tracking model");
 		}, function(tx, e) {
-			console.log("error! NOT inserted: "+ e.message);
+//			console.log("error! NOT inserted: "+ e.message);
 		});
 	});
 };

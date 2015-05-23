@@ -47,7 +47,7 @@ AboutView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[AboutView] tap registered: " + id);
     
-    if (id === "aboutclose") {
+    if (id === "aboutcross") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
