@@ -210,7 +210,7 @@ LMSView.prototype.tap = function (event) {
 
     console.log("[LMSView] tap registered: " + id + " " + sn);
 
-    if (id === "lmscross") {
+    if (id === "lmsclose") {
         // TODO if lms added return to login view instead of landing view
         this.back();
     }
@@ -253,7 +253,7 @@ LMSView.prototype.tap = function (event) {
             }
         }
     }
-    else if (id.indexOf("lmslist") === 0)  {
+    else if (id.indexOf("lmslabel") === 0)  {
         this.clickLMSItem(sn, $(event.target));
         if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
             $("#lmslabel_lmslistbox_" + this.preServername).addClass("gradientSelected");

@@ -63,7 +63,7 @@ SettingsView.prototype.prepare = function () {
 SettingsView.prototype.tap = function (event) {
     var id = event.target.id;
 
-    if (id === "settingscross") {
+    if (id === "settingsclose") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         } else {

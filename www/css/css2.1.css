@@ -14,12 +14,6 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
-div, span, .untouchable {
-    pointer-events: none;
-}
-li, .touchable {
-    pointer-events: all;
-}
 
 /* refactured  start */
 /*********************** Header ***********************/

@@ -73,9 +73,7 @@ NumericQuestionWidget.prototype.showAnswer = function () {
     var tmpl = app.templates.getTemplate("answerlistbox");
     
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() != "undefined" &&
-        questionpoolModel.getAnswer()) {
+    if (questionpoolModel.questionList && questionpoolModel.getAnswer()) {
         tmpl.attach("answerbox");
         tmpl.answerinput.removeClass("inactive");
         tmpl.answertick.addClass("inactive");

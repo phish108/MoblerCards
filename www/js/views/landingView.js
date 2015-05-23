@@ -94,10 +94,10 @@ LandingView.prototype.tap = function (event) {
         case "landingfeaturedimage":
             this.app.changeView("statistics");
             break;
-        case "landingfeaturedlist":
+        case "landingfeaturedlabel":
             this.app.selectCourseItem(featuredContentId);
             break;
-        case "landingexclusivelist":
+        case "landingexclusivelabel":
             var al;
             this.app.models.lms.getActiveLMS(function(d) {
                 al = d;

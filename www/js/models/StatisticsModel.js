@@ -396,9 +396,9 @@ StatisticsModel.prototype.loadFromServer = function () {
                     var i, statisticsObject;
                     try {
                         statisticsObject = data;
-//                        console.log("statistics data from server: " + JSON.stringify(statisticsObject));
+                        console.log("statistics data from server: " + JSON.stringify(statisticsObject));
                     } catch (err) {
-//                        console.log("Error: Couldn't parse JSON for statistics");
+                        console.log("Error: Couldn't parse JSON for statistics");
                     }
 
                     if (!statisticsObject) {

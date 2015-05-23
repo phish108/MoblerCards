@@ -92,19 +92,22 @@ QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[QuestionView] tap registered: " + id);
 
-    if (id === "questioncross") {
+    if (id === "questionbutton" ||
+        id === "questionbuttonenter" ||
+        id === "questionlisttext" ||
+        id === "questioncontent") {
+        if (this.app.models.answer.answerScore > -1) {
+            this.app.changeView("feedback");
+        } else {
+            this.app.changeView("answer");
+        }
+    }
+    else if (id === "questionclose") {
         this.app.models.answer.resetTimer();
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         } else {
             this.app.changeView("landing");
-        }
-    }
-    else {
-        if (this.app.models.answer.answerScore > -1) {
-            this.app.changeView("feedback");
-        } else {
-            this.app.changeView("answer");
         }
     }
 };

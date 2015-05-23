@@ -124,7 +124,7 @@ CourseView.prototype.tap = function (event) {
 
     console.log("[CourseView] tap registered " + id);
 
-    if (id === "coursecross") {
+    if (id === "coursesettings") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
@@ -135,7 +135,7 @@ CourseView.prototype.tap = function (event) {
     else {
         var course = id.split("_");
 
-        if (course[0] === "courselist") {
+        if (course[0] === "courselabel") {
             if (course.length === 4 &&
                 course[3] === "fd") {
                 this.app.selectCourseItem(course[3]);
@@ -144,15 +144,15 @@ CourseView.prototype.tap = function (event) {
                 this.app.selectCourseItem(course[2]);
             }
         }
-        else if (course[0] === "courseimage") {
+        else if (course[0] === "courseimg") {
             this.app.changeView("statistics", course[2]);
         }
-//        else if (id === "courserefresh") {
-//            // should fetch data from the server
-//            this.app.models.course.loadFromServer();
-//            // and wait ...
-//            // this.update();
-//        }
+        else if (id === "courserefresh") {
+            // should fetch data from the server
+            this.app.models.course.loadFromServer();
+            // and wait ...
+            // this.update();
+        }
     }
 };
 

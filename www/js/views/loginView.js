@@ -165,13 +165,13 @@ LoginView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[LoginView] tap registered: " + id);
 
-    if (id === "loginfooter") {
+    if (id === "loginbutton") {
         this.clickLoginButton();
     }
-    else if (id === "logincross") {
+    else if (id === "loginclose") {
         this.clickCloseLoginButton();
     }
-    else if (id === "courselistlms") {
+    else if (id === "loginlmslabel") {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
 
