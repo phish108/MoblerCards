@@ -86,6 +86,12 @@ function CourseView() {
 
 CourseView.prototype.prepare = function () {
     console.log("[CourseView] opened");
+    // TODO Check login state ? not (sent to landing view) 
+    // ensure people who are not logged in to be redirected
+    if (!this.app.getLoginState()) {
+        this.app.changeView("landing");   
+    }
+    
     this.active = true;
     this.firstLoad = false;
 };
@@ -102,7 +108,7 @@ CourseView.prototype.update = function () {
  **/
 CourseView.prototype.cleanup = function () {
     this.active = false;
-    this.app.models.course.loadFromServer();
+    this.app.models.course.loadFromServer();   
 };
 
 /*
@@ -118,7 +124,7 @@ CourseView.prototype.tap = function (event) {
 
     console.log("[CourseView] tap registered " + id);
 
-    if (id === "coursesettings") {
+    if (id === "coursecross") {
         if (this.app.getLoginState()) {
             this.app.changeView("settings");
         }
@@ -129,7 +135,7 @@ CourseView.prototype.tap = function (event) {
     else {
         var course = id.split("_");
 
-        if (course[0] === "courselabel") {
+        if (course[0] === "courselist") {
             if (course.length === 4 &&
                 course[3] === "fd") {
                 this.app.selectCourseItem(course[3]);
@@ -138,14 +144,8 @@ CourseView.prototype.tap = function (event) {
                 this.app.selectCourseItem(course[2]);
             }
         }
-        else if (course[0] === "courseimg") {
-            this.app.changeView("statistics", course[2]);
-        }
-        else if (id === "courserefresh") {
-            // should fetch data from the server
-            this.app.models.course.loadFromServer();
-            // and wait ...
-            // this.update();
+        else if (course[0] === "courseimage") {
+            this.app.changeView("statistics");
         }
     }
 };
@@ -154,6 +154,7 @@ CourseView.prototype.tap = function (event) {
  * generates all the current courses you are enrolled in.
  * @prototype
  * @function setCourse
+ * TODO rename to setCourse() 
  */
 CourseView.prototype.setCourse = function () {
     var self = this;
@@ -167,6 +168,7 @@ CourseView.prototype.setCourse = function () {
         ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
     }
     else {
+        courseModel.reset();
         do {
             courseId = courseModel.getId();
             courseTitle = courseModel.getTitle();

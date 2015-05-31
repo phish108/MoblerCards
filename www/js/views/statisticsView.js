@@ -43,7 +43,7 @@ under the License.
  * - it resizes the button's height when it detects orientation change
  * @param {String} controller
  */
-function StatisticsView(courseId) {
+function StatisticsView() {
     var self = this;
 
     this.tagID = this.app.viewId;
@@ -85,19 +85,18 @@ function StatisticsView(courseId) {
  * @function open
  **/
 StatisticsView.prototype.prepare = function () {
-    var self = this;
-    if (self.app.getLoginState()) {
-        if (self.featuredContentId || 
-            self.app.getConfigVariable("statisticsLoaded") === true) {
-            self.loadData();
+    if (this.app.getLoginState()) {
+        if (this.featuredContentId || 
+            this.app.getConfigVariable("statisticsLoaded") === true) {
+            this.loadData();
         } 
         else {
-            self.showLoadingMessage();
+            this.showLoadingMessage();
         }
     }
     else {
         console.log("open statistics view in featured course context");
-        self.loadData();
+        this.loadData();
     }
     this.app.models.featured.loadFeaturedCourseFromServer();
 };
@@ -106,7 +105,7 @@ StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[StatisticsView] tap registered: " + id);
     
-    if (id === "statisticsclose") {
+    if (id === "statisticscross") {
         if (this.app.getLoginState()) {
             this.app.changeView("course");
         } 
@@ -114,8 +113,7 @@ StatisticsView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else if (id === "achievementsReference" ||
-             id === "selectAchievements") {
+    else if (id === "statsSlot3") {
         this.app.changeView("achievements");
     }
 };

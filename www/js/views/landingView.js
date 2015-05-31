@@ -60,6 +60,11 @@ function LandingView() {
 
 LandingView.prototype.prepare = function () {
     console.log("[landingView] prepare");
+    
+    // TODO check login state ? redirect to coursView ;
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
     this.showForm();
 };
 
@@ -89,10 +94,10 @@ LandingView.prototype.tap = function (event) {
         case "landingfeaturedimage":
             this.app.changeView("statistics");
             break;
-        case "landingfeaturedlabel":
+        case "landingfeaturedlist":
             this.app.selectCourseItem(featuredContentId);
             break;
-        case "landingexclusivelabel":
+        case "landingexclusivelist":
             var al;
             this.app.models.lms.getActiveLMS(function(d) {
                 al = d;

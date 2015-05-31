@@ -113,6 +113,9 @@ function LoginView() {
  **/
 LoginView.prototype.prepare = function () {
     console.log("loginView: open sesame");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
     // hide unnecessary errors and warnings
     this.hideErrorMessage();
     this.hideWarningMessage();
@@ -165,13 +168,13 @@ LoginView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[LoginView] tap registered: " + id);
 
-    if (id === "loginbutton") {
+    if (id === "loginfooter") {
         this.clickLoginButton();
     }
-    else if (id === "loginclose") {
+    else if (id === "logincross") {
         this.clickCloseLoginButton();
     }
-    else if (id === "loginlmslabel") {
+    else if (id === "courselistlms") {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
 

@@ -73,7 +73,9 @@ NumericQuestionWidget.prototype.showAnswer = function () {
     var tmpl = app.templates.getTemplate("answerlistbox");
     
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()) {
+    if (questionpoolModel.questionList && 
+        typeof questionpoolModel.getAnswer() != "undefined" &&
+        questionpoolModel.getAnswer()) {
         tmpl.attach("answerbox");
         tmpl.answerinput.removeClass("inactive");
         tmpl.answertick.addClass("inactive");
@@ -97,20 +99,19 @@ NumericQuestionWidget.prototype.showFeedback = function () {
     var questionpoolModel = app.models.questionpool;
     var answerModel = app.models.answer;
     var typedAnswer = answerModel.getAnswers();
-    console.log("typed answer is " + typedAnswer);
     var correctAnswer = questionpoolModel.getAnswer()[0];
     var currentFeedbackTitle = answerModel.getAnswerResults();
     var tmpl = app.templates.getTemplate("feedbacklistbox");
+    
     //display in an input field with the typed numeric answer of the learner
-
     if (typedAnswer === "undefined" || typedAnswer === "") {typedAnswer = "NaN";}
     
     tmpl.attach("feedbackbox");
     tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
     tmpl.feedbacktick.addClass("inactive");
     
-    if (currentFeedbackTitle != "Excellent") {
-        // if the typed numeric answer is wrong
+    // if the typed numeric answer is wrong, display the correct answer.
+    if (currentFeedbackTitle !== "Excellent") {
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
         tmpl.feedbacktick.addClass("inactive");
@@ -125,6 +126,5 @@ NumericQuestionWidget.prototype.showFeedback = function () {
 NumericQuestionWidget.prototype.storeAnswers = function () {
     var questionpoolModel = app.models.questionpool;
     var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
-    console.log("typed number: " + numericAnswer);
     app.models.answer.setAnswers(numericAnswer);
 };

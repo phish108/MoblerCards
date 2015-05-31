@@ -77,44 +77,43 @@ function AnswerView() {
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
     var answer, type;
-    
     console.log("[AnswerView] tap registered: " + id);
     
-    if (id === "answerclose") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("course");
-        }
-        else {
+    switch (id) {
+        case "answercross":
+            if (this.app.getLoginState()) {
+                this.app.changeView("course");
+            }
             this.app.changeView("landing");
-        }
+            break;
+        case "answerfooter":
+        case "answercontent":
+            this.clickDoneButton();
+            break;
+        case "answerheader":
+            this.widget.storeAnswers();
+            this.app.changeView("question");
+            break;
+        default:
+            break;
     }
-    else if (id === "answerbutton" ||
-             id === "answerbuttonenter" ||
-             id === "answercontent") {
-        this.clickDoneButton();
-    }
-    else if (id === "answertitle" || 
-             id === "answericon") {
-        this.widget.storeAnswers();
-        this.app.changeView("question");
-    }
-    else if (!this.widget.moveEnabled &&
-             id.split("_").length === 3) {
-        answer = id.split("_"); 
-        if (answer[0] === "answertext" || 
-            answer[0] === "answertick") {
+    
+    if (!this.widget.moveEnabled && id.split("_").length === 3) {
+        if (id.split("_")[0] === "answerlist") {
             this.widget.tap(event);
         }
     }
 };
 
 AnswerView.prototype.startMove = function (event) {    
-    if (this.widget.moveEnabled) {this.widget.startMove(event);};
+    if (this.widget.moveEnabled && 
+        event.target.id.split("_")[0] === "answertick") {
+        this.widget.startMove(event);
+    };
 };
 
 AnswerView.prototype.duringMove = function (event, touches) {
-    if (this.widget.moveEnabled &&
-        this.widget.dragActive) {
+    if (this.widget.moveEnabled && this.widget.dragActive) {
         this.widget.duringMove(event, touches);
     };
 };
@@ -124,10 +123,6 @@ AnswerView.prototype.endMove = function (event) {
 };
 
 AnswerView.prototype.cleanup = function () {
-    if (!$("#scrolltop").hasClass("inactive")) {
-        $("#scrolltop").addClass("inactive");
-        $("#scrollbot").addClass("inactive");
-    }
 }
 
 /**Loads a subview-widget based on the specific question type
@@ -147,25 +142,25 @@ AnswerView.prototype.update = function () {
     var interactive = true;
     
     switch (questionType) {
-    case 'assSingleChoice':
-        this.widget = new SingleChoiceWidget(interactive);
-        break;
-    case 'assMultipleChoice':
-        this.widget = new MultipleChoiceWidget(interactive);
-        break;
-    case 'assOrderingQuestion':
-    case 'assOrderingHorizontal':
-        this.widget = new TextSortWidget(interactive);
-        break;
-    case 'assNumeric':
-        this.widget = new NumericQuestionWidget(interactive);
-        break;
-    case 'assClozeTest':
-        this.widget = new ClozeQuestionType(interactive);
-        break;
-    default:
-        console.log("no Questiontype found");
-        break;
+        case 'assSingleChoice':
+            this.widget = new SingleChoiceWidget(interactive);
+            break;
+        case 'assMultipleChoice':
+            this.widget = new MultipleChoiceWidget(interactive);
+            break;
+        case 'assOrderingQuestion':
+        case 'assOrderingHorizontal':
+            this.widget = new TextSortWidget(interactive);
+            break;
+        case 'assNumeric':
+            this.widget = new NumericQuestionWidget(interactive);
+            break;
+        case 'assClozeTest':
+            this.widget = new ClozeQuestionType(interactive);
+            break;
+        default:
+            console.log("no Questiontype found");
+            break;
     }
 };
 

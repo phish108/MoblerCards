@@ -123,16 +123,16 @@ MoblerCards.prototype.initialize = function() {
     this.setupLanguage();
 };
 
-//MoblerCards.prototype.onPause = function () {};
-
-//MoblerCards.prototype.onResume = function () {};
-
-//MoblerCards.prototype.onBack = function () {};
-
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
     this.appLoaded = true;
-    this.changeView("landing");
+    
+    if (this.getLoginState()) {
+        this.changeView("course");
+    }
+    else {
+        this.changeView("landing");
+    }
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -297,6 +297,7 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
  * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
  **/
 MoblerCards.prototype.getLoginState = function () {
+    console.log("call isLoggedIn()");
     return this.models.configuration.isLoggedIn();
 };
 
