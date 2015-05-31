@@ -81,6 +81,7 @@ function CourseModel(controller) {
 	 * **/
 
 	$(document).bind("online", function() {
+        console.log("[CourseModel] bind event 'online' detected");
 		self.switchToOnline();
 	});
 
@@ -162,6 +163,7 @@ CourseModel.prototype.loadFromServer = function() {
         activeURL.length &&
         self.controller.getLoginState() &&
         !self.syncState) {
+        console.log("condition is satisfied");
 		// var sessionkey = self.controller.getSessionKey();
 		var sessionKey = self.controller.models.configuration.getSessionKey();
 
