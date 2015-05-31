@@ -392,7 +392,7 @@ AnswerModel.prototype.initDB = function () {
     this.db.transaction(function (transaction) {
         transaction
             .executeSql(
-                'CREATE TABLE IF NOT EXISTS statistics(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, course_id TEXT, question_id TEXT, day INTEGER, score NUMERIC, duration INTEGER);', []);
+                'CREATE TABLE IF NOT EXISTS statistics (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, course_id TEXT, question_id TEXT, day INTEGER, score NUMERIC, duration INTEGER);', []);
     });
     // add in the local storage the created table
     localStorage.setItem("db_version", DB_VERSION);
@@ -409,11 +409,12 @@ AnswerModel.prototype.storeScoreInDB = function () {
     var day = new Date();
     var duration = (new Date()).getTime() - this.start;
     console.log("duration is " + duration);
+    // FIXME this should be handled in the statistics model.
     this.db
         .transaction(function (transaction) {
             transaction
                 .executeSql(
-                    'INSERT INTO statistics(course_id, question_id, day, score, duration) VALUES (?, ?, ?, ?, ?)', [self.currentCourseId, self.currentQuestionId,
+                    'INSERT INTO statistics (course_id, question_id, day, score, duration) VALUES (?, ?, ?, ?, ?)', [self.currentCourseId, self.currentQuestionId,
       day.getTime(), self.answerScore, duration],
                     function () {
                         console.log("successfully inserted SCORE IN db for course " + self.currentCourseId);
