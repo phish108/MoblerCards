@@ -107,7 +107,7 @@ AnswerView.prototype.tap = function (event) {
 
 AnswerView.prototype.startMove = function (event) {    
     if (this.widget.moveEnabled && 
-        event.target.id.split("_")[0] === "answerdragicon") {
+        event.target.id.split("_")[0] === "answertick") {
         this.widget.startMove(event);
     };
 };

@@ -113,6 +113,9 @@ function LoginView() {
  **/
 LoginView.prototype.prepare = function () {
     console.log("loginView: open sesame");
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
     // hide unnecessary errors and warnings
     this.hideErrorMessage();
     this.hideWarningMessage();

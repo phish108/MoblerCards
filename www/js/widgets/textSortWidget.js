@@ -102,7 +102,7 @@ TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
     
-    if (id.split("_")[0] === "answerdragicon") {
+    if (id.split("_")[0] === "answertick") {
         createEvent("mousedown", event);
         this.dragActive = true;
     }

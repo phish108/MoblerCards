@@ -145,14 +145,8 @@ CourseView.prototype.tap = function (event) {
             }
         }
         else if (course[0] === "courseimage") {
-            this.app.changeView("statistics", course[2]);
+            this.app.changeView("statistics");
         }
-//        else if (id === "courserefresh") {
-//            // should fetch data from the server
-//            this.app.models.course.loadFromServer();
-//            // and wait ...
-//            // this.update();
-//        }
     }
 };
 
