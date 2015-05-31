@@ -8,7 +8,8 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
 
-    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel, TrackingModel" />
+    <meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel " />
+    <!-- trackingModel -->
 
     <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
     <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
@@ -343,21 +344,18 @@
         </div>
 
         <div id="answercontent" class="contentbox touchable" >
-            <div id="answertop"></div>
             <ul id="answerbox">
                 <template id="answerlistbox">
                     <li id="answerlist" class="listbox gradient2">
                         <div id="answertext" class="listlabel"></div>
                         <div id="answertick" class="listimage separator">
                             <span id="answertickicon"></span>
+                            <span id="answerdragicon" class="dragicon touchable"></span>
                         </div>
                         <input id="answerinput" class="listlabel inactive" placeholder="##" type="number" required="required"/>
                     </li>
                 </template>
             </ul>
-            <div id="answerbot"></div>
-            <div id="scrolltop" class="scrollbutton inactive icon-arrow-up"></div>
-            <div id="scrollbot" class="scrollbutton inactive icon-arrow-down"></div>
             <div id="dataErrorMessage" class="cardBody"></div>
         </div>
 
@@ -369,13 +367,15 @@
     </div>
 
     <div id="feedback" class="screen" data-view="FeedbackView" data-touch="tap">
-        <div id="feedbackheader" class="headerbox">
+        <div id="feedbackheader" class="headerbox touchable">
             <div id="feedbackicon"  class="titleicon"><span id="feedbackdynamicicon"></span></div>
             <div id="feedbacktitle" class="headercontent"></div>
-            <div id="feedbackcross" class="closeicon"><span id="feedbackclose" class="icon-cross"></span></div>
+            <div id="feedbackcross" class="closeicon touchable">
+                <span class="icon-cross"></span>
+            </div>
         </div>
 
-        <div id="feedbackcontent" class="contentbox">
+        <div id="feedbackcontent" class="contentbox touchable">
             <ul id="feedbackbox">
                 <template id="feedbacklistbox">
                     <li id="feedbacklist" class="listbox gradient2">
@@ -389,11 +389,11 @@
             <div id="feedbacktip" class="text gradient2"></div>
         </div>
 
-        <div id="feedbackfooter" class="footerbox">
+        <div id="feedbackfooter" class="footerbox touchable">
             <div id="feedbackbutton" class="footerleft">
                 <span id="feedbackbuttonenter" class="icon-enter"></span>
             </div>
-            <div id="feedbackinfo" class="footerright">
+            <div id="feedbackinfo" class="footerright touchable">
                 <span id="feedbackmore" class="icon-question"></span>
             </div>
         </div>

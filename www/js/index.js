@@ -297,6 +297,7 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
  * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
  **/
 MoblerCards.prototype.getLoginState = function () {
+    console.log("call isLoggedIn()");
     return this.models.configuration.isLoggedIn();
 };
 

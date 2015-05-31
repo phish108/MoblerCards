@@ -64,6 +64,9 @@ function TextSortWidget(interactive) {
     if (interactive) {
         self.showAnswer();
         // make the list sortable using JQuery UI's function
+        $("#answerbox").find("li").addClass("untouchable");
+        $(".dragicon").addClass("icon-drag");
+
         $("#answerbox").sortable({
             axis: "y",
             scroll: true,
@@ -78,11 +81,6 @@ function TextSortWidget(interactive) {
             }
         });
         
-        $("#answerbox").disableSelection();
-        
-        // shows the buttons for scroll handling.
-//        $("#scrolltop").removeClass("inactive");
-//        $("#scrollbot").removeClass("inactive");
     }
     else {
         self.showFeedback();
@@ -100,27 +98,11 @@ function createEvent(type, event) {
     first.target.dispatchEvent(simulatedEvent);
 }
 
-TextSortWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-    
-    // scroll handling
-    if (id === "scrolltop") {
-//        $("#answercontent").animate({
-//            scrollTop: 200
-//        });
-    }
-    else if (id === "scrollbot") {
-//        $("#answercontent").animate({
-//            scrollTop: $("#answerbot").offset().top
-//        }, 2000);
-    }
-};
-
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
     
-    if (id.split("_")[0] === "answertext") {
+    if (id.split("_")[0] === "answerdragicon") {
         createEvent("mousedown", event);
         this.dragActive = true;
     }
@@ -133,7 +115,7 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
     // if an element is dragged on the header, scroll the list down
     var y = event.changedTouches[0].screenY;
     
-    if (this.dragActive && y < 60) {
+    if (this.dragActive && y < 40) {
         if (window.pageYOffset > y) {
             var scroll = y > 20 ? y - 20 : 0;
             window.scrollTo(0, scroll);
@@ -144,10 +126,10 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
 TextSortWidget.prototype.endMove = function (event) {
     createEvent("mouseup", event);
     var y = event.changedTouches[0].screenY;
-    
+
     if (this.dragActive && y < 60) {
         window.scrollTo(0, 0);
-        this.dragActive = false;
+        this.dragActive = false; 
     }
 };
 
@@ -165,7 +147,6 @@ TextSortWidget.prototype.showAnswer = function () {
     var i;
     
     if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() != "undefined" &&
         questionpoolModel.getAnswer()[0].answertext) {
         
         var mixedAnswers;
@@ -191,7 +172,6 @@ TextSortWidget.prototype.showAnswer = function () {
         for (i = 0; i < mixedAnswers.length; i++) {
             tmpl.attach(mixedAnswers[i].toString());
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
-            tmpl.answertick.removeClass("separator");
         }
     }
     else {

@@ -102,7 +102,6 @@ SingleChoiceWidget.prototype.showAnswer = function () {
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
     if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() != "undefined" &&
         questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
                 

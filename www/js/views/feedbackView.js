@@ -91,22 +91,40 @@ FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
     
-    if (id === "feedbackbutton" ||
-        id === "feedbackbuttonenter" ||
-        id === "feedbackcontent") {
-        this.clickFeedbackDoneButton();
+    switch (id) {
+        case "feedbackfooter":
+        case "feedbackcontent":
+            this.clickFeedbackDoneButton();
+            break;
+        case "feedbackinfo":
+            this.clickFeedbackMore();
+            break;
+        case "feedbackcross":
+            this.app.models.answer.answerList = [];
+            this.app.models.answer.answerScore = -1;
+            this.clickCourseListButton();
+            break;
+        case "feedbackheader":
+            this.clickTitleArea();
+            break;
+        default:
+            break;
     }
-    else if (id === "feedbackmore") {
-        this.clickFeedbackMore();
-    }
-    else if (id === "feedbackclose") {
-        this.app.models.answer.answerList = [];
-        this.app.models.answer.answerScore = -1;
-        this.clickCourseListButton();
-    }
-    else if (id === "feedbacktitle") {
-        this.clickTitleArea();
-    }
+//    if (id === "feedbackfooter" ||
+//        id === "feedbackcontent") {
+//        this.clickFeedbackDoneButton();
+//    }
+//    else if (id === "feedbackinfo") {
+//        this.clickFeedbackMore();
+//    }
+//    else if (id === "feedbackcross") {
+//        this.app.models.answer.answerList = [];
+//        this.app.models.answer.answerScore = -1;
+//        this.clickCourseListButton();
+//    }
+//    else if (id === "feedbacktitle") {
+//        this.clickTitleArea();
+//    }
 };
 
 /**click on feedback done button leads to new question
