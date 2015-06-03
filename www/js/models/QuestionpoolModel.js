@@ -135,8 +135,8 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
                         for (var j = 0; j < questionPoolObject.length; j++) {
                             var question = questionPoolObject[j];
                             //clear the answertext
-                            console.log("Question object");
-                            console.dir(question);
+//                            console.log("Question object");
+//                            console.dir(question);
                             self.cleanupAnswertext(question, j);
 
                             //clear the question
@@ -296,10 +296,10 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
     case "assOrderingQuestion":
     case "assOrderingHorizontal":
         //the answer is an array, so we need to loop
-            console.log("[Questionpool] lenght problem: " + questionobject.answer.length);
+//            console.log("[Questionpool] lenght problem: " + questionobject.answer.length);
         for (var i = 0; i < questionobject.answer.length; i++) {
             questionobject.answer[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answer[i].answertext).text();
-            console.log("passed clearing answer view for various question types");
+//            console.log("passed clearing answer view for various question types");
             $("#modelHelperQuestionpool").empty();
         }
         break;

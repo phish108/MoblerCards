@@ -50,12 +50,10 @@ function QuestionView() {
      * @param: a callback function that displays the question text and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) && 
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
             console.log("enters load statistics from server is done in question view");
             self.showQuestionBody();
         }
-
     });
 
     /**It is triggered when the calculation of all the statistics metrics is done
@@ -65,18 +63,23 @@ function QuestionView() {
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
 
-        if ((self.app.isActiveView(self.tagID)) && 
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if ((self.app.isActiveView(self.tagID)) && self.app.getLoginState()) {
             console.log("enters in calculations done in question view 2 ");
             self.showQuestionBody();
         }
     });
 }
 
+/**
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
 QuestionView.prototype.prepare = function () {
     var featuredContentId = FEATURED_CONTENT_ID;
     
     console.log("[QuestionView] prepare");
+    
     this.showQuestionTitle();
     this.showQuestionBody();
     if (!this.app.models.answer.hasStarted()) {
@@ -88,9 +91,18 @@ QuestionView.prototype.prepare = function () {
     }
 };
 
+/**
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ */
+QuestionView.prototype.cleanup = function () {
+    
+};
+
 QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log("[QuestionView] tap registered: " + id);
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
 
     switch (id) {
         case "questioncross":
@@ -113,9 +125,11 @@ QuestionView.prototype.tap = function (event) {
     }
 };
 
-/**shows the current question text
+/**
+ * shows the current question text
  * @prototype
  * @function showQuestionBody
+ * @param {NONE}
  **/
 QuestionView.prototype.showQuestionBody = function () {
     var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
@@ -125,9 +139,11 @@ QuestionView.prototype.showQuestionBody = function () {
 };
 
 
-/**shows the current question title and the corresponding icon
+/**
+ * shows the current question title and the corresponding icon
  * @prototype
  * @function showQuestionTitle
+ * @param {NONE}
  **/
 QuestionView.prototype.showQuestionTitle = function () {
     var currentQuestionType = this.app.models.questionpool.getQuestionType();

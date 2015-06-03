@@ -55,8 +55,7 @@ function CourseView() {
      *        that the specific course including all its questions has been fully loaded
      */
     $(document).bind("questionpoolready", function (e, courseID) {
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
             console.log("view questionPool ready called " + courseID);
             self.courseIsLoaded(courseID);
         }
@@ -70,10 +69,8 @@ function CourseView() {
      * @event courselistupdate
      * @param a callback function that loads the body of the courses list view, which is the list of courses
      */
-
     $(document).bind("courselistupdate", function (e) {
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
             console.log("course list update called");
             self.firstLoad = false;
             if (self.active) {
@@ -84,45 +81,55 @@ function CourseView() {
     });
 }
 
+/**
+ * check login state, if not logged in redirect to landing
+ * @protoype
+ * @function prepare
+ * @param {NONE}
+ */
 CourseView.prototype.prepare = function () {
-    console.log("[CourseView] opened");
-    // TODO Check login state ? not (sent to landing view) 
-    // ensure people who are not logged in to be redirected
     if (!this.app.getLoginState()) {
         this.app.changeView("landing");   
     }
-    
-    this.active = true;
-    this.firstLoad = false;
+    else {
+        this.active = true;
+        this.firstLoad = false;
+    }
 };
 
+/**
+ * call the functions to set up the course list.
+ * FIXME The default course needs to be removed.
+ * @protoype
+ * @function update
+ * @param {NONE}
+ */
 CourseView.prototype.update = function () {
     this.setDefaultCourse();
     this.setCourse();
 };
 
 /**
- *
- * @prototype
+ * @protoype
  * @function cleanup
- **/
+ * @param {NONE}
+ */
 CourseView.prototype.cleanup = function () {
     this.active = false;
     this.app.models.course.loadFromServer();   
 };
 
-/*
- * 
- * @prototype
+/**
+ * Handles action when a tap occurs.
+ * @protoype
  * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
  */
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
-    var featuredContentId = FEATURED_CONTENT_ID;
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
+    
     var courseId = this.app.models.course.getId();
-    var featuredId = this.app.models.featured.getId();
-
-    console.log("[CourseView] tap registered " + id);
 
     if (id === "coursecross") {
         if (this.app.getLoginState()) {
@@ -138,10 +145,14 @@ CourseView.prototype.tap = function (event) {
         if (course[0] === "courselist") {
             if (course.length === 4 &&
                 course[3] === "fd") {
-                this.app.selectCourseItem(course[3]);
+                if (this.app.selectCourseItem(course[3])) {
+                    this.app. changeView("question");
+                }
             }
             else {
-                this.app.selectCourseItem(course[2]);
+                if (this.app.selectCourseItem(course[2])) {
+                    this.app.changeView("question");
+                }
             }
         }
         else if (course[0] === "courseimage") {
@@ -154,7 +165,7 @@ CourseView.prototype.tap = function (event) {
  * generates all the current courses you are enrolled in.
  * @prototype
  * @function setCourse
- * TODO rename to setCourse() 
+ * @param {NONE}
  */
 CourseView.prototype.setCourse = function () {
     var self = this;
@@ -163,11 +174,7 @@ CourseView.prototype.setCourse = function () {
     var ctmpl = this.app.templates.getTemplate("courselistbox");
     var courseId, courseTitle;
 
-    if (courseModel.courseList.length === 0) {
-        ctmpl.attach("waiting");
-        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
-    }
-    else {
+    if (courseModel.courseList.length > 0) {
         courseModel.reset();
         do {
             courseId = courseModel.getId();
@@ -175,18 +182,24 @@ CourseView.prototype.setCourse = function () {
 
             if (courseTitle != "false" && courseId != "false") {
                 ctmpl.attach(courseId);
-                ctmpl.courselabel.text = courseModel.getTitle();
+                ctmpl.courselabel.text = courseTitle;
 
-                this.setCourseIcon(ctmpl, courseModel, courseId);
+                this.setCourseIcon(ctmpl, courseId);
             }
         } while (courseModel.nextCourse());
+    }
+    else {
+        ctmpl.attach("waiting");
+        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
     }
 };
 
 /*
- * generates all the default course.
+ * generates the default course.
+ * FIXME need to get rid of this function.
  * @prototype
  * @function setDefaultCourse
+ * @param {NONE}
  */
 CourseView.prototype.setDefaultCourse = function () {
     var self = this;
@@ -197,32 +210,36 @@ CourseView.prototype.setDefaultCourse = function () {
 
     ctmpl.attach(featuredId + "_fd");
     ctmpl.courselabel.text = featuredModel.getTitle();
-
-    this.setCourseIcon(ctmpl, featuredModel, featuredId);
+    
+    // this is a temporary solution
+    ctmpl.courseimg.addClass("icon-bars");
 };
 
 /*
  * generates the icon specific to your course, if your course is not synchronised a loading icon will appear.
+ * TODO the model synchronisation is not working properly, remark just the featured model id was disfunctional
  * @prototype
  * @function setCourseIcon
+ * @param {TEMPLATE} ctmpl - holds the course template.
+ * @param {INTEGER} modelId - reference to the current course.
  */
-//TODO the model synchronisation is not working properly
-CourseView.prototype.setCourseIcon = function (ctmpl, model, modelId) {
-//    if (model.isSynchronized(modelId)) {
+CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
+    if (this.app.models.course.isSynchronized(modelId)) {
         ctmpl.courseimg.addClass("icon-bars");
-//    }
-//    else {
-//        ctmpl.courseimage.addClass("icon-loading");
-//        ctmpl.courseimage.addClass("loadingrotation");
-//    }
+    }
+    else {
+        ctmpl.courseimage.addClass("icon-loading");
+        ctmpl.courseimage.addClass("loadingrotation");
+    }
 };
 
 /**
  * if the course has been synchronized the proper icon will be shown.
+ * FIXME the courseId and the elements id have changed.
  * @prototype
  * @function courseIsLoaded
+ * @param {INTEGER} courseId - reference to the current course.
  */
-//FIXME the courseId and the elements id have changed.
 CourseView.prototype.courseIsLoaded = function (courseId) {
     console.log("courseIsLoaded: " + courseId);
     console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);

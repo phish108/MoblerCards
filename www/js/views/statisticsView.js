@@ -103,7 +103,7 @@ StatisticsView.prototype.prepare = function () {
 
 StatisticsView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log("[StatisticsView] tap registered: " + id);
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
     
     if (id === "statisticscross") {
         if (this.app.getLoginState()) {

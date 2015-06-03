@@ -115,7 +115,7 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
     // if an element is dragged on the header, scroll the list down
     var y = event.changedTouches[0].screenY;
     
-    if (this.dragActive && y < 40) {
+    if (this.dragActive && y < 60) {
         if (window.pageYOffset > y) {
             var scroll = y > 20 ? y - 20 : 0;
             window.scrollTo(0, scroll);

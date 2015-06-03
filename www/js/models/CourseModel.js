@@ -244,7 +244,7 @@ CourseModel.prototype.loadFromServer = function() {
 			  * It is triggered when the loading of the course list from the server has been finished
 			 * @event courselistupdate
 			 **/
-//			$(document).trigger("courselistupdate");
+			$(document).trigger("courselistupdate");
 
 			//download all the quesitons(questionlist) for each course
             var c;

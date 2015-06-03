@@ -52,8 +52,7 @@ function AnswerView() {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) && 
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) &&  self.app.getLoginState()) {
             console.log("enters load statistics from server is done in answer view 1");
             self.update();
         }
@@ -66,8 +65,7 @@ function AnswerView() {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.app.isActiveView(self.tagID)) && 
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
             console.log("enters in calculations done in  answer view 2 ");
             self.update();
         }
@@ -76,8 +74,9 @@ function AnswerView() {
 
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");    
+    
     var answer, type;
-    console.log("[AnswerView] tap registered: " + id);
     
     switch (id) {
         case "answercross":

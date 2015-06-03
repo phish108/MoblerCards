@@ -65,7 +65,9 @@ LandingView.prototype.prepare = function () {
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     }
-    this.showForm();
+    else {
+        this.showForm();
+    }
 };
 
 LandingView.prototype.showForm = function () {
@@ -86,9 +88,9 @@ LandingView.prototype.showForm = function () {
 
 LandingView.prototype.tap = function (event) {
     var id = event.target.id;
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
+    
     var featuredContentId = window.FEATURED_CONTENT_ID;
-
-    console.log("[LandingView] tap registered: '" + id + "'");
 
     switch(id) {
         case "landingfeaturedimage":

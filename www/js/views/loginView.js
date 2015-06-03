@@ -116,14 +116,16 @@ LoginView.prototype.prepare = function () {
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     }
-    // hide unnecessary errors and warnings
-    this.hideErrorMessage();
-    this.hideWarningMessage();
-    this.hideDeactivateMessage();
-    $("#selectLMS").removeClass("gradientSelected");
-    this.active = true;
-    this.app.models.lms.registerDevice();
-    this.app.models.featured.loadFeaturedCourseFromServer();
+    else {
+        // hide unnecessary errors and warnings
+        this.hideErrorMessage();
+        this.hideWarningMessage();
+        this.hideDeactivateMessage();
+        $("#selectLMS").removeClass("gradientSelected");
+        this.active = true;
+        this.app.models.lms.registerDevice();
+        this.app.models.featured.loadFeaturedCourseFromServer();
+    }
 };
 
 LoginView.prototype.update = function () {
@@ -166,7 +168,7 @@ LoginView.prototype.cleanup = function () {
  **/
 LoginView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log("[LoginView] tap registered: " + id);
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
 
     if (id === "loginfooter") {
         this.clickLoginButton();
