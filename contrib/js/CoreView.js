@@ -35,7 +35,7 @@ function CoreView(app, domid, theDelegate) {
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["tap_"+id] === 'function') {
                 d["tap_"+id](ev, id);
@@ -43,12 +43,22 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.tap(ev, id);
             }
+
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["tap_"+id] === 'function') {
+                    d["tap_"+id](ev, id);
+                }
+                else {
+                    d.tap(ev, id);
+                }
+            }
         }
     }
 
     function callMyClick(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["click_"+id] === 'function') {
                 d["click_"+id](ev);
@@ -56,13 +66,22 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.click(ev, id);
             }
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["click"+id] === 'function') {
+                    d["click"+id](ev, id);
+                }
+                else {
+                    d.click(ev, id);
+                }
+            }
         }
     }
 
     function callMyBlur(ev) {
         console.log("blur ");
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["blur_"+id] === 'function') {
                 d["blur_"+id](ev);
@@ -70,12 +89,21 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.blur(ev, id);
             }
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["blur_"+id] === 'function') {
+                    d["blur"+id](ev, id);
+                }
+                else {
+                    d.blur(ev, id);
+                }
+            }
         }
     }
 
     function callMyFocus(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
 
             if (id && typeof d["focus_"+id] === 'function') {
@@ -83,6 +111,16 @@ function CoreView(app, domid, theDelegate) {
             }
             else {
                 d.focus(ev, id);
+            }
+
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["focus_"+id] === 'function') {
+                    d["focus_"+id](ev, id);
+                }
+                else {
+                    d.focus(ev, id);
+                }
             }
         }
     }
@@ -188,6 +226,7 @@ function CoreView(app, domid, theDelegate) {
 
         if (tMove) {
             // register the move and end events only once per view
+            // FIXME how to handle move with widget delegates?
             jester(window).move(function (e,t) {
                 var d = self.updateDelegate || self.delegate;
                 if (self.active && bMove && t.numTouches() === 1) {
@@ -225,7 +264,7 @@ CoreView.prototype.useDelegate      = function (delegateName) {
     }
 };
 
-CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
+CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts) {
     var self = this;
 
     var delegateProto = theDelegate.prototype;
@@ -300,7 +339,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
     if (typeof delegateName === "string" && delegateName.length) {
         if (!(self.widgets.hasOwnProperty(delegateName))) {
             // initialize the same widget name only once
-            self.widgets[delegateName] = new theDelegate();
+            self.widgets[delegateName] = new theDelegate(opts);
         }
     }
     else {
