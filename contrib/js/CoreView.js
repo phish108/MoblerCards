@@ -35,7 +35,7 @@ function CoreView(app, domid, theDelegate) {
     // callMyTap is a helper function to ensure that we only use one callback
     function callMyTap(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["tap_"+id] === 'function') {
                 d["tap_"+id](ev, id);
@@ -43,12 +43,22 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.tap(ev, id);
             }
+
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["tap_"+id] === 'function') {
+                    d["tap_"+id](ev, id);
+                }
+                else {
+                    d.tap(ev, id);
+                }
+            }
         }
     }
 
     function callMyClick(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["click_"+id] === 'function') {
                 d["click_"+id](ev);
@@ -56,13 +66,22 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.click(ev, id);
             }
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["click"+id] === 'function') {
+                    d["click"+id](ev, id);
+                }
+                else {
+                    d.click(ev, id);
+                }
+            }
         }
     }
 
     function callMyBlur(ev) {
         console.log("blur ");
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
             if (id && typeof d["blur_"+id] === 'function') {
                 d["blur_"+id](ev);
@@ -70,12 +89,21 @@ function CoreView(app, domid, theDelegate) {
             else {
                 d.blur(ev, id);
             }
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["blur_"+id] === 'function') {
+                    d["blur"+id](ev, id);
+                }
+                else {
+                    d.blur(ev, id);
+                }
+            }
         }
     }
 
     function callMyFocus(ev) {
         if (self.active) {
-            var d = self.updateDelegate || self.delegate;
+            var d = self.delegate;
             var id = findIDEl(ev.target);
 
             if (id && typeof d["focus_"+id] === 'function') {
@@ -83,6 +111,16 @@ function CoreView(app, domid, theDelegate) {
             }
             else {
                 d.focus(ev, id);
+            }
+
+            d = self.updateDelegate;
+            if (d) {
+                if (id && typeof d["focus_"+id] === 'function') {
+                    d["focus_"+id](ev, id);
+                }
+                else {
+                    d.focus(ev, id);
+                }
             }
         }
     }
@@ -126,33 +164,52 @@ function CoreView(app, domid, theDelegate) {
 
             if (this.container[0].dataset.keyboard) {
                 keyboard = this.container[0].dataset.keyboard.split(' ');
-                console.log("keyboard " + keyboard.join(','));
+                // console.log("keyboard " + keyboard.join(','));
             }
         }
 
         // find interactive elements
         // .move - register start, move, end
         // .tap   - register tap
-        var bMove = false, tMove = false;
+        var bMove = false,
+            tMove = false;
 
         if (touch.indexOf('move') >= 0) {
             tMove = true;
             jester(this.container[0]).start(function (e,t) {
-                var d = self.updateDelegate || self.delegate;
+                var d = self.delegate;
                 if (self.active && t.numTouches() === 1) {
-                    bMove = true; d.startMove(e,t);
+                    bMove = true;
+                    d.startMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.startMove(e,t);
+                    }
                 }
             });
         }
 
         if (touch.indexOf('tap') >= 0) {
-            console.log("register tap on container " + domid);
+            // console.log("register tap on container " + domid);
             jester(this.container[0]).tap(callMyTap);
         }
 
         if (touch.indexOf('pinch') >= 0) {
-            jester(window).pinchwiden(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,1);}});
-            jester(window).pinchnarrow(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,-1);}});
+            jester(window).pinchwiden(function (e,t) {
+                if (self.active) {
+                    self.delegate.pinch(e,t,1);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.pinch(e,t,1);
+                    }
+                }
+            });
+            jester(window).pinchnarrow(function (e,t) {
+                if (self.active) {
+                    self.delegate.pinch(e,t,-1);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.pinch(e,t,-1);
+                    }
+                }
+            });
         }
 
         if (mouse.indexOf('click') >= 0) {
@@ -160,7 +217,7 @@ function CoreView(app, domid, theDelegate) {
         }
 
         if (keyboard.indexOf('blur') >= 0) {
-            console.log("register blur call back");
+            // console.log("register blur call back");
             this.container[0].addEventListener('blur', callMyBlur, false);
         }
 
@@ -178,9 +235,13 @@ function CoreView(app, domid, theDelegate) {
             if (seTouch.indexOf('move') >= 0) {
                 tMove = true;
                 jester(this).start(function (e,t) {
-                    var d = self.updateDelegate || self.delegate;
+                    var d = self.delegate;
                     if (self.active && t.numTouches() === 1) {
-                        bMove = true; d.startMove(e,t);
+                        bMove = true;
+                        d.startMove(e,t);
+                        if (self.updateDelegate) {
+                            self.updateDelegate.startMove(e,t);
+                        }
                     }
                 });
             }
@@ -189,17 +250,26 @@ function CoreView(app, domid, theDelegate) {
         if (tMove) {
             // register the move and end events only once per view
             jester(window).move(function (e,t) {
-                var d = self.updateDelegate || self.delegate;
-                if (self.active && bMove && t.numTouches() === 1) {
+                var d = self.delegate;
+                if (self.active &&
+                    bMove &&
+                    t.numTouches() === 1) {
                     d.duringMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.duringMove(e,t);
+                    }
                 }
             });
             jester(window).end( function (e,t) {
-                var d = self.updateDelegate || self.delegate;
+                var d = self.delegate;
                 if (self.active && bMove) {
                     d.endMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.endMove(e,t);
+                    }
                     bMove = false;
                 }
+
             });
         }
     }
@@ -225,7 +295,19 @@ CoreView.prototype.useDelegate      = function (delegateName) {
     }
 };
 
-CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
+
+CoreView.prototype.mapDelegate = function (delegateOrigName, delegateName) {
+    if (typeof delegateName === "string" &&
+        typeof delegateOrigName === "string" &&
+        this.widgets &&
+        this.widgets.length &&
+        this.widgets.hasOwnProperty(delegateOrigName) &&
+        !this.widgets.hasOwnProperty(delegateName)) {
+        this.widgets[delegateName] = this.widgets[delegateOrigName];
+    }
+};
+
+CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts) {
     var self = this;
 
     var delegateProto = theDelegate.prototype;
@@ -253,8 +335,14 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
         delegateBase.close        = function () { self.close(); };
         delegateBase.refresh      = function () { self.refresh(); };
         delegateBase.clear        = function () { self.clear(); };
+        delegateBase.mapDelegate = function (odName,dName) { self.mapDelegate(odName,dName);};
         delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
-        delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) { self.initDelegate(dClass, dName);}};
+        delegateBase.delegate     = function (dClass, dName) {
+            if (typeof dName === "string" && dName.length) {
+                self.initDelegate(dClass, dName);
+            }
+        };
+
     }
 
     delegateBase.update     = noop;
@@ -300,7 +388,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName) {
     if (typeof delegateName === "string" && delegateName.length) {
         if (!(self.widgets.hasOwnProperty(delegateName))) {
             // initialize the same widget name only once
-            self.widgets[delegateName] = new theDelegate();
+            self.widgets[delegateName] = new theDelegate(opts);
         }
     }
     else {
@@ -350,16 +438,23 @@ CoreView.prototype.refresh = function () {
 
 CoreView.prototype.open = function (viewData) {
     this.viewData = viewData || {};
+
+    this.isVisible = true;
+
     this.delegate.prepare();
+
     if (this.updateDelegate) {
         this.updateDelegate.prepare();
     }
-    this.refresh();
-    if (this.container) {
+    // if the delegate decides to switch the view during the preparation
+    // this happens when the delegate calls "changeView" during prepare.
+    if (this.isVisible) {
+        this.refresh();
+    }
+    // again if changeView is called during refresh(), the view must not be opened
+    if (this.isVisible && this.container) {
         this.container.addClass('active');
     }
-    this.isVisible = true;
-
 };
 
 CoreView.prototype.close = function () {

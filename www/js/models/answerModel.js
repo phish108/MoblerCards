@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Christian Glahn
@@ -134,7 +134,7 @@ AnswerModel.prototype.calculateSingleChoiceScore = function () {
     if (this.controller.models.questionpool.getScore(clickedAnswerIndex) > 0) {
         console.log("the score is 1");
         this.answerScore = 1;
-    } 
+    }
     else {
         this.answerScore = 0;
     }
@@ -152,7 +152,7 @@ AnswerModel.prototype.calculateSingleChoiceScore = function () {
  * @function calculateMultipleChoiceScore
  **/
 AnswerModel.prototype.calculateMultipleChoiceScore = function () {
-    var i, 
+    var i,
         questionpool = this.controller.models.questionpool;
 
     var numberOfAnswers = questionpool.getAnswer().length;
@@ -216,10 +216,10 @@ AnswerModel.prototype.calculateMultipleChoiceScore = function () {
  * @function calculateTextSortScore
  **/
 AnswerModel.prototype.calculateTextSortScore = function () {
-    var i, 
-        j, 
+    var i,
+        j,
         scores = [];
-    
+
     this.answerScore = 0;
 
     for (i = 0; i < this.answerList.length; i++) {
@@ -229,10 +229,10 @@ AnswerModel.prototype.calculateTextSortScore = function () {
         var currAnswer = this.answerList[i];
         var followingIndex = i + 1;
         var followingCorrAnswers = 0;
-        // Count the number of items in sequence 
-        // and stop if we loose the sequence. 
-        // The sequence is detected when the next item in the answer list 
-        // is the same with the next item after the currAnswer. 
+        // Count the number of items in sequence
+        // and stop if we loose the sequence.
+        // The sequence is detected when the next item in the answer list
+        // is the same with the next item after the currAnswer.
         while (followingIndex < this.answerList.length && this.answerList[followingIndex++] === String(++currAnswer)) {
             followingCorrAnswers++;
         }
@@ -248,7 +248,7 @@ AnswerModel.prototype.calculateTextSortScore = function () {
             itemScore += 1;
             this.answerScore = 0.5;
         }
-        //if all the answered items are in the correct sequence we assign the highest score 
+        //if all the answered items are in the correct sequence we assign the highest score
         if (followingCorrAnswers + 1 === this.answerList.length) {
             this.answerScore = 1;
         }
@@ -302,9 +302,9 @@ AnswerModel.prototype.calculateNumericScore = function () {
 AnswerModel.prototype.calculateClozeQuestionScore = function () {
     var answerModel = this; //FIXME
     var filledAnswers = answerModel.getAnswers();
-    var gaps = [], // a helper array that will store the result of the comparison between 
-        i; 
-    
+    var gaps = [], // a helper array that will store the result of the comparison between
+        i;
+
     // the actual and the filled answers,
     // 1 is assigned as a value  if the answer was filled correctly for the specific (index i) gap and 0 if not
     for (i = 0; i < filledAnswers.length; i++) {
@@ -322,9 +322,9 @@ AnswerModel.prototype.calculateClozeQuestionScore = function () {
 
     function calculateAnswerScoreValue() {
         console.log("calculates answre score value in cloze questions");
-        var sumValue = 0, // a helper variable that calculates the sum of the values of the gaps array 
+        var sumValue = 0, // a helper variable that calculates the sum of the values of the gaps array
             gapindex;
-        
+
         for (gapindex = 0; gapindex < gaps.length; gapindex++) {
             sumValue = sumValue + gaps[gapindex];
         }
@@ -393,6 +393,17 @@ AnswerModel.prototype.initDB = function () {
         transaction
             .executeSql(
                 'CREATE TABLE IF NOT EXISTS statistics (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, course_id TEXT, question_id TEXT, day INTEGER, score NUMERIC, duration INTEGER);', []);
+        /**
+         * time
+         * activty_tracking JSON
+         * timestamp
+         * type
+         * synchronised bool
+         * lms
+         * course
+         * qp
+         *
+         */
     });
     // add in the local storage the created table
     localStorage.setItem("db_version", DB_VERSION);
@@ -451,7 +462,7 @@ AnswerModel.prototype.deleteDB = function () {
     //var courseList = this.controller.models["course"].courseList;
     console.log("course list for the specific user is " + JSON.stringify(courseList));
     this.db.transaction(function (tx) {
-        //DELETE FROM statistics WHERE course_id IN (CID LIST FOR THE USER) 
+        //DELETE FROM statistics WHERE course_id IN (CID LIST FOR THE USER)
         var qm = [];
         //courseList.each(function() {qm.push("?");}); // generate the exact number of parameters for the IN clause
         $.each(courseList, function () {

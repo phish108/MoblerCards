@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -40,26 +40,33 @@ under the License.
  *   and an appropriate message is displayed to the user.
  * @param {Boolean} interactive
  */
-function NumericQuestionWidget(interactive) {
+function NumericQuestionWidget(opts) {
     var self = this;
 
-    // a list with the typed answer
-    self.tickedAnswers = app.models.answer.getAnswers();
-        
+    self.interactive = opts.interactive;
+
+
     // stating whether the widget allows moving, this object is used by the AnswerView.
-    self.moveEnabled = false;    
-    
+    self.moveEnabled = false;
+
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
-    self.didApologize = false; 
-    
+    self.didApologize = false;
+
     // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
-    if (interactive) {
-        self.showAnswer();
+
+}
+
+NumericQuestionWidget.prototype.update = function() {
+    // a list with the typed answer
+    this.tickedAnswers = this.app.models.answer.getAnswers();
+
+    if (this.interactive) {
+        this.showAnswer();
     }
     else {
-        self.showFeedback();
+        this.showFeedback();
     }
-}
+};
 
 /**
  * Creation of answer body for numeric questions.
@@ -69,9 +76,11 @@ function NumericQuestionWidget(interactive) {
  **/
 NumericQuestionWidget.prototype.showAnswer = function () {
     var self = this;
+    var app = this.app;
+
     var questionpoolModel = app.models.questionpool;
     var tmpl = app.templates.getTemplate("answerlistbox");
-    
+
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && 
         typeof questionpoolModel.getAnswer() != "undefined" &&
@@ -80,10 +89,6 @@ NumericQuestionWidget.prototype.showAnswer = function () {
         tmpl.answerinput.removeClass("inactive");
         tmpl.answertick.addClass("inactive");
         tmpl.answertext.addClass("inactive");
-    } else {
-        //if there are no data for a question or there is no questionpool then display the error message
-        this.didApologize = true;
-        doApologize();
     }
 };
 
@@ -95,6 +100,7 @@ NumericQuestionWidget.prototype.showAnswer = function () {
  **/
 NumericQuestionWidget.prototype.showFeedback = function () {
     console.log("start show feedback in numeric choice");
+    var app = this.app;
 
     var questionpoolModel = app.models.questionpool;
     var answerModel = app.models.answer;
@@ -105,13 +111,13 @@ NumericQuestionWidget.prototype.showFeedback = function () {
     
     //display in an input field with the typed numeric answer of the learner
     if (typedAnswer === "undefined" || typedAnswer === "") {typedAnswer = "NaN";}
-    
+
     tmpl.attach("feedbackbox");
     tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
     tmpl.feedbacktick.addClass("inactive");
-    
-    // if the typed numeric answer is wrong, display the correct answer.
-    if (currentFeedbackTitle !== "Excellent") {
+
+    if (currentFeedbackTitle != "Excellent") {
+        // if the typed numeric answer is wrong
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
         tmpl.feedbacktick.addClass("inactive");
@@ -124,6 +130,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
  * @function storeAnswers
  **/
 NumericQuestionWidget.prototype.storeAnswers = function () {
+    var app = this.app;
     var questionpoolModel = app.models.questionpool;
     var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
     app.models.answer.setAnswers(numericAnswer);

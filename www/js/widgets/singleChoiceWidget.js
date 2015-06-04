@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -39,35 +39,34 @@ under the License.
  *   and an appropriate message is displayed to the user.
  * @param {Boolean} interactive
  */
-function SingleChoiceWidget(interactive) {
+function SingleChoiceWidget(opts) {
     var self = this;
-        
+
     // Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = interactive;
-    
+    self.interactive = opts.interactive;
+
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
 
-    // a list  with the currently  selected answers
-    self.tickedAnswers = app.models.answer.getAnswers();
- 
     // current selected Answer
     self.selectedAnswer = new Array();
 
     // stating whether the widget allows moving
     self.moveEnabled = false;
-    
-    if (self.interactive) {
-        // when answer view is active, then interactive variable is set to true.
-        // displays the answer body of the single choice widget
-        self.showAnswer(); 
-    } else {
-        // when feedback view is active, then interactive is set to false.
-        // displays the feedback body of the single choice widget
-        self.showFeedback();
-    }
 }
 
+SingleChoiceWidget.prototype.update = function() {
+
+    // a list  with the currently  selected answers
+    this.tickedAnswers = this.app.models.answer.getAnswers();
+
+    if (this.interactive) {
+        this.showAnswer();
+    }
+    else {
+        this.showFeedback();
+    }
+};
 /**
  * Handling behavior when click on the an item of the single answers list
  * @prototype
@@ -78,14 +77,14 @@ SingleChoiceWidget.prototype.tap = function (event) {
     var answerId = "answertext_answerlistbox_";
     var li = $("#" + answerId + this.selectedAnswer[0]).closest("li");
     if (this.selectedAnswer.length > -1 &&
-        this.selectedAnswer[0] !== id.split("_")[2] && 
+        this.selectedAnswer[0] !== id.split("_")[2] &&
         li.hasClass("gradientSelected")) {
-        li.removeClass("gradientSelected").addClass("gradient2");   
+        li.removeClass("gradientSelected").addClass("gradient2");
     }
-    
+
     if ($("#" + id).closest("li").hasClass("gradient2")) {
         $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer[0] = id.split("_")[2];    
+        this.selectedAnswer[0] = id.split("_")[2];
     }
 };
 
@@ -97,35 +96,29 @@ SingleChoiceWidget.prototype.tap = function (event) {
  * @function showAnswer
  **/
 SingleChoiceWidget.prototype.showAnswer = function () {
-    var questionpoolModel = app.models.questionpool;
-  
+    var questionpoolModel = this.app.models.questionpool;
+
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
     if (questionpoolModel.questionList && 
         questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
-                
+
         if (!questionpoolModel.currAnswersMixed()) {
             questionpoolModel.mixAnswers();
         }
-        
+
         // returns an array containing the possible answers
         var answers = questionpoolModel.getAnswer();
         var mixedAnswers = questionpoolModel.getMixedAnswersArray();
         var c;
 
-        var aTmpl = app.templates.getTemplate("answerlistbox");
-        
+        var aTmpl = this.app.templates.getTemplate("answerlistbox");
+
         for (c = 0; c < mixedAnswers.length; c++) {
             aTmpl.attach(mixedAnswers[c].toString());
             aTmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
-    } 
-    // if there are no data for a question or there is no questionpool then display the error message
-    else {  
-        console.log("there might have been a problem with the getAnsewr() object");
-        this.didApologize = true;
-        doApologize();
     }
 };
 
@@ -140,11 +133,12 @@ SingleChoiceWidget.prototype.showFeedback = function () {
     console.log("enter feedback view after switching from question view");
 
     var self = this;
+    var app = this.app;
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
     var c;
-    
+
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
     for (c = 0; c < mixedAnswers.length; c++) {
@@ -156,7 +150,7 @@ SingleChoiceWidget.prototype.showFeedback = function () {
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
-        
+
         // the correct answer will be marked with a green tick
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
@@ -171,5 +165,5 @@ SingleChoiceWidget.prototype.showFeedback = function () {
  * @function storeAnswers
  **/
 SingleChoiceWidget.prototype.storeAnswers = function () {
-    app.models.answer.setAnswers(this.selectedAnswer);
+    this.app.models.answer.setAnswers(this.selectedAnswer);
 };

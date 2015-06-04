@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -42,11 +42,23 @@ under the License.
  */
 function AnswerView() {
     var self = this;
-    
+
     this.tagID = this.app.viewId;
     this.widget = null;
-    
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the 
+
+    // init widget delegates
+    this.delegate(window.SingleChoiceWidget,'assSingleChoice', {interactive: true});
+    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {interactive: true});
+
+    this.delegate(window.TextSortWidget,'assOrderingQuestion', {interactive: true});
+    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
+
+    this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: true});
+    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: true});
+
+    // this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
+
+    /**It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
@@ -72,6 +84,16 @@ function AnswerView() {
     });
 }
 
+AnswerView.prototype.apologize = function doApologize() {
+    // FIXME move this into an apologize widget
+    this.didApologize = true;
+    // FIXME use TemplateFactory API
+    $("<span/>", {
+        text: "Apologize, no data are loaded"
+    }).appendTo($("#dataErrorMessage"));
+    $("#dataErrorMessage").show();
+};
+
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log(">>>>> [tap registered] : " + id + " <<<<<");    
@@ -83,7 +105,9 @@ AnswerView.prototype.tap = function (event) {
             if (this.app.getLoginState()) {
                 this.app.changeView("course");
             }
-            this.app.changeView("landing");
+            else {
+                this.app.changeView("landing");
+            }
             break;
         case "answerfooter":
         case "answercontent":
@@ -95,34 +119,30 @@ AnswerView.prototype.tap = function (event) {
             break;
         default:
             break;
+    }   
+};
+
+AnswerView.prototype.prepare = function () {
+    this.didApologize = false;
+    // FIXME: There should be an apologize widget.
+
+    // ensure that the correct answer widget is used.
+    var qt = this.app.models.questionpool.getQuestionType();
+    switch (qt) {
+        case 'assSingleChoice':
+        case 'assMultipleChoice':
+        case 'assOrderingQuestion':
+        case 'assOrderingHorizontal':
+        case 'assNumeric':
+        case 'assClozeTest':
+            break;
+        default:
+            qt = "apologize";
+            break;
     }
-    
-    if (!this.widget.moveEnabled && id.split("_").length === 3) {
-        if (id.split("_")[0] === "answerlist") {
-            this.widget.tap(event);
-        }
-    }
-};
 
-AnswerView.prototype.startMove = function (event) {    
-    if (this.widget.moveEnabled && 
-        event.target.id.split("_")[0] === "answertick") {
-        this.widget.startMove(event);
-    };
+    this.useDelegate(qt);
 };
-
-AnswerView.prototype.duringMove = function (event, touches) {
-    if (this.widget.moveEnabled && this.widget.dragActive) {
-        this.widget.duringMove(event, touches);
-    };
-};
-
-AnswerView.prototype.endMove = function (event) {    
-    if (this.widget.moveEnabled) {this.widget.endMove(event);};
-};
-
-AnswerView.prototype.cleanup = function () {
-}
 
 /**Loads a subview-widget based on the specific question type
  * It is displayed within the main body area of the answer view
@@ -134,33 +154,6 @@ AnswerView.prototype.update = function () {
 
     $("#dataErrorMessage").empty();
     $("#dataErrorMessage").hide();
-
-    var questionType = this.app.models.questionpool.getQuestionType();
-    // a flag used to distinguish between answer and feedback view. 
-    //Interactivity is true because the user can interact (answer questions) with the view on the answer view
-    var interactive = true;
-    
-    switch (questionType) {
-        case 'assSingleChoice':
-            this.widget = new SingleChoiceWidget(interactive);
-            break;
-        case 'assMultipleChoice':
-            this.widget = new MultipleChoiceWidget(interactive);
-            break;
-        case 'assOrderingQuestion':
-        case 'assOrderingHorizontal':
-            this.widget = new TextSortWidget(interactive);
-            break;
-        case 'assNumeric':
-            this.widget = new NumericQuestionWidget(interactive);
-            break;
-        case 'assClozeTest':
-            this.widget = new ClozeQuestionType(interactive);
-            break;
-        default:
-            console.log("no Questiontype found");
-            break;
-    }
 };
 
 /**Displays the title area of the answer view,
@@ -184,7 +177,11 @@ AnswerView.prototype.clickDoneButton = function () {
     var statisticsModel = this.app.models.statistics;
     var answerModel = this.app.models.answer;
 
-    if (this.widget.didApologize) {
+    // FIXME: the widgets should store their Answers in the cleanup function
+
+    if (this.didApologize) {
+        // FIXME this should be moved into the apologize widget.
+
         // if there was a problem with the data, the widget knows
         // in this case we proceed to the next question
         //statisticsModel.resetTimer();
@@ -195,7 +192,10 @@ AnswerView.prototype.clickDoneButton = function () {
         // learner.
         console.log("click done button in answer view");
         questionpoolModel.queueCurrentQuestion();
+        // there is no way to identify this.
         this.widget.storeAnswers();
+
+
         answerModel.storeScoreInDB();
         this.app.changeView("feedback");
     }
