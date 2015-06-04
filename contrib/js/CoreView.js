@@ -164,33 +164,52 @@ function CoreView(app, domid, theDelegate) {
 
             if (this.container[0].dataset.keyboard) {
                 keyboard = this.container[0].dataset.keyboard.split(' ');
-                console.log("keyboard " + keyboard.join(','));
+                // console.log("keyboard " + keyboard.join(','));
             }
         }
 
         // find interactive elements
         // .move - register start, move, end
         // .tap   - register tap
-        var bMove = false, tMove = false;
+        var bMove = false,
+            tMove = false;
 
         if (touch.indexOf('move') >= 0) {
             tMove = true;
             jester(this.container[0]).start(function (e,t) {
-                var d = self.updateDelegate || self.delegate;
+                var d = self.delegate;
                 if (self.active && t.numTouches() === 1) {
-                    bMove = true; d.startMove(e,t);
+                    bMove = true;
+                    d.startMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.startMove(e,t);
+                    }
                 }
             });
         }
 
         if (touch.indexOf('tap') >= 0) {
-            console.log("register tap on container " + domid);
+            // console.log("register tap on container " + domid);
             jester(this.container[0]).tap(callMyTap);
         }
 
         if (touch.indexOf('pinch') >= 0) {
-            jester(window).pinchwiden(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,1);}});
-            jester(window).pinchnarrow(function (e,t) {if (self.active) { var d = self.updateDelegate || self.delegate; d.pinch(e,t,-1);}});
+            jester(window).pinchwiden(function (e,t) {
+                if (self.active) {
+                    self.delegate.pinch(e,t,1);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.pinch(e,t,1);
+                    }
+                }
+            });
+            jester(window).pinchnarrow(function (e,t) {
+                if (self.active) {
+                    self.delegate.pinch(e,t,-1);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.pinch(e,t,-1);
+                    }
+                }
+            });
         }
 
         if (mouse.indexOf('click') >= 0) {
@@ -198,7 +217,7 @@ function CoreView(app, domid, theDelegate) {
         }
 
         if (keyboard.indexOf('blur') >= 0) {
-            console.log("register blur call back");
+            // console.log("register blur call back");
             this.container[0].addEventListener('blur', callMyBlur, false);
         }
 
@@ -216,9 +235,13 @@ function CoreView(app, domid, theDelegate) {
             if (seTouch.indexOf('move') >= 0) {
                 tMove = true;
                 jester(this).start(function (e,t) {
-                    var d = self.updateDelegate || self.delegate;
+                    var d = self.delegate;
                     if (self.active && t.numTouches() === 1) {
-                        bMove = true; d.startMove(e,t);
+                        bMove = true;
+                        d.startMove(e,t);
+                        if (self.updateDelegate) {
+                            self.updateDelegate.startMove(e,t);
+                        }
                     }
                 });
             }
@@ -226,19 +249,27 @@ function CoreView(app, domid, theDelegate) {
 
         if (tMove) {
             // register the move and end events only once per view
-            // FIXME how to handle move with widget delegates?
             jester(window).move(function (e,t) {
-                var d = self.updateDelegate || self.delegate;
-                if (self.active && bMove && t.numTouches() === 1) {
+                var d = self.delegate;
+                if (self.active &&
+                    bMove &&
+                    t.numTouches() === 1) {
                     d.duringMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.duringMove(e,t);
+                    }
                 }
             });
             jester(window).end( function (e,t) {
-                var d = self.updateDelegate || self.delegate;
+                var d = self.delegate;
                 if (self.active && bMove) {
                     d.endMove(e,t);
+                    if (self.updateDelegate) {
+                        self.updateDelegate.endMove(e,t);
+                    }
                     bMove = false;
                 }
+
             });
         }
     }
@@ -261,6 +292,18 @@ CoreView.prototype.useDelegate      = function (delegateName) {
         this.widgets.length &&
         this.widgets.hasOwnProperty(delegateName)) {
         this.updateDelegate = this.widgets[delegateName];
+    }
+};
+
+
+CoreView.prototype.mapDelegate = function (delegateOrigName, delegateName) {
+    if (typeof delegateName === "string" &&
+        typeof delegateOrigName === "string" &&
+        this.widgets &&
+        this.widgets.length &&
+        this.widgets.hasOwnProperty(delegateOrigName) &&
+        !this.widgets.hasOwnProperty(delegateName)) {
+        this.widgets[delegateName] = this.widgets[delegateOrigName];
     }
 };
 
@@ -292,8 +335,14 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts)
         delegateBase.close        = function () { self.close(); };
         delegateBase.refresh      = function () { self.refresh(); };
         delegateBase.clear        = function () { self.clear(); };
+        delegateBase.mapDelegate = function (odName,dName) { self.mapDelegate(odName,dName);};
         delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
-        delegateBase.delegate     = function (dClass, dName) { if (typeof dName === "string" && dName.length) { self.initDelegate(dClass, dName);}};
+        delegateBase.delegate     = function (dClass, dName) {
+            if (typeof dName === "string" && dName.length) {
+                self.initDelegate(dClass, dName);
+            }
+        };
+
     }
 
     delegateBase.update     = noop;
