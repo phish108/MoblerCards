@@ -350,16 +350,23 @@ CoreView.prototype.refresh = function () {
 
 CoreView.prototype.open = function (viewData) {
     this.viewData = viewData || {};
+
+    this.isVisible = true;
+
     this.delegate.prepare();
+
     if (this.updateDelegate) {
         this.updateDelegate.prepare();
     }
-    this.refresh();
-    if (this.container) {
+    // if the delegate decides to switch the view during the preparation
+    // this happens when the delegate calls "changeView" during prepare.
+    if (this.isVisible) {
+        this.refresh();
+    }
+    // again if changeView is called during refresh(), the view must not be opened
+    if (this.isVisible && this.container) {
         this.container.addClass('active');
     }
-    this.isVisible = true;
-
 };
 
 CoreView.prototype.close = function () {
