@@ -43,8 +43,7 @@ under the License.
 function NumericQuestionWidget(opts) {
     var self = this;
 
-    self.interactive = opts.interactive;
-
+    self.interactive = typeof opts === "object" ? opts.interactive : false
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;
