@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -45,23 +45,22 @@ under the License.
  *   and an appropriate message is displayed to the user.
  * @param {Boolean} interactive
  */
-function TextSortWidget(interactive) {
+function TextSortWidget(opts) {
     var self = this;
-        
-    // loads answers from model for displaying already by the user ordered elements
-    self.tickedAnswers = app.models.answer.getAnswers();
-    
+
+    self.interactive = opts.interactive;
+
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
 
     // boolean value to check if a drag is taking place.
     self.dragActive = false;
-    
+
     // Handles the Error messages.
     self.didApologize = false;
-    
+
     // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
-    if (interactive) {
+    if (this.interactive) {
         self.showAnswer();
         // make the list sortable using JQuery UI's function
         $("#answerbox").sortable({
@@ -77,9 +76,9 @@ function TextSortWidget(interactive) {
                 $(ui.item).removeClass("currentSortedItem");
             }
         });
-        
+
         $("#answerbox").disableSelection();
-        
+
         // shows the buttons for scroll handling.
 //        $("#scrolltop").removeClass("inactive");
 //        $("#scrollbot").removeClass("inactive");
@@ -102,7 +101,7 @@ function createEvent(type, event) {
 
 TextSortWidget.prototype.tap = function (event) {
     var id = event.target.id;
-    
+
     // scroll handling
     if (id === "scrolltop") {
 //        $("#answercontent").animate({
@@ -119,7 +118,7 @@ TextSortWidget.prototype.tap = function (event) {
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
-    
+
     if (id.split("_")[0] === "answertext") {
         createEvent("mousedown", event);
         this.dragActive = true;
@@ -132,7 +131,7 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
 
     // if an element is dragged on the header, scroll the list down
     var y = event.changedTouches[0].screenY;
-    
+
     if (this.dragActive && y < 60) {
         if (window.pageYOffset > y) {
             var scroll = y > 20 ? y - 20 : 0;
@@ -144,10 +143,22 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
 TextSortWidget.prototype.endMove = function (event) {
     createEvent("mouseup", event);
     var y = event.changedTouches[0].screenY;
-    
+
     if (this.dragActive && y < 60) {
         window.scrollTo(0, 0);
         this.dragActive = false;
+    }
+};
+
+TextSortWidget.prototype.update = function() {
+    // loads answers from model for displaying already by the user ordered elements
+    this.tickedAnswers = this.app.models.answer.getAnswers();
+
+    if (this.interactive) {
+        this.showAnswer();
+    }
+    else {
+        this.showFeedback();
     }
 };
 
@@ -158,24 +169,26 @@ TextSortWidget.prototype.endMove = function (event) {
  */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
-    
+
+    var app = this.app;
+
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
-    
+
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-        
+
         var mixedAnswers;
-        
+
         // if sorting has not started yet, mix the answers
         if (!questionpoolModel.currAnswersMixed()) {
-            var tmp_answerModel = new AnswerModel();
+            var tmp_answerModel = app.models.answer;
             do {
                 tmp_answerModel.deleteData();
                 questionpoolModel.mixAnswers();
                 mixedAnswers = questionpoolModel.getMixedAnswersArray();
-                
+
                 //if the order of mixed answers is correct or partially correct, generate a new order
                 tmp_answerModel.setAnswers(mixedAnswers);
                 tmp_answerModel.calculateTextSortScore();
@@ -184,17 +197,13 @@ TextSortWidget.prototype.showAnswer = function () {
         else {
             mixedAnswers = this.tickedAnswers;
         }
-        
+
         // for each possible answer create a list item
         for (i = 0; i < mixedAnswers.length; i++) {
             tmpl.attach(mixedAnswers[i].toString());
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
             tmpl.answertick.removeClass("separator");
         }
-    }
-    else {
-        this.didApologize = true;
-        doApologize();
     }
 };
 
@@ -203,18 +212,20 @@ TextSortWidget.prototype.showAnswer = function () {
  * @function showFeedback
  **/
 TextSortWidget.prototype.showFeedback = function () {
+    var app = this.app;
+
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var answerModel = app.models.answer;
     var scores = answerModel.getScoreList();
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
     var i;
-    
+
     for (i = 0; i < answers.length; i++) {
         fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
         fTmpl.feedbacktick.addClass("inactive");
-        
+
         if (scores[i] === 0.5) {
             fTmpl.feedbacklist.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");
@@ -242,5 +253,5 @@ TextSortWidget.prototype.storeAnswers = function () {
         answers.push(id);
     });
 
-    app.models.answer.setAnswers(answers);
+    this.app.models.answer.setAnswers(answers);
 };

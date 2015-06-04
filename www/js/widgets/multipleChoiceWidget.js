@@ -39,35 +39,33 @@ under the License.
  *   and an appropriate message is displayed to the user.
  * @param {Boolean} interactive
  */
-function MultipleChoiceWidget (interactive) {
+function MultipleChoiceWidget (opts) {
     var self = this;
 
     //Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = interactive;
+    self.interactive = opts.interactive;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
 
     // a list with the currently selected answers
-    self.tickedAnswers = app.models.answer.getAnswers();
 
     // current selected Answer
-    self.selectedAnswer = new Array();
+    self.selectedAnswer = [];
 
     // stating whether the widget allows moving
     self.moveEnabled = false;
-
-    if (self.interactive) {
-        // when answer view is active, then interactive variable is set to true.
-        // displays the answer body of the multiple choice widget
-       self.showAnswer();
-    }
-    else {
-        self.showFeedback();
-    }
 }
 
-
+MultipleChoiceWidget.prototype.update = function() {
+    this.tickedAnswers = this.app.models.answer.getAnswers();
+    if (this.interactive) {
+        this.showAnswer();
+    }
+    else {
+        this.showFeedback();
+    }
+};
 /**
  * Handling behavior when click on the an item of the multiple answers list
  * Adds or removes the blue background color depending on what was the previous state.
@@ -97,13 +95,13 @@ MultipleChoiceWidget.prototype.tap = function (event) {
  * @function showAnswer
  **/
 MultipleChoiceWidget.prototype.showAnswer = function () {
+    var app = this.app;
     var questionpoolModel = app.models.questionpool;
 
     console.log("[MultipleChoiceWidget] showAnswer");
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-        var self = this;
 
         //mix answer items in an random order
         if (!questionpoolModel.currAnswersMixed()) {
@@ -122,11 +120,6 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
     }
-    else {
-        //if there are no data for a question or there is no questionpool then display the error message
-        this.didApologize = true;
-        doApologize();
-    }
 };
 
 
@@ -140,7 +133,8 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
 MultipleChoiceWidget.prototype.showFeedback = function () {
     console.log("start show feedback in multiple choice");
 
-    var self = this;
+    var app = this.app;
+
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var mixedAnswers = questionpoolModel.getMixedAnswersArray();
@@ -191,5 +185,5 @@ MultipleChoiceWidget.prototype.tap = function (event) {
  * @function storeAnswers
  **/
 MultipleChoiceWidget.prototype.storeAnswers = function () {
-    app.models.answer.setAnswers(this.selectedAnswer);
+    this.app.models.answer.setAnswers(this.selectedAnswer);
 };

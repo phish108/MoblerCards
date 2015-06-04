@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -42,13 +42,24 @@ function FeedbackView() {
 
     this.tagID = this.app.viewId;
 
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the 
+    this.delegate(window.SingleChoiceWidget,'assSingleChoice', {interactive: false});
+    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {interactive: false});
+    this.delegate(window.TextSortWidget,'assOrderingQuestion', {interactive: false});
+    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
+
+    this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: false});
+    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: false});
+
+    // FIXME!
+    // this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
+
+    /**It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the feedback body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) && 
+        if ((self.app.isActiveView(self.tagID)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done in feedback view 1");
             self.update();
@@ -61,7 +72,7 @@ function FeedbackView() {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.app.isActiveView(self.tagId)) && 
+        if ((self.app.isActiveView(self.tagId)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters in calculations done in feedback view 2 ");
             self.update();
@@ -71,7 +82,23 @@ function FeedbackView() {
 
 FeedbackView.prototype.prepare = function () {
     $("#feedbacktip").hide();
-}
+
+    // ensure that the active widget is used.
+    var qt = this.app.models.questionpool.getQuestionType();
+    switch (qt) {
+        case 'assSingleChoice':
+        case 'assMultipleChoice':
+        case 'assOrderingQuestion':
+        case 'assOrderingHorizontal':
+        case 'assNumeric':
+        case 'assClozeTest':
+            break;
+        default:
+            qt = "apologize";
+            break;
+    }
+
+    this.useDelegate(qt);};
 
 FeedbackView.prototype.update = function () {
     if (this.app.models.answer.answerScore === -1) {
@@ -90,7 +117,7 @@ FeedbackView.prototype.cleanup = function () {
 FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
-    
+
     if (id === "feedbackbutton" ||
         id === "feedbackbuttonenter" ||
         id === "feedbackcontent") {
@@ -135,7 +162,7 @@ FeedbackView.prototype.clickFeedbackMore = function () {
  **/
 FeedbackView.prototype.clickCourseListButton = function () {
     this.app.models.answer.deleteData();
-    
+
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     } else {
@@ -164,29 +191,6 @@ FeedbackView.prototype.showFeedbackTitle = function () {
 FeedbackView.prototype.showFeedbackBody = function () {
     var questionpoolModel = this.app.models.questionpool;
     var questionType = questionpoolModel.getQuestionType();
-    var interactive = false;
-    
-    switch (questionType) {
-        case 'assSingleChoice':
-            this.widget = new SingleChoiceWidget(interactive);
-            break;
-        case 'assMultipleChoice':
-            this.widget = new MultipleChoiceWidget(interactive);
-            break;
-        case 'assNumeric':
-            this.widget = new NumericQuestionWidget(interactive);
-            break;
-        case 'assOrderingHorizontal':
-        case 'assOrderingQuestion':
-            this.widget = new TextSortWidget(interactive);
-            break;
-        case 'assClozeTest':
-            this.widget = new ClozeQuestionType(interactive);
-            break;
-        default:
-            console.log("didn't find questiontype");
-            break;
-    }
 
     // show feedback more information, which is the same for all kinds of questions
     $("#feedbackinfo").hide();
@@ -197,9 +201,6 @@ FeedbackView.prototype.showFeedbackBody = function () {
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
         feedbackText = questionpoolModel.getCorrectFeedback();
-    }
-    else {
-        feedbackText = questionpoolModel.getWrongFeedback();
     }
 
     if (feedbackText && feedbackText.length > 0) {
