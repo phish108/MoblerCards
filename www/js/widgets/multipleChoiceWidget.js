@@ -184,6 +184,6 @@ MultipleChoiceWidget.prototype.tap = function (event) {
  * @prototype
  * @function storeAnswers
  **/
-MultipleChoiceWidget.prototype.storeAnswers = function () {
+MultipleChoiceWidget.prototype.cleanup = function () {
     this.app.models.answer.setAnswers(this.selectedAnswer);
 };

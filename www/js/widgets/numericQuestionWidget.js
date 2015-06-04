@@ -127,7 +127,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
  * @prototype
  * @function storeAnswers
  **/
-NumericQuestionWidget.prototype.storeAnswers = function () {
+NumericQuestionWidget.prototype.cleanup = function () {
     var app = this.app;
     var questionpoolModel = app.models.questionpool;
     var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();

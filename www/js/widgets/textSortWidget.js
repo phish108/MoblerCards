@@ -245,7 +245,7 @@ TextSortWidget.prototype.showFeedback = function () {
  * @prototype
  * @function storeAnswers
  **/
-TextSortWidget.prototype.storeAnswers = function () {
+TextSortWidget.prototype.cleanup = function () {
     var answers = [];
 
     $("#answerbox").find("li").each(function (index) {

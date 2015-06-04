@@ -163,6 +163,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
  * @prototype
  * @function storeAnswers
  **/
-SingleChoiceWidget.prototype.storeAnswers = function () {
+SingleChoiceWidget.prototype.cleanup = function () {
     this.app.models.answer.setAnswers(this.selectedAnswer);
 };
