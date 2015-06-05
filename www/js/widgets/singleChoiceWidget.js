@@ -43,7 +43,7 @@ function SingleChoiceWidget(opts) {
     var self = this;
 
     // Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = opts.interactive;
+    self.interactive = typeof opts === "object" ? opts.interactive : false
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
@@ -164,6 +164,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
  * @prototype
  * @function storeAnswers
  **/
-SingleChoiceWidget.prototype.storeAnswers = function () {
+SingleChoiceWidget.prototype.cleanup = function () {
     this.app.models.answer.setAnswers(this.selectedAnswer);
 };

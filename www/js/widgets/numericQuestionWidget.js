@@ -43,8 +43,7 @@ under the License.
 function NumericQuestionWidget(opts) {
     var self = this;
 
-    self.interactive = opts.interactive;
-
+    self.interactive = typeof opts === "object" ? opts.interactive : false
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;
@@ -129,7 +128,7 @@ NumericQuestionWidget.prototype.showFeedback = function () {
  * @prototype
  * @function storeAnswers
  **/
-NumericQuestionWidget.prototype.storeAnswers = function () {
+NumericQuestionWidget.prototype.cleanup = function () {
     var app = this.app;
     var questionpoolModel = app.models.questionpool;
     var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();

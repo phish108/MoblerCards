@@ -56,7 +56,7 @@ function AnswerView() {
     this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: true});
     this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: true});
 
-    // this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
+    this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
     /**It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
@@ -83,16 +83,6 @@ function AnswerView() {
         }
     });
 }
-
-AnswerView.prototype.apologize = function doApologize() {
-    // FIXME move this into an apologize widget
-    this.didApologize = true;
-    // FIXME use TemplateFactory API
-    $("<span/>", {
-        text: "Apologize, no data are loaded"
-    }).appendTo($("#dataErrorMessage"));
-    $("#dataErrorMessage").show();
-};
 
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
@@ -137,6 +127,7 @@ AnswerView.prototype.prepare = function () {
         case 'assClozeTest':
             break;
         default:
+            this.didApologize = true;
             qt = "apologize";
             break;
     }

@@ -388,7 +388,7 @@ CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts)
     if (typeof delegateName === "string" && delegateName.length) {
         if (!(self.widgets.hasOwnProperty(delegateName))) {
             // initialize the same widget name only once
-            self.widgets[delegateName] = new theDelegate(opts);
+            self.widgets[delegateName] = new theDelegate(opts||{});
         }
     }
     else {
