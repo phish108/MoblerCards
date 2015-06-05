@@ -307,7 +307,7 @@ CoreView.prototype.mapDelegate = function (delegateOrigName, delegateName) {
     }
 };
 
-CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts) {
+CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
     var self = this;
 
     var delegateProto = theDelegate.prototype;
