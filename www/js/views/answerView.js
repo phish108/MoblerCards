@@ -54,7 +54,7 @@ function AnswerView() {
     this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
 
     this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: true});
-    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: true});
+    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: true});
 
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
@@ -165,11 +165,7 @@ AnswerView.prototype.showAnswerTitle = function () {
  **/
 AnswerView.prototype.clickDoneButton = function () {
     var questionpoolModel = this.app.models.questionpool;
-    var statisticsModel = this.app.models.statistics;
-    var answerModel = this.app.models.answer;
-
-    // FIXME: the widgets should store their Answers in the cleanup function
-
+    
     if (this.didApologize) {
         // FIXME this should be moved into the apologize widget.
 
@@ -178,16 +174,5 @@ AnswerView.prototype.clickDoneButton = function () {
         //statisticsModel.resetTimer();
         questionpoolModel.nextQuestion();
         this.app.changeView("question");
-    } else {
-        // if there was no error with the data we provide feedback to the
-        // learner.
-        console.log("click done button in answer view");
-        questionpoolModel.queueCurrentQuestion();
-        // there is no way to identify this.
-        this.widget.storeAnswers();
-
-
-        answerModel.storeScoreInDB();
-        this.app.changeView("feedback");
-    }
+    } 
 };

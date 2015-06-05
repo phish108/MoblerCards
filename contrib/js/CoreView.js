@@ -286,7 +286,7 @@ Object.defineProperties(CoreView.prototype, {
     }
 });
 
-CoreView.prototype.useDelegate      = function (delegateName) {
+CoreView.prototype.useDelegate = function (delegateName) {
     if (typeof delegateName === "string" &&
         this.widgets &&
         this.widgets.length &&

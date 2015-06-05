@@ -48,7 +48,7 @@ function FeedbackView() {
     this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
 
     this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: false});
-    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: false});
+    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: false});
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
     /**It is triggered after statistics are loaded locally from the server. This can happen during the
@@ -94,7 +94,8 @@ FeedbackView.prototype.prepare = function () {
             break;
     }
 
-    this.useDelegate(qt);};
+    this.useDelegate(qt);
+};
 
 FeedbackView.prototype.update = function () {
     if (this.app.models.answer.answerScore === -1) {

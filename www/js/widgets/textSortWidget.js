@@ -48,7 +48,7 @@ under the License.
 function TextSortWidget(opts) {
     var self = this;
 
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
@@ -195,10 +195,10 @@ TextSortWidget.prototype.showAnswer = function () {
 TextSortWidget.prototype.showFeedback = function () {
     var app = this.app;
 
-    var questionpoolModel = app.models.questionpool;
-    var answers = questionpoolModel.getAnswer();
-    var answerModel = app.models.answer;
-    var scores = answerModel.getScoreList();
+//    var questionpoolModel = app.models.questionpool;
+    // FIXME seems the questionpool does not return any Results.
+    var answers = app.models.answer.getAnswers();
+    var scores = app.models.answer.getScoreList();
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
     var i;
 
@@ -229,10 +229,12 @@ TextSortWidget.prototype.showFeedback = function () {
 TextSortWidget.prototype.cleanup = function () {
     var answers = [];
 
-    $("#answerbox").find("li").each(function (index) {
-        var id = $(this).attr("id").split("_")[2];
-        answers.push(id);
-    });
+    if (!this.didApologize) {
+        $("#answerbox").find("li").each(function (index) {
+            var id = $(this).attr("id").split("_")[2];
+            answers.push(id);
+        });
 
-    this.app.models.answer.setAnswers(answers);
+        this.app.models.answer.setAnswers(answers);
+    }
 };
