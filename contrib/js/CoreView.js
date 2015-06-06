@@ -450,7 +450,7 @@ CoreView.prototype.open = function (viewData) {
 
     this.delegate.prepare();
 
-    if (this.updateDelegate) {
+    if (this.isVisible && this.updateDelegate) {
         this.updateDelegate.prepare();
     }
     // if the delegate decides to switch the view during the preparation
