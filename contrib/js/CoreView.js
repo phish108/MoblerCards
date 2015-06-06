@@ -336,14 +336,20 @@ CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
         delegateBase.close        = function () { self.close(); };
         delegateBase.refresh      = function () { self.refresh(); };
         delegateBase.clear        = function () { self.clear(); };
-        delegateBase.mapDelegate = function (odName,dName) { self.mapDelegate(odName,dName);};
-        delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
+
+        delegateBase.useDelegate  = function (dName) {
+            self.useDelegate(dName);
+        };
+
+        delegateBase.mapDelegate = function (odName,dName) {
+            self.mapDelegate(odName,dName);
+        };
+
         delegateBase.delegate     = function (dClass, dName, opts) {
             if (typeof dName === "string" && dName.length) {
                 self.initDelegate(dClass, dName, opts);
             }
         };
-
     }
 
     delegateBase.update     = noop;
@@ -381,7 +387,9 @@ CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
                 // don't override core view internals
                 break;
             default:
-                Object.defineProperty(theDelegate.prototype, pname, Object.getOwnPropertyDescriptor(delegateProto, pname));
+                Object.defineProperty(theDelegate.prototype,
+                                      pname,
+                                      Object.getOwnPropertyDescriptor(delegateProto, pname));
                 break;
         }
     });
