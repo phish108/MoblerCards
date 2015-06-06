@@ -286,7 +286,7 @@ Object.defineProperties(CoreView.prototype, {
     }
 });
 
-CoreView.prototype.useDelegate      = function (delegateName) {
+CoreView.prototype.useDelegate = function (delegateName) {
     if (typeof delegateName === "string" &&
         this.widgets &&
         this.widgets.length &&
@@ -307,7 +307,7 @@ CoreView.prototype.mapDelegate = function (delegateOrigName, delegateName) {
     }
 };
 
-CoreView.prototype.initDelegate     = function (theDelegate, delegateName, opts) {
+CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
     var self = this;
 
     var delegateProto = theDelegate.prototype;

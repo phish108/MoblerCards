@@ -99,8 +99,9 @@ AchievementsView.prototype.prepare = function () {
 
 AchievementsView.prototype.tap = function (event) {
     var id = event.target.id;
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
     
-    if (id === "achievementsclose") {
+    if (id === "achievementscross") {
         this.app.changeView("statistics");
     }
 };

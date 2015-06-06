@@ -48,7 +48,7 @@ function FeedbackView() {
     this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
 
     this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: false});
-    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: false});
+    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: false});
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
     /**It is triggered after statistics are loaded locally from the server. This can happen during the
@@ -57,8 +57,7 @@ function FeedbackView() {
      * @param: a callback function that displays the feedback body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState) {
             console.log("enters load statistics from server is done in feedback view 1");
             self.update();
         }
@@ -70,8 +69,7 @@ function FeedbackView() {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.app.isActiveView(self.tagId)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if  (self.app.isActiveView(self.tagID) && self.app.getLoginState)  {
             console.log("enters in calculations done in feedback view 2 ");
             self.update();
         }
@@ -96,7 +94,8 @@ FeedbackView.prototype.prepare = function () {
             break;
     }
 
-    this.useDelegate(qt);};
+    this.useDelegate(qt);
+};
 
 FeedbackView.prototype.update = function () {
     if (this.app.models.answer.answerScore === -1) {
@@ -115,26 +114,30 @@ FeedbackView.prototype.cleanup = function () {
 FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[FeedbackView] tap registered: " + id);
-
-    if (id === "feedbackbutton" ||
-        id === "feedbackbuttonenter" ||
-        id === "feedbackcontent") {
-        this.clickFeedbackDoneButton();
-    }
-    else if (id === "feedbackmore") {
-        this.clickFeedbackMore();
-    }
-    else if (id === "feedbackclose") {
-        this.app.models.answer.answerList = [];
-        this.app.models.answer.answerScore = -1;
-        this.clickCourseListButton();
-    }
-    else if (id === "feedbacktitle") {
-        this.clickTitleArea();
+    
+    switch (id) {
+        case "feedbackfooter":
+        case "feedbackcontent":
+            this.clickFeedbackDoneButton();
+            break;
+        case "feedbackinfo":
+            this.clickFeedbackMore();
+            break;
+        case "feedbackcross":
+            this.app.models.answer.answerList = [];
+            this.app.models.answer.answerScore = -1;
+            this.clickCourseListButton();
+            break;
+        case "feedbackheader":
+            this.clickTitleArea();
+            break;
+        default:
+            break;
     }
 };
 
-/**click on feedback done button leads to new question
+/**
+ * click on feedback done button leads to new question
  * @prototype
  * @function clickFeedbackDoneButton
  **/
@@ -145,7 +148,8 @@ FeedbackView.prototype.clickFeedbackDoneButton = function () {
 };
 
 
-/**click on feedback more button toggles the feedback body and the tip
+/**
+ * click on feedback more button toggles the feedback body and the tip
  * @prototype
  * @function clickFeedbackMore
  **/
@@ -154,7 +158,8 @@ FeedbackView.prototype.clickFeedbackMore = function () {
     $("#feedbacktip").toggle();
 };
 
-/**click on the course list button leads to course list
+/**
+ * click on the course list button leads to course list
  * @prototype
  * @function clickCourseListButton
  **/

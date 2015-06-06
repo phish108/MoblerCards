@@ -157,7 +157,7 @@
             lmsData = {};
         }
 
-        console.log("stored data >> "+JSON.stringify(lmsData));
+//        console.log("stored data >> "+JSON.stringify(lmsData));
     }
 
     /**

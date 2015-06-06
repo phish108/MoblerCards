@@ -54,7 +54,7 @@ function AnswerView() {
     this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
 
     this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: true});
-    this.delegate(window.ClozeQuestionType,'assClozeTest', {interactive: true});
+    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: true});
 
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
@@ -64,8 +64,7 @@ function AnswerView() {
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) &&  self.app.getLoginState()) {
             console.log("enters load statistics from server is done in answer view 1");
             self.update();
         }
@@ -78,8 +77,7 @@ function AnswerView() {
      */
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("enters in calculations done in question view1 ");
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
+        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
             console.log("enters in calculations done in  answer view 2 ");
             self.update();
         }
@@ -88,36 +86,30 @@ function AnswerView() {
 
 AnswerView.prototype.tap = function (event) {
     var id = event.target.id;
-    // var answer, type;
-
-    console.log("[AnswerView] tap registered: " + id);
-
-    if (id === "answerclose") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("course");
-        }
-        else {
-            this.app.changeView("landing");
-        }
-    }
-    else if (id === "answerbutton" ||
-             id === "answerbuttonenter" ||
-             id === "answercontent") {
-        this.clickDoneButton();
-    }
-    else if (id === "answertitle" ||
-             id === "answericon") {
-        this.widget.storeAnswers();
-        this.app.changeView("question");
-    }
-    // responses are handled by the widgets via CoreView!
-};
-
-AnswerView.prototype.cleanup = function () {
-    if (!$("#scrolltop").hasClass("inactive")) {
-        $("#scrolltop").addClass("inactive");
-        $("#scrollbot").addClass("inactive");
-    }
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");    
+    
+    var answer, type;
+    
+    switch (id) {
+        case "answercross":
+            if (this.app.getLoginState()) {
+                this.app.changeView("course");
+            }
+            else {
+                this.app.changeView("landing");
+            }
+            break;
+        case "answerfooter":
+        case "answercontent":
+            this.clickDoneButton();
+            break;
+        case "answerheader":
+            this.widget.storeAnswers();
+            this.app.changeView("question");
+            break;
+        default:
+            break;
+    }   
 };
 
 AnswerView.prototype.prepare = function () {
@@ -173,11 +165,7 @@ AnswerView.prototype.showAnswerTitle = function () {
  **/
 AnswerView.prototype.clickDoneButton = function () {
     var questionpoolModel = this.app.models.questionpool;
-    var statisticsModel = this.app.models.statistics;
-    var answerModel = this.app.models.answer;
-
-    // FIXME: the widgets should store their Answers in the cleanup function
-
+    
     if (this.didApologize) {
         // FIXME this should be moved into the apologize widget.
 
@@ -186,16 +174,5 @@ AnswerView.prototype.clickDoneButton = function () {
         //statisticsModel.resetTimer();
         questionpoolModel.nextQuestion();
         this.app.changeView("question");
-    } else {
-        // if there was no error with the data we provide feedback to the
-        // learner.
-        console.log("click done button in answer view");
-        questionpoolModel.queueCurrentQuestion();
-        // there is no way to identify this.
-        this.widget.storeAnswers();
-
-
-        answerModel.storeScoreInDB();
-        this.app.changeView("feedback");
-    }
+    } 
 };

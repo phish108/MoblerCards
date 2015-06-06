@@ -48,7 +48,7 @@ under the License.
 function TextSortWidget(opts) {
     var self = this;
 
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
@@ -63,6 +63,9 @@ function TextSortWidget(opts) {
     if (this.interactive) {
         self.showAnswer();
         // make the list sortable using JQuery UI's function
+        $("#answerbox").find("li").addClass("untouchable");
+        $(".dragicon").addClass("icon-drag");
+
         $("#answerbox").sortable({
             axis: "y",
             scroll: true,
@@ -78,10 +81,6 @@ function TextSortWidget(opts) {
         });
 
         $("#answerbox").disableSelection();
-
-        // shows the buttons for scroll handling.
-//        $("#scrolltop").removeClass("inactive");
-//        $("#scrollbot").removeClass("inactive");
     }
     else {
         self.showFeedback();
@@ -99,27 +98,11 @@ function createEvent(type, event) {
     first.target.dispatchEvent(simulatedEvent);
 }
 
-TextSortWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-
-    // scroll handling
-    if (id === "scrolltop") {
-//        $("#answercontent").animate({
-//            scrollTop: 200
-//        });
-    }
-    else if (id === "scrollbot") {
-//        $("#answercontent").animate({
-//            scrollTop: $("#answerbot").offset().top
-//        }, 2000);
-    }
-};
-
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
-
-    if (id.split("_")[0] === "answertext") {
+    
+    if (id.split("_")[0] === "answertick") {
         createEvent("mousedown", event);
         this.dragActive = true;
     }
@@ -146,7 +129,7 @@ TextSortWidget.prototype.endMove = function (event) {
 
     if (this.dragActive && y < 60) {
         window.scrollTo(0, 0);
-        this.dragActive = false;
+        this.dragActive = false; 
     }
 };
 
@@ -176,9 +159,8 @@ TextSortWidget.prototype.showAnswer = function () {
     var answers = questionpoolModel.getAnswer();
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
-
+    
     if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
         var mixedAnswers;
 
         // if sorting has not started yet, mix the answers
@@ -202,7 +184,6 @@ TextSortWidget.prototype.showAnswer = function () {
         for (i = 0; i < mixedAnswers.length; i++) {
             tmpl.attach(mixedAnswers[i].toString());
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
-            tmpl.answertick.removeClass("separator");
         }
     }
 };
@@ -214,10 +195,10 @@ TextSortWidget.prototype.showAnswer = function () {
 TextSortWidget.prototype.showFeedback = function () {
     var app = this.app;
 
-    var questionpoolModel = app.models.questionpool;
-    var answers = questionpoolModel.getAnswer();
-    var answerModel = app.models.answer;
-    var scores = answerModel.getScoreList();
+//    var questionpoolModel = app.models.questionpool;
+    // FIXME seems the questionpool does not return any Results.
+    var answers = app.models.answer.getAnswers();
+    var scores = app.models.answer.getScoreList();
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
     var i;
 
@@ -248,10 +229,12 @@ TextSortWidget.prototype.showFeedback = function () {
 TextSortWidget.prototype.cleanup = function () {
     var answers = [];
 
-    $("#answerbox").find("li").each(function (index) {
-        var id = $(this).attr("id").split("_")[2];
-        answers.push(id);
-    });
+    if (!this.didApologize) {
+        $("#answerbox").find("li").each(function (index) {
+            var id = $(this).attr("id").split("_")[2];
+            answers.push(id);
+        });
 
-    this.app.models.answer.setAnswers(answers);
+        this.app.models.answer.setAnswers(answers);
+    }
 };

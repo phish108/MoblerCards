@@ -231,24 +231,25 @@ ConnectionModel.prototype.synchronizeData = function () {
             }
         }
 
-        var trackingModel = this.controller.models.tracking;
+        // FIXME remove all tracking model references.
+//        var trackingModel = this.controller.models.tracking;
 
 //        console.log('check synchronization - tracking');
         // if pending statistics exist, send them to the server
-        var pendingTracking = localStorage.getItem("pendingTracking");
-        if (pendingTracking) {
-            trackingModel.sendToServer();
-        }
+//        var pendingTracking = localStorage.getItem("pendingTracking");
+//        if (pendingTracking) {
+//            trackingModel.sendToServer();
+//        }
         // if tracking data wasn't sent to the server for more than 24 hours
         // send the data to the server
-        if (this.controller &&
-            this.controller.models
-            && this.controller.models.tracking) {
-            if (!trackingModel.lastSendToServer ||
-                trackingModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
-                trackingModel.sendToServer();
-            }
-        }
+//        if (this.controller &&
+//            this.controller.models
+//            && this.controller.models.tracking) {
+//            if (!trackingModel.lastSendToServer ||
+//                trackingModel.lastSendToServer < ((new Date()).getTime() - 60 * 60 * 1000)) {
+//                trackingModel.sendToServer();
+//            }
+//        }
 //        console.log('check synchronization DONE');
     }
 };

@@ -122,7 +122,6 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
     }
 };
 
-
 /**
  * Creation of feedback body for multiple choice questions.
  * It contains the list with the possible solutions highlighted by both the correct answers

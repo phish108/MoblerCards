@@ -55,11 +55,15 @@ function SingleChoiceWidget(opts) {
     self.moveEnabled = false;
 }
 
+SingleChoiceWidget.prototype.prepare = function () {
+    console.log("prepare function called");  
+};
 SingleChoiceWidget.prototype.update = function() {
 
     // a list  with the currently  selected answers
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
+    console.log ("ever called maybe not maybe yesnobody knows.");
     if (this.interactive) {
         this.showAnswer();
     }
@@ -76,6 +80,7 @@ SingleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
     var answerId = "answertext_answerlistbox_";
     var li = $("#" + answerId + this.selectedAnswer[0]).closest("li");
+    
     if (this.selectedAnswer.length > -1 &&
         this.selectedAnswer[0] !== id.split("_")[2] &&
         li.hasClass("gradientSelected")) {
@@ -100,7 +105,9 @@ SingleChoiceWidget.prototype.showAnswer = function () {
 
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    console.log("maybe no answer are displayed");
+    if (questionpoolModel.questionList && 
+        questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
 
         if (!questionpoolModel.currAnswersMixed()) {
@@ -118,6 +125,9 @@ SingleChoiceWidget.prototype.showAnswer = function () {
             aTmpl.attach(mixedAnswers[c].toString());
             aTmpl.answertext.text = answers[mixedAnswers[c]].answertext;
         }
+    }
+    else {
+        this.useDelegate("apologize");
     }
 };
 

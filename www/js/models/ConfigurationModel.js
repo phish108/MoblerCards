@@ -365,6 +365,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
                     self.configuration.learnerInformation = data.learnerInformation;
                     self.configuration.loginState = "loggedIn";
                     self.storeData();
+                    localStorage.setItem("pendingLogout", "");
 
                     window.turnOffDeactivate();// from common.js
                     /**
@@ -443,6 +444,7 @@ ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKe
             dataType: 'json',
             success: function () {
                 console.log("success in logging out");
+                localStorage.setItem("pendingLogout", "");
                 window.turnOffDeactivate(); // from common.js
             },
             error: function (request) {

@@ -14,6 +14,12 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
+div, span, .untouchable {
+    pointer-events: none;
+}
+li, .touchable {
+    pointer-events: all;
+}
 
 /* refactured  start */
 /*********************** Header ***********************/
@@ -146,6 +152,7 @@ input.listlabel {
     width: 90%;
     padding-left: 5%;
     padding-right: 5%;
+    text-align: center;
 }
 /*********************** Scrollbutton ***********************/
 #scrolltop {

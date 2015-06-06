@@ -54,12 +54,12 @@ function MoblerCards() {
         cache: false
     });
 
-    $(document).bind("allstatisticcalculationsdone", function (featuredContentId) {
+    $(document).bind("allstatisticcalculationsdone", function () {
         console.log("all statistics calculations done is ready");
         // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
         if (!self.checkclickOutOfStatisticsIcon()) {
-            console.log("transition to statistics because all calculations have been done");
-            self.changeView("statistics", featuredContentId);
+            console.log("all calculations have been done, change to statistics");
+            self.changeView("statistics");
         } else {
             console.log("transition to statistics is not feasible because the user has clicked elsewhere");
         }
@@ -109,10 +109,11 @@ function MoblerCards() {
     });
 
     $(document).bind("activeServerReady", function () {
-        if (self.appLoaded && self.activeView === self.views.lms) {
+        if (self.appLoaded && self.activeView === self.views.lms.tagID) {
             console.log("transition to login view after selecting server in lms view");
             self.changeView("login");
-        } else if (self.appLoaded && self.activeView === self.views.splash) {
+        } 
+        else if (self.appLoaded && self.activeView === self.views.splash.tagID) {
             console.log("transition to login view after the default server has been registered");
             self.changeView("landing");
         }
@@ -123,16 +124,16 @@ MoblerCards.prototype.initialize = function() {
     this.setupLanguage();
 };
 
-//MoblerCards.prototype.onPause = function () {};
-
-//MoblerCards.prototype.onResume = function () {};
-
-//MoblerCards.prototype.onBack = function () {};
-
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
     this.appLoaded = true;
-    this.changeView("landing");
+    
+    if (this.getLoginState()) {
+        this.changeView("course");
+    }
+    else {
+        this.changeView("landing");
+    }
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -274,22 +275,22 @@ MoblerCards.prototype.setupLanguage = function () {
 
  // TODO: Refactoring of the function
 
-MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsFlag) {
-    //set the statistics waiting flag
-    this.clickOutOfStatisticsIcon = false;
-
-    //The transition to statistics view is done by clicking the statistics icon in any list view.
-    //In this case a courseID is assigned for the clicked option.
-
-    if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
-        this.models.statistics.setCurrentCourseId(courseID);
-        if (!this.models.statistics.dataAvailable()) {
-            this.changeView("landing");
-        }
-    } else if (achievementsFlag) {
-        this.changeView("statistics", achievementsFlag);
-    }
-};
+//MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsFlag) {
+//    //set the statistics waiting flag
+//    this.clickOutOfStatisticsIcon = false;
+//
+//    //The transition to statistics view is done by clicking the statistics icon in any list view.
+//    //In this case a courseID is assigned for the clicked option.
+//
+//    if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
+//        this.models.statistics.setCurrentCourseId(courseID);
+//        if (!this.models.statistics.dataAvailable()) {
+//            this.changeView("landing");
+//        }
+//    } else if (achievementsFlag) {
+//        this.changeView("statistics", achievementsFlag);
+//    }
+//};
 
 /**
  * @prototype
@@ -297,6 +298,7 @@ MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsF
  * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
  **/
 MoblerCards.prototype.getLoginState = function () {
+    console.log("call isLoggedIn()");
     return this.models.configuration.isLoggedIn();
 };
 
@@ -414,22 +416,26 @@ MoblerCards.prototype.injectStyle = function () {
 };
 
 /**
- * 	Does the aproropriate calculations when we click on a course item
- * 	either it is featured content or exclusive content.
- *  and after loading the data and setting the correct course id we do
- *  the transiton to the question view as long as we have valid data.
- *  @function selectCourseItem
- * 	@ param{string or number}, courseId, the id of the current course
- * */
+ * Does the aproropriate calculations when we click on a course item
+ * either it is featured content or exclusive content.
+ * and after loading the data and setting the correct course id we do
+ * the transiton to the question view as long as we have valid data.
+ * @prototype
+ * @function selectCourseItem
+ * @param {string or number} courseId, the id of the current course
+ */
 MoblerCards.prototype.selectCourseItem = function (courseId) {
     this.models.questionpool.reset();
     //add it within the loadData, similar with statistics (setcurrentCourseId function)...
     this.models.questionpool.loadData(courseId);
+    
     if (this.models.questionpool.dataAvailable()) {
         this.models.answer.setCurrentCourseId(courseId);
         console.log("enters clickFeauturedItem");
-        this.changeView("question");
-    } else {
+        return true;
+    } 
+    else {
         console.log("[ERROR]@selectCourseItem()");
+        return false;
     }
 };

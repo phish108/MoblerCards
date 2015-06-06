@@ -113,14 +113,19 @@ function LoginView() {
  **/
 LoginView.prototype.prepare = function () {
     console.log("loginView: open sesame");
-    // hide unnecessary errors and warnings
-    this.hideErrorMessage();
-    this.hideWarningMessage();
-    this.hideDeactivateMessage();
-    $("#selectLMS").removeClass("gradientSelected");
-    this.active = true;
-    this.app.models.lms.registerDevice();
-    this.app.models.featured.loadFeaturedCourseFromServer();
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
+    else {
+        // hide unnecessary errors and warnings
+        this.hideErrorMessage();
+        this.hideWarningMessage();
+        this.hideDeactivateMessage();
+        $("#selectLMS").removeClass("gradientSelected");
+        this.active = true;
+        this.app.models.lms.registerDevice();
+        this.app.models.featured.loadFeaturedCourseFromServer();
+    }
 };
 
 LoginView.prototype.update = function () {
@@ -163,15 +168,15 @@ LoginView.prototype.cleanup = function () {
  **/
 LoginView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log("[LoginView] tap registered: " + id);
+    console.log(">>>>> [tap registered] : " + id + " <<<<<");
 
-    if (id === "loginbutton") {
+    if (id === "loginfooter") {
         this.clickLoginButton();
     }
-    else if (id === "loginclose") {
+    else if (id === "logincross") {
         this.clickCloseLoginButton();
     }
-    else if (id === "loginlmslabel") {
+    else if (id === "courselistlms") {
         $("#selectLMS").removeClass("textShadow");
         $("#selectLMS").addClass("gradientSelected");
 
