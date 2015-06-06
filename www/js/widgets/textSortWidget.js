@@ -157,10 +157,11 @@ TextSortWidget.prototype.showAnswer = function () {
 
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
+    var answerModel = app.models.answer;
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
     
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    if (questionpoolModel.questionList && answers && answers[0].answertext) {
         var mixedAnswers;
 
         // if sorting has not started yet, mix the answers

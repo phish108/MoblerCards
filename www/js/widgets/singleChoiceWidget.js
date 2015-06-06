@@ -58,6 +58,7 @@ function SingleChoiceWidget(opts) {
 SingleChoiceWidget.prototype.prepare = function () {
     console.log("prepare function called");  
 };
+
 SingleChoiceWidget.prototype.update = function() {
 
     // a list  with the currently  selected answers
