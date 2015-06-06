@@ -288,6 +288,7 @@ Object.defineProperties(CoreView.prototype, {
 
 CoreView.prototype.useDelegate = function (delegateName) {
     if (typeof delegateName === "string" &&
+        delegateName.length &&
         this.widgets &&
         this.widgets.length &&
         this.widgets.hasOwnProperty(delegateName)) {
@@ -337,9 +338,9 @@ CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
         delegateBase.clear        = function () { self.clear(); };
         delegateBase.mapDelegate = function (odName,dName) { self.mapDelegate(odName,dName);};
         delegateBase.useDelegate  = function (dName) { self.useDelegate(dName); };
-        delegateBase.delegate     = function (dClass, dName) {
+        delegateBase.delegate     = function (dClass, dName, opts) {
             if (typeof dName === "string" && dName.length) {
-                self.initDelegate(dClass, dName);
+                self.initDelegate(dClass, dName, opts);
             }
         };
 
@@ -388,7 +389,7 @@ CoreView.prototype.initDelegate = function (theDelegate, delegateName, opts) {
     if (typeof delegateName === "string" && delegateName.length) {
         if (!(self.widgets.hasOwnProperty(delegateName))) {
             // initialize the same widget name only once
-            self.widgets[delegateName] = new theDelegate(opts||{});
+            self.widgets[delegateName] = new theDelegate(opts || {});
         }
     }
     else {
