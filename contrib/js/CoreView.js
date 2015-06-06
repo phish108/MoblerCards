@@ -290,7 +290,6 @@ CoreView.prototype.useDelegate = function (delegateName) {
     if (typeof delegateName === "string" &&
         delegateName.length &&
         this.widgets &&
-        this.widgets.length &&
         this.widgets.hasOwnProperty(delegateName)) {
         this.updateDelegate = this.widgets[delegateName];
     }
@@ -301,7 +300,6 @@ CoreView.prototype.mapDelegate = function (delegateOrigName, delegateName) {
     if (typeof delegateName === "string" &&
         typeof delegateOrigName === "string" &&
         this.widgets &&
-        this.widgets.length &&
         this.widgets.hasOwnProperty(delegateOrigName) &&
         !this.widgets.hasOwnProperty(delegateName)) {
         this.widgets[delegateName] = this.widgets[delegateOrigName];
