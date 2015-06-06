@@ -1,0 +1,6 @@
+[submodule "www/js/contrib/CoreMVC"]
+	path = www/js/contrib/CoreMVC
+	url = https://github.com/phish108/CoreMVC
+[submodule "www/js/contrib/TemplateFactory"]
+	path = www/js/contrib/TemplateFactory
+	url = https://github.com/phish108/TemplateFactory
