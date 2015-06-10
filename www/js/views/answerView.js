@@ -89,6 +89,7 @@ AnswerView.prototype.tap = function (event) {
     console.log(">>>>> [tap registered] : " + id + " <<<<<");    
     
     var answer, type;
+    var questionpoolModel = this.app.models.questionpool;
     
     switch (id) {
         case "answercross":
@@ -101,7 +102,13 @@ AnswerView.prototype.tap = function (event) {
             break;
         case "answerfooter":
         case "answercontent":
-            this.clickDoneButton();
+            if (this.didApologize) {
+                questionpoolModel.nextQuestion();
+                this.app.changeView("question");
+            } 
+            else {
+                this.app.changeView("feedback");
+            }
             break;
         case "answerheader":
             this.widget.storeAnswers();
@@ -157,22 +164,4 @@ AnswerView.prototype.showAnswerTitle = function () {
     $("#answerdynamicicon").removeClass();
     $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
-};
-
-/**Handling the behavior of the "forward-done" button on the answer view
- * @prototype
- * @function clickDoneButton
- **/
-AnswerView.prototype.clickDoneButton = function () {
-    var questionpoolModel = this.app.models.questionpool;
-    
-    if (this.didApologize) {
-        // FIXME this should be moved into the apologize widget.
-
-        // if there was a problem with the data, the widget knows
-        // in this case we proceed to the next question
-        //statisticsModel.resetTimer();
-        questionpoolModel.nextQuestion();
-        this.app.changeView("question");
-    } 
 };

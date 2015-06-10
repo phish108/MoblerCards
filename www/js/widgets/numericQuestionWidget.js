@@ -50,9 +50,6 @@ function NumericQuestionWidget(opts) {
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
-
-    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
-
 }
 
 NumericQuestionWidget.prototype.update = function() {
@@ -65,6 +62,17 @@ NumericQuestionWidget.prototype.update = function() {
     else {
         this.showFeedback();
     }
+};
+
+/**
+ * Storing the typed number
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ **/
+NumericQuestionWidget.prototype.cleanup = function () {
+    var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
+    this.app.models.answer.setAnswers(numericAnswer);
 };
 
 /**
@@ -121,16 +129,4 @@ NumericQuestionWidget.prototype.showFeedback = function () {
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
         tmpl.feedbacktick.addClass("inactive");
     }
-};
-
-/**
- * Storing the typed number
- * @prototype
- * @function storeAnswers
- **/
-NumericQuestionWidget.prototype.cleanup = function () {
-    var app = this.app;
-    var questionpoolModel = app.models.questionpool;
-    var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
-    app.models.answer.setAnswers(numericAnswer);
 };

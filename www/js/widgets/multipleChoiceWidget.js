@@ -57,6 +57,16 @@ function MultipleChoiceWidget (opts) {
     self.moveEnabled = false;
 }
 
+MultipleChoiceWidget.prototype.prepare = function () {
+    this.selectedAnswer = [];
+};
+
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
 MultipleChoiceWidget.prototype.update = function() {
     this.tickedAnswers = this.app.models.answer.getAnswers();
     if (this.interactive) {
@@ -66,22 +76,32 @@ MultipleChoiceWidget.prototype.update = function() {
         this.showFeedback();
     }
 };
+
 /**
- * Handling behavior when click on the an item of the multiple answers list
- * Adds or removes the blue background color depending on what was the previous state.
+ * Storing the ticked answers in an array
  * @prototype
- * @function clickMultipleAnswerItem
+ * @function storeAnswers
  **/
+MultipleChoiceWidget.prototype.cleanup = function () {
+    this.app.models.answer.setAnswers(this.selectedAnswer);
+};
+
+/**
+ * Handles action when a tap occurs.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
+ */
 MultipleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
 
-    if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
-        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+    if (!$("#" + id).hasClass("gradientSelected")) {
+        $("#" + id).removeClass("gradient2").addClass("gradientSelected");
         this.selectedAnswer.push(id.split("_")[2]);
         console.log(this.selectedAnswer);
     }
     else {
-        $("#" + id).closest("li").addClass("gradient2").removeClass("gradientSelected");
+        $("#" + id).addClass("gradient2").removeClass("gradientSelected");
         this.selectedAnswer.splice(this.selectedAnswer.indexOf(id.split("_")[2]), 1);
         console.log(this.selectedAnswer);
     }
@@ -155,34 +175,4 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
             fTmpl.feedbacktickicon.addClass("glow2");
         }
     }
-};
-
-/**
- * Handling behavior when click on the an item of the multiple answers list
- * Adds or removes the blue background color depending on what was the previous state.
- * @prototype
- * @function clickMultipleAnswerItem
- **/
-MultipleChoiceWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-
-    if (!$("#" + id).closest("li").hasClass("gradientSelected")) {
-        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer.push(id.split("_")[2]);
-        console.log(this.selectedAnswer);
-    }
-    else {
-        $("#" + id).closest("li").addClass("gradient2").removeClass("gradientSelected");
-        this.selectedAnswer.splice(this.selectedAnswer.indexOf(id.split("_")[2]), 1);
-        console.log(this.selectedAnswer);
-    }
-};
-
-/**
- * Storing the ticked answers in an array
- * @prototype
- * @function storeAnswers
- **/
-MultipleChoiceWidget.prototype.cleanup = function () {
-    this.app.models.answer.setAnswers(this.selectedAnswer);
 };

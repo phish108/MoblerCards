@@ -58,33 +58,6 @@ function TextSortWidget(opts) {
 
     // Handles the Error messages.
     self.didApologize = false;
-
-    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
-    if (this.interactive) {
-        self.showAnswer();
-        // make the list sortable using JQuery UI's function
-        $("#answerbox").find("li").addClass("untouchable");
-        $(".dragicon").addClass("icon-drag");
-
-        $("#answerbox").sortable({
-            axis: "y",
-            scroll: true,
-            scrollSensitivity: 60,
-            scrollSpeed: 10,
-            disabled: false,
-            start: function (event, ui) {
-                $(ui.item).addClass("currentSortedItem");
-            },
-            stop: function (event, ui) {
-                $(ui.item).removeClass("currentSortedItem");
-            }
-        });
-
-        $("#answerbox").disableSelection();
-    }
-    else {
-        self.showFeedback();
-    }
 }
 
 //creates a new mouse event of the specified type
@@ -133,11 +106,44 @@ TextSortWidget.prototype.endMove = function (event) {
     }
 };
 
-TextSortWidget.prototype.update = function() {
+/**
+ * Make sure that the array for the users answers is empty.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
+TextSortWidget.prototype.prepare = function () {
+    
+};
+
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
+TextSortWidget.prototype.update = function () {
     // loads answers from model for displaying already by the user ordered elements
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
     if (this.interactive) {
+        // make the list sortable using JQuery UI's function
+        $("#answerbox").sortable({
+            axis: "y",
+            scroll: true,
+            scrollSensitivity: 60,
+            scrollSpeed: 10,
+            disabled: false,
+            start: function (event, ui) {
+                $(ui.item).addClass("currentSortedItem");
+            },
+            stop: function (event, ui) {
+                $(ui.item).removeClass("currentSortedItem");
+            }
+        });
+        
+        $("#answerbox").find("li").addClass("untouchable");
+        $(".dragicon").addClass("icon-drag");
         this.showAnswer();
     }
     else {
@@ -146,9 +152,28 @@ TextSortWidget.prototype.update = function() {
 };
 
 /**
+ * stores the current sorting order in the answer model
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ **/
+TextSortWidget.prototype.cleanup = function () {
+    var answers = [];
+    
+    if (!this.didApologize) {
+        $("#answerbox").find("li").each(function (index) {
+            var id = $(this).attr("id").split("_")[2];
+            answers.push(id);
+        });
+        this.app.models.answer.setAnswers(answers);
+    }
+};
+
+/**
  * displays the answer for text sort questions
  * @prototype
  * @function showAnswer
+ * @param {NONE}
  */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
@@ -189,14 +214,15 @@ TextSortWidget.prototype.showAnswer = function () {
     }
 };
 
-/**displays the feedback for text sort questions
+/**
+ * displays the feedback for text sort questions
  * @prototype
  * @function showFeedback
+ * @param {NONE}
  **/
 TextSortWidget.prototype.showFeedback = function () {
     var app = this.app;
 
-//    var questionpoolModel = app.models.questionpool;
     // FIXME seems the questionpool does not return any Results.
     var answers = app.models.answer.getAnswers();
     var scores = app.models.answer.getScoreList();
@@ -220,22 +246,5 @@ TextSortWidget.prototype.showFeedback = function () {
             fTmpl.feedbacklist.addClass("glow2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
-    }
-};
-
-/**stores the current sorting order in the answer model
- * @prototype
- * @function storeAnswers
- **/
-TextSortWidget.prototype.cleanup = function () {
-    var answers = [];
-
-    if (!this.didApologize) {
-        $("#answerbox").find("li").each(function (index) {
-            var id = $(this).attr("id").split("_")[2];
-            answers.push(id);
-        });
-
-        this.app.models.answer.setAnswers(answers);
     }
 };

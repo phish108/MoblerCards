@@ -49,22 +49,32 @@ function SingleChoiceWidget(opts) {
     self.didApologize = false;
 
     // current selected Answer
-    self.selectedAnswer = new Array();
+    self.selectedAnswer = [];
 
     // stating whether the widget allows moving
     self.moveEnabled = false;
 }
 
+/**
+ * Make sure that the array for the users answers is empty.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
 SingleChoiceWidget.prototype.prepare = function () {
-    console.log("prepare function called");  
+    this.selectedAnswer = [];
 };
 
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
 SingleChoiceWidget.prototype.update = function() {
-
     // a list  with the currently  selected answers
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
-    console.log ("ever called maybe not maybe yesnobody knows.");
     if (this.interactive) {
         this.showAnswer();
     }
@@ -72,11 +82,23 @@ SingleChoiceWidget.prototype.update = function() {
         this.showFeedback();
     }
 };
+
 /**
- * Handling behavior when click on the an item of the single answers list
+ * Storing the ticked answer in an array
  * @prototype
- * @function clickSingleAnswerItem
+ * @function storeAnswers
+ * @param {NONE}
  **/
+SingleChoiceWidget.prototype.cleanup = function () {
+    this.app.models.answer.setAnswers(this.selectedAnswer);
+};
+
+/**
+ * Handles action when a tap occurs.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
+ */
 SingleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
     var answerId = "answertext_answerlistbox_";
@@ -88,8 +110,8 @@ SingleChoiceWidget.prototype.tap = function (event) {
         li.removeClass("gradientSelected").addClass("gradient2");
     }
 
-    if ($("#" + id).closest("li").hasClass("gradient2")) {
-        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
+    if ($("#" + id).hasClass("gradient2")) {
+        $("#" + id).removeClass("gradient2").addClass("gradientSelected");
         this.selectedAnswer[0] = id.split("_")[2];
     }
 };
@@ -106,7 +128,6 @@ SingleChoiceWidget.prototype.showAnswer = function () {
 
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
-    console.log("maybe no answer are displayed");
     if (questionpoolModel.questionList && 
         questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
@@ -138,6 +159,7 @@ SingleChoiceWidget.prototype.showAnswer = function () {
  * learner's ticked answer
  * @prototype
  * @function showFeedback
+ * @param {NONE}
  **/
 SingleChoiceWidget.prototype.showFeedback = function () {
     console.log("enter feedback view after switching from question view");
@@ -157,6 +179,7 @@ SingleChoiceWidget.prototype.showFeedback = function () {
 
         // the selected answer will be in gradientSelected
         if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
+            console.log("gradient: <<<<< " + mixedAnswers[c] + " >>>>>");
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
@@ -167,13 +190,4 @@ SingleChoiceWidget.prototype.showFeedback = function () {
             fTmpl.feedbacktickicon.addClass("glow2");
         }
     }
-};
-
-/**
- * Storing the ticked answer in an array
- * @prototype
- * @function storeAnswers
- **/
-SingleChoiceWidget.prototype.cleanup = function () {
-    this.app.models.answer.setAnswers(this.selectedAnswer);
 };
