@@ -51,7 +51,8 @@ function FeedbackView() {
     this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: false});
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the
+    /**
+     * It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the feedback body and preventing the display of the statistics view
@@ -63,7 +64,8 @@ function FeedbackView() {
         }
     });
 
-    /**It is triggered when the calculation of all the statistics metrics is done
+    /**
+     * It is triggered when the calculation of all the statistics metrics is done
      * @event allstatisticcalculationsdone
      * @param: a callback function that displays the feeback body and preventing the display of the statistics view
      */
@@ -76,11 +78,17 @@ function FeedbackView() {
     });
 }
 
+/**
+ * Ensure that the correct widget is being used.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
 FeedbackView.prototype.prepare = function () {
+    var qt = this.app.models.questionpool.getQuestionType();
+
     $("#feedbacktip").hide();
 
-    // ensure that the active widget is used.
-    var qt = this.app.models.questionpool.getQuestionType();
     switch (qt) {
         case 'assSingleChoice':
         case 'assMultipleChoice':
@@ -97,87 +105,108 @@ FeedbackView.prototype.prepare = function () {
     this.useDelegate(qt);
 };
 
+/**
+ * Calculates the answer score.
+ * Updates the feedback title and body.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ **/
 FeedbackView.prototype.update = function () {
+    // TODO ensure that this condition statement is correct.
     if (this.app.models.answer.answerScore === -1) {
         this.app.models.answer.calculateScore();
     }
-
-    this.showFeedbackBody();
+    
     this.showFeedbackTitle();
+    this.showFeedbackBody();
 };
 
+/**
+ * Delete any data related to the current question. Move the cursor in questionpool to the next question.
+ * @protoype
+ * @function cleanup
+ * @param {NONE}
+ */
 FeedbackView.prototype.cleanup = function () {
+    if (this.app.models.answer.answerScore != -1) {
+        this.app.models.answer.deleteData();
+        this.app.models.questionpool.nextQuestion();
+    }
+    
     $("#feedbackbox").show();
     $("#feedbacktip").hide();
 };
 
+/**
+ * Handles action when a tap occurs.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
+ */
 FeedbackView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log("[FeedbackView] tap registered: " + id);
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
     
     switch (id) {
         case "feedbackfooter":
-        case "feedbackcontent":
-            this.clickFeedbackDoneButton();
+        case "feedbackcontent": // Go to the next question.
+            this.app.changeView("question");
+//            this.clickFeedbackDoneButton();
             break;
-        case "feedbackinfo":
-            this.clickFeedbackMore();
+        case "feedbackinfo": // Get a feedback to the answer.
+            this.getFeedbackInfo();
+            break; 
+        case "feedbackheader": // Go back to the feedback's question.
+            this.app.models.answer.answerScore = -1;
+            this.app.changeView("question");
+//            this.clickTitleArea();
             break;
-        case "feedbackcross":
+        case "feedbackcross": // Close the feedback view.
             this.app.models.answer.answerList = [];
             this.app.models.answer.answerScore = -1;
-            this.clickCourseListButton();
+            this.app.models.answer.deleteData();
+            if (this.app.getLoginState()) {
+                this.app.changeView("course");
+            } else {
+                this.app.changeView("landing");
+            }
             break;
-        case "feedbackheader":
-            this.clickTitleArea();
-            break;
-        default:
+        default: 
             break;
     }
 };
 
-/**
- * click on feedback done button leads to new question
- * @prototype
- * @function clickFeedbackDoneButton
- **/
-FeedbackView.prototype.clickFeedbackDoneButton = function () {
-    this.app.models.answer.deleteData();
-    this.app.models.questionpool.nextQuestion();
-    this.app.changeView("question");
-};
+///**
+// * click on feedback done button leads to new question
+// * @prototype
+// * @function clickFeedbackDoneButton
+// **/
+//FeedbackView.prototype.clickFeedbackDoneButton = function () {
+//    this.app.models.answer.deleteData();
+//    this.app.models.questionpool.nextQuestion();
+//    this.app.changeView("question");
+//};
 
 
 /**
  * click on feedback more button toggles the feedback body and the tip
  * @prototype
- * @function clickFeedbackMore
- **/
-FeedbackView.prototype.clickFeedbackMore = function () {
+ * @function getFeedbackInfo
+ * @param {NONE}
+ */
+FeedbackView.prototype.getFeedbackInfo = function () {
     $("#feedbackbox").toggle();
     $("#feedbacktip").toggle();
 };
 
-/**
- * click on the course list button leads to course list
- * @prototype
- * @function clickCourseListButton
- **/
-FeedbackView.prototype.clickCourseListButton = function () {
-    this.app.models.answer.deleteData();
-
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    } else {
-        this.app.changeView("landing");
-    }
-};
 
 /**Shows the title area of the feedback view,
  * containing title and corresponding icon
  * @prototype
  * @function showFeedbackTitle
- **/
+ * @param {NONE}
+ */
 FeedbackView.prototype.showFeedbackTitle = function () {
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
 
@@ -185,22 +214,20 @@ FeedbackView.prototype.showFeedbackTitle = function () {
     $("#feedbackdynamicicon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
 };
 
-/**Calls the appropriate widget to show the feedback body
+/**
+ * Calls the appropriate widget to show the feedback body
  * based on the specific question type
  * It is displayed within the main body area of the feedback view
  * @prototype
  * @function showFeedbackBody
- **/
+ * @param {NONE}
+ */
 FeedbackView.prototype.showFeedbackBody = function () {
     var questionpoolModel = this.app.models.questionpool;
-    var questionType = questionpoolModel.getQuestionType();
-
-    // show feedback more information, which is the same for all kinds of questions
-    $("#feedbackinfo").hide();
-
+//    var questionType = questionpoolModel.getQuestionType();
     var feedbackText = questionpoolModel.getWrongFeedback();
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
-
+    
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
         feedbackText = questionpoolModel.getCorrectFeedback();
@@ -211,13 +238,16 @@ FeedbackView.prototype.showFeedbackBody = function () {
         $("#feedbacktip").html(feedbackText);
         $("#feedbackinfo").show();
     }
+    else {
+        $("#feedbackinfo").hide();
+    }
 };
 
-/**Transition back to question view when click on the title area
- * @prototype
- * @function clickTitleArea
- **/
-FeedbackView.prototype.clickTitleArea = function () {
-    this.app.models.answer.answerScore = -1;
-    this.app.changeView("question");
-};
+///**Transition back to question view when click on the title area
+// * @prototype
+// * @function clickTitleArea
+// **/
+//FeedbackView.prototype.clickTitleArea = function () {
+//    this.app.models.answer.answerScore = -1;
+//    this.app.changeView("question");
+//};
