@@ -103,6 +103,9 @@ NumericQuestionWidget.prototype.showAnswer = function () {
         tmpl.answertick.addClass("inactive");
         tmpl.answertext.addClass("inactive");
     }
+    else {
+        this.didApologize = true;
+    }
 };
 
 /**
@@ -112,18 +115,13 @@ NumericQuestionWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.showFeedback = function () {
-    var app = this.app;
-    var answerModel = app.models.answer;
+    var answerModel = this.app.models.answer;
     var typedAnswer = answerModel.getAnswers();
-    var correctAnswer = app.models.questionpool.getAnswer()[0];
-    var tmpl = app.templates.getTemplate("feedbacklistbox");
-    
-    if (typedAnswer === "undefined" || typedAnswer === "") {
-        typedAnswer = "NaN";
-    }
-
+    var correctAnswer = this.app.models.questionpool.getAnswer()[0];
+    var tmpl = this.app.templates.getTemplate("feedbacklistbox");
+ 
     tmpl.attach("feedbackbox");
-    tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
+    tmpl.feedbacktext.text = "Typed Answer: " + parseInt(typedAnswer, 10);
     tmpl.feedbacktick.addClass("inactive");
 
     if (answerModel.getAnswerResults() != "Excellent") {

@@ -116,10 +116,12 @@ TextSortWidget.prototype.cleanup = function () {
     if (!this.didApologize) {
         $("#answerbox").find("li").each(function (index) {
             var id = $(this).attr("id").split("_")[2];
-            answers.push(id);
+            console.log("text sort widget save ids' in answers array: " + id);
+            answers.push(parseInt(id,10));
         });
         this.app.models.answer.setAnswers(answers);
     }
+    console.log(answers);
 };
 
 /**
@@ -237,7 +239,8 @@ TextSortWidget.prototype.showAnswer = function () {
     }
 
     $("#answerbox").find("li").addClass("untouchable");
-    $(".dragicon").addClass("icon-drag touchable");
+    $(".dragicon").show();
+    $(".tick").hide();
 };
 
 /**
@@ -247,28 +250,25 @@ TextSortWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 TextSortWidget.prototype.showFeedback = function () {
-    var app = this.app;
-
-    // FIXME seems the questionpool does not return any Results.
-    var answers = app.models.answer.getAnswers();
-    var scores = app.models.answer.getScoreList();
-    var fTmpl = app.templates.getTemplate("feedbacklistbox");
+    var answers = this.app.models.questionpool.getAnswer();
+    var scores = this.app.models.answer.getScoreList();
+    var fTmpl = this.app.templates.getTemplate("feedbacklistbox");
     var i;
 
     for (i = 0; i < answers.length; i++) {
         fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
-        fTmpl.feedbacktick.addClass("inactive");
+//        fTmpl.feedbacktick.addClass("inactive");
 
         if (scores[i] === 0.5) {
-            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");
         }
         else if (scores[i] === 1) {
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
         else if (scores[i] === 1.5) {
-            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
