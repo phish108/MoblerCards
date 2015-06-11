@@ -111,13 +111,16 @@ AnswerModel.prototype.deleteData = function () {
  * @return {String}, "Excellent" if answer score is 1, "Wrong" if answer score is 0, otherwise "PariallyCorrect"
  **/
 AnswerModel.prototype.getAnswerResults = function () {
-    console.log("answer score: " + this.answerScore);
     if (this.answerScore === 1) {
         console.log("Excellent");
         return "Excellent";
-    } else if (this.answerScore === 0) {
+    } 
+    else if (this.answerScore === 0) {
+        console.log("Wrong");
         return "Wrong";
-    } else {
+    } 
+    else {
+        console.log("PartiallyCorrect");
         return "PartiallyCorrect";
     }
 };
@@ -273,11 +276,9 @@ AnswerModel.prototype.calculateTextSortScore = function () {
  * @function calculateNumericScore
  **/
 AnswerModel.prototype.calculateNumericScore = function () {
-
-    var answerModel = this.controller.models.answer;
     var questionpoolModel = this.controller.models.questionpool;
 
-    if (questionpoolModel.getAnswer()[0] === answerModel.getAnswers()) {
+    if (questionpoolModel.getAnswer()[0] === this.getAnswers()) {
         // if the answers provided in the question pool are the same with the
         // ones the user selected
         this.answerScore = 1;

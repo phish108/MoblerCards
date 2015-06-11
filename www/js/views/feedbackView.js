@@ -234,7 +234,6 @@ FeedbackView.prototype.showFeedbackBody = function () {
     }
 
     if (feedbackText && feedbackText.length > 0) {
-        //$("#feedbackTip").text(feedbackText);
         $("#feedbacktip").html(feedbackText);
         $("#feedbackinfo").show();
     }

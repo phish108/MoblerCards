@@ -127,7 +127,7 @@ CourseView.prototype.cleanup = function () {
  */
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
     
     var courseId = this.app.models.course.getId();
 
