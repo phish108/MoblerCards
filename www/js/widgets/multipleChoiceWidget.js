@@ -102,7 +102,7 @@ MultipleChoiceWidget.prototype.cleanup = function () {
 MultipleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
 
-    if (!$("#" + id).hasClass("gradientSelected")) {
+    if ($("#" + id).hasClass("gradient2")) {
         $("#" + id).removeClass("gradient2").addClass("gradientSelected");
         this.selectedAnswer.push(id.split("_")[2]);
     }
