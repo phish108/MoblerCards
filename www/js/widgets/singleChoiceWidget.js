@@ -43,7 +43,7 @@ function SingleChoiceWidget(opts) {
     var self = this;
 
     // Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
@@ -102,19 +102,19 @@ SingleChoiceWidget.prototype.cleanup = function () {
  */
 SingleChoiceWidget.prototype.tap = function (event) {
     var id = event.target.id;
-    var answerId = "answertext_answerlistbox_";
-//    var li = $("#" + answerId + this.selectedAnswer[0]).closest("li");
+    var answerId = "answerlist_answerlistbox_";
     var li = $("#" + answerId + this.selectedAnswer[0]);
     
-    if (this.selectedAnswer.length > -1 &&
-        this.selectedAnswer[0] !== id.split("_")[2] &&
-        li.hasClass("gradientSelected")) {
-        li.removeClass("gradientSelected").addClass("gradient2");
-    }
-    
     if ($("#" + id).hasClass("gradient2")) {
+        if (li.hasClass("gradientSelected")) {
+            li.removeClass("gradientSelected").addClass("gradient2");
+        }
         $("#" + id).removeClass("gradient2").addClass("gradientSelected");
         this.selectedAnswer[0] = id.split("_")[2];
+    }
+    else if ($("#" + id).hasClass("gradientSelected")) {
+        $("#" + id).removeClass("gradientSelected").addClass("gradient2");
+        this.selectedAnsewr[0] = -1;
     }
 };
 
