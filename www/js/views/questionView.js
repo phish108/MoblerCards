@@ -135,7 +135,7 @@ QuestionView.prototype.tap = function (event) {
 QuestionView.prototype.showQuestionTitle = function () {
     var currentQuestionType = this.app.models.questionpool.getQuestionType();
 
-//    $("#questiondynamicicon").removeClass(); 
+    $("#questiondynamicicon").removeClass(); 
     $("#questiondynamicicon").addClass(jQuery.i18n.prop('msg_' + currentQuestionType + '_icon'));
 };
 
