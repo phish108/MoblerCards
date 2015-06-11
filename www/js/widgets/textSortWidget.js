@@ -60,52 +60,6 @@ function TextSortWidget(opts) {
     self.didApologize = false;
 }
 
-//creates a new mouse event of the specified type
-function createEvent(type, event) {
-    var first = event.changedTouches[0];
-    var simulatedEvent = document.createEvent("MouseEvent");
-    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX,
-        first.screenY, first.clientX, first.clientY, false, false, false,
-        false, 0, null);
-
-    first.target.dispatchEvent(simulatedEvent);
-}
-
-TextSortWidget.prototype.startMove = function (event) {
-    var id = event.target.id;
-    console.log("[TextSortWidget] startMove detected: " + id);
-    
-    if (id.split("_")[0] === "answertick") {
-        createEvent("mousedown", event);
-        this.dragActive = true;
-    }
-};
-
-TextSortWidget.prototype.duringMove = function (event, touches) {
-    event.preventDefault();
-    createEvent("mousemove", event);
-
-    // if an element is dragged on the header, scroll the list down
-    var y = event.changedTouches[0].screenY;
-
-    if (this.dragActive && y < 60) {
-        if (window.pageYOffset > y) {
-            var scroll = y > 20 ? y - 20 : 0;
-            window.scrollTo(0, scroll);
-        }
-    }
-};
-
-TextSortWidget.prototype.endMove = function (event) {
-    createEvent("mouseup", event);
-    var y = event.changedTouches[0].screenY;
-
-    if (this.dragActive && y < 60) {
-        window.scrollTo(0, 0);
-        this.dragActive = false; 
-    }
-};
-
 /**
  * Make sure that the array for the users answers is empty.
  * @prototype
@@ -118,6 +72,7 @@ TextSortWidget.prototype.prepare = function () {
 
 /**
  * Decide whether to show the widget for the answer or feedback view.
+ * Make the unsorted list sortable.
  * @prototype
  * @function update
  * @param {NONE}
@@ -142,8 +97,6 @@ TextSortWidget.prototype.update = function () {
             }
         });
         
-        $("#answerbox").find("li").addClass("untouchable");
-        $(".dragicon").addClass("icon-drag");
         this.showAnswer();
     }
     else {
@@ -156,7 +109,7 @@ TextSortWidget.prototype.update = function () {
  * @prototype
  * @function cleanup
  * @param {NONE}
- **/
+ */
 TextSortWidget.prototype.cleanup = function () {
     var answers = [];
     
@@ -170,6 +123,76 @@ TextSortWidget.prototype.cleanup = function () {
 };
 
 /**
+ * Creates a new mouse event of the specified type
+ * @event
+ * @function createEvent
+ * @param {String} type - describes the type of the mouse event.
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
+function createEvent(type, event) {
+    var first = event.changedTouches[0];
+    var simulatedEvent = document.createEvent("MouseEvent");
+    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX,
+        first.screenY, first.clientX, first.clientY, false, false, false,
+        false, 0, null);
+
+    first.target.dispatchEvent(simulatedEvent);
+}
+
+/**
+ * If a move gesture is detected on the 'answertick' element in the list, the move is set in motion calling createEvent with argument "mousedown".
+ * @prototype
+ * @function startMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
+TextSortWidget.prototype.startMove = function (event) {
+    var id = event.target.id;
+    console.log("[TextSortWidget] startMove detected: " + id);
+    
+    if (id.split("_")[0] === "answertick") {
+        createEvent("mousedown", event);
+        this.dragActive = true;
+    }
+};
+
+/**
+ * CreateEvent with argument "mousemove" will be called, if a movement is still occuring.
+ * @prototype
+ * @function duringMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
+TextSortWidget.prototype.duringMove = function (event) {
+    event.preventDefault();
+    createEvent("mousemove", event);
+
+    // if an element is dragged on the header, scroll the list down
+    var y = event.changedTouches[0].screenY;
+
+    if (this.dragActive && y < 60) {
+        if (window.pageYOffset > y) {
+            var scroll = y > 20 ? y - 20 : 0;
+            window.scrollTo(0, scroll);
+        }
+    }
+};
+
+/**
+ * CreateEvent with argument "mouseup" will be called when the movement has stoped.
+ * @prototype
+ * @function endMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
+TextSortWidget.prototype.endMove = function (event) {
+    createEvent("mouseup", event);
+    var y = event.changedTouches[0].screenY;
+
+    if (this.dragActive && y < 60) {
+        window.scrollTo(0, 0);
+        this.dragActive = false; 
+    }
+};
+
+/**
  * displays the answer for text sort questions
  * @prototype
  * @function showAnswer
@@ -179,7 +202,7 @@ TextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
     var app = this.app;
-
+    
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var answerModel = app.models.answer;
@@ -212,14 +235,17 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
         }
     }
+
+    $("#answerbox").find("li").addClass("untouchable");
+    $(".dragicon").addClass("icon-drag touchable");
 };
 
 /**
- * displays the feedback for text sort questions
+ * Displays the correct order of the list.
  * @prototype
  * @function showFeedback
  * @param {NONE}
- **/
+ */
 TextSortWidget.prototype.showFeedback = function () {
     var app = this.app;
 

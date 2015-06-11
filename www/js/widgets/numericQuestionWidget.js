@@ -52,8 +52,14 @@ function NumericQuestionWidget(opts) {
     self.didApologize = false;
 }
 
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * Update a list with the currently selected answer.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
 NumericQuestionWidget.prototype.update = function() {
-    // a list with the typed answer
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
     if (this.interactive) {
@@ -65,22 +71,22 @@ NumericQuestionWidget.prototype.update = function() {
 };
 
 /**
- * Storing the typed number
+ * Storing the typed number.
  * @prototype
  * @function cleanup
  * @param {NONE}
- **/
+ */
 NumericQuestionWidget.prototype.cleanup = function () {
     var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
     this.app.models.answer.setAnswers(numericAnswer);
 };
 
 /**
- * Creation of answer body for numeric questions.
- * It contains a input field.
+ * Create a numeric input field.
  * @prototype
  * @function showAnswer
- **/
+ * @param {NONE}
+ */
 NumericQuestionWidget.prototype.showAnswer = function () {
     var self = this;
     var app = this.app;
@@ -100,30 +106,27 @@ NumericQuestionWidget.prototype.showAnswer = function () {
 };
 
 /**
- * Creation of feedback body for numeric questions.
- * It contains one or two input fields, based on the answer results
+ * Make a feedback to the user's input. If the user's answer was correct, give only the correct answer field. If the user's answer was incorrect show which his answer was and which the correct answer would be.
  * @prototype
  * @function showFeedback
- **/
+ * @param {NONE}
+ */
 NumericQuestionWidget.prototype.showFeedback = function () {
-    console.log("start show feedback in numeric choice");
     var app = this.app;
-
-    var questionpoolModel = app.models.questionpool;
     var answerModel = app.models.answer;
     var typedAnswer = answerModel.getAnswers();
-    var correctAnswer = questionpoolModel.getAnswer()[0];
-    var currentFeedbackTitle = answerModel.getAnswerResults();
+    var correctAnswer = app.models.questionpool.getAnswer()[0];
     var tmpl = app.templates.getTemplate("feedbacklistbox");
     
-    //display in an input field with the typed numeric answer of the learner
-    if (typedAnswer === "undefined" || typedAnswer === "") {typedAnswer = "NaN";}
+    if (typedAnswer === "undefined" || typedAnswer === "") {
+        typedAnswer = "NaN";
+    }
 
     tmpl.attach("feedbackbox");
     tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
     tmpl.feedbacktick.addClass("inactive");
 
-    if (currentFeedbackTitle != "Excellent") {
+    if (answerModel.getAnswerResults() != "Excellent") {
         // if the typed numeric answer is wrong
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
