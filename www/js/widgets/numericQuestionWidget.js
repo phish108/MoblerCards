@@ -43,7 +43,7 @@ under the License.
 function NumericQuestionWidget(opts) {
     var self = this;
 
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;
@@ -96,7 +96,7 @@ NumericQuestionWidget.prototype.showAnswer = function () {
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() != "undefined" &&
+        typeof questionpoolModel.getAnswer() !== "undefined" &&
         questionpoolModel.getAnswer()) {
         tmpl.attach("answerbox");
         tmpl.answerinput.removeClass("inactive");
@@ -121,13 +121,15 @@ NumericQuestionWidget.prototype.showFeedback = function () {
     var tmpl = this.app.templates.getTemplate("feedbacklistbox");
  
     tmpl.attach("feedbackbox");
-    tmpl.feedbacktext.text = "Typed Answer: " + parseInt(typedAnswer, 10);
-    tmpl.feedbacktick.addClass("inactive");
+    tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
 
-    if (answerModel.getAnswerResults() != "Excellent") {
+    if (typedAnswer !== correctAnswer) {
         // if the typed numeric answer is wrong
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
-        tmpl.feedbacktick.addClass("inactive");
+        tmpl.feedbacktickicon.addClass("icon-checkmark");
+    }
+    else {
+        tmpl.feedbacktickicon.addClass("icon-checkmark");
     }
 };

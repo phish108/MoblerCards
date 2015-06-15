@@ -44,8 +44,8 @@ var DB_VERSION = 1;
  *  - the answer list of a question,
  *  - the answer score of a question,
  *  - the answer score list of all the answered questions,
- * 	- the id of the current course, the id of the current question
- * 	- the start time point that the user reached a question
+ *  - the id of the current course, the id of the current question
+ *  - the start time point that the user reached a question
  * It opens the local html5-type database. If it doesn't exist yet it is initiated in the constructor.
  */
 function AnswerModel(controller) {
@@ -219,30 +219,28 @@ AnswerModel.prototype.calculateMultipleChoiceScore = function () {
  * @function calculateTextSortScore
  **/
 AnswerModel.prototype.calculateTextSortScore = function () {
-    var i,
-        j,
+    var i,j, currAnswer, followingIndex, followingCorrAnswers, itemScore,
         scores = [];
 
     this.answerScore = 0;
-
+    
     for (i = 0; i < this.answerList.length; i++) {
 
         // 1. Check for correct sequences
         //The currAnswer is the index of the answered item in the answer view
-        var currAnswer = this.answerList[i];
-        var followingIndex = i + 1;
-        var followingCorrAnswers = 0;
-        // Count the number of items in sequence
-        // and stop if we loose the sequence.
-        // The sequence is detected when the next item in the answer list
-        // is the same with the next item after the currAnswer.
+        currAnswer = this.answerList[i];
+        followingIndex = i + 1;
+        followingCorrAnswers = 0;
+        // Count the number of items in sequence and stop if we loose the sequence.
+        // The sequence is detected when the next item in the answer list is the same with the next item after the currAnswer.
         while (followingIndex < this.answerList.length && this.answerList[followingIndex++] === String(++currAnswer)) {
             followingCorrAnswers++;
         }
 
         // 2. calculate the score for all elements in a sequence
-        var itemScore = 0;
+        itemScore = 0;
         // if the item is in the correct position we assign a low score
+        console.log("the answerlist at position " + i + " has value: " + this.answerList[i]);
         if (this.answerList[i] === i) {
             itemScore += 0.5;
         }
@@ -264,8 +262,9 @@ AnswerModel.prototype.calculateTextSortScore = function () {
         // 4. skip all items that we have handled already
         i = i + followingCorrAnswers;
     }
-    //an array that contains for each item in the answer list an assigned score
+//  an array that contains for each item in the answer list an assigned score
     this.answerScoreList = scores;
+    console.log("The final answerscorelist: " + this.answerScoreList);
 };
 
 
@@ -319,7 +318,7 @@ AnswerModel.prototype.calculateClozeQuestionScore = function () {
         }
     }
 
-    this.answerScore = calculateAnswerScoreValue();
+    this.answerScore = this.calculateAnswerScoreValue();
 
     function calculateAnswerScoreValue() {
         console.log("calculates answre score value in cloze questions");
@@ -330,18 +329,18 @@ AnswerModel.prototype.calculateClozeQuestionScore = function () {
             sumValue = sumValue + gaps[gapindex];
         }
         console.log("sumvalue is " + sumValue);
-        if (sumValue == 0) {
+        if (sumValue === 0) {
             this.answerScore = 0;
-        } else if (sumValue == gaps.length) { // if all gaps are filled in correctly, then all elements of the gaps array have value 1
+        } else if (sumValue === gaps.length) { // if all gaps are filled in correctly, then all elements of the gaps array have value 1
             // so the sum of these values is equal to the length of the array
             this.answerScore = 1;
         } else {
-            this.answerScore = 0.5
+            this.answerScore = 0.5;
         }
-        return this.answerScore;
         console.log("answer score value within function is " + this.answerScore);
-    };
-}
+        return this.answerScore;
+    }
+};
 
 /**
  * Sets the course id
@@ -459,7 +458,7 @@ AnswerModel.prototype.deleteDB = function () {
     //console.log("featured content id in deleteDB is "+featuredContentId);
     var self = this;
     //localStorage.removeItem("db_version"); // this line is from before we had featured content.
-    var courseList = self.controller.models["course"].getCourseList();
+    var courseList = self.controller.models.course.getCourseList();
     //var courseList = this.controller.models["course"].courseList;
     console.log("course list for the specific user is " + JSON.stringify(courseList));
     this.db.transaction(function (tx) {

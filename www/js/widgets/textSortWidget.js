@@ -116,12 +116,11 @@ TextSortWidget.prototype.cleanup = function () {
     if (!this.didApologize) {
         $("#answerbox").find("li").each(function (index) {
             var id = $(this).attr("id").split("_")[2];
-            console.log("text sort widget save ids' in answers array: " + id);
             answers.push(parseInt(id,10));
         });
+        console.log(answers);
         this.app.models.answer.setAnswers(answers);
     }
-    console.log(answers);
 };
 
 /**
@@ -237,7 +236,7 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
         }
     }
-
+    
     $("#answerbox").find("li").addClass("untouchable");
     $(".dragicon").show();
     $(".tick").hide();

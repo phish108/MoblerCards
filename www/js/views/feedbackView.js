@@ -224,7 +224,7 @@ FeedbackView.prototype.showFeedbackTitle = function () {
  */
 FeedbackView.prototype.showFeedbackBody = function () {
     var questionpoolModel = this.app.models.questionpool;
-//    var questionType = questionpoolModel.getQuestionType();
+    var questionType = questionpoolModel.getQuestionType();
     var feedbackText = questionpoolModel.getWrongFeedback();
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
     
