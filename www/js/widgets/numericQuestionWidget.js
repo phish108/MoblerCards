@@ -121,13 +121,15 @@ NumericQuestionWidget.prototype.showFeedback = function () {
     var tmpl = this.app.templates.getTemplate("feedbacklistbox");
  
     tmpl.attach("feedbackbox");
-    tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
+    tmpl.feedbacktext.text = "Typed Answer: " + (typedAnswer === "" ? "NaN" : typedAnswer);
 
     if (typedAnswer !== correctAnswer) {
+        tmpl.feedbacktickicon.addClass("icon-cross");
+        tmpl.feedbacktickicon.removeClass("glow2");
+        tmpl.feedbacktickicon.addClass("red");
         // if the typed numeric answer is wrong
         tmpl.attach("feedbackbox");
         tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
-        tmpl.feedbacktickicon.addClass("icon-checkmark");
     }
     else {
         tmpl.feedbacktickicon.addClass("icon-checkmark");
