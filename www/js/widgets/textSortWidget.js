@@ -239,6 +239,7 @@ TextSortWidget.prototype.showAnswer = function () {
     
     $("#answerbox").find("li").addClass("untouchable");
     $(".dragicon").show();
+    $(".listimage").addClass("touchable");
     $(".tick").hide();
 };
 
