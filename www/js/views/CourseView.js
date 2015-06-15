@@ -100,6 +100,7 @@ CourseView.prototype.prepare = function () {
 /**
  * call the functions to set up the course list.
  * FIXME The default course needs to be removed.
+ * FIXME If no courses are being loaded, there is no update when there are actually courses!
  * @protoype
  * @function update
  * @param {NONE}
@@ -130,6 +131,7 @@ CourseView.prototype.tap = function (event) {
     console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
     
     var courseId = this.app.models.course.getId();
+    var course = id.split("_");
 
     if (id === "coursecross") {
         if (this.app.getLoginState()) {
@@ -139,25 +141,27 @@ CourseView.prototype.tap = function (event) {
             this.app.changeView("landing");
         }
     }
-    else {
-        var course = id.split("_");
-
-        if (course[0] === "courselist") {
-            if (course.length === 4 &&
-                course[3] === "fd") {
-                if (this.app.selectCourseItem(course[3])) {
-                    this.app. changeView("question");
-                }
-            }
-            else {
-                if (this.app.selectCourseItem(course[2])) {
-                    this.app.changeView("question");
-                }
+    
+    // ensure that you cannot enter an empty course.
+    if (course.length > 2 && 
+        course[0] === "courselist" &&
+        course[2] != "waiting") {
+        if (course.length === 4 &&
+            course[3] === "fd") {
+            if (this.app.selectCourseItem(course[3])) {
+                this.app. changeView("question");
             }
         }
-        else if (course[0] === "courseimage") {
-            this.app.changeView("statistics");
+        else {
+            if (this.app.selectCourseItem(course[2])) {
+                this.app.changeView("question");
+            }
         }
+    }
+    
+    if (course[0] === "courseimage" &&
+        course[2] != "waiting") {
+        this.app.changeView("statistics");
     }
 };
 
