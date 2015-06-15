@@ -175,7 +175,6 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
 
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
-            fTmpl.feedbacktickicon.addClass("glow2");
         }
     }
 };

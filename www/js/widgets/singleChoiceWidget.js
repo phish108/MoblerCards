@@ -185,7 +185,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
         // the correct answer will be marked with a green tick
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
-            fTmpl.feedbacktickicon.addClass("glow2");
         }
     }
 };
