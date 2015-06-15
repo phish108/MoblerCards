@@ -116,7 +116,6 @@ LandingView.prototype.tap = function (event) {
             }
             break;
         default:
-            console.log("undefined tap");
             break;
     }
 };
