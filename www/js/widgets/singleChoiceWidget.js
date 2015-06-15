@@ -101,20 +101,22 @@ SingleChoiceWidget.prototype.cleanup = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 SingleChoiceWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-    var answerId = "answerlist_answerlistbox_";
-    var li = $("#" + answerId + this.selectedAnswer[0]);
-    
-    if ($("#" + id).hasClass("gradient2")) {
-        if (li.hasClass("gradientSelected")) {
-            li.removeClass("gradientSelected").addClass("gradient2");
+    if (this.interactive) {
+        var id = event.target.id;
+        var answerId = "answerlist_answerlistbox_";
+        var li = $("#" + answerId + this.selectedAnswer[0]);
+
+        if ($("#" + id).hasClass("gradient2")) {
+            if (li.hasClass("gradientSelected")) {
+                li.removeClass("gradientSelected").addClass("gradient2");
+            }
+            $("#" + id).removeClass("gradient2").addClass("gradientSelected");
+            this.selectedAnswer[0] = id.split("_")[2];
         }
-        $("#" + id).removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer[0] = id.split("_")[2];
-    }
-    else if ($("#" + id).hasClass("gradientSelected")) {
-        $("#" + id).removeClass("gradientSelected").addClass("gradient2");
-        this.selectedAnsewr[0] = -1;
+        else if ($("#" + id).hasClass("gradientSelected")) {
+            $("#" + id).removeClass("gradientSelected").addClass("gradient2");
+            this.selectedAnswer[0] = -1;
+        }
     }
 };
 
