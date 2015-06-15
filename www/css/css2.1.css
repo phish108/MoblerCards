@@ -229,7 +229,6 @@ input.listlabel {
 /****************** Course View ******************************/
 .loadingrotation {
     -webkit-animation: spin 3s infinite linear;
-    font-size: 25px;
 }
 /****************** About View ******************************/
 #abouttitlelist {

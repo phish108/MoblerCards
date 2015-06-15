@@ -232,8 +232,8 @@ CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
         ctmpl.courseimg.addClass("icon-bars");
     }
     else {
-        ctmpl.courseimage.addClass("icon-loading");
-        ctmpl.courseimage.addClass("loadingrotation");
+        ctmpl.courseimg.addClass("icon-loading");
+        ctmpl.courserotate.addClass("loadingrotation");
     }
 };
 
