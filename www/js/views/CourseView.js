@@ -144,15 +144,14 @@ CourseView.prototype.tap = function (event) {
     
     // ensure that you cannot enter an empty course.
     if (course.length > 2 && 
-        course[0] === "courselist" &&
-        course[2] != "waiting") {
+        course[0] === "courselist") {
         if (course.length === 4 &&
             course[3] === "fd") {
             if (this.app.selectCourseItem(course[3])) {
                 this.app. changeView("question");
             }
         }
-        else {
+        else if (this.app.models.course.isSynchronized(course[2])) {
             if (this.app.selectCourseItem(course[2])) {
                 this.app.changeView("question");
             }
@@ -160,7 +159,7 @@ CourseView.prototype.tap = function (event) {
     }
     
     if (course[0] === "courseimage" &&
-        course[2] != "waiting") {
+        this.app.models.course.isSynchronized(course[2])) {
         this.app.changeView("statistics");
     }
 };
@@ -184,7 +183,7 @@ CourseView.prototype.setCourse = function () {
             courseId = courseModel.getId();
             courseTitle = courseModel.getTitle();
 
-            if (courseTitle != "false" && courseId != "false") {
+            if (courseTitle !== "false" && courseId !== "false") {
                 ctmpl.attach(courseId);
                 ctmpl.courselabel.text = courseTitle;
 
