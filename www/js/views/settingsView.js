@@ -108,7 +108,7 @@ SettingsView.prototype.loadData = function () {
         }
         $("#aboutMore").show();
 
-        $("#settingslmsimg").attr("src", lms.logofile);
+//        $("#settingslmsimg").attr("src", lms.logofile);
         $("#settingslmslabel").text(lms.name);
     });
 

@@ -16,6 +16,7 @@
 
     <link href="css/css2.1.css" rel="stylesheet" type="text/css">
     <link href="libs/icomoon/style.css" rel="stylesheet" type="text/css">
+    <link href="libs/icomoonNewTab/style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body id="myDoc">
@@ -180,7 +181,7 @@
                         </div>
                         <div id="courselabel" class="listlabel"></div>
                         <div id="courseimage" class="listimage separator touchable">
-                            <span id="courseimg"></span>
+                            <div id="courserotate"><span id="courseimg"></span></div>
                         </div>
                     </li>
                 </template>
@@ -207,33 +208,26 @@
 
         <div id="settingscontent" class="contentbox">
             <ul id="settingsData" class="gradient2">
-                <li id="settingslist" class="listbox">
-                    <div id="settingslmslabel" class="listlabel"></div>
-                    <div id="settingslmsimage" class="listimage"><img id="settingslmsimg"/></div>
+                <li class="listbox gradient2">
+                    <span id="setingsLmsSet" class="settingslabel">LMS</span>
+                    <span id="settingslmslabel" class="settingsitem"></span>
+                    <!--<div id="settingslmsimage" class="listimage"><img id="settingslmsimg"/></div>-->
                 </li>
-                <li>
-                    <div class="settingsLi">
-                        <span id="nameLabelSet" class="settingslabel"></span>
-                        <span id="nameItemSet"></span>
-                    </div>
+                <li class="listbox gradient2">
+                    <span id="nameLabelSet" class="settingslabel"></span>
+                    <span id="nameItemSet" class="settingsitem"></span>
                 </li>
-                <li>
-                    <div class="settingsLi">
-                        <span id="usernameLabelSet" class="settingslabel"></span>
-                        <span id="usernameItemSet"></span>
-                    </div>
+                <li class="listbox gradient2">
+                    <span id="usernameLabelSet" class="settingslabel"></span>
+                    <span id="usernameItemSet" class="settingsitem"></span>
                 </li>
-                <li>
-                    <div class="settingsLi">
-                        <span id="emailLabelSet" class="settingslabel"></span>
-                        <span id="emailItemSet"></span>
-                    </div>
+                <li class="listbox gradient2">
+                    <span id="emailLabelSet" class="settingslabel"></span>
+                    <span id="emailItemSet" class="settingsitem"></span>
                 </li>
-                <li>
-                    <div class="settingsLi">
-                        <span id="languageLabelSet" class="settingslabel"></span>
-                        <span id="languageItemSet"></span>
-                    </div>
+                <li class="listbox gradient2">
+                    <span id="languageLabelSet" class="settingslabel"></span>
+                    <span id="languageItemSet" class="settingsitem"></span>
                 </li>
                 <li id="deactivateLi" class="hidden">
                     <div class="settingsLi gradientMessages ">
@@ -271,12 +265,16 @@
                     <div id="copyright" class="listlabel"></div>
                 </li>
                 <li class="listbox gradient2">
-                    <div id="openSource" class="listlabel">
-                        <a href="https://github.com/ISN-Zurich/ISN-Learning-Cards" target="_blank">GitHub</a>
+                    <div id="openSource" class="listlabel"></div>
+                    <div id="opensourceicon" class="listimage separator touchable">
+                        <span class="icon-new-tab"></span>
                     </div>
                 </li>
                 <li class="listbox gradient2">
                     <div id="license" class="listlabel"></div>
+                    <div id="licenseicon" class="listimage separator touchable">
+                        <span class="icon-new-tab"></span>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -321,7 +319,6 @@
             <ul>
                 <li id="questionlist" class="listbox gradient2">
                     <div id="questionlisttext" class="listlabel"></div>
-                    <div id="questiontick" class="listimage"></div>
                 </li>
             </ul>
         </div>
@@ -348,9 +345,9 @@
                 <template id="answerlistbox">
                     <li id="answerlist" class="listbox gradient2">
                         <div id="answertext" class="listlabel"></div>
-                        <div id="answertick" class="listimage separator touchable">
-                            <span id="answertickicon"></span>
-                            <span id="answerdragicon" class="dragicon"></span>
+                        <div id="answertick" class="listimage separator">
+                            <span id="answertickicon" class="tick"></span>
+                            <span id="answerdragicon" class="dragicon icon-drag" hidden></span>
                         </div>
                         <input id="answerinput" class="listlabel inactive" placeholder="##" type="number" required="required"/>
                     </li>
@@ -381,7 +378,7 @@
                     <li id="feedbacklist" class="listbox gradient2">
                         <div id="feedbacktext" class="listlabel"></div>
                         <div id="feedbacktick" class="listimage separator">
-                            <span id="feedbacktickicon"></span>
+                            <span id="feedbacktickicon" class="glow2"></span>
                         </div>
                     </li>
                 </template>
@@ -614,42 +611,42 @@
     <script type="text/javascript" src="js/models/ConfigurationModel.js"></script>
     <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
     <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
-    <script type="text/javascript" src="js/models/lmsModel.js"></script>
+    <script type="text/javascript" src="js/models/LmsModel.js"></script>
     <script type="text/javascript" src="js/models/CourseModel.js"></script>
     <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
-    <script type="text/javascript" src="js/models/answerModel.js"></script>
+    <script type="text/javascript" src="js/models/AnswerModel.js"></script>
     <script type="text/javascript" src="js/models/StatisticsModel.js"></script>
-    <script type="text/javascript" src="js/models/trackingModel.js"></script>
+    <script type="text/javascript" src="js/models/TrackingModel.js"></script>
 
     <script type="text/javascript" src="js/models/statistics/BestDayModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/handledCardsModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/averageScoreModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/progressModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/averageSpeedModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/stackHandlerModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/cardBurnerModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/HandledCardsModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/AverageScoreModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/ProgressModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/AverageSpeedModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/StackHandlerModel.js"></script>
+    <script type="text/javascript" src="js/models/statistics/CardBurnerModel.js"></script>
 
     <!-- FIXME Cloze Questions are widgets too! -->
     <script type="text/javascript" src="js/views/ClozeQuestionTypeView.js"></script>
-    <script type="text/javascript" src="js/views/answerView.js"></script>
-    <script type="text/javascript" src="js/views/lmsView.js"></script>
+    <script type="text/javascript" src="js/views/AnswerView.js"></script>
+    <script type="text/javascript" src="js/views/LmsView.js"></script>
     <script type="text/javascript" src="js/views/CourseView.js"></script>
-    <script type="text/javascript" src="js/views/feedbackView.js"></script>
-    <script type="text/javascript" src="js/views/loginView.js"></script>
-    <script type="text/javascript" src="js/views/landingView.js"></script>
-    <script type="text/javascript" src="js/views/logoutView.js"></script>
-    <script type="text/javascript" src="js/views/questionView.js"></script>
-    <script type="text/javascript" src="js/views/settingsView.js"></script>
-    <script type="text/javascript" src="js/views/statisticsView.js"></script>
-    <script type="text/javascript" src="js/views/achievementsView.js"></script>
-    <script type="text/javascript" src="js/views/aboutView.js"></script>
+    <script type="text/javascript" src="js/views/FeedbackView.js"></script>
+    <script type="text/javascript" src="js/views/LoginView.js"></script>
+    <script type="text/javascript" src="js/views/LandingView.js"></script>
+    <script type="text/javascript" src="js/views/LogoutView.js"></script>
+    <script type="text/javascript" src="js/views/QuestionView.js"></script>
+    <script type="text/javascript" src="js/views/SettingsView.js"></script>
+    <script type="text/javascript" src="js/views/StatisticsView.js"></script>
+    <script type="text/javascript" src="js/views/AchievementsView.js"></script>
+    <script type="text/javascript" src="js/views/AboutView.js"></script>
     <script type="text/javascript" src="js/views/SplashView.js"></script>
 
-    <script type="text/javascript" src="js/widgets/apologizeWidget.js"></script>
-    <script type="text/javascript" src="js/widgets/multipleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/widgets/numericQuestionWidget.js"></script>
-    <script type="text/javascript" src="js/widgets/singleChoiceWidget.js"></script>
-    <script type="text/javascript" src="js/widgets/textSortWidget.js"></script>
+    <script type="text/javascript" src="js/widgets/ApologizeWidget.js"></script>
+    <script type="text/javascript" src="js/widgets/MultipleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/widgets/NumericQuestionWidget.js"></script>
+    <script type="text/javascript" src="js/widgets/SingleChoiceWidget.js"></script>
+    <script type="text/javascript" src="js/widgets/TextSortWidget.js"></script>
 
     <script type="text/javascript">
         CoreApplication.start(MoblerCards);

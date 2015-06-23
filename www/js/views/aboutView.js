@@ -47,13 +47,25 @@ AboutView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log("[AboutView] tap registered: " + id);
     
-    if (id === "aboutcross") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("settings");
-        }
-        else {
-            this.app.changeView("landing");
-        }
+    switch (id) {
+        case "aboutcross":
+            if (this.app.getLoginState()) {
+                this.app.changeView("settings");
+            }
+            else {
+                this.app.changeView("landing");
+            }
+            break;
+        case "opensourceicon":
+            $("#" + id).addClass("gradientSelected");
+            window.open("https://github.com/ISN-Zurich/ISN-Learning-Cards");
+            break;
+        case "licenseicon":
+            $("#" + id).addClass("gradientSelected");
+            window.open("http://www.apache.org/licenses/LICENSE-2.0");
+            break;
+        default:
+            break;
     }
 };
 

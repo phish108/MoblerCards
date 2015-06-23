@@ -43,27 +43,38 @@ function SingleChoiceWidget(opts) {
     var self = this;
 
     // Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
 
     // current selected Answer
-    self.selectedAnswer = new Array();
+    self.selectedAnswer = [];
 
     // stating whether the widget allows moving
     self.moveEnabled = false;
 }
 
+/**
+ * Make sure that the array for the users answers is empty.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
 SingleChoiceWidget.prototype.prepare = function () {
-    console.log("prepare function called");  
+    this.selectedAnswer = [];
 };
-SingleChoiceWidget.prototype.update = function() {
 
-    // a list  with the currently  selected answers
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * Update a list with the currently selected answers.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
+SingleChoiceWidget.prototype.update = function () {
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
-    console.log ("ever called maybe not maybe yesnobody knows.");
     if (this.interactive) {
         this.showAnswer();
     }
@@ -71,41 +82,55 @@ SingleChoiceWidget.prototype.update = function() {
         this.showFeedback();
     }
 };
-/**
- * Handling behavior when click on the an item of the single answers list
- * @prototype
- * @function clickSingleAnswerItem
- **/
-SingleChoiceWidget.prototype.tap = function (event) {
-    var id = event.target.id;
-    var answerId = "answertext_answerlistbox_";
-    var li = $("#" + answerId + this.selectedAnswer[0]).closest("li");
-    
-    if (this.selectedAnswer.length > -1 &&
-        this.selectedAnswer[0] !== id.split("_")[2] &&
-        li.hasClass("gradientSelected")) {
-        li.removeClass("gradientSelected").addClass("gradient2");
-    }
 
-    if ($("#" + id).closest("li").hasClass("gradient2")) {
-        $("#" + id).closest("li").removeClass("gradient2").addClass("gradientSelected");
-        this.selectedAnswer[0] = id.split("_")[2];
+/**
+ * Storing the ticked answer in an array.
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ */
+SingleChoiceWidget.prototype.cleanup = function () {
+    this.app.models.answer.setAnswers(this.selectedAnswer);
+};
+
+/**
+ * Handles action when a tap occurs.
+ * Only one list element can be focused at the same time.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
+ */
+SingleChoiceWidget.prototype.tap = function (event) {
+    if (this.interactive) {
+        var id = event.target.id;
+        var answerId = "answerlist_answerlistbox_";
+        var li = $("#" + answerId + this.selectedAnswer[0]);
+
+        if ($("#" + id).hasClass("gradient2")) {
+            if (li.hasClass("gradientSelected")) {
+                li.removeClass("gradientSelected").addClass("gradient2");
+            }
+            $("#" + id).removeClass("gradient2").addClass("gradientSelected");
+            this.selectedAnswer[0] = id.split("_")[2];
+        }
+        else if ($("#" + id).hasClass("gradientSelected")) {
+            $("#" + id).removeClass("gradientSelected").addClass("gradient2");
+            this.selectedAnswer[0] = -1;
+        }
     }
 };
 
 /**
- * Creation of answer body for single choice questions. It contains a list with
- * the possible solutions which have been firstly mixed in a random order.
- * Only one of them can be ticked each time.
+ * Create a mixed list of answers.
  * @prototype
  * @function showAnswer
- **/
+ * @param {NONE}
+ */
 SingleChoiceWidget.prototype.showAnswer = function () {
     var questionpoolModel = this.app.models.questionpool;
 
     // Check if there is a question pool and if there are answers for a specific
     // question in order to display the answer body
-    console.log("maybe no answer are displayed");
     if (questionpoolModel.questionList && 
         questionpoolModel.getAnswer()[0].answertext) {
         var self = this;
@@ -132,15 +157,13 @@ SingleChoiceWidget.prototype.showAnswer = function () {
 };
 
 /**
- * Creation of feedback body for single choice questions. It contains the list
- * with the possible solutions highlighted by both the correct answer and
- * learner's ticked answer
+ * Create the answer list.
+ * Tick the correct answers and mark the users answer choice.
  * @prototype
  * @function showFeedback
+ * @param {NONE}
  **/
 SingleChoiceWidget.prototype.showFeedback = function () {
-    console.log("enter feedback view after switching from question view");
-
     var self = this;
     var app = this.app;
     var questionpoolModel = app.models.questionpool;
@@ -156,6 +179,7 @@ SingleChoiceWidget.prototype.showFeedback = function () {
 
         // the selected answer will be in gradientSelected
         if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
+            console.log("gradient: <<<<< " + mixedAnswers[c] + " >>>>>");
             fTmpl.feedbacklist.removeClass("gradient2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
@@ -163,16 +187,6 @@ SingleChoiceWidget.prototype.showFeedback = function () {
         // the correct answer will be marked with a green tick
         if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
             fTmpl.feedbacktickicon.addClass("icon-checkmark");
-            fTmpl.feedbacktickicon.addClass("glow2");
         }
     }
-};
-
-/**
- * Storing the ticked answer in an array
- * @prototype
- * @function storeAnswers
- **/
-SingleChoiceWidget.prototype.cleanup = function () {
-    this.app.models.answer.setAnswers(this.selectedAnswer);
 };

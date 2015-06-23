@@ -58,14 +58,31 @@ function TextSortWidget(opts) {
 
     // Handles the Error messages.
     self.didApologize = false;
+}
 
-    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
+/**
+ * Make sure that the array for the users answers is empty.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
+TextSortWidget.prototype.prepare = function () {
+    
+};
+
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * Make the unsorted list sortable.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
+TextSortWidget.prototype.update = function () {
+    // loads answers from model for displaying already by the user ordered elements
+    this.tickedAnswers = this.app.models.answer.getAnswers();
+
     if (this.interactive) {
-        self.showAnswer();
         // make the list sortable using JQuery UI's function
-        $("#answerbox").find("li").addClass("untouchable");
-        $(".dragicon").addClass("icon-drag");
-
         $("#answerbox").sortable({
             axis: "y",
             scroll: true,
@@ -79,15 +96,40 @@ function TextSortWidget(opts) {
                 $(ui.item).removeClass("currentSortedItem");
             }
         });
-
-        $("#answerbox").disableSelection();
+        
+        this.showAnswer();
     }
     else {
-        self.showFeedback();
+        this.showFeedback();
     }
-}
+};
 
-//creates a new mouse event of the specified type
+/**
+ * stores the current sorting order in the answer model
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ */
+TextSortWidget.prototype.cleanup = function () {
+    var answers = [];
+    
+    if (!this.didApologize) {
+        $("#answerbox").find("li").each(function (index) {
+            var id = $(this).attr("id").split("_")[2];
+            answers.push(parseInt(id,10));
+        });
+        console.log(answers);
+        this.app.models.answer.setAnswers(answers);
+    }
+};
+
+/**
+ * Creates a new mouse event of the specified type
+ * @event
+ * @function createEvent
+ * @param {String} type - describes the type of the mouse event.
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
 function createEvent(type, event) {
     var first = event.changedTouches[0];
     var simulatedEvent = document.createEvent("MouseEvent");
@@ -98,6 +140,12 @@ function createEvent(type, event) {
     first.target.dispatchEvent(simulatedEvent);
 }
 
+/**
+ * If a move gesture is detected on the 'answertick' element in the list, the move is set in motion calling createEvent with argument "mousedown".
+ * @prototype
+ * @function startMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
@@ -108,7 +156,13 @@ TextSortWidget.prototype.startMove = function (event) {
     }
 };
 
-TextSortWidget.prototype.duringMove = function (event, touches) {
+/**
+ * CreateEvent with argument "mousemove" will be called, if a movement is still occuring.
+ * @prototype
+ * @function duringMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
+TextSortWidget.prototype.duringMove = function (event) {
     event.preventDefault();
     createEvent("mousemove", event);
 
@@ -123,6 +177,12 @@ TextSortWidget.prototype.duringMove = function (event, touches) {
     }
 };
 
+/**
+ * CreateEvent with argument "mouseup" will be called when the movement has stoped.
+ * @prototype
+ * @function endMove
+ * @param {OBJECT} event - contains all the information for the touch interaction.
+ */
 TextSortWidget.prototype.endMove = function (event) {
     createEvent("mouseup", event);
     var y = event.changedTouches[0].screenY;
@@ -133,34 +193,24 @@ TextSortWidget.prototype.endMove = function (event) {
     }
 };
 
-TextSortWidget.prototype.update = function() {
-    // loads answers from model for displaying already by the user ordered elements
-    this.tickedAnswers = this.app.models.answer.getAnswers();
-
-    if (this.interactive) {
-        this.showAnswer();
-    }
-    else {
-        this.showFeedback();
-    }
-};
-
 /**
  * displays the answer for text sort questions
  * @prototype
  * @function showAnswer
+ * @param {NONE}
  */
 TextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
     var app = this.app;
-
+    
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
+    var answerModel = app.models.answer;
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
     
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
+    if (questionpoolModel.questionList && answers && answers[0].answertext) {
         var mixedAnswers;
 
         // if sorting has not started yet, mix the answers
@@ -186,55 +236,41 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
         }
     }
+    
+    $("#answerbox").find("li").addClass("untouchable");
+    $(".dragicon").show();
+    $(".listimage").addClass("touchable");
+    $(".tick").hide();
 };
 
-/**displays the feedback for text sort questions
+/**
+ * Displays the correct order of the list.
  * @prototype
  * @function showFeedback
- **/
+ * @param {NONE}
+ */
 TextSortWidget.prototype.showFeedback = function () {
-    var app = this.app;
-
-//    var questionpoolModel = app.models.questionpool;
-    // FIXME seems the questionpool does not return any Results.
-    var answers = app.models.answer.getAnswers();
-    var scores = app.models.answer.getScoreList();
-    var fTmpl = app.templates.getTemplate("feedbacklistbox");
+    var answers = this.app.models.questionpool.getAnswer();
+    var scores = this.app.models.answer.getScoreList();
+    var fTmpl = this.app.templates.getTemplate("feedbacklistbox");
     var i;
 
     for (i = 0; i < answers.length; i++) {
         fTmpl.attach(i.toString());
         fTmpl.feedbacktext.text = answers[i].answertext;
-        fTmpl.feedbacktick.addClass("inactive");
+//        fTmpl.feedbacktick.addClass("inactive");
 
         if (scores[i] === 0.5) {
-            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");
         }
         else if (scores[i] === 1) {
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
         else if (scores[i] === 1.5) {
-            fTmpl.feedbacklist.addClass("icon-checkmark");
+            fTmpl.feedbacktickicon.addClass("icon-checkmark");
             fTmpl.feedbacklist.addClass("glow2");
             fTmpl.feedbacklist.addClass("gradientSelected");
         }
-    }
-};
-
-/**stores the current sorting order in the answer model
- * @prototype
- * @function storeAnswers
- **/
-TextSortWidget.prototype.cleanup = function () {
-    var answers = [];
-
-    if (!this.didApologize) {
-        $("#answerbox").find("li").each(function (index) {
-            var id = $(this).attr("id").split("_")[2];
-            answers.push(id);
-        });
-
-        this.app.models.answer.setAnswers(answers);
     }
 };

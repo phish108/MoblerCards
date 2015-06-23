@@ -58,7 +58,8 @@ function AnswerView() {
 
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the
+    /**
+     * It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
@@ -84,39 +85,16 @@ function AnswerView() {
     });
 }
 
-AnswerView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");    
-    
-    var answer, type;
-    
-    switch (id) {
-        case "answercross":
-            if (this.app.getLoginState()) {
-                this.app.changeView("course");
-            }
-            else {
-                this.app.changeView("landing");
-            }
-            break;
-        case "answerfooter":
-        case "answercontent":
-            this.clickDoneButton();
-            break;
-        case "answerheader":
-            this.widget.storeAnswers();
-            this.app.changeView("question");
-            break;
-        default:
-            break;
-    }   
-};
-
+/**
+ * Ensure that the correct widget is being used.
+ * @prototype
+ * @function prepare
+ * @param {NONE}
+ */
 AnswerView.prototype.prepare = function () {
     this.didApologize = false;
-    // FIXME: There should be an apologize widget.
+    // TODO: There should be an apologize widget.
 
-    // ensure that the correct answer widget is used.
     var qt = this.app.models.questionpool.getQuestionType();
     switch (qt) {
         case 'assSingleChoice':
@@ -135,10 +113,11 @@ AnswerView.prototype.prepare = function () {
     this.useDelegate(qt);
 };
 
-/**Loads a subview-widget based on the specific question type
- * It is displayed within the main body area of the answer view
+/**
+ * updates the answer title and removes any error messages.
  * @prototype
- * @function showAnswerBody
+ * @function update
+ * @param {NONE}
  **/
 AnswerView.prototype.update = function () {
     this.showAnswerTitle();
@@ -147,32 +126,52 @@ AnswerView.prototype.update = function () {
     $("#dataErrorMessage").hide();
 };
 
-/**Displays the title area of the answer view,
- * containing a title icon and the title text
+/**
+ * Handles action when a tap occurs.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
+ */
+AnswerView.prototype.tap = function (event) {
+    var id = event.target.id;
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
+    
+    switch (id) {
+        case "answerfooter":
+        case "answercontent": // If any error occured, go to the next question. Otherwise get feedback to your answers.
+            if (this.didApologize) {
+                this.app.models.questionpool.nextQuestion();
+                this.app.changeView("question");
+            } 
+            else {
+                this.app.changeView("feedback");
+            }
+            break;
+        case "answerheader": // Get back to the question
+            this.app.changeView("question");
+            break;
+        case "answercross": // Close the answer view.
+            if (this.app.getLoginState()) {
+                this.app.changeView("course");
+            }
+            else {
+                this.app.changeView("landing");
+            }
+            break;
+        default:
+            break;
+    }   
+};
+
+/**
+ * Displays the title area of the answer view, containing a title icon and the title text.
  * @prototype
  * @function showAnswerTitle
+ * @param {NONE}
  **/
 AnswerView.prototype.showAnswerTitle = function () {
     var currentAnswerTitle = this.app.models.questionpool.getQuestionType();
     $("#answerdynamicicon").removeClass();
     $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
-};
-
-/**Handling the behavior of the "forward-done" button on the answer view
- * @prototype
- * @function clickDoneButton
- **/
-AnswerView.prototype.clickDoneButton = function () {
-    var questionpoolModel = this.app.models.questionpool;
-    
-    if (this.didApologize) {
-        // FIXME this should be moved into the apologize widget.
-
-        // if there was a problem with the data, the widget knows
-        // in this case we proceed to the next question
-        //statisticsModel.resetTimer();
-        questionpoolModel.nextQuestion();
-        this.app.changeView("question");
-    } 
 };

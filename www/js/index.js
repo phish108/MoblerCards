@@ -220,12 +220,9 @@ MoblerCards.prototype.setupLanguage = function () {
         mode: 'both',
         language: this.models.configuration.getLanguage(),
         callback: function () { // initialize the static strings on all views
-            $("#usernameInput").attr("placeholder",
-                                     jQuery.i18n.prop('msg_placeholder_username'));
-            $("#numberInput").attr("placeholder",
-                                   jQuery.i18n.prop('msg_placeholder_numberinput'));
-            $("#password").attr("placeholder",
-                                jQuery.i18n.prop('msg_placeholder_password'));
+            $("#usernameInput").attr("placeholder", jQuery.i18n.prop('msg_placeholder_username'));
+            $("#numberInput").attr("placeholder", jQuery.i18n.prop('msg_placeholder_numberinput'));
+            $("#password").attr("placeholder", jQuery.i18n.prop('msg_placeholder_password'));
             $("#coursesListTitle").text(jQuery.i18n.prop('msg_courses_list_title'));
             $("#lmsListTitle").text(jQuery.i18n.prop('msg_lms_list_title'));
             $("#settingsTitle").text(jQuery.i18n.prop('msg_settings_title'));
