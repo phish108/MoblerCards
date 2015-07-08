@@ -57,8 +57,8 @@ function AnswerModel(controller) {
     this.currentCourseId = -1;
     this.currentQuestionId = -1;
     this.start = -1;
-    var featuredContentId = FEATURED_CONTENT_ID;
-    this.db = openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database',
+    // var featuredContentId = FEATURED_CONTENT_ID;
+    this.db = window.openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database',
         100000);
     if (!localStorage.getItem("db_version")) {
         this.initDB();
@@ -114,15 +114,16 @@ AnswerModel.prototype.getAnswerResults = function () {
     if (this.answerScore === 1) {
         console.log("Excellent");
         return "Excellent";
-    } 
-    else if (this.answerScore === 0) {
+    }
+
+    if (this.answerScore === 0) {
         console.log("Wrong");
         return "Wrong";
-    } 
-    else {
-        console.log("PartiallyCorrect");
-        return "PartiallyCorrect";
     }
+
+    console.log("PartiallyCorrect");
+    return "PartiallyCorrect";
+
 };
 
 
@@ -223,7 +224,7 @@ AnswerModel.prototype.calculateTextSortScore = function () {
         scores = [];
 
     this.answerScore = 0;
-    
+
     for (i = 0; i < this.answerList.length; i++) {
 
         // 1. Check for correct sequences
@@ -307,8 +308,10 @@ AnswerModel.prototype.calculateClozeQuestionScore = function () {
 
     // the actual and the filled answers,
     // 1 is assigned as a value  if the answer was filled correctly for the specific (index i) gap and 0 if not
+    var actualCorrectGaps;
     for (i = 0; i < filledAnswers.length; i++) {
-        var actualCorrectGaps = getCorrectGaps(i); // an array containing the correct answers for the gap with the index i in the
+        // FIXME getCorrectGaps must be member of QuestionPoolModel
+        actualCorrectGaps = getCorrectGaps(i); // an array containing the correct answers for the gap with the index i in the
         // object that is returned from the server
         console.log("actual Correct Gaps for gap " + i + " is " + actualCorrectGaps);
         if (actualCorrectGaps.indexOf(filledAnswers[i]) !== -1) {
@@ -320,6 +323,7 @@ AnswerModel.prototype.calculateClozeQuestionScore = function () {
 
     this.answerScore = this.calculateAnswerScoreValue();
 
+    // TODO: where does this function belong to!?
     function calculateAnswerScoreValue() {
         console.log("calculates answre score value in cloze questions");
         var sumValue = 0, // a helper variable that calculates the sum of the values of the gaps array
@@ -357,10 +361,9 @@ AnswerModel.prototype.setCurrentCourseId = function (courseId) {
  * @prototype
  * @function startTimer
  **/
-AnswerModel.prototype.startTimer = function (questionId) {
+AnswerModel.prototype.startTimer = function () {
     this.start = (new Date()).getTime();
     console.log("this.start in startTimer is " + this.start);
-    this.currentQuestionId = questionId;
     console.log("currentQuestionId: " + this.currentQuestionId);
 };
 
@@ -519,12 +522,12 @@ AnswerModel.prototype.calculateScore = function () {
  * @ return true if the filled answer is among the correct answers, false in the opposite case
  **/
 AnswerModel.prototype.checkFilledAnswer = function (filledAnswer, gapIndex) {
+    // FIME: CorrectGaps in QuestionPoolModel
     var correctGaps = getCorrectGaps(gapIndex);
     if (correctGaps.indexOf(filledAnswer) !== -1) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 };
 
 
@@ -539,4 +542,56 @@ AnswerModel.prototype.dataAvailable = function () {
         return true;
     }
     return false;
+};
+
+AnswerModel.prototype.initAttempt = function (questionid) {
+    // TODO check if timer works correctly
+    if (this.currentQuestionId !== questionid) {
+        // create a new attempt
+        this.currentQuestionId = questionid;
+        this.startTimer();
+    }
+};
+
+/**
+ * Create an XAPI statement for the statistics model
+ */
+AnswerModel.prototype.createAttemptReport = function () {
+    var now = (new Date()).getTime();
+    var duration = now - this.start;
+    var report = {
+        "ID": this.app.models.statistics.generateUUID(),
+        "Actor": {
+            "objectType": "Agent",
+            "name": this.app.models.configuration.getUserId()
+        },
+        "Verb": {
+            "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
+        },
+        "Object": {
+            "id": this.currentQuestionId,
+            "ObjectType": "Activity"
+        },
+        "timestamp": now, // FIXME: output ISO Time
+        "result": {
+            "duration": duration, // FIXME output ISO time
+            "score": this.answerScore,
+            "success": this.answerScore === 1 ? true : false,
+            "extensions": {
+                "http://www.mobinaut.io/mobler/xapiextensions/IMSQTIResult": this.getAnswers()
+            }
+        }
+    };
+    return report;
+};
+
+AnswerModel.prototype.finishAttempt = function () {
+    // END TIMER + CALC SCORE
+    this.calculateScore();
+    var report = this.createAttemptReport();
+
+    // TODO: inform statistics model about the results.
+    this.app.models.statistics.storeAttempt(report);
+
+    this.resetTimer();
 };
