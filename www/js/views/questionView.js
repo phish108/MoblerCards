@@ -80,18 +80,7 @@ function QuestionView() {
  * @function prepare
  * @param {NONE}
  */
-QuestionView.prototype.prepare = function () {
-    var featuredContentId = FEATURED_CONTENT_ID;
-
-    // TODO Ensure that this timer is working correctly.
-    if (!this.app.models.answer.hasStarted()) {
-        if (featuredContentId) {
-            this.app.models.answer.startTimer(featuredContentId);
-        } else {
-            this.app.models.answer.startTimer(this.app.models.questionpool.getId());
-        }
-    }
-};
+QuestionView.prototype.prepare = function () {};
 
 QuestionView.prototype.update = function () {
     this.showQuestionTitle();
@@ -106,6 +95,8 @@ QuestionView.prototype.update = function () {
  */
 QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
+    var questionID = this.app.models.questionpool.getId();
+
     console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
     switch (id) {
@@ -123,6 +114,7 @@ QuestionView.prototype.tap = function (event) {
                 this.app.changeView("feedback");
             }
             else {
+                this.app.models.answer.initAttempt(questionID);
                 this.app.changeView("answer");
             }
             break;
