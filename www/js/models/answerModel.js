@@ -559,6 +559,7 @@ AnswerModel.prototype.initAttempt = function (questionid) {
 AnswerModel.prototype.createAttemptReport = function () {
     var now = (new Date()).getTime();
     var duration = now - this.start;
+    var questionPoolURL = this.app.models.lms.getServiceURL("ch.isn.lms.questions") + "/" + this.app.models.questionpool.getCourseID();
     var report = {
         "ID": this.controller.models.statistics.generateUUID(),
         "Actor": {
@@ -579,6 +580,14 @@ AnswerModel.prototype.createAttemptReport = function () {
             "success": this.answerScore === 1 ? true : false,
             "extensions": {
                 "http://www.mobinaut.io/mobler/xapiextensions/IMSQTIResult": this.getAnswers()
+            }
+        },
+        "context": {
+            "contextActivities": {
+                "parent": [
+                    {"id": questionPoolURL}, 
+                    {"id": questionPoolURL + "/" + this.app.models.questionpool.getPoolID()}
+                ]
             }
         }
     };
