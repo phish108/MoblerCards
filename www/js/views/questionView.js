@@ -44,7 +44,8 @@ function QuestionView() {
     this.tagID = this.app.viewId;
     var featuredContentId = FEATURED_CONTENT_ID;
 
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the 
+    /**
+     * It is triggered after statistics are loaded locally from the server. This can happen during the 
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the question text and preventing the display of the statistics view
@@ -56,7 +57,8 @@ function QuestionView() {
         }
     });
 
-    /**It is triggered when the calculation of all the statistics metrics is done
+    /**
+     * It is triggered when the calculation of all the statistics metrics is done
      * @event allstatisticcalculationsdone
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
@@ -71,6 +73,8 @@ function QuestionView() {
 }
 
 /**
+ * Call 'showQuestionTitle()' and 'showQuestionBody()'. 
+ * Start the timer.
  * @prototype
  * @function prepare
  * @param {NONE}
@@ -78,10 +82,10 @@ function QuestionView() {
 QuestionView.prototype.prepare = function () {
     var featuredContentId = FEATURED_CONTENT_ID;
     
-    console.log("[QuestionView] prepare");
-    
     this.showQuestionTitle();
     this.showQuestionBody();
+    
+    // TODO Ensure that this timer is working correctly.
     if (!this.app.models.answer.hasStarted()) {
         if (featuredContentId) {
             this.app.models.answer.startTimer(featuredContentId);
@@ -92,20 +96,17 @@ QuestionView.prototype.prepare = function () {
 };
 
 /**
- * @prototype
- * @function cleanup
- * @param {NONE}
+ * Handles action when a tap occurs.
+ * @protoype
+ * @function tap
+ * @param {object} event - contains all the information for the touch interaction.
  */
-QuestionView.prototype.cleanup = function () {
-    
-};
-
 QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
 
     switch (id) {
-        case "questioncross":
+        case "questioncross": // Close the question view.
             this.app.models.answer.resetTimer();
             if (this.app.getLoginState()) {
                 this.app.changeView("course");
@@ -114,7 +115,7 @@ QuestionView.prototype.tap = function (event) {
                 this.app.changeView("landing");
             }
             break;
-        default:
+        default: // If anything besides the close button is taped, move to the answer view.
             if (this.app.models.answer.answerScore > -1) {
                 this.app.changeView("feedback");
             } 
@@ -126,28 +127,26 @@ QuestionView.prototype.tap = function (event) {
 };
 
 /**
- * shows the current question text
- * @prototype
- * @function showQuestionBody
- * @param {NONE}
- **/
-QuestionView.prototype.showQuestionBody = function () {
-    var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
-    console.log("current question: " + currentQuestionBody);
-    
-    $("#questionlisttext").html(currentQuestionBody);
-};
-
-
-/**
- * shows the current question title and the corresponding icon
+ * Shows the current question title and the corresponding icon.
  * @prototype
  * @function showQuestionTitle
  * @param {NONE}
- **/
+ */
 QuestionView.prototype.showQuestionTitle = function () {
     var currentQuestionType = this.app.models.questionpool.getQuestionType();
 
-    $("#questiondynamicicon").removeClass();
+    $("#questiondynamicicon").removeClass(); 
     $("#questiondynamicicon").addClass(jQuery.i18n.prop('msg_' + currentQuestionType + '_icon'));
+};
+
+/**
+ * Shows the current question text.
+ * @prototype
+ * @function showQuestionBody
+ * @param {NONE}
+ */
+QuestionView.prototype.showQuestionBody = function () {
+    var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
+    
+    $("#questionlisttext").html(currentQuestionBody);
 };

@@ -43,20 +43,23 @@ under the License.
 function NumericQuestionWidget(opts) {
     var self = this;
 
-    self.interactive = typeof opts === "object" ? opts.interactive : false
+    self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;
 
     // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
     self.didApologize = false;
-
-    // interactive is an attribute given by either the AnswerView or FeedbackView to clarify which View is using the Widget.
-
 }
 
+/**
+ * Decide whether to show the widget for the answer or feedback view.
+ * Update a list with the currently selected answer.
+ * @prototype
+ * @function update
+ * @param {NONE}
+ */
 NumericQuestionWidget.prototype.update = function() {
-    // a list with the typed answer
     this.tickedAnswers = this.app.models.answer.getAnswers();
 
     if (this.interactive) {
@@ -68,11 +71,22 @@ NumericQuestionWidget.prototype.update = function() {
 };
 
 /**
- * Creation of answer body for numeric questions.
- * It contains a input field.
+ * Storing the typed number.
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ */
+NumericQuestionWidget.prototype.cleanup = function () {
+    var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
+    this.app.models.answer.setAnswers(numericAnswer);
+};
+
+/**
+ * Create a numeric input field.
  * @prototype
  * @function showAnswer
- **/
+ * @param {NONE}
+ */
 NumericQuestionWidget.prototype.showAnswer = function () {
     var self = this;
     var app = this.app;
@@ -82,55 +96,42 @@ NumericQuestionWidget.prototype.showAnswer = function () {
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
     if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() != "undefined" &&
+        typeof questionpoolModel.getAnswer() !== "undefined" &&
         questionpoolModel.getAnswer()) {
         tmpl.attach("answerbox");
         tmpl.answerinput.removeClass("inactive");
         tmpl.answertick.addClass("inactive");
         tmpl.answertext.addClass("inactive");
     }
-};
-
-/**
- * Creation of feedback body for numeric questions.
- * It contains one or two input fields, based on the answer results
- * @prototype
- * @function showFeedback
- **/
-NumericQuestionWidget.prototype.showFeedback = function () {
-    console.log("start show feedback in numeric choice");
-    var app = this.app;
-
-    var questionpoolModel = app.models.questionpool;
-    var answerModel = app.models.answer;
-    var typedAnswer = answerModel.getAnswers();
-    var correctAnswer = questionpoolModel.getAnswer()[0];
-    var currentFeedbackTitle = answerModel.getAnswerResults();
-    var tmpl = app.templates.getTemplate("feedbacklistbox");
-    
-    //display in an input field with the typed numeric answer of the learner
-    if (typedAnswer === "undefined" || typedAnswer === "") {typedAnswer = "NaN";}
-
-    tmpl.attach("feedbackbox");
-    tmpl.feedbacktext.text = "Typed Answer: " + typedAnswer;
-    tmpl.feedbacktick.addClass("inactive");
-
-    if (currentFeedbackTitle != "Excellent") {
-        // if the typed numeric answer is wrong
-        tmpl.attach("feedbackbox");
-        tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
-        tmpl.feedbacktick.addClass("inactive");
+    else {
+        this.didApologize = true;
     }
 };
 
 /**
- * Storing the typed number
+ * Make a feedback to the user's input. If the user's answer was correct, give only the correct answer field. If the user's answer was incorrect show which his answer was and which the correct answer would be.
  * @prototype
- * @function storeAnswers
- **/
-NumericQuestionWidget.prototype.cleanup = function () {
-    var app = this.app;
-    var questionpoolModel = app.models.questionpool;
-    var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
-    app.models.answer.setAnswers(numericAnswer);
+ * @function showFeedback
+ * @param {NONE}
+ */
+NumericQuestionWidget.prototype.showFeedback = function () {
+    var answerModel = this.app.models.answer;
+    var typedAnswer = answerModel.getAnswers();
+    var correctAnswer = this.app.models.questionpool.getAnswer()[0];
+    var tmpl = this.app.templates.getTemplate("feedbacklistbox");
+ 
+    tmpl.attach("feedbackbox");
+    tmpl.feedbacktext.text = "Typed Answer: " + (typedAnswer === "" ? "NaN" : typedAnswer);
+
+    if (typedAnswer !== correctAnswer) {
+        tmpl.feedbacktickicon.addClass("icon-cross");
+        tmpl.feedbacktickicon.removeClass("glow2");
+        tmpl.feedbacktickicon.addClass("red");
+        // if the typed numeric answer is wrong
+        tmpl.attach("feedbackbox");
+        tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
+    }
+    else {
+        tmpl.feedbacktickicon.addClass("icon-checkmark");
+    }
 };
