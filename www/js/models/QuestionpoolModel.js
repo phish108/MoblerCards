@@ -52,7 +52,6 @@ function QuestionPoolModel(controller) {
     // if the question list length is less than this constant,
     // the queue is not used
     this.queueConstant = 4;
-    var featuredContent_id = FEATURED_CONTENT_ID;
 }
 
 /**
@@ -109,6 +108,11 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
     var self = this;
     var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.questions");
 
+    function setHeader(xhr) {
+        xhr.setRequestHeader('sessionkey',
+            self.controller.models.configuration.getSessionKey());
+    }
+
     $
         .ajax({
             url: activeURL + "/" + courseId,
@@ -117,6 +121,7 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
             success: function (data) {
 //                console.log("success");
 
+                // FIXME: this is either a view event or part of the configuration model
                 turnOffDeactivate();
 
                 //if this was a pending question pool, remove it from the storage
@@ -132,8 +137,9 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
 
                     //clean html before inserting the data into the localstorage
                     if (questionPoolObject.length > 0) {
-                        for (var j = 0; j < questionPoolObject.length; j++) {
-                            var question = questionPoolObject[j];
+                        var j, question;
+                        for ( j = 0; j < questionPoolObject.length; j++) {
+                            question = questionPoolObject[j];
                             //clear the answertext
 //                            console.log("Question object");
 //                            console.dir(question);
@@ -143,11 +149,11 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
 //                            console.log("*****************************************************************");
 //                            console.log("--> question id " + question.id);
 
-                            question["question"] = self.cleanupHTML(question["question"]);
+                            question.question = self.cleanupHTML(question.question);
 
                             //clear the feedback-more
-                            question["errorFeedback"] = self.cleanupHTML(question["errorFeedback"]);
-                            question["correctFeedback"] = self.cleanupHTML(question["correctFeedback"]);
+                            question.errorFeedback = self.cleanupHTML(question.errorFeedback);
+                            question.correctFeedback = self.cleanupHTML(question.correctFeedback);
                         }
                     }
 
@@ -175,9 +181,12 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
                 var lmsModel = self.controller.models.lms;
 //                var servername = lmsModel.activeLMS.id;
                 if (request.status === 403) {
-                    if (lmsModel.activeLMS.deactivateFlag == false) {
+                    if (lmsModel.activeLMS.deactivateFlag === false) {
+                        // FIXME cleanup common.js
                         turnOnDeactivate();
 //                        console.log("Error while loading question pool from server");
+
+                        // FIXME cleanup common.js
                         showErrorResponses(request);
                     }
                 }
@@ -186,17 +195,14 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
                 //store the course id for the question pool in the local storage
                 if (request.status === 404) {
 //                    console.log("Error while loading question pool from server");
+                    // FIXME cleanup common.js
+
                     showErrorResponses(request);
                 }
                 localStorage.setItem("pendingQuestionPool_" + courseId, true);
             },
             beforeSend: setHeader
         });
-
-    function setHeader(xhr) {
-        xhr.setRequestHeader('sessionkey',
-            self.controller.models.configuration.getSessionKey());
-    }
 };
 
 /**
@@ -214,33 +220,7 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
  * */
 QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
     //cleaning leading and trailing empty tags
-    var helperDiv = $("#modelHelperQuestionpool");
-
-    helperDiv.empty();
-    helperDiv.html(htmltext);
-    // remove all the image tags
-    helperDiv.find("img, hr, br + br").remove();
-
-    var contentsArray = elementContents(helperDiv[0]);
-    for (var i = 0; i < contentsArray.length; i++) {
-//        console.log("element in loop is" + contentsArray[i]);
-        if (!trimHelper(i, contentsArray[i])) {
-            break;
-        }
-    }
-
-//    console.log(">>>PRE REVERSE>>> " + helperDiv.html());
-
-    contentsArray = elementContents(helperDiv[0]);
-
-    var reversedArray = contentsArray.reverse();
-    for (var k = 0; k < reversedArray.length; k++) {
-//        console.log("enter reverse loop");
-        if (!trimHelper(k, reversedArray[k])) {
-            break;
-        }
-    }
-
+    var helperDiv = $("#modelHelperQuestionpool"), i,k;
 
     // the following piece of code trims all the leading and trailing brs.
     function trimHelper(index, element) {
@@ -260,6 +240,32 @@ QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
             }
         }
         return true;
+    }
+
+    helperDiv.empty();
+    helperDiv.html(htmltext);
+    // remove all the image tags
+    helperDiv.find("img, hr, br + br").remove();
+
+    // FIXME cleanup common.js
+    var contentsArray = elementContents(helperDiv[0]);
+    for (i = 0; i < contentsArray.length; i++) {
+//        console.log("element in loop is" + contentsArray[i]);
+        if (!trimHelper(i, contentsArray[i])) {
+            break;
+        }
+    }
+
+//    console.log(">>>PRE REVERSE>>> " + helperDiv.html());
+    // FIXME cleanup common.js
+    contentsArray = elementContents(helperDiv[0]);
+
+    var reversedArray = contentsArray.reverse();
+    for (k = 0; k < reversedArray.length; k++) {
+//        console.log("enter reverse loop");
+        if (!trimHelper(k, reversedArray[k])) {
+            break;
+        }
     }
 
     // remove all the empty p, div, span tags
@@ -290,6 +296,10 @@ QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
  * @param {array} questionobject, the current question
  * */
 QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questionIndex) {
+    var i,
+        items,
+        gapIndex,
+        k;
     switch (questionobject.type) {
     case "assSingleChoice":
     case "assMultipleChoice":
@@ -297,7 +307,7 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
     case "assOrderingHorizontal":
         //the answer is an array, so we need to loop
 //            console.log("[Questionpool] lenght problem: " + questionobject.answer.length);
-        for (var i = 0; i < questionobject.answer.length; i++) {
+        for (i = 0; i < questionobject.answer.length; i++) {
             questionobject.answer[i].answertext = $("#modelHelperQuestionpool").html(questionobject.answer[i].answertext).text();
 //            console.log("passed clearing answer view for various question types");
             $("#modelHelperQuestionpool").empty();
@@ -308,18 +318,17 @@ QuestionPoolModel.prototype.cleanupAnswertext = function (questionobject, questi
         // this is a bit more complicated
         // for the cloze Text
 //        console.log("cloze text is" + questionobject.answer["clozeText"]);
-        questionobject.answer["clozeText"] = this.cleanupHTML(questionobject.answer["clozeText"]);
+        questionobject.answer.clozeText = this.cleanupHTML(questionobject.answer.clozeText);
 
         // we clean the correct gap definition as well, just to be safe.
         //NOTE:Ilias automatically correct the p, br and hr tags
         //it keeps the b,i
-        var gapIndex,
-            k;
+
         for (gapIndex = 0; gapIndex < jQuery(questionobject.answers.correctGaps).size(); gapIndex++) {
-            var items = questionobject.answer.correctGaps[gapIndex]["items"];
+            items = questionobject.answer.correctGaps[gapIndex].items;
             for (k = 0; k < jQuery(items).size(); k++) {
                 //items[k]["answertext"]=$("#modelHelperQuestionpool").html(items[k]["answertext"]).text();
-                questionobject.answer.correctGaps[gapIndex].items[k]["answertext"] = $("#modelHelperQuestionpool").html(items[k]["answertext"]).text();
+                questionobject.answer.correctGaps[gapIndex].items[k].answertext = $("#modelHelperQuestionpool").html(items[k].answertext).text();
                 $("#modelHelperQuestionpool").empty();
             }
         }
@@ -367,11 +376,13 @@ QuestionPoolModel.prototype.getQuestionBody = function () {
 /**
  * @prototype
  * @function getAnswer
- * @return {Array} answer, the answer of the current active question in an array format which consists of answer items
+ * @return {Array} answer, the predefined answer options of the current active question in an array format which consists of answer items
  */
 QuestionPoolModel.prototype.getAnswer = function () {
     return this.activeQuestion.answer;
 };
+
+// TODO: implement getCorrectGaps alternative for CLOZE questions
 
 /**
  * @prototype
@@ -398,10 +409,10 @@ QuestionPoolModel.prototype.currAnswersMixed = function () {
  * @function mixAnswers
  */
 QuestionPoolModel.prototype.mixAnswers = function () {
-    var answers = this.activeQuestion.answer;
+    var answers = this.activeQuestion.answer, random;
     this.mixedAnswers = [];
     while (this.mixedAnswers.length < answers.length) {
-        var random = Math.floor((Math.random() * answers.length));
+        random = Math.floor((Math.random() * answers.length));
 
         // if the current random number is already in the mixed
         // answers array , then get the next element as random number
