@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,13 +16,14 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
 /**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
+ * @author Christian Glahn
  */
 
 /**
@@ -45,7 +46,7 @@ function QuestionView() {
     var featuredContentId = FEATURED_CONTENT_ID;
 
     /**
-     * It is triggered after statistics are loaded locally from the server. This can happen during the 
+     * It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the question text and preventing the display of the statistics view
@@ -73,7 +74,7 @@ function QuestionView() {
 }
 
 /**
- * Call 'showQuestionTitle()' and 'showQuestionBody()'. 
+ * Call 'showQuestionTitle()' and 'showQuestionBody()'.
  * Start the timer.
  * @prototype
  * @function prepare
@@ -81,10 +82,7 @@ function QuestionView() {
  */
 QuestionView.prototype.prepare = function () {
     var featuredContentId = FEATURED_CONTENT_ID;
-    
-    this.showQuestionTitle();
-    this.showQuestionBody();
-    
+
     // TODO Ensure that this timer is working correctly.
     if (!this.app.models.answer.hasStarted()) {
         if (featuredContentId) {
@@ -95,6 +93,11 @@ QuestionView.prototype.prepare = function () {
     }
 };
 
+QuestionView.prototype.update = function () {
+    this.showQuestionTitle();
+    this.showQuestionBody();
+};
+
 /**
  * Handles action when a tap occurs.
  * @protoype
@@ -103,7 +106,7 @@ QuestionView.prototype.prepare = function () {
  */
 QuestionView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
     switch (id) {
         case "questioncross": // Close the question view.
@@ -118,7 +121,7 @@ QuestionView.prototype.tap = function (event) {
         default: // If anything besides the close button is taped, move to the answer view.
             if (this.app.models.answer.answerScore > -1) {
                 this.app.changeView("feedback");
-            } 
+            }
             else {
                 this.app.changeView("answer");
             }
@@ -135,7 +138,7 @@ QuestionView.prototype.tap = function (event) {
 QuestionView.prototype.showQuestionTitle = function () {
     var currentQuestionType = this.app.models.questionpool.getQuestionType();
 
-    $("#questiondynamicicon").removeClass(); 
+    $("#questiondynamicicon").removeClass();
     $("#questiondynamicicon").addClass(jQuery.i18n.prop('msg_' + currentQuestionType + '_icon'));
 };
 
@@ -147,6 +150,6 @@ QuestionView.prototype.showQuestionTitle = function () {
  */
 QuestionView.prototype.showQuestionBody = function () {
     var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
-    
+
     $("#questionlisttext").html(currentQuestionBody);
 };
