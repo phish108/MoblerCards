@@ -560,10 +560,10 @@ AnswerModel.prototype.createAttemptReport = function () {
     var now = (new Date()).getTime();
     var duration = now - this.start;
     var report = {
-        "ID": this.app.models.statistics.generateUUID(),
+        "ID": this.controller.models.statistics.generateUUID(),
         "Actor": {
             "objectType": "Agent",
-            "name": this.app.models.configuration.getUserId()
+            "name": this.controller.models.configuration.getUserId()
         },
         "Verb": {
             "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
@@ -591,7 +591,7 @@ AnswerModel.prototype.finishAttempt = function () {
     var report = this.createAttemptReport();
 
     // TODO: inform statistics model about the results.
-    this.app.models.statistics.storeAttempt(report);
+    this.controller.models.statistics.storeAttempt(report);
 
     this.resetTimer();
 };
