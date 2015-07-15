@@ -60,31 +60,29 @@ SettingsView.prototype.prepare = function () {
     this.loadData();
 };
 
-SettingsView.prototype.tap = function (event) {
-    var id = event.target.id;
 
-    if (id === "settingscross") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("course");
-        } else {
-            this.app.changeView("landing");
-        }
+SettingsView.prototype.tap_settingscross = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     }
-    else if (id === "settingslogout") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("logout");
-        }
-        else {
-            this.app.changeView("landing");
-        }
+    else {
+        this.app.changeView("landing");
     }
-    else if (id === "settingsabout") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("about");
-        }
-        else {
-            this.app.changeView("landing");
-        }
+};
+SettingsView.prototype.tap_settingslogout = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("logout");
+    }
+    else {
+        this.app.changeView("landing");
+    }
+};
+SettingsView.prototype.tap_settingsabout = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("about");
+    }
+    else {
+        this.app.changeView("landing");
     }
 };
 

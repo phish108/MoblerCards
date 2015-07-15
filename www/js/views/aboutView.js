@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -43,30 +43,23 @@ AboutView.prototype.prepare = function () {
     this.app.models.configuration.loadFromServer();
 };
 
-AboutView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log("[AboutView] tap registered: " + id);
-    
-    switch (id) {
-        case "aboutcross":
-            if (this.app.getLoginState()) {
-                this.app.changeView("settings");
-            }
-            else {
-                this.app.changeView("landing");
-            }
-            break;
-        case "opensourceicon":
-            $("#" + id).addClass("gradientSelected");
-            window.open("https://github.com/ISN-Zurich/ISN-Learning-Cards");
-            break;
-        case "licenseicon":
-            $("#" + id).addClass("gradientSelected");
-            window.open("http://www.apache.org/licenses/LICENSE-2.0");
-            break;
-        default:
-            break;
+AboutView.prototype.tap_aboutcross = function () {
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
     }
+    else {
+        this.app.changeView("landing");
+    }
+};
+
+AboutView.prototype.tap_opensourceicon = function (event) {
+    $(event.target).addClass("gradientSelected");
+    window.open("https://github.com/ISN-Zurich/ISN-Learning-Cards");
+};
+
+AboutView.prototype.tap_licenseicon = function (event) {
+    $(event.target).addClass("gradientSelected");
+    window.open("http://www.apache.org/licenses/LICENSE-2.0");
 };
 
 /**

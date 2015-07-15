@@ -132,36 +132,31 @@ AnswerView.prototype.update = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-AnswerView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
-    switch (id) {
-        case "answerfooter":
-        case "answercontent": // If any error occured, go to the next question. Otherwise get feedback to your answers.
-            this.app.models.answer.finishAttempt(); // inform the answer model that we are done.
-            if (this.didApologize) {
-                this.app.models.questionpool.nextQuestion();
-                this.app.changeView("question");
-            }
-            else {
-                this.app.changeView("feedback");
-            }
-            break;
-        case "answerheader": // Get back to the question
-            this.app.changeView("question");
-            break;
-        case "answercross": // Close the answer view.
-            this.app.models.answer.finishAttempt();
-            if (this.app.getLoginState()) {
-                this.app.changeView("course");
-            }
-            else {
-                this.app.changeView("landing");
-            }
-            break;
-        default:
-            break;
+AnswerView.prototype.tap_answerfooter = function () {
+    this.app.models.answer.finishAttempt(); // inform the answer model that we are done.
+    if (this.didApologize) {
+        this.app.models.questionpool.nextQuestion();
+        this.app.changeView("question");
+    }
+    else {
+        this.app.changeView("feedback");
+    }
+};
+
+AnswerView.prototype.tap_answercontent = AnswerView.prototype.tap_answerfooter;
+
+AnswerView.prototype.tap_answerheader = function () {
+    this.app.changeView("question");
+};
+
+AnswerView.prototype.tap_answercross = function () {
+    this.app.models.answer.finishAttempt();
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
+    else {
+        this.app.changeView("landing");
     }
 };
 

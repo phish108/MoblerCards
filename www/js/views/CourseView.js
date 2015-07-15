@@ -42,7 +42,7 @@ function CourseView() {
     this.tagID = this.app.viewId;
     this.active = false;
     this.firstLoad = true;
-    
+
     var featuredContentId = FEATURED_CONTENT_ID;
 
     /**
@@ -89,7 +89,7 @@ function CourseView() {
  */
 CourseView.prototype.prepare = function () {
     if (!this.app.getLoginState()) {
-        this.app.changeView("landing");   
+        this.app.changeView("landing");
     }
     else {
         this.active = true;
@@ -117,7 +117,7 @@ CourseView.prototype.update = function () {
  */
 CourseView.prototype.cleanup = function () {
     this.active = false;
-    this.app.models.course.loadFromServer();   
+    this.app.models.course.loadFromServer();
 };
 
 /**
@@ -128,22 +128,13 @@ CourseView.prototype.cleanup = function () {
  */
 CourseView.prototype.tap = function (event) {
     var id = event.target.id;
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
-    
+    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
+
     var courseId = this.app.models.course.getId();
     var course = id.split("_");
 
-    if (id === "coursecross") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("settings");
-        }
-        else {
-            this.app.changeView("landing");
-        }
-    }
-    
     // ensure that you cannot enter an empty course.
-    if (course.length > 2 && 
+    if (course.length > 2 &&
         course[0] === "courselist") {
         if (course.length === 4 &&
             course[3] === "fd") {
@@ -157,10 +148,19 @@ CourseView.prototype.tap = function (event) {
             }
         }
     }
-    
+
     if (course[0] === "courseimage" &&
         this.app.models.course.isSynchronized(course[2])) {
         this.app.changeView("statistics");
+    }
+};
+
+CourseView.prototype.tap_coursecross = function (event) {
+    if (this.app.getLoginState()) {
+        this.app.changeView("settings");
+    }
+    else {
+        this.app.changeView("landing");
     }
 };
 
@@ -213,7 +213,7 @@ CourseView.prototype.setDefaultCourse = function () {
 
     ctmpl.attach(featuredId + "_fd");
     ctmpl.courselabel.text = featuredModel.getTitle();
-    
+
     // this is a temporary solution
     ctmpl.courseimg.addClass("icon-bars");
 };

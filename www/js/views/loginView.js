@@ -133,12 +133,12 @@ LoginView.prototype.update = function () {
     this.app.models.lms.getActiveLMS(function (data) {
         activeLMS = data;
     });
-    
+
     $("#loginimg").attr("src", activeLMS.logofile);
 
     // TODO: TRANSFORM STRING TO i18n.prop
     $("#loginlmslabel").text(activeLMS.name);
-    
+
     this.hideErrorMessage();
     this.hideDeactivateMessage();
 
@@ -162,26 +162,20 @@ LoginView.prototype.cleanup = function () {
     this.app.injectStyle();
 };
 
-/**
- * @prototype
- * @function handleTap
- **/
-LoginView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
 
-    if (id === "loginfooter") {
-        this.clickLoginButton();
-    }
-    else if (id === "logincross") {
-        this.clickCloseLoginButton();
-    }
-    else if (id === "courselistlms") {
-        $("#selectLMS").removeClass("textShadow");
-        $("#selectLMS").addClass("gradientSelected");
+LoginView.prototype.tap_loginfooter = function () {
+    this.clickLoginButton();
+};
 
-        this.app.changeView("lms");
-    }
+LoginView.prototype.tap_logincross = function () {
+    this.clickCloseLoginButton();
+};
+LoginView.prototype.tap_courselistlms = function () {
+    $("#selectLMS")
+        .removeClass("textShadow")
+        .addClass("gradientSelected");
+
+    this.app.changeView("lms");
 };
 
 /**
@@ -193,7 +187,6 @@ LoginView.prototype.tap = function (event) {
  */
 LoginView.prototype.clickLoginButton = function () {
     var self = this;
-
 
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
