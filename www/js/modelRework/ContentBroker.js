@@ -19,9 +19,22 @@ specific language governing permissions and limitations
 under the License.
 */
 
+/**
+ * @author Christian Glahn
+ * @author Dijan Helbling
+ */
+ 
 function ContentBroker (app) {
-    this.lrs = app.models.LearningRecordStore;
+    this.lrs      = app.models.LearningRecordStore;
     this.identity = app.models.IdentityProvider;
+    
+    /** Variables
+     * this.questionList
+     * this.responseList            The list of user selected answers.
+     * this.currentQuestionpool     Active questionpool in the current course.
+     * this.activeQuestion          Active question in the current questionpool.
+     * this.currentCourseId
+     */
 }
 
 /****** Questionpool Management ******/
@@ -40,7 +53,7 @@ ContentBroker.prototype.loadQuestionpool = function () {
         console.log("The question list could not be loaded: " + error);
         this.questionList = {};
     }
-};
+}; // done, not checked
 
 /**
  * @protoype
@@ -57,8 +70,8 @@ ContentBroker.prototype.checkQuestionpool = function () {
  * @param {VARIABLE} poolId
  */
 ContentBroker.prototype.activateQuestionpool = function (poolId) {
-    this.currentQuestion = poolId;
-};
+    this.currentQuestionpool = poolId;
+}; // done, not checked
 
 /**
  * instruction - tell the model to give a new active question.
@@ -89,7 +102,7 @@ ContentBroker.prototype.nextQuestion = function () {
         randomId = Math.floor(Math.random() * temporaryQuestions.length);
         this.activeQuestion = temporaryQuestions[randomId];
     }
-};
+}; // done, not checked
 
 /**
  * @protoype
@@ -105,10 +118,19 @@ ContentBroker.prototype.loadNewQuestions = function () {
  * @protoype
  * @function getQuestionInfo
  * @param {NONE}
+ * @return {OBJECT} activeQuestion - is part of the activeQuestion object
  */
 ContentBroker.prototype.getQuestionInfo = function () {
+    var aQ = this.activeQuestion;
+    var partActiveQuestion = {
+        "id":       aQ.id,
+        "type":     aQ.type,
+        "question": aQ.question,
+        "answer":   aQ.answer
+               };
     
-};
+    return partActiveQuestion;
+}; // done, not checked
 
 /**
  * @protoype
@@ -117,19 +139,24 @@ ContentBroker.prototype.getQuestionInfo = function () {
  * @return {ARRAy} answerList
  */
 ContentBroker.prototype.getAnswerList = function () {
-    var answerList;
-    
-    return answerList;
-};
+    return this.activeQuestion.answer;
+}; // done, not checked
 
 /**
  * @protoype
  * @function addResponse
- * @param {VARIABLE} response
+ * @param {ARRAY} response
  */
-ContentBroker.prototype.addResponse = function (response) {
+ContentBroker.prototype.addResponse = function (response) {   
+    var index = this.responseList.indexOf(response);
     
-};
+    if (index < 0) {
+        this.responseList.push(response);
+    }
+    else {
+        this.responseList.splice(index, 1);
+    }
+}; // done, not checked
 
 /**
  * @protoype
@@ -138,10 +165,8 @@ ContentBroker.prototype.addResponse = function (response) {
  * @return {ARRAY} responseList
  */
 ContentBroker.prototype.getResponseList = function () {
-    var responseList;
-    
-    return responseList;
-};
+    return this.responseList;
+}; // done, not checked
 
 /**
  * @protoype
@@ -188,7 +213,7 @@ ContentBroker.prototype.finishAttempt = function () {
 
 /**
  * @protoype
- * @function endAttempt
+ * @function loadCourses
  * @param {NONE}
  */
 ContentBroker.prototype.loadCourses = function () {
@@ -197,7 +222,7 @@ ContentBroker.prototype.loadCourses = function () {
 
 /**
  * @protoype
- * @function endAttempt
+ * @function getCourseList
  * @param {NONE}
  */
 ContentBroker.prototype.getCourseList = function () {
@@ -206,17 +231,18 @@ ContentBroker.prototype.getCourseList = function () {
 };
 
 /**
+ * instruction - when a tap occurs on a course in the course view, then register the current course.
  * @protoype
- * @function endAttempt
+ * @function activateCourse
  * @param {VARIABLE} courseId
  */
 ContentBroker.prototype.activateCourse = function (courseId) {
     this.currentCourseId = courseId;
-};
+}; // done, not checked
 
 /**
  * @protoype
- * @function endAttempt
+ * @function ignoreCourse
  * @param {VARIABLE} courseId
  */
 ContentBroker.prototype.ignoreCourse = function (courseId) {
