@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $ */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -27,6 +28,8 @@ under the License.
 function LearningRecordStore (app) {
     this.identity = app.models.IdentityProvider;
     this.content  = app.models.ContentBroker;
+    
+    this.entropyMap = [];
 }
 
 /****** Context Handling ******/
@@ -91,7 +94,7 @@ LearningRecordStore.prototype.updateAction = function (UUID, record) {
  * @param {OBJECT} record
  */
 LearningRecordStore.prototype.finishAction = function (UUID, record) {
-    
+
 };
 
 /**
@@ -121,9 +124,10 @@ LearningRecordStore.prototype.trackAction = function (record, callback) {
  * @protoype
  * @function getEntropyMap
  * @param {NONE}
+ * @return {ARRAY} entropyMap
  */
 LearningRecordStore.prototype.getEntropyMap = function () {
-    
+    return this.entropyMap;
 };
 
 /**
