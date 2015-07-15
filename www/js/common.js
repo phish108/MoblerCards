@@ -1,21 +1,24 @@
-/**	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
-*/
+/**
+ * THIS COMMENT MUST NOT BE REMOVED
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied.  See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ **/
 
 /**
  *A global property/variable that is used to set the default server with which the application will be connected
@@ -66,9 +69,9 @@ var URLS_TO_LMS = [
         url2: "http://yellowjacket.ethz.ch/ilias_4_2/restservice",
         debug: "1",
         clientKey: "",
-        API: "v2",
+        API: "v2"
         // API: "v1" == old mobler cards backend, "v2" == powerTLA
-     },
+    },
     {
         servername: "hornet",
         logoImage: "resources/pfpLogo.png",
@@ -78,7 +81,7 @@ var URLS_TO_LMS = [
         debug: "0",
         clientKey: "",
         API: "v1"
-     },
+    },
 
     {
         servername: "PFPTEST",
@@ -89,7 +92,7 @@ var URLS_TO_LMS = [
         debug: "1",
         clientKey: "",
         API: "v1"
-     },
+    },
     {
         servername: "PFPLMS",
         logoImage: "resources/pfpLogo.png",
@@ -99,7 +102,7 @@ var URLS_TO_LMS = [
         debug: "0",
         clientKey: "",
         API: "v1"
-     },
+    },
     {
         servername: "JukuLabTest",
         logoImage: "resources/esthonia.jpg",
@@ -109,7 +112,7 @@ var URLS_TO_LMS = [
         debug: "1",
         clientKey: "",
         API: "v1"
-     },
+    },
     {
         servername: "EsthonianCollege",
         logoImage: "resources/EstonianForces3.png",
@@ -119,7 +122,7 @@ var URLS_TO_LMS = [
         debug: "0",
         clientKey: "",
         API: "v1"
-     },
+    },
     {
         servername: "ADLRomania",
         logoImage: "resources/adlromania.png",
@@ -129,7 +132,7 @@ var URLS_TO_LMS = [
         debug: "0",
         clientKey: "",
         API: "v1"
-     },
+    },
     {
         servername: "TestADLRomania",
         logoImage: "resources/adlromania.png",
@@ -139,18 +142,7 @@ var URLS_TO_LMS = [
         debug: "1",
         clientKey: "",
         API: "v1"
-     }
-
- //					{
- //						servername: "LocalTests",
- //						logoImage: "resources/adlromania.png",
- //						backgroundImage: "",
- //						logoLabel: "Local Tests",
- //						url: "",
- //						//url:"",
- //						debug: "1",
- //						clientKey: ""
- //          }
+    }
 ];
 
 
@@ -175,8 +167,6 @@ function getActiveServer() {
     var MOBLERDEBUG = 0;
     if (MOBLERDEBUG === 1) {
         DEFAULT_SERVER = "yellowjacket";
-    } else {
-        DEFAULT_SERVER = DEFAULT_SERVER;
     }
     console.log("DEFAULT SERVER IS" + DEFAULT_SERVER);
     return DEFAULT_SERVER;
@@ -189,7 +179,7 @@ function getActiveServer() {
  * @function debugActivate
  * * */
 function debugActivate() {
-    var MOBLERDEBUG = 0;
+    var i, MOBLERDEBUG = 0;
     console.log("debug Activate and the value of MOBLERDEBUG IS" + MOBLERDEBUG);
 
     if (MOBLERDEBUG === 0) {
@@ -201,11 +191,10 @@ function debugActivate() {
         }
         console.log("return lms data");
         return lmsData;
-    } else {
-
-        console.log("return the urlsto lms");
-        return URLS_TO_LMS;
     }
+
+    console.log("return the urlsto lms");
+    return URLS_TO_LMS;
 }
 
 /** Does nothing
@@ -341,7 +330,7 @@ function setAnswerWidth(orientationLayout, w, h) {
         $(this).find(".separatorContainerCourses").css("height", height + "px");
         $(this).find(".radial").css("height", height + "px");
     });
-};
+}
 
 /**
  * 	Calculates feedback width for single and multiple choice questions
@@ -357,7 +346,7 @@ function setFeedbackWidth(orientationLayout, w, h) {
         $(this).find(".separatorContainerCourses").css("height", height + "px");
         $(this).find(".radial").css("height", height + "px");
     });
-};
+}
 
 
 /**
@@ -367,10 +356,10 @@ function setFeedbackWidth(orientationLayout, w, h) {
  * 	@ param{number}, index, index of the current gap
  * */
 function getCorrectGaps(gapIndex) {
-    var questionpoolModel = controller.models['questionpool'];
+    var questionpoolModel = controller.models['questionpool']; // will fail!
     var gapsObject = questionpoolModel.getAnswer(); //the object that is returned as an answer from the server
     var items = gapsObject["correctGaps"][gapIndex]["items"]; //the items sub-array for the specific gap index
-    var correctGaps = new Array();
+    var correctGaps = [];
     var k = 0;
     for (k = 0; k < jQuery(items).size(); k++) {
         correctGaps.push(items[k]["answertext"]);
@@ -384,7 +373,7 @@ function setLabelContainer() {}
 
 /**
  * jQuery.contents(): bad stuff cos jquery fails big time
- *	TODO:write comments
+ *	TODO: write comments
  * * @param element
  * @returns {Array}
  */
@@ -393,7 +382,7 @@ function elementContents(element) {
     var x = element.getElementsByTagName('*');
     var retval = [];
     var p = x.parentNode;
-    var i = 0;
+    var s, i = 0;
 
     for (i = 0; i < x.length; i++) {
         if (p !== x[i].parentNode) {
@@ -421,7 +410,7 @@ function elementContents(element) {
 }
 
 function turnOffDeactivate() {
-    var DEACTIVATE = false;
+    DEACTIVATE = false;
     this.app.models.lms.clearInactiveFlag();
 }
 
