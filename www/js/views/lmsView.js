@@ -210,53 +210,54 @@ LMSView.prototype.tap = function (event) {
 
     console.log("[LMSView] tap registered: " + id + " " + sn);
 
-    if (id === "lmscross") {
-        // TODO if lms added return to login view instead of landing view
-        this.back();
+    if (id.indexOf("lmslist") === 0)  {
+        this.clickLMSItem(sn, $(event.target));
+        if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
+            $("#lmslabel_lmslistbox_" + this.preServername).addClass("gradientSelected");
+        }
     }
-    else if (id.indexOf("addlms") === 0) {
-        if ($("#addlmsinputbox").hasClass("hidden")) {
-            // add a new LMS
-            // TODO if we are offline show a message that "we cannot add new lmses while offline"
+};
+
+LMSView.prototype.tap_lmscross = function (event) {
+    this.back();
+};
+
+LMSView.prototype.tap_addlms = function (event) {
+    if ($("#addlmsinputbox").hasClass("hidden")) {
+        // add a new LMS
+        // TODO if we are offline show a message that "we cannot add new lmses while offline"
+        $("#addlmsplaceholder").toggleClass("hidden");
+        $("#addlmsinputbox").toggleClass("hidden");
+        $("#addlmsinput")[0].value = "";
+        $("#addlmsinput")[0].blur();
+        $("#addlmsbutton").removeClass("hidden");
+    }
+    else {
+        // check if we can connect to a new LMS
+        var lmsurl = $("#addlmsinput")[0].value;
+        var turl = lmsurl;
+        turl.replace(/^https?:\/\//i, "");
+
+        if (this.app.models.connection.isOnline() &&
+            lmsurl &&
+            lmsurl.length &&
+            turl &&
+            turl.length > 5) {
+
+            console.log("add a new LMS!");
+            this.app.models.lms.getServerRSD(lmsurl);
+            // display waiting circle
+            $("#addlmsbutton").addClass("hidden");
+            $("#addlmswait").removeClass("hidden");
+        }
+        else {
+            // simply close the form
             $("#addlmsplaceholder").toggleClass("hidden");
             $("#addlmsinputbox").toggleClass("hidden");
             $("#addlmsinput")[0].value = "";
             $("#addlmsinput")[0].blur();
             $("#addlmsbutton").removeClass("hidden");
-        }
-        else {
-            // check if we can connect to a new LMS
-            var lmsurl = $("#addlmsinput")[0].value;
-            var turl = lmsurl;
-            turl.replace(/^https?:\/\//i, "");
-
-            if (this.app.models.connection.isOnline() &&
-                lmsurl &&
-                lmsurl.length &&
-                turl &&
-                turl.length > 5) {
-
-                console.log("add a new LMS!");
-                this.app.models.lms.getServerRSD(lmsurl);
-                // display waiting circle
-                $("#addlmsbutton").addClass("hidden");
-                $("#addlmswait").removeClass("hidden");
-            }
-            else {
-                // simply close the form
-                $("#addlmsplaceholder").toggleClass("hidden");
-                $("#addlmsinputbox").toggleClass("hidden");
-                $("#addlmsinput")[0].value = "";
-                $("#addlmsinput")[0].blur();
-                $("#addlmsbutton").removeClass("hidden");
-                $("#addlmswait").addClass("hidden");
-            }
-        }
-    }
-    else if (id.indexOf("lmslist") === 0)  {
-        this.clickLMSItem(sn, $(event.target));
-        if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
-            $("#lmslabel_lmslistbox_" + this.preServername).addClass("gradientSelected");
+            $("#addlmswait").addClass("hidden");
         }
     }
 };

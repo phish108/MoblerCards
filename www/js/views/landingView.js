@@ -60,7 +60,7 @@ function LandingView() {
 
 LandingView.prototype.prepare = function () {
     console.log("[landingView] prepare");
-    
+
     // TODO check login state ? redirect to coursView ;
     if (this.app.getLoginState()) {
         this.app.changeView("course");
@@ -86,37 +86,31 @@ LandingView.prototype.showForm = function () {
 //    }
 };
 
-LandingView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
-    
-    var featuredContentId = window.FEATURED_CONTENT_ID;
+LandingView.prototype.tap_landingfeaturedimage = function () {
+    this.app.changeView("statistics");
+};
 
-    switch(id) {
-        case "landingfeaturedimage":
-            this.app.changeView("statistics");
-            break;
-        case "landingfeaturedlist":
-            this.app.selectCourseItem(featuredContentId);
-            break;
-        case "landingexclusivelist":
-            var al;
-            this.app.models.lms.getActiveLMS(function(d) {
-                al = d;
-            });
-            if (al && al.hasOwnProperty("id") && al.id.length) {
-                // we show the login view ONLY if the device has an LMS registered
-                this.app.changeView("login");
-            }
-            else {
-                // otherwise, the app asks to which LMS it should connect
-                // This means the user does not need to select "choose LMS" from the
-                // login view
-                this.app.changeView("lms");
-            }
-            break;
-        default:
-            break;
+LandingView.prototype.tap_landingfeaturedlist = function() {
+    var featuredContentId = window.FEATURED_CONTENT_ID;
+    this.app.selectCourseItem(featuredContentId);
+};
+
+LandingView.prototype.tap_landingexclusivelist = function () {
+    var al;
+
+    this.app.models.lms.getActiveLMS(function(d) {
+        al = d;
+    });
+
+    if (al && al.hasOwnProperty("id") && al.id.length) {
+        // we show the login view ONLY if the device has an LMS registered
+        this.app.changeView("login");
+    }
+    else {
+        // otherwise, the app asks to which LMS it should connect
+        // This means the user does not need to select "choose LMS" from the
+        // login view
+        this.app.changeView("lms");
     }
 };
 

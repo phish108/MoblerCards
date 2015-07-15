@@ -4,20 +4,14 @@
  * Complete rewrite of the original jester code for iOS and Android
  *
  * Almost compatible with original jester code.
+ *
+ * Jester2 supports basic touches and complex multi-finger gestures,
+ * including pinch, flick, swipe etc.
  */
 
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
-if(!window.CustomEvent) {
-    // work around for old android versions!
-    window.CustomEvent = function CustomEvent(ename, opts) {
-        var event = document.createEvent('Event');
-        event.initEvent(ename, opts.bubbles, opts.cancelable); // can bubble and is cancable
-        return event;
-    };
-}
-
-(function (a) {
+(function (w) {
     var startTouches,
         prevTouches,
         totalTouches,
@@ -25,14 +19,32 @@ if(!window.CustomEvent) {
         deltaScale,
         totalScale,
         startScale,
-        prevScale;
+        prevScale,
+        startTime,
+        endTime,
+        targetElement,
+        jesterTouches,
+        eTapTarget;
 
-    var lastTouches = 0;
-    var monitoring = 0;
-    var startTime, 
-        endTime, 
-        targetElement;
-    var jesterTouches;
+    var lastTouches = 0,
+        monitoring = 0,
+        lasttap = 0,
+        lasttwintap = 0,
+        doubletap = false,
+        doubletwintap = false,
+        pinch = false,
+        anDroid = false;
+
+
+    if(!w.CustomEvent) {
+        // work around for old android versions!
+        w.CustomEvent = function CustomEvent(ename, opts) {
+            var event = document.createEvent('Event');
+            event.initEvent(ename, opts.bubbles, opts.cancelable); // can bubble and is cancable
+            return event;
+        };
+    }
+
     // callback map is used for finding proxy callbacks
     var callbackMap = [];
 
@@ -41,16 +53,9 @@ if(!window.CustomEvent) {
                     "pinchnarrow", "pinchwiden", "pinch", "stretch",
                     "grab", "start", "end", "move", "during"];
 
-    var lasttap = 0,
-        lasttwintap = 0,
-        doubletap = false,
-        doubletwintap = false,
-        pinch = false;
-    var eTapTarget;
-
     // configuration options with default values
     var opts = {
-            avoidDoubleTap: false, 
+            avoidDoubleTap: false,
             tapDistance:   10,
             tapTime:       100, // miliseconds
             tapLongTime:   1000,// miliseconds
@@ -60,8 +65,8 @@ if(!window.CustomEvent) {
             swipeDistance: 100,
 
             avoidFlick:    false,
-            flickTime:     200,
-            flickDistance: 75
+            flickTime:     100,
+            flickDistance: 50
     };
 
     function initJester() {
@@ -83,11 +88,15 @@ if(!window.CustomEvent) {
 
     /**
      * ATTENTION: sizeCalc is not properly calculating the size causing
-     * pinch and stretch gestures to be wrongly detected.
+     * pinch and stretch gestures to be wrongly detected in some cases.
+     *
+     * This misbehaviour is because size calc uses a bounding box
+     * for calculating the size of the touch area.
      */
-    function sizeCalc(touchList) {
+    function sizeCalc(touchList)  {
         var i, size = 0, minX, minY, maxX, maxY;
-        // estimate the convex hull for our finger positions.
+
+        // estimate the convex hull for the finger positions.
         if ( touchList && touchList.length > 1 ) {
             minX = touchList[0].screenX;
             maxX = touchList[0].screenX;
@@ -113,7 +122,7 @@ if(!window.CustomEvent) {
     }
 
     function updateTouches(ptouches) {
-        var i, j, id, cnt, t, ts;
+        var i, t, ts;
         for (i = 0; i < ptouches.length; i++) {
             t = {identifier: ptouches[i].identifier,
                  screenX: ptouches[i].screenX,
@@ -134,15 +143,15 @@ if(!window.CustomEvent) {
             prevTouches[i] = t;
         }
 
-//        ts = sizeCalc(ptouches);
-//        if (ts > 0) {
-//            if (startScale > 0) {
-//                totalScale = ts / startScale;
-//            }
-//            if (prevScale > 0) {
-//                deltaScale = ts / prevScale;
-//            }
-//        }
+        ts = sizeCalc(ptouches);
+        if (ts > 0) {
+            if (startScale > 0) {
+                totalScale = ts / startScale;
+            }
+            if (prevScale > 0) {
+                deltaScale = ts / prevScale;
+            }
+        }
 
         prevScale = ts;
 
@@ -150,7 +159,7 @@ if(!window.CustomEvent) {
     }
 
     function addTouch(evt) {
-        var i, j, a, id;
+        var i, j, t, a, id;
 
         initJester();
 
@@ -179,13 +188,13 @@ if(!window.CustomEvent) {
                 }
             }
             if (a) {
-                var t = {identifier: id,
+                t = {identifier: id,
                          screenX: evt.touches[i].screenX,
                          screenY: evt.touches[i].screenY,
                          clientX: evt.touches[i].clientX,
                          clientY: evt.touches[i].clientY,
                          startTime: new Date().getTime()};
-                
+
                 newStart.push(t);
                 newPrev.push(t);
                 newDelta.push({identifier: id,
@@ -272,12 +281,12 @@ if(!window.CustomEvent) {
         finishJester(evt);
     }
 
-    function detectPinchMove(ev) {
+    function detectPinchMove() {
         if (deltaScale > 1.0) {
-            targetElement.dispatchEvent(new CustomEvent("pinchwiden", {'bubbles': true,'cancelable': true}));
+            targetElement.dispatchEvent(new w.CustomEvent("pinchwiden", {'bubbles': true,'cancelable': true}));
         }
         else if (deltaScale < 1.0) {
-            targetElement.dispatchEvent(new CustomEvent("pinchnarrow", {'bubbles': true,'cancelable': true}));
+            targetElement.dispatchEvent(new w.CustomEvent("pinchnarrow", {'bubbles': true,'cancelable': true}));
         }
     }
 
@@ -288,28 +297,28 @@ if(!window.CustomEvent) {
     // if there was no double tap within the timeframe (+ opts.doubleTapTime
     // 10 milisec) dispatch a tap on eTapTarget
 
-    function detectTap(ev) {
+    function detectTap() {
         if (lastTouches === 1 &&
             Math.abs(totalTouches[0].screenX) <= opts.tapDistance &&
             Math.abs(totalTouches[0].screenY) <= opts.tapDistance) {
-            
+
             var dt = endTime - startTouches[0].startTime;
             if(dt <= opts.tapTime) {
                 if((endTime - lasttap) <= opts.doubleTapTime) {
-                    targetElement.dispatchEvent(new CustomEvent("doubletap", {'bubbles': true,'cancelable': true}));
+                    targetElement.dispatchEvent(new w.CustomEvent("doubletap", {'bubbles': true,'cancelable': true}));
                     lasttap = 0;
                     eTapTarget = null;
                     doubletap = true;
                 }
                 else {
                     if(opts.avoidDoubleTap) {
-                        targetElement.dispatchEvent(new CustomEvent("tap", {'bubbles': true,'cancelable': true}));
+                        targetElement.dispatchEvent(new w.CustomEvent("tap", {'bubbles': true,'cancelable': true}));
                     }
                     else {
                         eTapTarget = targetElement;
                         setTimeout(function() {
                             if(!doubletap) {
-                                eTapTarget.dispatchEvent(new CustomEvent("tap", {'bubbles': true,'cancelable': true}));
+                                eTapTarget.dispatchEvent(new w.CustomEvent("tap", {'bubbles': true,'cancelable': true}));
                             }
                             eTapTarget = null;
                             doubletap = false;
@@ -319,7 +328,7 @@ if(!window.CustomEvent) {
                 }
             }
             else if (dt >= opts.tapLongTime) {
-                targetElement.dispatchEvent(new CustomEvent("taplong", {'bubbles': true,'cancelable': true}));
+                targetElement.dispatchEvent(new w.CustomEvent("taplong", {'bubbles': true,'cancelable': true}));
             }
         }
     }
@@ -334,7 +343,7 @@ if(!window.CustomEvent) {
             var dt = endTime - startTouches[0].startTime;
             if(dt <= opts.tapTime) {
                 if((endTime - lasttwintap) <= opts.doubleTapTime) {
-                    targetElement.dispatchEvent(new CustomEvent("doubletwintap", {'bubbles': true,'cancelable': true}));
+                    targetElement.dispatchEvent(new w.CustomEvent("doubletwintap", {'bubbles': true,'cancelable': true}));
                     lasttwintap = 0;
                     eTapTarget = null;
                     doubletwintap = false;
@@ -343,7 +352,7 @@ if(!window.CustomEvent) {
                     eTapTarget = targetElement;
                     setTimeout(function() {
                         if(!doubletap && targetElement) {
-                            targetElement.dispatchEvent(new CustomEvent("twintap", {'bubbles': true,'cancelable': true}));
+                            targetElement.dispatchEvent(new w.CustomEvent("twintap", {'bubbles': true,'cancelable': true}));
                         }
                         eTapTarget = null;
                         doubletwintap = false;
@@ -352,48 +361,49 @@ if(!window.CustomEvent) {
                 }
             }
             else if (dt >= opts.tapLongTime) {
-                targetElement.dispatchEvent(new CustomEvent("twintaplong", {'bubbles': true,'cancelable': true}));
+                targetElement.dispatchEvent(new w.CustomEvent("twintaplong", {'bubbles': true,'cancelable': true}));
             }
         }
     }
 
-    function detectSwipeOrFlick(ev) {
+    function detectSwipeOrFlick() {
         if (lastTouches === 1) {
             var dt = endTime - startTouches[0].startTime;
             // true = horizontal, false: vertical
             var dir = (Math.abs(totalTouches[0].screenX) > Math.abs(totalTouches[0].screenY));
-            if (dir && dt > opts.flickTime &&
+
+            if (dt > opts.flickTime &&
                 !opts.avoidSwipe &&
                 (Math.abs(totalTouches[0].screenX) >= opts.swipeDistance ||
                  Math.abs(totalTouches[0].screenY) >= opts.swipeDistance)) {
 
-                targetElement.dispatchEvent(new CustomEvent("swipe", {'bubbles': true,'cancelable': true, 'detail': {'direction': dir}}));
+                targetElement.dispatchEvent(new w.CustomEvent("swipe", {'bubbles': true,'cancelable': true, 'detail': {'direction': dir}}));
             }
-            else if (dir && dt < opts.flickTime &&
+            else if (dt < opts.flickTime &&
                      !opts.avoidFlick &&
                      (Math.abs(totalTouches[0].screenX) >= opts.flickDistance ||
                       Math.abs(totalTouches[0].screenY) >= opts.flickDistance)) {
-                targetElement.dispatchEvent(new CustomEvent("flick", {'bubbles': true,'cancelable': true, 'detail':{'direction': dir}}));
+                targetElement.dispatchEvent(new w.CustomEvent("flick", {'bubbles': true,'cancelable': true, 'detail':{'direction': dir}}));
             }
         }
     }
 
-    function detectPinchOrStretch(ev) {
+    function detectPinchOrStretch() {
         var bNoTap = ! totalTouches.some(function (e) {
            return (Math.abs(e.screenX) <= opts.tapDistance && Math.abs(e.screenY) <= opts.tapDistance);
         });
 
         if (totalScale > 1.2 && bNoTap) {
             pinch = true;
-            targetElement.dispatchEvent(new CustomEvent("stretch", {'bubbles': true,'cancelable': true}));
+            targetElement.dispatchEvent(new w.CustomEvent("stretch", {'bubbles': true,'cancelable': true}));
         }
         if (totalScale < 0.8 && bNoTap) {
             pinch = true;
             if (lastTouches === 2) {
-                targetElement.dispatchEvent(new CustomEvent("pinch", {'bubbles': true,'cancelable': true}));
+                targetElement.dispatchEvent(new w.CustomEvent("pinch", {'bubbles': true,'cancelable': true}));
             }
             else if (lastTouches > 2) {
-                targetElement.dispatchEvent(new CustomEvent("grab", {'bubbles': true,'cancelable': true}));
+                targetElement.dispatchEvent(new w.CustomEvent("grab", {'bubbles': true,'cancelable': true}));
             }
         }
     }
@@ -407,7 +417,7 @@ if(!window.CustomEvent) {
 
     function findProxy(evtName, callback) {
         var proxyCb;
-        callbackMap.some(function (cbElement, i) {
+        callbackMap.some(function (cbElement) {
             if (cbElement.name === evtName && cbElement.callback === callback) {
                 proxyCb = cbElement.proxy;
                 return true;
@@ -418,31 +428,44 @@ if(!window.CustomEvent) {
     }
 
     function bindProxy(evtName, callback) {
-        var cbElement,
-            proxy = findProxy(evtName, callback);
+        var proxy = findProxy(evtName, callback);
         if (!proxy) {
             switch(evtName) {
             case 'start':
                     proxy = function (ev) {
-                        // ev.preventDefault(); // android appears to want this
+                        if (!anDroid && !ev.scale && ev.scale !== 0) {
+                            anDroid = true;
+                        }
+                        if (anDroid) {
+                            ev.preventDefault();
+                        }
+
                         addTouch(ev);
-                        callback(ev, jesterTouches);
+                        if (callback) {
+                            callback(ev, jesterTouches);
+                        }
                     };
                     break;
             case 'move':
                     proxy = function (ev) {
-                        // ev.preventDefault(); // android appears to want this
+                        if (anDroid) {
+                            ev.preventDefault();
+                        }
 
-                        updateTouches(ev.touches);
-                        callback(ev, jesterTouches);
+                        updateTouches(ev.touches,ev);
+                        if (callback) {
+                            callback(ev, jesterTouches);
+                        }
                     };
                     break;
                 case 'end':
                     proxy = function (ev) {
                         // ev.preventDefault(); // android appears to want this
-                        
+
                         endTime = new Date().getTime();
-                        callback(ev, jesterTouches);
+                        if (callback) {
+                            callback(ev, jesterTouches);
+                        }
                         removeTouch(ev);
                     };
                     break;
@@ -478,9 +501,9 @@ if(!window.CustomEvent) {
                 proxy = callback;
                 break;
         }
-        
+
         element.addEventListener(rEvtName, proxy, false);
-        
+
         if (evtName === 'end') {
             element.addEventListener('touchcancel', proxy, false);
         }
@@ -511,23 +534,28 @@ if(!window.CustomEvent) {
     }
 
     function mTouchStart(ev){
-        // ev.preventDefault();
+        if (!anDroid && !ev.scale && ev.scale !== 0) {
+            anDroid = true;
+        }
+
         addTouch(ev);
     }
 
     function mTouchMove(ev){
-        // ev.preventDefault();
-        updateTouches(ev.touches);
+        if (anDroid) {
+            ev.preventDefault();
+        }
+
+        updateTouches(ev.touches, ev);
         detectDuringEvents(ev);
     }
 
     function mTouchEnd(ev){
-        // ev.preventDefault();
         endTime = new Date().getTime();
         detectEndEvents(ev);
         removeTouch(ev);
     }
-    
+
     function mTouchCancel(ev) {
         mTouchEnd(ev);
     }
@@ -555,17 +583,17 @@ if(!window.CustomEvent) {
         var self = this;
         self.target = null;
     }
-    
+
     JesterBinder.prototype.bind = function (e, cb) {
-        startListening(this.target, e, cb); 
+        startListening(this.target, e, cb);
         startMonitoring();
     };
-    
+
     JesterBinder.prototype.unbind = function (e, cb) {
-        stopListening(this.target, e, cb); 
+        stopListening(this.target, e, cb);
         stopMonitoring();
     };
-    
+
     JesterBinder.prototype.tap            = function (cb) {this.bind('tap', cb);};
     JesterBinder.prototype.taplong        = function (cb) {this.bind('taplong', cb);};
     JesterBinder.prototype.twintap        = function (cb) {this.bind('twintap', cb);};
@@ -622,7 +650,7 @@ if(!window.CustomEvent) {
     function getEndTime() {
         return endTime;
     }
-    
+
     function JesterTouch(type) {
         this.type = type || 'start';
         this.scale      = getTotalScale;
@@ -640,13 +668,13 @@ if(!window.CustomEvent) {
                 break;
         case 'previous':
                 this.x = getPrevX;
-                this.y = getPrevY;    
+                this.y = getPrevY;
                 break;
         default:
                 this.x = getStartX;
                 this.y = getStartY;
                 break;
-        }       
+        }
     }
 
     function JesterTouches() {
@@ -670,7 +698,7 @@ if(!window.CustomEvent) {
     function setOptions(newOpts) {
         var k;
         for (k in opts) {
-            if (newOpts[k]) {
+            if (newOpts.hasOwnProperty(k)) {
                 switch(k) {
                     case 'avoidFlick':
                     case 'avoidSwipe':
@@ -702,9 +730,9 @@ if(!window.CustomEvent) {
         return JesterOptionHandler;
     }
 
-    if (!a.jester) {
+    if (!w.jester) {
         jesterTouches = new JesterTouches();
         // create a global touches object
-        a.jester = launchJester;
+        w.jester = launchJester;
     }
 })(window);

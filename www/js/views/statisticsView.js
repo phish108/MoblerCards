@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
@@ -48,16 +48,16 @@ function StatisticsView() {
 
     this.tagID = this.app.viewId;
     this.featuredContentId = FEATURED_CONTENT_ID;
-    
+
     self.dataLoaded = false;
 
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the 
+    /**It is triggered after statistics are loaded locally from the server. This can happen during the
      * authentication or if we had clicked on the statistics icon and moved to the questions.
      * @event loadstatisticsfromserver
      * @param: a callback function that displays the answer body and preventing the display of the statistics view
      */
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) && 
+        if ((self.app.isActiveView(self.tagID)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done");
             self.app.models.statistics.getFirstActiveDay();
@@ -86,10 +86,10 @@ function StatisticsView() {
  **/
 StatisticsView.prototype.prepare = function () {
     if (this.app.getLoginState()) {
-        if (this.featuredContentId || 
+        if (this.featuredContentId ||
             this.app.getConfigVariable("statisticsLoaded") === true) {
             this.loadData();
-        } 
+        }
         else {
             this.showLoadingMessage();
         }
@@ -101,21 +101,17 @@ StatisticsView.prototype.prepare = function () {
     this.app.models.featured.loadFeaturedCourseFromServer();
 };
 
-StatisticsView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
-    
-    if (id === "statisticscross") {
-        if (this.app.getLoginState()) {
-            this.app.changeView("course");
-        } 
-        else {
-            this.app.changeView("landing");
-        }
+StatisticsView.prototype.tap_statisticscross = function() {
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
     }
-    else if (id === "statsSlot3") {
-        this.app.changeView("achievements");
+    else {
+        this.app.changeView("landing");
     }
+};
+
+StatisticsView.prototype.tap_statsSlot3 = function() {
+    this.app.changeView("achievements");
 };
 
 /**show loading message when statistics have not been fully loaded from the server
@@ -137,7 +133,7 @@ StatisticsView.prototype.showLoadingMessage = function () {
 StatisticsView.prototype.loadData = function () {
     var self = this;
     var statisticsModel = this.app.models.statistics;
-    
+
     console.dir(statisticsModel);
 
     console.log("init values for statistics");

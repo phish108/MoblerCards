@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -40,7 +40,7 @@ under the License.
 // TODO templates
 function AchievementsView() {
     var self = this;
-    
+
     self.tagID = self.app.viewId;
     self.featuredContentId = FEATURED_CONTENT_ID;
     var achievementsFlag = true;
@@ -53,7 +53,7 @@ function AchievementsView() {
      */
     // TODO make loginState a boolean if possible
     $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagId)) && 
+        if ((self.app.isActiveView(self.tagId)) &&
             (self.app.models.configuration.configuration.loginState === "loggedIn")) {
             console.log("enters load statistics from server is done");
             self.app.models.statistics.getFirstActiveDay();
@@ -85,10 +85,10 @@ function AchievementsView() {
  **/
 AchievementsView.prototype.prepare = function () {
     var self = this;
-    
+
     if (self.featuredContentId) {
         self.showAchievementsBody();
-    } 
+    }
     else if (self.app.getConfigVariable("statisticsLoaded")) {
         self.showAchievementsBody();
     }
@@ -97,13 +97,8 @@ AchievementsView.prototype.prepare = function () {
     }
 };
 
-AchievementsView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] : " + id + " <<<<<");
-    
-    if (id === "achievementscross") {
-        this.app.changeView("statistics");
-    }
+AchievementsView.prototype.tap_achievementscross = function (event) {
+    this.app.changeView("statistics");
 };
 
 // TODO TEMPLATES

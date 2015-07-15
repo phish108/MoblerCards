@@ -99,26 +99,14 @@ QuestionView.prototype.tap = function (event) {
 
     console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
-    switch (id) {
-        case "questioncross": // Close the question view.
-            this.app.models.answer.resetTimer();
-            if (this.app.getLoginState()) {
-                this.app.changeView("course");
-            }
-            else {
-                this.app.changeView("landing");
-            }
-            break;
-        default: // If anything besides the close button is taped, move to the answer view.
-            if (this.app.models.answer.answerScore > -1) {
-                this.app.changeView("feedback");
-            }
-            else {
-                this.app.models.answer.initAttempt(questionID);
-                this.app.changeView("answer");
-            }
-            break;
+    if (this.app.models.answer.answerScore > -1) {
+        this.app.changeView("feedback");
     }
+    else {
+        this.app.models.answer.startAttempt(questionID);
+        this.app.changeView("answer");
+    }
+
 };
 
 QuestionView.prototype.swipe = function (event, touches) {
@@ -132,6 +120,16 @@ QuestionView.prototype.swipe = function (event, touches) {
         this.app.models.answer.deleteData();
         this.app.models.questionpool.nextQuestion();
         this.app.changeView("question");
+    }
+};
+
+QuestionView.prototype.tap_questioncross = function (event) {
+    this.app.models.answer.resetTimer();
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    }
+    else {
+        this.app.changeView("landing");
     }
 };
 

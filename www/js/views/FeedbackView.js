@@ -116,7 +116,7 @@ FeedbackView.prototype.update = function () {
     if (this.app.models.answer.answerScore === -1) {
         this.app.models.answer.calculateScore();
     }
-    
+
     this.showFeedbackTitle();
     this.showFeedbackBody();
 };
@@ -138,33 +138,28 @@ FeedbackView.prototype.cleanup = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-FeedbackView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");    
-    
-    switch (id) {
-        case "feedbackfooter":
-        case "feedbackcontent": // Go to the next question.
-            this.app.models.answer.deleteData();
-            this.app.models.questionpool.nextQuestion();
-            this.app.changeView("question");
-            break;
-        case "feedbackinfo": // Get a feedback to the answer.
-            this.getFeedbackInfo();
-            break; 
-        case "feedbackheader": // Go back to the feedback's question.
-            this.app.changeView("question");
-            break;
-        case "feedbackcross": // Close the feedback view.
-            this.app.models.answer.deleteData();
-            if (this.app.getLoginState()) {
-                this.app.changeView("course");
-            } else {
-                this.app.changeView("landing");
-            }
-            break;
-        default: 
-            break;
+
+
+FeedbackView.prototype.tap_feedbackfooter = function () {
+    this.app.models.answer.deleteData();
+    this.app.models.questionpool.nextQuestion();
+    this.app.changeView("question");
+};
+
+FeedbackView.prototype.tap_feedbackcontent = FeedbackView.prototype.tap_feedbackfooter;
+
+FeedbackView.prototype.tap_feedbackinfo = function () {
+     this.getFeedbackInfo();
+};
+FeedbackView.prototype.tap_feedbackheader = function () {
+    this.app.changeView("question");
+};
+FeedbackView.prototype.tap_feedbackcross = function () {
+    this.app.models.answer.deleteData();
+    if (this.app.getLoginState()) {
+        this.app.changeView("course");
+    } else {
+        this.app.changeView("landing");
     }
 };
 
@@ -206,7 +201,7 @@ FeedbackView.prototype.showFeedbackBody = function () {
     var questionType = questionpoolModel.getQuestionType();
     var feedbackText = questionpoolModel.getWrongFeedback();
     var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
-    
+
     if (currentFeedbackTitle === "Excellent") {
         //gets correct feedback text
         feedbackText = questionpoolModel.getCorrectFeedback();
