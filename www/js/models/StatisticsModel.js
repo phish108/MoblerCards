@@ -673,3 +673,21 @@ StatisticsModel.prototype.checkclickOutOfStatisticsIcon = function () {
     console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
     return this.clickOutOfStatisticsIcon;
 };
+
+/**
+ * generates a UUID
+ */
+StatisticsModel.prototype.generateUUID = function() {
+    // TODO: include device UUID, timestamp, and userid as random seed
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+    uuid.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+    return uuid;
+};
+
+StatisticsModel.prototype.storeAttempt = function(statement) {
+
+};
+
