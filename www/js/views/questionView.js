@@ -109,6 +109,20 @@ QuestionView.prototype.tap = function (event) {
 
 };
 
+QuestionView.prototype.swipe = function (event, touches) {
+    var id = event.target.id;
+    var tx = touches.touch(0).total.x(),
+        ax = Math.abs(tx);
+    console.log("a swipe event" + id + " distance: " + ax);
+    
+    if (id !== "questioncross" &&
+        ax > 50) {
+        this.app.models.answer.deleteData();
+        this.app.models.questionpool.nextQuestion();
+        this.app.changeView("question");
+    }
+};
+
 QuestionView.prototype.tap_questioncross = function (event) {
     this.app.models.answer.resetTimer();
     if (this.app.getLoginState()) {
@@ -118,6 +132,7 @@ QuestionView.prototype.tap_questioncross = function (event) {
         this.app.changeView("landing");
     }
 };
+
 /**
  * Shows the current question title and the corresponding icon.
  * @prototype

@@ -574,3 +574,7 @@ QuestionPoolModel.prototype.dataAvailable = function () {
 //    console.log("questionpool list does not exist");
     return false;
 };
+
+// TODO
+QuestionPoolModel.prototype.getPoolID = function () {};
+QuestionPoolModel.prototype.setPoolID = function () {};

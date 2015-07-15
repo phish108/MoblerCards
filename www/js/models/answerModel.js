@@ -559,11 +559,12 @@ AnswerModel.prototype.initAttempt = function (questionid) {
 AnswerModel.prototype.createAttemptReport = function () {
     var now = (new Date()).getTime();
     var duration = now - this.start;
+    var questionPoolURL = this.app.models.lms.getServiceURL("ch.isn.lms.questions") + "/" + this.app.models.questionpool.getCourseID();
     var report = {
-        "ID": this.app.models.statistics.generateUUID(),
+        "ID": this.controller.models.statistics.generateUUID(),
         "Actor": {
             "objectType": "Agent",
-            "name": this.app.models.configuration.getUserId()
+            "name": this.controller.models.configuration.getUserId()
         },
         "Verb": {
             "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
@@ -580,6 +581,14 @@ AnswerModel.prototype.createAttemptReport = function () {
             "extensions": {
                 "http://www.mobinaut.io/mobler/xapiextensions/IMSQTIResult": this.getAnswers()
             }
+        },
+        "context": {
+            "contextActivities": {
+                "parent": [
+                    {"id": questionPoolURL}, 
+                    {"id": questionPoolURL + "/" + this.app.models.questionpool.getPoolID()}
+                ]
+            }
         }
     };
     return report;
@@ -591,7 +600,7 @@ AnswerModel.prototype.finishAttempt = function () {
     var report = this.createAttemptReport();
 
     // TODO: inform statistics model about the results.
-    this.app.models.statistics.storeAttempt(report);
+    this.controller.models.statistics.storeAttempt(report);
 
     this.resetTimer();
 };
