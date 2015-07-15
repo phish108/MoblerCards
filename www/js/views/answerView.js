@@ -152,12 +152,7 @@ AnswerView.prototype.tap_answerheader = function () {
 
 AnswerView.prototype.tap_answercross = function () {
     this.app.models.answer.finishAttempt();
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("course", "landing");
 };
 
 /**

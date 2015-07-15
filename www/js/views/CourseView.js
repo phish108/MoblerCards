@@ -156,12 +156,7 @@ CourseView.prototype.tap = function (event) {
 };
 
 CourseView.prototype.tap_coursecross = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.changeView("settings");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("settings", "landing");
 };
 
 /*

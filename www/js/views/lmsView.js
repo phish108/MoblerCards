@@ -68,9 +68,8 @@ function LMSView() {
      * 		   registration cannot take place
      */
     $(document).bind("lmsNotRegistrableYet", function (e, servername) {
-        var previousLMS = self.app.models.lms.getPreviousServer();
-        console.log("previouslms in bind is " + previousLMS);
-        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername, previousLMS);
+        self.refresh();
+        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername);
     });
 
     /**It is triggered when the registration of an lms fails because of any reason
@@ -79,9 +78,8 @@ function LMSView() {
      *		  registration cannot take place
      */
     $(document).bind("LMS_DEVICE_NOTALLOWED", function (e, servername) {
-        var previousLMS = self.app.models.lms.getPreviousServer();
-        console.log("previous lms in bind 2 is " + previousLMS);
-        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername, previousLMS);
+        // the model must not change the LMS
+        self.refresh();        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername);
     });
 
     /**It is triggered when the registration of an lms fails because the backend is not activated
@@ -89,6 +87,7 @@ function LMSView() {
      * @param:a callback function  that displays a message to the user that the server is not available temporarily
      */
     $(document).bind("registrationTemporaryfailed", function (e, servername, previousLMS) {
+        self.refresh();
         console.log("previous lms in temporary failed lms is " + previousLMS);
         //var previousLMS=self.app.models['lms'].getPreviousServer();
         self.showLMSTemporaryRegistrationMessage(jQuery.i18n.prop('msg_lms_deactivate_registration_message'), servername, previousLMS);
@@ -126,14 +125,14 @@ function LMSView() {
         // keep the http if present
         //turl.replace(/^https?:\/\//i, "");
 
-        if (self.app.models.connection.isOnline() &&
+        if (self.app.isOnline() &&
             lmsurl &&
             lmsurl.length &&
             turl &&
             turl.length > 5) {
 
             console.log("add a new LMS!");
-            self.app.models.lms.getServerRSD(lmsurl);
+            self.models.addLMS(lmsurl);
             // display waiting circle
             $("#addlmsbutton").addClass("hidden");
             $("#addlmswait").removeClass("hidden");
@@ -222,7 +221,7 @@ LMSView.prototype.tap_lmscross = function (event) {
     this.back();
 };
 
-LMSView.prototype.tap_addlms = function (event) {
+LMSView.prototype.tap_addlmsbox = function (event) {
     if ($("#addlmsinputbox").hasClass("hidden")) {
         // add a new LMS
         // TODO if we are offline show a message that "we cannot add new lmses while offline"
@@ -238,14 +237,15 @@ LMSView.prototype.tap_addlms = function (event) {
         var turl = lmsurl;
         turl.replace(/^https?:\/\//i, "");
 
-        if (this.app.models.connection.isOnline() &&
+        if (this.app.isOnline() &&
             lmsurl &&
             lmsurl.length &&
             turl &&
             turl.length > 5) {
 
             console.log("add a new LMS!");
-            this.app.models.lms.getServerRSD(lmsurl);
+
+            this.model.addLMS(lmsurl);
             // display waiting circle
             $("#addlmsbutton").addClass("hidden");
             $("#addlmswait").removeClass("hidden");
@@ -273,12 +273,11 @@ LMSView.prototype.tap_addlms = function (event) {
  * @function showLMSList
  */
 LMSView.prototype.update = function () {
-    var lmsObj = this.app.models.lms;
     console.log("[LMSView] refresh");
 
     // console.log("[LMSView] refresh, lmsData: " + lmsData[i]);
 
-    lmsObj.eachLMS(function(entrydata) {
+    this.model.eachLMS(function(entrydata) {
         this.createLMSItem(entrydata);
     }, this);
 };
@@ -425,19 +424,19 @@ LMSView.prototype.toggleIconWait = function (servername) {
  **/
 LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     var self = this;
-    var lmsModel = self.app.models.lms;
+    var lb = $("#lmslist_lmslistbox_" + servername);
 
-    if (!($("#lmslist_lmslistbox_" + servername).hasClass("gradientSelected"))) {
+    if (!lb.hasClass("gradientSelected")) {
 
-        $("#lmslist_lmslistbox_" + servername).removeClass("gradientSelected");
-        $("#lmslist_lmslistbox_" + servername).addClass("gradient2 textShadow");
+        lb.removeClass("gradientSelected");
+        lb.addClass("gradient2 textShadow");
 
 //        lmsModel.storePreviousServer();
 //        this.preServername = lmsModel.getPreviousServer();
 //        this.selectItemVisuals(servername);
 //        this.deselectItemVisuals(this.preServername);
         console.log("activate " + servername);
-        lmsModel.setActiveLMS(servername);
+        this.model.activateLMS(servername);
     }
 };
 
@@ -520,8 +519,8 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
         self.deselectItemVisuals(servername);
         self.deactivateLMS(servername);
         // activate the previsous LMS before changing the visuals
-        var previouslms = this.app.models.lms.getPreviousServer();
-        self.app.models.lms.setActiveServer(previouslms);
+        var previouslms = this.model.getPreviousServer();
+        self.model.activateLMS(previouslms);
         $("#lmslist_lmslistbox_" + previouslms).addClass("gradientSelected");
     }, 2800);
 };
@@ -562,7 +561,7 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
         self.deactivateLMS(servername);
         //console.log("previouslms is "+previouslms);
         //var previouslms=this.app.models['lms'].getPreviousServer();
-        self.app.models.lms.storeActiveServer(previousLMS);
+        self.model.activateLMS(previousLMS);
         $("#lmslist_lmslistbox_" + previousLMS).addClass("gradientSelected");
     }, 2800);
 
@@ -574,14 +573,14 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
         console.log("lms is active, try setTimeOut again");
         setTimeout(function () {
             console.log("reactivation?");
-            self.app.models.lms.storeActiveServer(servername);
-            self.app.models.lms.register(servername);
+            self.model.storeActiveServer(servername);
+            self.model.register(servername);
         }, 60 * 1000);
     } //if the active view is the lms list view
 
     function myTimer() {
         console.log("reactivation?");
-        self.app.models.lms.register(servername); //instead of executing the whole registration we can just send the ajax request
+        self.model.register(servername); //instead of executing the whole registration we can just send the ajax request
         if (DEACTIVATE) //if we got an 403 again and we are still in deactivate mode
         {
             console.log("is calling itself again");

@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -35,21 +36,14 @@ under the License.
  *  - it sets the tag ID for the settings view
  *  - assigns event handler when taping on close button
  **/
-function AboutView() {
-    var self = this;
-}
+function AboutView() {}
 
 AboutView.prototype.prepare = function () {
     this.app.models.configuration.loadFromServer();
 };
 
 AboutView.prototype.tap_aboutcross = function () {
-    if (this.app.getLoginState()) {
-        this.app.changeView("settings");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("settings", "landing");
 };
 
 AboutView.prototype.tap_opensourceicon = function (event) {
@@ -68,10 +62,5 @@ AboutView.prototype.tap_licenseicon = function (event) {
  * @function logout
  **/
 AboutView.prototype.logout = function () {
-    if (this.app.getLoginState()) {
-        this.app.changeView("logout");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("logout", "landing");
 };

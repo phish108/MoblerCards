@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -25,20 +26,8 @@ under the License.
  * @author Christian Glahn
  */
 
-var $ = window.$, jQuery = window.jQuery;
-
 /**
- *A global property/variable that hosts the bundle id of the application
- *@property APP_ID
- *@default ch.ethz.isn.learningcards
- **/
-
-//var APP_ID = "ch.ethz.isn.learningcards";
-//var APP_ID = "io.mobinaut.mobler";
-var APP_ID = "org.mobinaut.mobler";
-
-/**
- * @class ConfigurationModel
+ * @class UserModel
  * This model holds the data about the current configuration
  * @constructor
  * It initializes basic properties such as:
@@ -51,7 +40,7 @@ var APP_ID = "org.mobinaut.mobler";
  * @param {String} controller
  */
 
-function ConfigurationModel(controller) {
+function UserModel(controller) {
     var self = this;
 
     this.controller = controller;
@@ -95,7 +84,7 @@ function ConfigurationModel(controller) {
  * @prototype
  * @function storeData
  */
-ConfigurationModel.prototype.storeData = function () {
+UserModel.prototype.storeData = function () {
     var configString;
     try {
         configString = JSON.stringify(this.configuration);
@@ -114,7 +103,7 @@ ConfigurationModel.prototype.storeData = function () {
  * @prototype
  * @function
  */
-ConfigurationModel.prototype.loadData = function () {
+UserModel.prototype.loadData = function () {
     var configObject;
     //if there is an item in the local storage with the name "configuration"
     //then get it by parsing the string and convert it into a json object
@@ -148,7 +137,7 @@ ConfigurationModel.prototype.loadData = function () {
  * @prototype
  * @function loadFromServer
  */
-ConfigurationModel.prototype.loadFromServer = function () {
+UserModel.prototype.loadFromServer = function () {
     var self = this;
     var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
 
@@ -224,13 +213,17 @@ ConfigurationModel.prototype.loadFromServer = function () {
                 // we send the user authentication key as "sessionkey" via headers
                 // before the autentication takes plae and in order it to be validated or not
                 beforeSend: function setHeader(xhr) {
-                    xhr.setRequestHeader('sessionkey',
-                                         self.configuration.userAuthenticationKey);
+                    self.sessionHeader(xhr);
                 }
 
             });
 
     }
+};
+
+UserModel.prototype.sessionHeader = function (xhr) {
+    xhr.setRequestHeader('sessionkey',
+                         this.configuration.userAuthenticationKey);
 };
 
 /**
@@ -242,7 +235,7 @@ ConfigurationModel.prototype.loadFromServer = function () {
  * @prototype
  * @function login
  */
-ConfigurationModel.prototype.login = function (username, password) {
+UserModel.prototype.login = function (username, password) {
     var self = this;
     var passwordHash, challenge;
     console.log("client key: " + self.controller.getActiveClientKey());
@@ -270,7 +263,7 @@ ConfigurationModel.prototype.login = function (username, password) {
  * @prototype
  * @function logout
  */
-ConfigurationModel.prototype.logout = function (featuredContent_id) {
+UserModel.prototype.logout = function (featuredContent_id) {
     console.log("enter logout in configuration model");
     //send statistics data to server
     this.configuration.loginState = "loggedOut";
@@ -311,7 +304,7 @@ ConfigurationModel.prototype.logout = function (featuredContent_id) {
  * @prototype
  * @function sendAuthToServer
  */
-ConfigurationModel.prototype.sendAuthToServer = function (authData) {
+UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
@@ -412,7 +405,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
             //the authentication data (uuid, appid, username, challenge) are sent to the server via headers
             beforeSend: function setHeader(xhr) {
                 xhr.setRequestHeader('uuid', window.device.uuid);
-                xhr.setRequestHeader('appid', APP_ID);
+                xhr.setRequestHeader('appid', self.app.id);
                 xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
             }
         });
@@ -427,7 +420,7 @@ ConfigurationModel.prototype.sendAuthToServer = function (authData) {
  * @function sendLogoutToServer
  * @param userAuthenticationKey
  */
-ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
+UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
     console.log("enter send logout to server");
     var sessionKey, self = this;
     var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
@@ -494,7 +487,7 @@ ConfigurationModel.prototype.sendLogoutToServer = function (userAuthenticationKe
  * @function isLoggedIn
  * @return true if user is logged in, otherwise false
  */
-ConfigurationModel.prototype.isLoggedIn = function () {
+UserModel.prototype.isLoggedIn = function () {
     //if (this.configuration.userAuthenticationKey && this.configuration.userAuthenticationKey !== "") {
     console.log("this.configuration.logingState is " + this.configuration.loginState);
     if (this.configuration.loginState && this.configuration.loginState === "loggedIn") {
@@ -510,7 +503,7 @@ ConfigurationModel.prototype.isLoggedIn = function () {
  * @function getDisplayName
  * @return {String} displayName, the full name of the user that is stored in the configuration object
  */
-ConfigurationModel.prototype.getDisplayName = function () {
+UserModel.prototype.getDisplayName = function () {
     return this.configuration.learnerInformation.displayName;
 };
 
@@ -519,7 +512,7 @@ ConfigurationModel.prototype.getDisplayName = function () {
  * @function getUserName
  *  @return {String} displayName, the username that is stored in the configuration object
  */
-ConfigurationModel.prototype.getUserName = function () {
+UserModel.prototype.getUserName = function () {
     return this.configuration.learnerInformation.userName;
 };
 
@@ -528,7 +521,7 @@ ConfigurationModel.prototype.getUserName = function () {
  * @function getUserId
  * @return {Number} userId, the user id that is stored in the configuration object
  */
-ConfigurationModel.prototype.getUserId = function () {
+UserModel.prototype.getUserId = function () {
     return this.configuration.learnerInformation.userId;
 };
 
@@ -537,7 +530,7 @@ ConfigurationModel.prototype.getUserId = function () {
  * @function getEmailAddress
  * @return {String} emailAddress, the email address of the user as it is stored in the configuration object
  */
-ConfigurationModel.prototype.getEmailAddress = function () {
+UserModel.prototype.getEmailAddress = function () {
     return this.configuration.learnerInformation.emailAddress;
 };
 
@@ -548,7 +541,7 @@ ConfigurationModel.prototype.getEmailAddress = function () {
  * @function getLanguage
  * @return {String} language, the language of the user
  */
-ConfigurationModel.prototype.getLanguage = function () {
+UserModel.prototype.getLanguage = function () {
 
     if (this.configuration.learnerInformation &&
         this.configuration.learnerInformation.language &&
@@ -568,6 +561,6 @@ ConfigurationModel.prototype.getLanguage = function () {
  * @function getSessionKey
  * @return {String} userAuthenticationKey, the session key of the user
  */
-ConfigurationModel.prototype.getSessionKey = function () {
+UserModel.prototype.getSessionKey = function () {
     return this.configuration.userAuthenticationKey;
 };

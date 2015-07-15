@@ -114,7 +114,7 @@ QuestionView.prototype.swipe = function (event, touches) {
     var tx = touches.touch(0).total.x(),
         ax = Math.abs(tx);
     console.log("a swipe event" + id + " distance: " + ax);
-    
+
     if (id !== "questioncross" &&
         ax > 50) {
         this.app.models.answer.deleteData();
@@ -125,12 +125,7 @@ QuestionView.prototype.swipe = function (event, touches) {
 
 QuestionView.prototype.tap_questioncross = function (event) {
     this.app.models.answer.resetTimer();
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("course", "landing");
 };
 
 /**

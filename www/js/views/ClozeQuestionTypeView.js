@@ -2,7 +2,7 @@
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file 
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
 regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
@@ -16,10 +16,10 @@ software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
-under the License.	
+under the License.
 */
 
-/** 
+/**
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  */
@@ -43,15 +43,17 @@ function ClozeQuestionTypeView(interactive) {
 
     // Check the boolean value of interactive. This is set through the answer and
     // feedback view.
-    if (self.interactive) {
-        // when answer view is active, then interactive variable is set to true.
-        self.showAnswer(self.interactive); // displays the answer body of the single choice
-        // widget
-    } else {
-        // when feedback view is active, then interactive is set to false.
-        // displays the feedback body of the single choice widget
-        self.showFeedback();
-    }
+
+    //TODO: transform into a widget!
+//    if (self.interactive) {
+//        // when answer view is active, then interactive variable is set to true.
+//        self.showAnswer(self.interactive); // displays the answer body of the single choice
+//        // widget
+//    } else {
+//        // when feedback view is active, then interactive is set to false.
+//        // displays the feedback body of the single choice widget
+//        self.showFeedback();
+//    }
 } //end of constructor
 
 /**
@@ -100,14 +102,14 @@ ClozeQuestionTypeView.prototype.showFeedback = function () {
 
 
 
-/**stores the filled gaps of the user in an array 
+/**stores the filled gaps of the user in an array
  * @prototype
  * @function storeAnswers
  **/
 ClozeQuestionTypeView.prototype.storeAnswers = function () {
     console.log("store answers in cloze question view");
     var gapAnswers = new Array();
-    //to get the answers the user typed in the gaps 
+    //to get the answers the user typed in the gaps
     //and push the gaped answers in the array
 
     $("#cardAnswerBody li :input").each(function (index) {
@@ -130,7 +132,7 @@ function createClozeQuestionBody(domElement, interactive) {
     // wrap everything into li
     // this is not 100% QTI safe
 
-    domElement.addClass("gradient2"); //added the gradient to the whole 
+    domElement.addClass("gradient2"); //added the gradient to the whole
 
     domElement.wrapAll('<ul class="ulTest"/>');
     domElement.contents().wrap('<li class="marginClozeLi"/>'); //the contents returns also the text nodes. the children not
@@ -249,7 +251,7 @@ function createClozeQuestionBody(domElement, interactive) {
                     }).appendTo(dashContainer);
                     dashContainer.insertBefore(rightDiv2);
                 } //end for
-            } //end if	
+            } //end if
         });
 
         var shadoweddiv = $("<div/>", {

@@ -62,28 +62,13 @@ SettingsView.prototype.prepare = function () {
 
 
 SettingsView.prototype.tap_settingscross = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("course", "landing");
 };
 SettingsView.prototype.tap_settingslogout = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.changeView("logout");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("logout", "landing");
 };
 SettingsView.prototype.tap_settingsabout = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.changeView("about");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("about", "landing");
 };
 
 /**

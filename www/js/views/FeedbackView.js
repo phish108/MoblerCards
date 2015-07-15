@@ -156,11 +156,7 @@ FeedbackView.prototype.tap_feedbackheader = function () {
 };
 FeedbackView.prototype.tap_feedbackcross = function () {
     this.app.models.answer.deleteData();
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    } else {
-        this.app.changeView("landing");
-    }
+    this.app.chooseView("course", "landing");
 };
 
 /**

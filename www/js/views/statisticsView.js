@@ -102,11 +102,7 @@ StatisticsView.prototype.prepare = function () {
 };
 
 StatisticsView.prototype.tap_statisticscross = function() {
-    if (this.app.getLoginState()) {
-        this.app.changeView("course");
-    }
-    else {
-        this.app.changeView("landing");
+    this.app.chooseView("course", "landing");
     }
 };
 

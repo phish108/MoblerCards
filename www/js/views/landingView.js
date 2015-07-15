@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +25,7 @@ under the License.
  * @author Dijan Helbling
  */
 
-var $ = window.$, jQuery = window.jQuery;
+
 
 /**
  * @Class LandingView

@@ -1,5 +1,7 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
+/*global $, jQuery, Connection, jester*/
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -19,21 +21,10 @@ specific language governing permissions and limitations
 under the License.
 */
 
-var $, jester, jQuery;
-if (window.$) {
-    $ = window.$;
-}
-
-if (window.jQuery) {
-    jQuery = window.jQuery;
-}
-
-if (window.jester) {
-    jester = window.jester;
-}
-
 function MoblerCards() {
     var self = this;
+
+    self.id = "org.mobinaut.mobler";
 
     self.viewId = "splash";
     self.MoblerVersion = 2.0;
@@ -112,7 +103,7 @@ function MoblerCards() {
         if (self.appLoaded && self.activeView === self.views.lms.tagID) {
             console.log("transition to login view after selecting server in lms view");
             self.changeView("login");
-        } 
+        }
         else if (self.appLoaded && self.activeView === self.views.splash.tagID) {
             console.log("transition to login view after the default server has been registered");
             self.changeView("landing");
@@ -120,20 +111,64 @@ function MoblerCards() {
     });
 }
 
-MoblerCards.prototype.initialize = function() {
+/**
+ * Returns the present connection state of the app.
+ * @prototype
+ * @function isOffline
+ * @return {Boolean} true if the connection state is offline, otherwise false
+ */
+MoblerCards.prototype.isOnline = function () {
+    var networkState = navigator.connection.type;
+
+    if (networkState === Connection.NONE) {
+        return false;
+    }
+
+    return true;
+};
+
+/**
+ * @prototype
+ * @function isOffline
+ * @return {boolean} true if the connection state is offline, otherwise false
+ **/
+MoblerCards.prototype.isOffline = function () {
+    return !this.isOnline();
+};
+
+MoblerCards.prototype.initialize = function () {
     this.setupLanguage();
+};
+
+MoblerCards.prototype.sessionHeader = function (xhr) {
+    this.models.identityprovider.sessionHeader(xhr);
+};
+
+MoblerCards.prototype.serviceURL = function (servicename) {
+    return this.models.identityprovider.serviceURL(servicename);
+};
+
+/**
+ * Changes to the correct view for authenticated and non-authenticated sessions
+ * @prototype
+ * @function chooseView
+ * @param {STRING} authorizedViewName
+ * @param {STRING} unauthorizedViewName
+ */
+MoblerCards.prototype.chooseView = function (authView, unauthView) {
+    if (this.models.identityprovider.sessionState()) {
+        this.changeView(authView);
+    }
+    else {
+        this.changeView(unauthView);
+    }
 };
 
 MoblerCards.prototype.openFirstView = function () {
     this.initBasics();
+
     this.appLoaded = true;
-    
-    if (this.getLoginState()) {
-        this.changeView("course");
-    }
-    else {
-        this.changeView("landing");
-    }
+    this.chooseView("course", "landing");
 };
 
 MoblerCards.prototype.initBasics = function () {
@@ -218,11 +253,14 @@ MoblerCards.prototype.setupLanguage = function () {
         name: 'textualStrings',
         path: 'translations/',
         mode: 'both',
-        language: this.models.configuration.getLanguage(),
+        language: this.models.identityprovider.getLanguage(),
         callback: function () { // initialize the static strings on all views
-            $("#usernameInput").attr("placeholder", jQuery.i18n.prop('msg_placeholder_username'));
-            $("#numberInput").attr("placeholder", jQuery.i18n.prop('msg_placeholder_numberinput'));
-            $("#password").attr("placeholder", jQuery.i18n.prop('msg_placeholder_password'));
+            $("#usernameInput").attr("placeholder",
+                                     jQuery.i18n.prop('msg_placeholder_username'));
+            $("#numberInput").attr("placeholder",
+                                   jQuery.i18n.prop('msg_placeholder_numberinput'));
+            $("#password").attr("placeholder",
+                                jQuery.i18n.prop('msg_placeholder_password'));
             $("#coursesListTitle").text(jQuery.i18n.prop('msg_courses_list_title'));
             $("#lmsListTitle").text(jQuery.i18n.prop('msg_lms_list_title'));
             $("#settingsTitle").text(jQuery.i18n.prop('msg_settings_title'));
@@ -296,17 +334,10 @@ MoblerCards.prototype.setupLanguage = function () {
  **/
 MoblerCards.prototype.getLoginState = function () {
     console.log("call isLoggedIn()");
-    return this.models.configuration.isLoggedIn();
+    return this.models.identityprovider.isLoggedIn();
 };
 
-/**
- * @prototype
- * @function isOffline
- * @return {boolean} true if the connection state is offline, otherwise false
- **/
-MoblerCards.prototype.isOffline = function () {
-    return this.models.connection.isOffline();
-};
+
 
 /**
  * @prototype
@@ -316,15 +347,6 @@ MoblerCards.prototype.isOffline = function () {
 // TODO: Refactor all models to use the term RequestToken in the future
 MoblerCards.prototype.getActiveClientKey = function () {
     return this.models.lms.getActiveRequestToken();
-};
-
-/**
- * @prototype
- * @function getActiveURL
- * @return {String} url, url of the active server
- **/
-MoblerCards.prototype.getActiveURL = function () {
-    return "";
 };
 
 /**
@@ -351,6 +373,7 @@ MoblerCards.prototype.setConfigVariable = function (varname, varvalue) {
     this.models.configuration.storeData();
 };
 
+// this should be handled by CSS these days
 MoblerCards.prototype.resizeHandler = function () {
     //   new Orientation Layout
 //    var orientationLayout = false; // e.g. Portrait mode
@@ -364,19 +387,7 @@ MoblerCards.prototype.resizeHandler = function () {
 //    this.activeView.changeOrientation(orientationLayout, w, h);
 };
 
-/**
- * Checks if any other element of the view has been tapped/clicked
- * after the statistics icon  has been clicked in either the course list view or landing view.
- * @prototype
- * @function checkclickOutOfStatisticsIcon
- * @return {Boolean}, true or false.  It returns true if any other element has been clicked, and false if only the statistics icon has been clicked and the user is waiting.
- */
-MoblerCards.prototype.checkclickOutOfStatisticsIcon = function () {
-    console.log("check click out of statistics icon is" + this.clickOutOfStatisticsIcon);
-    return this.clickOutOfStatisticsIcon;
-};
-
-
+// FIXME: Remove?
 MoblerCards.prototype.injectStyle = function () {
     console.log("enter inject Style");
     var h = $(window).height(),
@@ -413,6 +424,8 @@ MoblerCards.prototype.injectStyle = function () {
 };
 
 /**
+ * FIXME: Move to ContentBroker Classes
+ *
  * Does the aproropriate calculations when we click on a course item
  * either it is featured content or exclusive content.
  * and after loading the data and setting the correct course id we do
@@ -425,14 +438,12 @@ MoblerCards.prototype.selectCourseItem = function (courseId) {
     this.models.questionpool.reset();
     //add it within the loadData, similar with statistics (setcurrentCourseId function)...
     this.models.questionpool.loadData(courseId);
-    
+
     if (this.models.questionpool.dataAvailable()) {
         this.models.answer.setCurrentCourseId(courseId);
         console.log("enters clickFeauturedItem");
         return true;
-    } 
-    else {
-        console.log("[ERROR]@selectCourseItem()");
-        return false;
     }
+    console.log("[ERROR]@selectCourseItem()");
+    return false;
 };
