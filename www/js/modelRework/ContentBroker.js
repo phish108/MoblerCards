@@ -19,8 +19,13 @@ specific language governing permissions and limitations
 under the License.
 */
 
+/**
+ * @author Christian Glahn
+ * @author Dijan Helbling
+ */
+ 
 function ContentBroker (app) {
-    this.lrs = app.models.LearningRecordStore;
+    this.lrs      = app.models.LearningRecordStore;
     this.identity = app.models.IdentityProvider;
 }
 
