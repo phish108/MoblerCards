@@ -138,12 +138,28 @@ MoblerCards.prototype.initialize = function () {
     this.setupLanguage();
 };
 
+/**
+ * @prototype
+ * @function sessionHeader
+ * @param {OBJECT} xhr
+ *
+ * Signs an active request with the active session header,
+ * so the backend can authorize the client request.
+ */
 MoblerCards.prototype.sessionHeader = function (xhr) {
     this.models.identityprovider.sessionHeader(xhr);
 };
 
-MoblerCards.prototype.serviceURL = function (servicename) {
-    return this.models.identityprovider.serviceURL(servicename);
+/**
+ * @prototype
+ * @function serviceURL
+ * @param {STRING} serviceid
+ *
+ * returns the URL to the requested service protovol for the active
+ * LMS. This function is a proxy to the identityprovider function
+ */
+MoblerCards.prototype.serviceURL = function (serviceid) {
+    return this.models.identityprovider.serviceURL(serviceid);
 };
 
 /**
@@ -170,8 +186,11 @@ MoblerCards.prototype.openFirstView = function () {
 };
 
 MoblerCards.prototype.initBasics = function () {
-    this.models.connection.synchronizeData();
-    this.models.configuration.loadFromServer();
+    this.models.identityprovider.synchronize();
+    this.models.learningrecordstore.synchronize();
+    this.models.contentbroker.synchronize();
+    // this.models.connection.synchronizeData();
+    // this.models.configuration.loadFromServer();
 };
 
 MoblerCards.prototype.checkVersion = function () {
@@ -332,94 +351,9 @@ MoblerCards.prototype.setupLanguage = function () {
  **/
 MoblerCards.prototype.getLoginState = function () {
     console.log("call isLoggedIn()");
-    return this.models.identityprovider.isLoggedIn();
+    return this.models.identityprovider.sessionState();
 };
 
-
-
-/**
- * @prototype
- * @function getActiveClientKey
- * @return {String} activeClientKey, the client key of the activated server
- **/
-// TODO: Refactor all models to use the term RequestToken in the future
-MoblerCards.prototype.getActiveClientKey = function () {
-    return this.models.lms.getActiveRequestToken();
-};
-
-/**
- * @prototype
- * @function getConfigVariable
- * @param {String} varname, the name of the
- * @return {String} It returns the name of the added property of the configuration object.
- **/
-MoblerCards.prototype.getConfigVariable = function (varname) {
-    return this.models.configuration.configuration[varname];
-};
-
-/**
- * It adds a property in the local storage for the configuration object and assigns a value to it.
- * @prototype
- * @function setConfigVariable
- * @param {String} varname, {Boolean, String} varvalue
- **/
-MoblerCards.prototype.setConfigVariable = function (varname, varvalue) {
-    if (!this.models.configuration.configuration) {
-        this.models.configuration.configuration = {};
-    }
-    this.models.configuration.configuration[varname] = varvalue;
-    this.models.configuration.storeData();
-};
-
-// this should be handled by CSS these days
-MoblerCards.prototype.resizeHandler = function () {
-    //   new Orientation Layout
-//    var orientationLayout = false; // e.g. Portrait mode
-    var w = $(window).width(),
-        h = $(window).height();
-    if (w / h > 1) {
-//        orientationLayout = true;
-        console.log("we are in landscape mode");
-    } // e.g. Landscape mode
-    // window.width / window.height > 1 portrait
-//    this.activeView.changeOrientation(orientationLayout, w, h);
-};
-
-// FIXME: Remove?
-MoblerCards.prototype.injectStyle = function () {
-    console.log("enter inject Style");
-    var h = $(window).height(),
-        w = $(window).width();
-
-    if (h < w) { // oops we are in ladscape mode
-        var t = w;
-        w = h;
-        h = t;
-    }
-
-    // calculate the heights once and forever.
-    var cfl = w - 54,
-        cfp = h - 54,
-        cl = w - 102,
-        cp = h - 108;
-    var style;
-
-    style = '@media all and (orientation:portrait) { ';
-    style += '   .content { height: ' + cp + "px; }";
-    style += '   .content.full { height: ' + cfp + "px; }";
-    style += "} ";
-    style += '@media all and (orientation:landscape) { ';
-    style += '   .content { height: ' + cl + "px; }";
-    style += '   .content.full { height: ' + cfl + "px; }";
-    style += "} ";
-
-    var e = $('<style/>', {
-        'type': 'text/css',
-        'text': style
-    });
-
-    $('head').append(e);
-};
 
 /**
  * FIXME: Move to ContentBroker Classes
@@ -432,6 +366,8 @@ MoblerCards.prototype.injectStyle = function () {
  * @function selectCourseItem
  * @param {string or number} courseId, the id of the current course
  */
+
+/*
 MoblerCards.prototype.selectCourseItem = function (courseId) {
     this.models.questionpool.reset();
     //add it within the loadData, similar with statistics (setcurrentCourseId function)...
@@ -445,3 +381,4 @@ MoblerCards.prototype.selectCourseItem = function (courseId) {
     console.log("[ERROR]@selectCourseItem()");
     return false;
 };
+ */
