@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $ */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -29,12 +30,34 @@ function ContentBroker (app) {
     this.identity = app.models.IdentityProvider;
     
     /** Variables
-     * this.questionList
-     * this.responseList            The list of user selected answers.
+     * this.courseList              List of all courses connected to your account.
+     * this.currentCourseId         Identification number of the course, also used as the id in the HTML list element. 
      * this.currentQuestionpool     Active questionpool in the current course.
+     * this.questionList            The list of all questions in the questionpool.
      * this.activeQuestion          Active question in the current questionpool.
-     * this.currentCourseId
+     * this.responseList            The list of user selected answers.
      */
+    
+    /**
+	 * @event online
+	 * @param {FUNCTION} switchToOnline() - courses(and any pending questions) are loaded from the server
+	 */
+	$(document).bind("online", function() {
+        console.log("[CourseModel] bind event 'online' detected");
+        // TODO implement
+//		self.switchToOnline();
+	});
+
+    /**
+     * It is triggered in the identity provider.
+	 * @event authenticationready
+	 * @param {FUNCTION} loadFromServer() - loads the courses from the server
+	 **/
+	$(document).bind("authenticationready", function() {
+        console.log("Bind event 'authenticationready' detected");
+        // TODO implement
+//		self.loadFromServer();
+	});
 }
 
 /****** Questionpool Management ******/
@@ -47,7 +70,7 @@ function ContentBroker (app) {
  */
 ContentBroker.prototype.loadQuestionpool = function () {
     try {
-        this.questionList = JSON.parse(localStorage.getItem("questionpool_" + this.currentCourseId) || "{}");
+        this.questionList = JSON.parse(localStorage.getItem("questionpool_" + this.currentCourseId)) || {};
     }
     catch (error) {
         console.log("The question list could not be loaded: " + error);
@@ -56,6 +79,7 @@ ContentBroker.prototype.loadQuestionpool = function () {
 }; // done, not checked
 
 /**
+ 
  * @protoype
  * @function checkQuestionpool
  * @param {NONE}
@@ -80,9 +104,9 @@ ContentBroker.prototype.activateQuestionpool = function (poolId) {
  * @param {NONE}
  */
 ContentBroker.prototype.nextQuestion = function () {
-    var newQuestions = this.loadNewQuestions();
     var temporaryQuestions, randomId, i;
     
+    this.loadNewQuestions();
     /*  if there are still unanswered questions, get one of those randomly. */
     if (this.questionList.length) {
         randomId = Math.floor(Math.random() * this.questionList.length);
@@ -91,12 +115,12 @@ ContentBroker.prototype.nextQuestion = function () {
     /*  otherwise, get the question with the lowest entropy, if there is more
         than one with the same entropy, choose one randomly. */
     else {
-        for (i = 0; i < newQuestions.length; i++) {
-            if (newQuestions[i].entropy === newQuestions[i - 1].entropy) {
-                temporaryQuestions[i] = newQuestions[i];
+        for (i = 0; i < this.newQuestions.length; i++) {
+            if (this.newQuestions[i].entropy === this.newQuestions[i - 1].entropy) {
+                temporaryQuestions[i] = this.newQuestions[i];
             }
             else {
-                i = newQuestions.length;
+                i = this.newQuestions.length;
             }
         }
         randomId = Math.floor(Math.random() * temporaryQuestions.length);
@@ -110,7 +134,7 @@ ContentBroker.prototype.nextQuestion = function () {
  * @param {NONE}
  */
 ContentBroker.prototype.loadNewQuestions = function () {
-    var entropyMap = this.lrs.getEntropyMap();
+    this.newQuestions = this.lrs.getEntropyMap();
     
 };
 
@@ -127,7 +151,7 @@ ContentBroker.prototype.getQuestionInfo = function () {
         "type":     aQ.type,
         "question": aQ.question,
         "answer":   aQ.answer
-               };
+    };
     
     return partActiveQuestion;
 }; // done, not checked
@@ -190,12 +214,14 @@ ContentBroker.prototype.getFeedback = function () {
 };
 
 /**
+ * instruction - calls the LRS to start the question
  * @protoype
  * @function startAttempt
  * @param {NONE}
  */
 ContentBroker.prototype.startAttempt = function () {
-    
+    this.lrs.startAction(this.activeQuestion.id);
+    this.startTimer();
 };
 
 /**
@@ -205,7 +231,10 @@ ContentBroker.prototype.startAttempt = function () {
  */
 ContentBroker.prototype.finishAttempt = function () {
     // 1. speichere beantwortete Frage in der entropy map
+    this.lrs.finishAttempt();
     // 2. lösche die beantwortete Frage aus der Question List.
+    var index = this.questionList.indexOf(this.activeQuestion);
+    this.questionList.splice(index, 1);
     
 };
 
@@ -217,7 +246,19 @@ ContentBroker.prototype.finishAttempt = function () {
  * @param {NONE}
  */
 ContentBroker.prototype.loadCourses = function () {
+    var courseObject;
+    try {
+        courseObject = JSON.parse(localStorage.getItem("courses")) || {};
+    }
+    catch (error) {
+        console.log("Error, could not load the courses: " + error);
+        courseObject = {};
+    }
     
+    this.courseList   = courseObject.courses      || [];
+    this.syncDateTime = courseObject.syncDateTime || (new Date()).getTime();
+	this.syncState    = courseObject.syncState    || false;
+	this.syncTimeOut  = courseObject.syncTimeOut  || 6000;
 };
 
 /**

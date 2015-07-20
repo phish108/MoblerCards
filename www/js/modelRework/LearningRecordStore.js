@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $ */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -98,10 +99,6 @@ LearningRecordStore.prototype.clearLRSContext = function () {
 
 };
 
-
-
-
-
 /**
  * @protoype
  * @function setActor
@@ -172,9 +169,14 @@ LearningRecordStore.prototype.trackAction = function (record, callback) {
  * @protoype
  * @function getEntropyMap
  * @param {NONE}
+ * @return {ARRAY} entropyMap
  */
-LearningRecordStore.prototype.getEntropyMap = function () {
-
+LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder) {
+	if (!binder) {
+        binder = this;
+    }
+    var entropyMap = {};
+    cbFunc.call(binder, entropymap);
 };
 
 /**
