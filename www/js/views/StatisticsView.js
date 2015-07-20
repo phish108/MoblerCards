@@ -103,7 +103,6 @@ StatisticsView.prototype.prepare = function () {
 
 StatisticsView.prototype.tap_statisticscross = function() {
     this.app.chooseView("course", "landing");
-    }
 };
 
 StatisticsView.prototype.tap_statsSlot3 = function() {
