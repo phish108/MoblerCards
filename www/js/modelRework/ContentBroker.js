@@ -24,20 +24,20 @@ under the License.
  * @author Christian Glahn
  * @author Dijan Helbling
  */
- 
+
 function ContentBroker (app) {
     this.lrs      = app.models.LearningRecordStore;
-    this.identity = app.models.IdentityProvider;
-    
+    this.idprovider = app.models.IdentityProvider;
+
     /** Variables
      * this.courseList              List of all courses connected to your account.
-     * this.currentCourseId         Identification number of the course, also used as the id in the HTML list element. 
+     * this.currentCourseId         Identification number of the course, also used as the id in the HTML list element.
      * this.currentQuestionpool     Active questionpool in the current course.
      * this.questionList            The list of all questions in the questionpool.
      * this.activeQuestion          Active question in the current questionpool.
      * this.responseList            The list of user selected answers.
      */
-    
+
     /**
 	 * @event online
 	 * @param {FUNCTION} switchToOnline() - courses(and any pending questions) are loaded from the server
@@ -79,13 +79,13 @@ ContentBroker.prototype.loadQuestionpool = function () {
 }; // done, not checked
 
 /**
- 
+
  * @protoype
  * @function checkQuestionpool
  * @param {NONE}
  */
 ContentBroker.prototype.checkQuestionpool = function () {
-    
+
 };
 
 /**
@@ -105,7 +105,7 @@ ContentBroker.prototype.activateQuestionpool = function (poolId) {
  */
 ContentBroker.prototype.nextQuestion = function () {
     var temporaryQuestions, randomId, i;
-    
+
     this.loadNewQuestions();
     /*  if there are still unanswered questions, get one of those randomly. */
     if (this.questionList.length) {
@@ -135,7 +135,7 @@ ContentBroker.prototype.nextQuestion = function () {
  */
 ContentBroker.prototype.loadNewQuestions = function () {
     this.newQuestions = this.lrs.getEntropyMap();
-    
+
 };
 
 /**
@@ -152,7 +152,7 @@ ContentBroker.prototype.getQuestionInfo = function () {
         "question": aQ.question,
         "answer":   aQ.answer
     };
-    
+
     return partActiveQuestion;
 }; // done, not checked
 
@@ -171,9 +171,9 @@ ContentBroker.prototype.getAnswerList = function () {
  * @function addResponse
  * @param {ARRAY} response
  */
-ContentBroker.prototype.addResponse = function (response) {   
+ContentBroker.prototype.addResponse = function (response) {
     var index = this.responseList.indexOf(response);
-    
+
     if (index < 0) {
         this.responseList.push(response);
     }
@@ -198,7 +198,7 @@ ContentBroker.prototype.getResponseList = function () {
  * @param {NONE}
  */
 ContentBroker.prototype.checkResponse = function () {
-    
+
 };
 
 /**
@@ -209,7 +209,7 @@ ContentBroker.prototype.checkResponse = function () {
  */
 ContentBroker.prototype.getFeedback = function () {
     var feedback;
-    
+
     return feedback;
 };
 
@@ -235,7 +235,7 @@ ContentBroker.prototype.finishAttempt = function () {
     // 2. lösche die beantwortete Frage aus der Question List.
     var index = this.questionList.indexOf(this.activeQuestion);
     this.questionList.splice(index, 1);
-    
+
 };
 
 /****** Course Management ******/
@@ -254,7 +254,7 @@ ContentBroker.prototype.loadCourses = function () {
         console.log("Error, could not load the courses: " + error);
         courseObject = {};
     }
-    
+
     this.courseList   = courseObject.courses      || [];
     this.syncDateTime = courseObject.syncDateTime || (new Date()).getTime();
 	this.syncState    = courseObject.syncState    || false;
@@ -267,8 +267,8 @@ ContentBroker.prototype.loadCourses = function () {
  * @param {NONE}
  */
 ContentBroker.prototype.getCourseList = function () {
-    
-    
+
+
 };
 
 /**
@@ -287,5 +287,16 @@ ContentBroker.prototype.activateCourse = function (courseId) {
  * @param {VARIABLE} courseId
  */
 ContentBroker.prototype.ignoreCourse = function (courseId) {
-    
+
+};
+
+/**
+ * @prototype
+ * @function synchronize
+ * @param {NONE}
+ *
+ * synchronizes the data with the backend content broker.
+ */
+ContentBroker.prototype.synchronize = function () {
+
 };

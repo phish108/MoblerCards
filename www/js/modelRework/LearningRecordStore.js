@@ -26,7 +26,7 @@ under the License.
  */
 
 function LearningRecordStore (app) {
-    this.identity = app.models.IdentityProvider;
+    this.idprovider = app.models.IdentityProvider;
     this.content  = app.models.ContentBroker;
 }
 
@@ -176,7 +176,7 @@ LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder) {
         binder = this;
     }
     var entropyMap = {};
-    cbFunc.call(binder, entropymap);
+    cbFunc.call(binder, entropyMap);
 };
 
 /**
@@ -223,3 +223,28 @@ LearningRecordStore.prototype.getDailyActions = function () {
 LearningRecordStore.prototype.checkBadgeAchievement = function () {
 
 };
+
+/**
+ * @prototype
+ * @function synchronise
+ * @param {NONE}
+ *
+ * synchronises the action statements with the backend LRS.
+ */
+LearningRecordStore.prototype.synchronize = function () {
+    return;
+};
+
+/**
+ * @prototype
+ * @function ready
+ * @param {NONE}
+ * @return {BOOL}
+ *
+ * returns true if the LRS is ready.
+ * This should be always ready.
+ */
+
+LearningRecordStore.prototype.ready = function () {
+    return true;
+}
