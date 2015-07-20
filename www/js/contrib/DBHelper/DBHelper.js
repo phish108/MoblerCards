@@ -64,7 +64,7 @@
             // @public @property Object options - database configuration options
             this.options = options; // keep options for reference
 
-            this.options.verion = dbversion;
+            this.options.version = dbversion;
             this.options.size   = dblimit;
             this.options.title  = dbtitle;
 
@@ -78,7 +78,7 @@
      */
 
     /**
-     * @public @method string createUUID(type, latitude, longitude)
+     * @public @method string createUUID()
      *
      * @returns string: UUID string for the location
      *
