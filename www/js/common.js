@@ -369,8 +369,6 @@ function getCorrectGaps(gapIndex) {
     return correctGaps;
 }
 
-function setLabelContainer() {}
-
 /**
  * jQuery.contents(): bad stuff cos jquery fails big time
  *	TODO: write comments
