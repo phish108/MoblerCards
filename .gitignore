@@ -7,3 +7,9 @@ info.txt
 www/js/controller.js
 
 Untitled*
+
+www/js/contrib/DBHelper/DBHelper.test.js
+
+www/js/contrib/DBHelper/index.html
+
+www/js/contrib/DBHelper/IndexDB.js
