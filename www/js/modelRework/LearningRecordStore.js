@@ -23,7 +23,7 @@ under the License.
  * @author Christian Glahn
  * @author Dijan Helbling
  */
- 
+
 function LearningRecordStore (app) {
     this.identity = app.models.IdentityProvider;
     this.content  = app.models.ContentBroker;
@@ -38,18 +38,69 @@ function LearningRecordStore (app) {
  * @param {STRING} contextId
  */
 LearningRecordStore.prototype.startContext = function (contextType, contextId) {
-    
+
 };
 
 /**
  * @protoype
- * @function finishContext
+ * @function endContext
  * @param {STRING} contextType
  * @param {STRING} contextId
  */
-LearningRecordStore.prototype.finishContext = function (contextType, contextId) {
-    
+LearningRecordStore.prototype.endContext = function (contextType, contextId) {
 };
+
+
+/**
+ * @protoype
+ * @function clearContext
+ * @param {STRING} contextType
+ * @param {STRING} contextId
+ *
+ * clears all contexts
+ */
+LearningRecordStore.prototype.endContext = function () {};
+
+
+
+/**
+ * @protoype
+ * @function startLRSContext
+ * @param {STRING} targetLRS
+ *
+ * Defines the target LRS backend for the incoming actions.
+ * It is possible to report the same actions to different LRS.
+ */
+LearningRecordStore.prototype.startLRSContext = function (targetLRS) {
+
+};
+
+/**
+ * @protoype
+ * @function endLRSContext
+ * @param {STRING} targetLRS
+ *
+ * removes the targetLRS backend from the reporting.
+ * This does not affect the other LRS contexts
+ */
+LearningRecordStore.prototype.endLRSContext = function (targetLRS) {
+
+};
+
+/**
+ * @protoype
+ * @function clearLRSContext
+ * @param {STRING} targetLRS
+ *
+ * removes all LRS backends from the reporting.
+ */
+LearningRecordStore.prototype.clearLRSContext = function () {
+
+};
+
+
+
+
 
 /**
  * @protoype
@@ -57,7 +108,7 @@ LearningRecordStore.prototype.finishContext = function (contextType, contextId) 
  * @param {STRING} actorId
  */
 LearningRecordStore.prototype.setActor = function (actorId) {
-    
+
 };
 
 /****** Action Tracking ******/
@@ -70,7 +121,7 @@ LearningRecordStore.prototype.setActor = function (actorId) {
  */
 LearningRecordStore.prototype.startAction = function (record) {
     var UUID;
-    
+
     return UUID;
 };
 
@@ -81,7 +132,7 @@ LearningRecordStore.prototype.startAction = function (record) {
  * @param {OBJECT} record
  */
 LearningRecordStore.prototype.updateAction = function (UUID, record) {
-    
+
 };
 
 /**
@@ -91,7 +142,7 @@ LearningRecordStore.prototype.updateAction = function (UUID, record) {
  * @param {OBJECT} record
  */
 LearningRecordStore.prototype.finishAction = function (UUID, record) {
-    
+
 };
 
 /**
@@ -102,7 +153,7 @@ LearningRecordStore.prototype.finishAction = function (UUID, record) {
  */
 LearningRecordStore.prototype.recordAction = function (record) {
     var UUID;
-    
+
     return UUID;
 };
 
@@ -112,7 +163,7 @@ LearningRecordStore.prototype.recordAction = function (record) {
  * @param {NONE}
  */
 LearningRecordStore.prototype.trackAction = function (record, callback) {
-    
+
 };
 
 /****** Activity Analytics ******/
@@ -123,7 +174,7 @@ LearningRecordStore.prototype.trackAction = function (record, callback) {
  * @param {NONE}
  */
 LearningRecordStore.prototype.getEntropyMap = function () {
-    
+
 };
 
 /**
@@ -132,7 +183,7 @@ LearningRecordStore.prototype.getEntropyMap = function () {
  * @param {NONE}
  */
 LearningRecordStore.prototype.getDailyProgress = function () {
-    
+
 };
 
 /**
@@ -141,7 +192,7 @@ LearningRecordStore.prototype.getDailyProgress = function () {
  * @param {NONE}
  */
 LearningRecordStore.prototype.getDailyScore = function () {
-    
+
 };
 
 /**
@@ -150,7 +201,7 @@ LearningRecordStore.prototype.getDailyScore = function () {
  * @param {NONE}
  */
 LearningRecordStore.prototype.getDailyAvgSpeed = function () {
-    
+
 };
 
 /**
@@ -159,7 +210,7 @@ LearningRecordStore.prototype.getDailyAvgSpeed = function () {
  * @param {NONE}
  */
 LearningRecordStore.prototype.getDailyActions = function () {
-    
+
 };
 
 /**
@@ -168,5 +219,5 @@ LearningRecordStore.prototype.getDailyActions = function () {
  * @param {NONE}
  */
 LearningRecordStore.prototype.checkBadgeAchievement = function () {
-    
+
 };
