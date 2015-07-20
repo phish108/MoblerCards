@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
-/*global $*/
+/*global $, faultylabs, LMSModel, UserModel*/
 
 /**	THIS LICENSE INFORMATION MUST REMAIN INTACT
  *
@@ -37,14 +37,14 @@
 
 function IdentityProvider (app) {
     this.app      = app;
-    this.lrs      = app.models.LearningRecordStore;
-    this.content  = app.models.IdentityProvider;
+    this.lrs      = app.models.learningrecordstore;
+    this.content  = app.models.contentbroker;
 
     var language  = navigator.language.split("-");
     this.language = language ? language[0] : "en";
 
-    this.lmsMgr = new window.LMSModel(app);
-    this.usrMgr = new window.UserModel(app);
+    this.lmsMgr = new LMSModel(app);
+    this.usrMgr = new UserModel(app);
 }
 
 /****** LMS Management ******/
@@ -109,12 +109,47 @@ IdentityProvider.prototype.getActiveLMS = function (cbFunc, bind) {
 
 /**
  * @protoype
- * @function ativateLMS
+ * @function activateLMS
  * @param {STRING} LMSId
+ *
+ * sets the LMSId to be active for the comming actions
  */
 IdentityProvider.prototype.activateLMS = function (LMSId) {
     this.lmsMgr.setActiveLMS(LMSId);
+};
 
+/**
+ * @protoype
+ * @function enableLMS
+ * @param {STRING} LMSId
+ *
+ * sets the LMSId to be active for the comming actions
+ */
+IdentityProvider.prototype.enableLMS = function (LMSId) {
+    this.lmsMgr.clearInactiveFlag(LMSId);
+};
+
+/**
+ * @protoype
+ * @function getLMSStatus
+ * @param {STRING} LMSId
+ *
+ * checks if the backend services are available.
+ * if no LMSID is provided, the active LMS will be tested.
+ */
+IdentityProvider.prototype.getLMSStatus = function (LMSId) {
+    this.lmsMgr.getLMSStatus(LMSId);
+};
+
+/**
+ * @protoype
+ * @function disableLMS
+ * @param {STRING} LMSId
+ *
+ * sets the LMSId to be active for the comming actions
+ */
+IdentityProvider.prototype.disableLMS = function (LMSId) {
+    this.lmsMgr.setInactiveFlag(LMSId);
 };
 
 /**
@@ -138,7 +173,11 @@ IdentityProvider.prototype.serviceURL = function (serviceName) {
  * @param {STRING} password
  */
 IdentityProvider.prototype.startSession = function (username, password) {
-    this.usrMgr.login(username, password);
+    username = username.trim();
+    password = password.trim();
+    if (username.length && password.length){
+        this.usrMgr.login(username, faultylabs.MD5(password));
+    }
 };
 
 /**
@@ -225,12 +264,29 @@ IdentityProvider.prototype.getLanguage =  function () {
         usrLang = this.usrMgr.getLanguage();
 
     if (lmsLang && lmsLang.length) {
-        lang = this.lmsInformation.language;
+        lang = lmsLang;
     }
 
     if (usrLang && usrLang.length) {
-        lang = this.learnerInformation.language;
+        lang = usrLang;
     }
 
     return lang;
 };
+
+/**
+ * @protoype
+ * @function synchronize
+ * @param {NONE}
+ *
+ * Synchronizes identity information with the backend service.
+ *
+ * This will also determine whether the backend is online
+ */
+IdentityProvider.prototype.synchronize = function() {
+    this.usrMgr.loadFromServer();
+};
+
+IdentityProvider.prototype.signWithToken = function (signString) {
+    return faultylabs.MD5(signString + this.lmsMgr.getActiveRequestToken());
+}

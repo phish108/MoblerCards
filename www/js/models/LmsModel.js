@@ -110,6 +110,9 @@
 (function (w) {
     var $ = w.$;
 
+    // set the default inactive timeout to 1h
+    var inactiveTimeout = 60 * 60 * 1000;
+
     /**
      * @private @property lmsData
      *
@@ -353,7 +356,9 @@
      * It loads data from the local storage. In the first time there are no data
      * in the local storage and sets as active server the default server.
      */
-    function LMSModel() {
+    function LMSModel(app) {
+        this.idprovider = app.models.identityprovider;
+
         loadData();
         if (lmsData.activeServer) {
             this.activeLMS = lmsData[lmsData.activeServer];
@@ -603,6 +608,38 @@
     };
 
     /**
+     * @prototype
+     * @function getLMSStatus
+     * @param {STRING} serverid
+     * @return {BOOL} inaccessible flag
+     *
+     * returns true if the LMS is accessible.
+     * returns false if the LMS is inaccessible.
+     *
+     * This function does not take the online state into account.
+     *
+     * If the inaccessible flag times out, the function returns true
+     */
+    LMSModel.prototype.getLMSStatus = function (serverid) {
+        if (!serverid) {
+            serverid = lmsData.activeServer;
+        }
+        var tmpLMS = lmsData[serverid];
+        if (tmpLMS) {
+            if (!tmpLMS.hasOwnProperty('inactive')) {
+                return true;
+            }
+
+            var dt = (new Date()).getTime() - tmpLMS.inactive;
+            if (dt > inactiveTimeout) {
+                this.clearInactiveFlag(serverid);
+                return true;
+            }
+        }
+        return false
+    };
+
+    /**
      * @function getDefaultLanguage
      * @return {String} defaultLanguage, the default language of the active/selected server
      *
@@ -656,12 +693,15 @@
     };
 
     /**
-     * @public @method clearInactiveFlag()
+     * @public @method clearInactiveFlag(serviceid)
      *
      * clears the inactive timestamp for the active server
      */
-    LMSModel.prototype.clearInactiveFlag = function () {
-        delete lmsData[lmsData.activeServer].inactive;
+    LMSModel.prototype.clearInactiveFlag = function (serviceid) {
+        if (!serviceid) {
+            serviceid = lmsData.activeServer;
+        }
+        delete lmsData[serviceid].inactive;
         storeData();
     };
 
@@ -670,8 +710,11 @@
      *
      * sets the inactive timestamp for the active server
      */
-    LMSModel.prototype.setInactiveFlag = function () {
-        lmsData[lmsData.activeServer].inactive = (new Date()).getTime();
+    LMSModel.prototype.setInactiveFlag = function (serviceid) {
+        if (!serviceid) {
+            serviceid = lmsData.activeServer;
+        }
+        lmsData[serviceid].inactive = (new Date()).getTime();
         storeData();
     };
 

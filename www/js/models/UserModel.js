@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
-/*global $, jQuery*/
+/*global $, jQuery, faultylabs*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -44,6 +44,7 @@ function UserModel(controller) {
     var self = this;
 
     this.controller = controller;
+    this.idprovider = controller.models.identityprovider;
     //initialization of model's variables
     this.configuration = {};
     this.urlToLMS = "";
@@ -139,7 +140,7 @@ UserModel.prototype.loadData = function () {
  */
 UserModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
+    var activeURL = self.controller.serviceURL("ch.isn.lms.auth");
 
     //if the user is not authenticated yet
     if (activeURL &&
@@ -155,7 +156,7 @@ UserModel.prototype.loadFromServer = function () {
                 success: function (data) {
                     console.log("success");
                     console.log("in success before turining off deactivate");
-                    window.turnOffDeactivate(); // FROM common.js
+                    self.idprovider.enableLMS(); // FROM common.js
                     console.log("JSON: " + data);
                     var authenticationObject;
                     try {
@@ -192,22 +193,17 @@ UserModel.prototype.loadFromServer = function () {
                 },
                 // the receive of authenticated data was failed
                 error: function (request) {
-                    var lmsModel = self.controller.models.lms;
-                    if (request.status === 403) {
-                        lmsModel.setInactiveFlag();
-                        window.showErrorResponses(request); // from common.js
-                        console.log("Error while authentication to server");
-                        $(document).trigger("authenticationTemporaryfailed");
-                    }
-                    if (request.status === 404) {
-
-                        /**
-                         * When authentication data are not received from the server
-                         * the authenticationfailed event is triggered
-                         * @event authenticationfailed
-                         */
-                        window.showErrorResponses(request); // from common.js
-                        $(document).trigger("authenticationfailed");
+                    // the specific view should decide on the response.
+                    window.showErrorResponses(request); // from common.js
+                    switch (request.status) {
+                        case 403:
+                            console.log("Error while authentication to server");
+                            $(document).trigger("authenticationTemporaryfailed");
+                            break;
+                        default:
+                            self.idprovider.disableLMS();
+                            $(document).trigger("authenticationfailed");
+                            break;
                     }
                 },
                 // we send the user authentication key as "sessionkey" via headers
@@ -237,15 +233,8 @@ UserModel.prototype.sessionHeader = function (xhr) {
  */
 UserModel.prototype.login = function (username, password) {
     var self = this;
-    var passwordHash, challenge;
-    console.log("client key: " + self.controller.getActiveClientKey());
-    //remove leading and trailing white spaces
-    username = username.trim();
-    //password is encrypted by an MD5 hash
-    passwordHash = window.faultylabs.MD5(password);
-    console.log("md5 password: " + passwordHash);
-    //challenge is computed by applying an MD5 faulty labs function on username and hashed password
-    challenge = window.faultylabs.MD5(username + passwordHash.toUpperCase() + self.controller.getActiveClientKey());
+    var challenge;
+    challenge = this.idprovider.signWithToken(username + password);
 
 
     var auth = {
@@ -308,7 +297,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var activeURL = self.controller.models.lms.getServiceURL('ch.isn.lms.auth');
+    var activeURL = self.controller.serviceURL('ch.isn.lms.auth');
     console.log("url: " + activeURL);
     $
         .ajax({
@@ -359,8 +348,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                     self.configuration.loginState = "loggedIn";
                     self.storeData();
                     localStorage.setItem("pendingLogout", "");
+                    self.idprovider.enableLMS();
 
-                    window.turnOffDeactivate();// from common.js
                     /**
                      * When all authentication data are received and stored in the local storage
                      * the authenticationready event is triggered
@@ -423,12 +412,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
     console.log("enter send logout to server");
     var sessionKey, self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.auth");
-    if (userAuthenticationKey) {
-        sessionKey = userAuthenticationKey;
-    } else {
-        sessionKey = self.configuration.userAuthenticationKey;
-    }
+    var activeURL = self.controller.serviceURL("ch.isn.lms.auth");
 
     $
         .ajax({
@@ -438,12 +422,12 @@ UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featur
             success: function () {
                 console.log("success in logging out");
                 localStorage.setItem("pendingLogout", "");
-                window.turnOffDeactivate(); // from common.js
+                self.idprovider.enableLMS();
             },
             error: function (request) {
 
                 if (request.status === 403) {
-                    window.turnOnDeactivate(); // from common.js
+                    self.idprovider.disableLMS();
                     console.log("Error while logging out from server");
                 }
 
@@ -452,8 +436,7 @@ UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featur
             },
             //sends via header the session key in order it to be validated
             beforeSend: function setHeader(xhr) {
-                console.log("session key to be invalidated: " + sessionKey);
-                xhr.setRequestHeader('sessionkey', sessionKey);
+                self.controller.sessionHeader(xhr);
             }
         });
 
