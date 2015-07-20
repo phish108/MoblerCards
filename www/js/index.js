@@ -1,6 +1,6 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
-/*global $, jQuery, Connection, jester*/
+/*global $, jQuery, Connection, jstap*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -34,11 +34,9 @@ function MoblerCards() {
    // var featuredContentId = FEATURED_CONTENT_ID;
    // var startTime = new Date().getTime();
 
-    jester().options({
-        'avoidDoubleTap': true,
+    jstap().options({
         'tapTime': 1000,
-        'swipeDistance': 100,
-        'avoidFlick': true
+        'swipeDistance': 100
     });
 
     $.ajaxSetup({
