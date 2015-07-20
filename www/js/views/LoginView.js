@@ -142,7 +142,7 @@ LoginView.prototype.update = function () {
     this.hideErrorMessage();
     this.hideDeactivateMessage();
 
-    if (this.app.models.connection.isOffline()) {
+    if (this.app.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
     }
 };
@@ -190,11 +190,12 @@ LoginView.prototype.clickLoginButton = function () {
 
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
-        if (!self.app.models.connection.isOffline()) {
+        if (!self.app.isOffline()) {
             console.log("has logIn data");
 
             self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
-            this.app.models.configuration.login($("#usernameInput").val(), $("#password").val());
+            self.model.startSession($("#usernameInput").val(),
+                                    $("#password").val());
         }
     // use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
     // the isOffline seems to work not properly

@@ -89,7 +89,7 @@ AchievementsView.prototype.prepare = function () {
     if (self.featuredContentId) {
         self.showAchievementsBody();
     }
-    else if (self.app.getConfigVariable("statisticsLoaded")) {
+    else if (self.app.models.learningrecordstore.ready()) {
         self.showAchievementsBody();
     }
     else {

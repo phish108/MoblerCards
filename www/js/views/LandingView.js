@@ -72,19 +72,24 @@ LandingView.prototype.prepare = function () {
 };
 
 LandingView.prototype.showForm = function () {
-    var featuredModel = this.app.models.featured;
+    // var featuredModel = this.app.models.featured;
 
     this.hideErrorMessage();
 
-    if (this.app.models.connection.isOffline()) {
+    if (this.app.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
 
-    $("#landingfeaturedlabel").text(featuredModel.getTitle());
+    // $("#landingfeaturedlabel").text(featuredModel.getTitle());
 
 //    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
 //        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
 //    }
+};
+
+// test function to check for complex gestures on new OSes
+LandingView.prototype.swipe = function () {
+    console.log('swipe');
 };
 
 LandingView.prototype.tap_landingfeaturedimage = function () {
@@ -93,13 +98,13 @@ LandingView.prototype.tap_landingfeaturedimage = function () {
 
 LandingView.prototype.tap_landingfeaturedlist = function() {
     var featuredContentId = window.FEATURED_CONTENT_ID;
-    this.app.selectCourseItem(featuredContentId);
+    // this.app.selectCourseItem(featuredContentId);
 };
 
 LandingView.prototype.tap_landingexclusivelist = function () {
     var al;
 
-    this.app.models.lms.getActiveLMS(function(d) {
+    this.app.models.identityprovider.getActiveLMS(function(d) {
         al = d;
     });
 

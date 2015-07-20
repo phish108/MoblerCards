@@ -132,7 +132,7 @@ function LMSView() {
             turl.length > 5) {
 
             console.log("add a new LMS!");
-            self.models.addLMS(lmsurl);
+            self.model.addLMS(lmsurl);
             // display waiting circle
             $("#addlmsbutton").addClass("hidden");
             $("#addlmswait").removeClass("hidden");

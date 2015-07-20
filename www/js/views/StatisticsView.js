@@ -87,7 +87,7 @@ function StatisticsView() {
 StatisticsView.prototype.prepare = function () {
     if (this.app.getLoginState()) {
         if (this.featuredContentId ||
-            this.app.getConfigVariable("statisticsLoaded") === true) {
+            this.app.models.learningrecordstore.ready()) {
             this.loadData();
         }
         else {
