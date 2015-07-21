@@ -150,11 +150,7 @@
      */
     DBHelper.prototype.parseJSONQuery = function (objQuery, selectFlag) {
         var retval = {};
-        var tableKey, k, i, keys, aTmp = [];
-
-        function pushCols(c) {
-            aTmp.push(tableKey + '.' + c);
-        }
+        var aTmp = [];
 
         if (objQuery && typeof objQuery === 'object') {
             if (objQuery.hasOwnProperty('select')) {
@@ -192,11 +188,9 @@
                             aTmp.push(te);
                         }
                         else { // we got an object reference
-                            keys = te.getOwnPropertyNames();
-                            for (i = 0; i < keys.length; i++) {
-                                tableKey = keys[i];
+                            Object.getOwnPropertyNames(te).forEach(function (tableKey) {
                                 aTmp.push(tableKey + '.' + te[tableKey]);
-                            }
+                            });
                         }
                     });
 
@@ -208,18 +202,18 @@
                     }
                 }
                 else {
-                    keys = objQuery.result.getOwnPropertyNames();
-                    for (i = 0; i < keys.length; i++ ) {
-                        tableKey = keys[i];
+                    Object.getOwnPropertyNames(objQuery.result).forEach(function (tableKey){
                         if (typeof objQuery.result[tableKey] === 'string') {
                             aTmp.push(tableKey + '.' + objQuery.result[tableKey]);
                         }
                         else if (Array.isArray(objQuery.result[tableKey])) {
                             aTmp = [];
-                            objQuery.result[tableKey].forEach(pushCols);
+                            objQuery.result[tableKey].forEach(function (c) {
+                                aTmp.push(tableKey + '.' + c);
+                            });
                         }
                         retval.result = aTmp.join(', ');
-                    }
+                    });
                 }
             }
             delete objQuery.result;
@@ -233,21 +227,17 @@
 
                 if(Array.isArray(objQuery.target)) {
                     objQuery.target.forEach(function (te) {
-                        keys = te.getOwnPropertyNames();
-                        for (i = 0; i < keys.length; i++) {
-                            k = keys[i];
+                        Object.getOwnPropertyNames(te).forEach(function (k) {
                             aTmp.push(k + ' = ?');
                             retval.targetValues.push(te[k]);
-                        }
+                        });
                     });
                 }
                 else if (typeof objQuery.target === 'object') {
-                    keys = objQuery.target.getOwnPropertyNames();
-                    for (i = 0; i < keys.length; i++) {
-                        k = keys[i];
+                    Object.getOwnPropertyNames(objQuery.target).forEach(function (k) {
                         aTmp.push(k + ' = ?');
                         retval.targetValues.push(objQuery.target[k]);
-                    }
+                    });
                 }
                 retval.target = aTmp.join(', ');
             }
@@ -378,7 +368,7 @@
             return tabs;
         }
 
-        var tableKey, i, keys, qq, aTmp = [];
+        var qq, aTmp = [];
 
         if (Array.isArray(tabs)) {
             if (selectflag) {
@@ -387,11 +377,9 @@
                         aTmp.push(te);
                     }
                     else {
-                        keys = te.getOwnPropertyNames();
-                        for (i = 0; i < keys.length; i++) {
-                            tableKey = keys[i];
+                        Object.getOwnPropertyNames(te).forEach(function (tableKey) {
                             aTmp.push(te[tableKey] + ' ' +  tableKey);
-                        }
+                        });
                     }
                 });
             }
@@ -401,36 +389,68 @@
                     aTmp.push(thelper);
                 }
                 else {
-                    keys = thelper.getOwnPropertyNames();
-                    for (i = 0; i < keys.length; i++) {
-                        tableKey = keys[i];
+                    Object.getOwnPropertyNames(thelper).forEach(function (tableKey) {
                         aTmp.push(thelper[tableKey]);
-                    }
+                    });
                 }
             }
         }
         else {
             // use only one table for delete and update queries
-            keys = tabs.getOwnPropertyNames();
-            for (i = 0; i < keys.length; i++) {
-                tableKey = keys[i];
-                if (selectflag) {
-                    if (typeof tabs[tableKey] === 'object') {
-                        qq = [];
-                        this.queryHelper(tabs[tableKey], qq, true);
-                        aTmp.push('(' + qq.join(' ') + ') ' + tableKey);
-                    }
-                    else {
-                        aTmp.push(tabs[tableKey] + ' ' + tableKey);
-                    }
-                }
-                else {
-                    if (typeof tabs[tableKey] !== 'object') {
-                        aTmp.push(tabs[tableKey]);
+            var sOn = "", sJoin = "";
+
+            Object.getOwnPropertyNames(tabs).forEach(function (tableKey){
+                sOn = "";
+                sJoin = "";
+                switch (tableKey) {
+                    case "inner join":
+                        if (Array.isArray(tabs["inner join"])) {
+                            sJoin = tabs["inner join"][0];
+                            if (!tabs.hasOwnProperty("on")) {
+                                sJoin += " natural ";
+                            }
+                            sJoin += " inner join "+ tabs["inner join"][1];
+                        }
+                        else {
+                            Object.getOwnPropertyNames(tabs["inner join"]).forEach(function (v, j) {
+                                if (j) {
+                                    if (!tabs.hasOwnProperty("on")) {
+                                        sJoin += " natural ";
+                                    }
+                                    sJoin += " inner join ";
+                                }
+                                sJoin += tabs["inner join"][v];
+                            });
+                        }
                         break;
-                    }
+                    case "on":
+                        sOn = this.parseWhere(tabs.on);
+                        break;
+                    default:
+                        if (selectflag) {
+                            if (typeof tabs[tableKey] === 'object') {
+                                qq = [];
+                                this.queryHelper(tabs[tableKey], qq, true);
+                                aTmp.push('(' + qq.join(' ') + ') ' + tableKey);
+                            }
+                            else {
+                                aTmp.push(tabs[tableKey] + ' ' + tableKey);
+                            }
+                        }
+                        else {
+                            if (typeof tabs[tableKey] !== 'object') {
+                                aTmp.push(tabs[tableKey]);
+                            }
+                        }
+                        break;
                 }
-            }
+                if (selectflag && sJoin.length) {
+                    if (sOn.length) {
+                        sJoin += " ON " + sOn;
+                    }
+                    aTmp.push(sJoin);
+                }
+            });
         }
         return aTmp.join(', ');
     };
@@ -457,7 +477,7 @@
      */
     DBHelper.prototype.parseWhere = function (wo, values) {
         var self = this;
-        var i, k, b, l, ja, jb, keysa, keysb, qqstr, instring, retstr = "";
+        var i, b, qqstr, instring, retstr = "";
 
         // helper function for quote callbacks for IN Clauses
         function pushQuotes(str) {
@@ -469,9 +489,7 @@
                 retstr = wo;
             }
             if (typeof wo === 'object') {
-                keysa = wo.getOwnPropertyNames();
-                for (ja = 0; ja < keysa.length; ja++) {
-                    k = keysa[ja];
+                Object.getOwnPropertyNames(wo).forEach(function (k){
                     switch (k) {
                        case 'or':
                        case 'and':
@@ -482,9 +500,7 @@
                            retstr = b.join(' ' + k.toUpperCase() + ' ');
                            break;
                        case 'in':
-                            keysb = wo.in.getOwnPropertyNames();
-                            for (jb = 0; jb < keysb.length; jb++) {
-                                l = keysb[jb];
+                            Object.getOwnPropertyNames(wo.in).forEach(function (l) {
                                 qqstr = [];
                                 if (Array.isArray(wo.in[l])) {
                                     wo.in[l].forEach(pushQuotes);
@@ -499,7 +515,7 @@
                                 if (instring && instring.length) {
                                     retstr = l + ' IN (' + instring + ')';
                                 }
-                            }
+                            });
                             break;
                         default:
                             if (typeof wo[k] === 'object' && wo[k].length) {
@@ -516,7 +532,7 @@
                             }
                             break;
                     }
-                }
+                });
             }
         }
         return retstr;
@@ -675,13 +691,11 @@
      *    dbh.create('dummy', {'id': 'INTEGER PRIMARY KEY', 'sometext': 'CHAR(20)'});
      */
     DBHelper.prototype.create = function (table, dataDef) {
-        var self = this, fields = [], tab = table, key, i, pkeys;
+        var self = this, fields = [], tab = table;
 
-        pkeys = dataDef.getOwnPropertyNames();
-        for (i = 0; i < pkeys.length; i++) {
-            key = pkeys[i];
+        Object.getOwnPropertyNames(dataDef).forEach(function (key) {
             fields.push(key + ' ' + dataDef[key]);
-        }
+        });
 
         var query = 'CREATE TABLE IF NOT EXISTS ' + table + ' (' + fields.join(', ') + ')';
 
@@ -713,11 +727,10 @@
     };
 
     DBHelper.prototype.alter = function (table, dataDef) {
-        var self = this, fields = [], tab = table, pkeys, i;
-        pkeys = dataDef.getOwnPropertyNames();
-        for ( i = 0; i < pkeys.length; i++) {
-            fields.push(pkeys[i] + ' ' + dataDef[pkeys[i]]);
-        }
+        var self = this, fields = [], tab = table;
+        Object.getOwnPropertyNames(dataDef).forEach(function (key){
+            fields.push(key + ' ' + dataDef[key]);
+        });
 
         var query = 'ALTER TABLE ' + table + ' add ' + fields.join(', ');
 
@@ -814,7 +827,7 @@
         var query,
             keys;
 
-        keys = dataObj.getOwnPropertyNames();
+        keys = Object.getOwnPropertyNames(dataObj);
         keys.forEach(function (key) {
             fields.push(key);
             valuestr.push('?');
@@ -1069,7 +1082,7 @@
         var p = [];
 
         if (this.options && this.options.init && typeof this.options.init === 'object')  {
-            this.options.init.getOwnPropertyNames().forEach(function(k){
+            Object.getOwnPropertyNames(this.options.init).forEach(function(k){
                 p.push(this.delete(k));
             }, this);
 
@@ -1088,7 +1101,7 @@
     DBHelper.prototype.dropAllTables = function () {
         var p = [];
         if (this.options && this.options.init && typeof this.options.init === 'object')  {
-            this.options.init.getOwnPropertyNames().forEach(function(k){
+            Object.getOwnPropertyNames(this.options.init).forEach(function(k){
                 p.push(this.drop(k));
             }, this);
             return Promise.all(p);
@@ -1117,7 +1130,7 @@
     DBHelper.prototype.createTables = function (dT) {
         var p = [];
         if (dT) {
-            dT.getOwnPropertyNames().forEach(function(k) {
+            Object.getOwnPropertyNames(dT).forEach(function(k) {
                 p.push(this.create(k, dT[k]));
             }, this);
             return Promise.all(p);
