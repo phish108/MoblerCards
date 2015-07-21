@@ -4,7 +4,11 @@
 
 /*global QUnit, LearningRecordStore*/
 
-
+/**
+ * LRS Tests
+ *
+ * This test suite c
+ */
 QUnit.test( "LRS Tests", function( assert ) {
     var lrs = new LearningRecordStore();
     assert.ok(lrs, "LRS initialized");
