@@ -157,7 +157,7 @@ CourseModel.prototype.loadFromServer = function() {
 	console.log("loadFromServer-Course is called");
 	var self = this;
 	var syncStateCache = [];
-	var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.courses");
+	var activeURL = self.controller.serviceURL("ch.isn.lms.courses");
 	self.checkForTimeOut();
 	if (activeURL &&
         activeURL.length &&
@@ -203,7 +203,7 @@ CourseModel.prototype.loadFromServer = function() {
 				});
 
 		function setHeader(xhr) {
-			xhr.setRequestHeader('sessionkey', sessionKey);
+			self.controller.sessionHeader(xhr);
 		}
 
 		function createCourseList(data) {

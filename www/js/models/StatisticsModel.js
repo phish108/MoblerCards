@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global device*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -71,6 +72,7 @@ function StatisticsModel(controller) {
     var self = this;
 
     this.controller = controller;
+    this.idprovider = controller.models.identityprovider;
 
     this.lastSendToServer = 0;
     this.clickOutOfStatisticsIcon = 0; // FIXME move UI Statements into views
@@ -105,7 +107,7 @@ function StatisticsModel(controller) {
  */
 StatisticsModel.prototype.checkLocalStorage = function () {
     var self = this;
-    if (self.controller.getConfigVariable("statisticsLoaded") === false &&
+    if (!self.controller.models.learningrecordstore.ready() &&
         self.controller.getLoginState()) {
         self.loadFromServer();
     }
@@ -378,10 +380,10 @@ StatisticsModel.prototype.loadFromServer = function () {
     console.log("enter load statistis");
     var self = this;
 
-    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.statistics");
+    var activeURL = self.controller.serviceURL("ch.isn.lms.statistics");
 
     if (activeURL && activeURL.length &&
-        self.controller.models.configuration.isLoggedIn()) {
+        self.controller.getLoginState()) {
         $
             .ajax({
                 url: activeURL,
@@ -390,8 +392,8 @@ StatisticsModel.prototype.loadFromServer = function () {
                 success: function (data) {
 //                    console.log("success");
 
-                    // FIXME No Global Functions please!
-                    turnOffDeactivate();
+                    self.idprovider.enableLMS()
+
 //                    console.log("JSON: " + data);
                     var i, statisticsObject;
                     try {
@@ -434,8 +436,7 @@ StatisticsModel.prototype.loadFromServer = function () {
                     }
                 },
                 beforeSend: function setHeader(xhr) {
-                    xhr.setRequestHeader('sessionkey',
-                        self.controller.models.configuration.getSessionKey());
+                    self.controller.sessionHeader(xhr);
                 }
             });
     }
@@ -487,12 +488,11 @@ StatisticsModel.prototype.insertStatisticItem = function (statisticItem) {
 StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
     console.log("enter sendToServer in statistics model");
     var self = this;
-    var activeURL = self.controller.models.lms.getServiceURL("ch.isn.lms.statistics");
+    var activeURL = self.controller.serviceURL("ch.isn.lms.statistics");
     //if (self.controller.getLoginState()) {
     if (activeURL &&
         activeURL.length &&
-        self.controller.models.configuration.configuration.userAuthenticationKey &&
-        self.controller.models.configuration.configuration.userAuthenticationKey !== "") {
+        self.controller.getLoginState() ) {
         console.log("we enter the get login state in sendToServer");
         //var url = self.controller.models['authentication'].urlToLMS + '/statistics.php';
         var url = activeURL;
@@ -590,8 +590,8 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                     $(document).trigger("statisticssenttoserver", sessionkey, activeURL, featuredContent_id);
                 },
                 beforeSend: function setHeader(xhr) {
-                    xhr.setRequestHeader('sessionkey', sessionkey);
-                    xhr.setRequestHeader('uuid', window.device.uuid);
+                    self.controller.sessionHeader(xhr);
+                    xhr.setRequestHeader('uuid', device.uuid);
                 }
             });
         }
