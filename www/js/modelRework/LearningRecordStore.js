@@ -33,16 +33,15 @@ under the License.
         "actions" : {    // the actual records
             "uuid":      "TEXT PRIMARY KEY",
             "record":    "TEXT",
-            "stored":    "INTEGER",
-            "course":    "TEXT",      // course context
-            "qpool":     "TEXT",      // question pool id
-            "question":  "TEXT"       // the question id
+            "stored":    "INTEGER"
         },
         "actionindex": {    // the index for the filters
             "uuid":         "TEXT",  // the action UUID
+            "created":      "INTEGER",  // the timestamp of the action (in miliseconds)
             "filter":       "TEXT",  // filtername
             "valuehash":    "TEXT",  // the filter's keylist
-            "targetdata":   "TEXT"   // the filter's result data (either JSON or String)
+            "targetdata":   "TEXT",   // the filter's result data
+            "targettype":   "TEXT"    // "json" || "raw"
         },
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
@@ -51,18 +50,15 @@ under the License.
         }
     };
 
+    var defaultFilters = [];
+
     function initDB () {
-//    try {
-            DB = new DBHelper({
-                'name': 'lrsdb',
-                'version': 1,
-                'title': 'Learning Record Store',
-                'size': 20 * 1024 * 1024 // 20MB LRS
-            });
-//    }
-//    catch (err) {
-//        console.log("no websql!");
-//    }
+        DB = new DBHelper({
+            'name': 'lrsdb',
+            'version': 1,
+            'title': 'Learning Record Store',
+            'size': 20 * 1024 * 1024 // 20MB LRS
+        });
 
         DB.init(tableDef)
             .then(function() {
@@ -74,11 +70,14 @@ under the License.
     }
 
     function LearningRecordStore (app) {
-        this.idprovider = app.models.IdentityProvider;
-        this.content  = app.models.ContentBroker;
-
+        if (app) {
+            this.idprovider = app.models.IdentityProvider;
+            this.content  = app.models.ContentBroker;
+        }
         this.clearContext();
         this.clearLRSContext();
+
+        this.loadFilter();
 
         this.actor = {
           "objectType": "Agent",
@@ -88,389 +87,475 @@ under the License.
         initDB();
     }
 
+    /**
+     * @prototype
+     * @function resetDB
+     * @param {NONE}
+     *
+     * helper functions to reset the local LRS for testing
+     */
+    LearningRecordStore.prototype.resetDB = function () {
+        DB.dropAllTables().then(function() {
+            DB.intallAllTables();
+        });
+    };
 
+    // cleanup
+    LearningRecordStore.prototype.killDB = function () {
+        DB.dropAllTables();
+    };
 
-/****** Context Handling ******/
+    /** ***** Context Handling ***** */
 
-/**
- * @protoype
- * @function startContext
- * @param {STRING} contextType
- * @param {STRING} contextId
- */
-LearningRecordStore.prototype.startContext = function (contextType, contextId) {
-    if (typeof contextType === "string" && typeof contextId === "string") {
-        var self = this, bh = true;
-        contextType.trim();
-        contextId.trim();
-        if (contextType.length && contextId.length) {
-            var arContext = contextType.split(",");
-            switch (arContext[0]) {
-                case "registration":
-                    DB.select({result: "uuid",
-                               distinct: true,
-                               where: {"=": "uuid"}
-                              }, [contextId])
-                    .then(function() {
-                        self.context.registration = contextId;
-                    });
-                    break;
-                case "contextActvities":
-                    if (!this.context.hasOwnProperty("contextActivities")) {
-                        this.context.contextActivities = {};
-                    }
-                    switch (arContext[1]) {
-                        case "parent":
-                        case "grouping":
-                        case "category":
-                        case "other":
-                            if (!this.context.contextActivities.hasOwnProperty(arContext[1])) {
-                                this.context.contextActivities[arContext[1]] = [];
-                            }
-                            // check if the context id already exists
+    /**
+     * @protoype
+     * @function startContext
+     * @param {STRING} contextType
+     * @param {STRING} contextId
+     */
+    LearningRecordStore.prototype.startContext = function (contextType, contextId) {
+        if (typeof contextType === "string" && typeof contextId === "string") {
+            var self = this, bh = true;
+            contextType = contextType.trim();
+            contextId = contextId.trim();
+            if (contextType.length && contextId.length) {
+                var arContext = contextType.split(",");
+                switch (arContext[0]) {
+                    case "registration":
+                        DB.select({result: "uuid",
+                                   distinct: true,
+                                   where: {"=": "uuid"}
+                                  }, [contextId])
+                        .then(function() {
+                            self.context.registration = contextId;
+                        });
+                        break;
+                    case "contextActvities":
+                        if (!this.context.hasOwnProperty("contextActivities")) {
+                            this.context.contextActivities = {};
+                        }
+                        switch (arContext[1]) {
+                            case "parent":
+                            case "grouping":
+                            case "category":
+                            case "other":
+                                if (!this.context.contextActivities.hasOwnProperty(arContext[1])) {
+                                    this.context.contextActivities[arContext[1]] = [];
+                                }
+                                // check if the context id already exists
 
-                            this.context.contextActivities[arContext[1]].forEach(function(o) {
+                                this.context.contextActivities[arContext[1]].forEach(function(o) {
+                                    if (o.id === contextId) {
+                                        bh = false;
+                                    }
+                                });
+                                if (bh) {
+                                    this.context.contextActivities[arContext[1]].push({id: contextId});
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case "statement":
+                        DB.select({result: "uuid",
+                                   distinct: true,
+                                   where: {"=": "uuid"}
+                                  }, [contextId])
+                        .then(function() {
+                            self.context.statement = {"type": "StatementRef",
+                                                      "id": contextId};
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    /**
+     * @protoype
+     * @function endContext
+     * @param {STRING} contextType
+     * @param {STRING} contextId
+     */
+    LearningRecordStore.prototype.endContext = function (contextType, contextId) {
+         if (typeof contextType === "string" && typeof contextId === "string") {
+            contextType = contextType.trim();
+            contextId = contextId.trim();
+            if (contextType.length && contextId.length) {
+                var arContext = contextType.split(".");
+                switch (arContext[0]) {
+                    case "registration":
+                        if (this.context.registration === contextId) {
+                            delete this.context.registration;
+                        }
+                        break;
+                    case "contextActvities":
+                        if (this.context.contextActivities &&
+                            this.context.contextActivities.hasOwnProperty(arContext[1])) {
+                            var objID = -1;
+                            this.context.contextActivities[arContext[1]].forEach(function (o,i) {
                                 if (o.id === contextId) {
-                                    bh = false;
+                                    objID = i;
                                 }
                             });
-                            if (bh) {
-                                this.context.contextActivities[arContext[1]].push({id: contextId});
+                            if (objID >= 0) {
+                                this.context.contextActivities[arContext[1]].splice(objID, 1);
                             }
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case "statement":
-                    DB.select({result: "uuid",
-                               distinct: true,
-                               where: {"=": "uuid"}
-                              }, [contextId])
-                    .then(function() {
-                        self.context.statement = {"type": "StatementRef",
-                                                  "id": contextId};
-                    });
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-};
-
-/**
- * @protoype
- * @function endContext
- * @param {STRING} contextType
- * @param {STRING} contextId
- */
-LearningRecordStore.prototype.endContext = function (contextType, contextId) {
-     if (typeof contextType === "string" && typeof contextId === "string") {
-        contextType.trim();
-        contextId.trim();
-        if (contextType.length && contextId.length) {
-            var arContext = contextType.split(",");
-            switch (arContext[0]) {
-                case "registration":
-                    if (this.context.registration === contextId) {
-                        delete this.context.registration;
-                    }
-                    break;
-                case "contextActvities":
-                    if (this.context.contextActivities &&
-                        this.context.contextActivities.hasOwnProperty(arContext[1])) {
-                        var objID = -1;
-                        this.context.contextActivities[arContext[1]].forEach(function (o,i) {
-                            if (o.id === contextId) {
-                                objID = i;
+                            if (!this.context.contextActivities[arContext[1]].length) {
+                                delete this.context.contextActivities[arContext[1]];
                             }
-                        });
-                        if (objID >= 0) {
-                            this.context.contextActivities[arContext[1]].splice(objID, 1);
+                            if (!this.context.contextActivities.getOwnPropertyNames().length) {
+                                delete this.context.contextActivities;
+                            }
                         }
-                        if (!this.context.contextActivities[arContext[1]].length) {
-                            delete this.context.contextActivities[arContext[1]];
+                        break;
+                    case "statement":
+                         if (this.context.statement &&
+                             this.context.statement.id === contextId) {
+                            delete this.context.statement;
                         }
-                        if (!this.context.contextActivities.getOwnPropertyNames().length) {
-                            delete this.context.contextActivities;
-                        }
-                    }
-                    break;
-                case "statement":
-                     if (this.context.statement &&
-                         this.context.statement.id === contextId) {
-                        delete this.context.statement;
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
-     }
-};
-
-
-/**
- * @protoype
- * @function clearContext
- * @param {STRING} contextType
- * @param {STRING} contextId
- *
- * clears all contexts
- */
-LearningRecordStore.prototype.clearContext = function () {
-    this.context = {
-        extensions: {"http://mobinaut.io/xapi/context/device": device.uuid}
+         }
     };
-};
+
+    /**
+     * @protoype
+     * @function clearContext
+     * @param {STRING} contextType
+     * @param {STRING} contextId
+     *
+     * clears all contexts
+     */
+    LearningRecordStore.prototype.clearContext = function () {
+        this.context = {};
+        if (w.device && device.uuid) {
+            this.context.extensions = {"http://mobinaut.io/xapi/context/device": device.uuid};
+        }
+    };
+
+    /**
+     * @protoype
+     * @function startLRSContext
+     * @param {STRING} targetLRS
+     *
+     * The LRS context is
+     *
+     * Defines the target LRS backend for the incoming actions.
+     * It is possible to report the same actions to different LRS.
+     *
+     * The targetLRS is a server ID from the Identity Provider.
+     * This is used for synchronizing the data to the correct LRS backend.
+     */
+    LearningRecordStore.prototype.startLRSContext = function (targetLRS) {
+        if (typeof targetLRS === "string" && targetLRS.trim().length ) {
+            targetLRS = targetLRS.trim();
+            if (this.lrscontext.indexOf(targetLRS) < 0) {
+                this.lrscontext.push(targetLRS);
+            }
+        }
+    };
+
+    /**
+     * @protoype
+     * @function endLRSContext
+     * @param {STRING} targetLRS
+     *
+     * removes the targetLRS backend from the reporting.
+     * This does not affect the other LRS contexts
+     */
+    LearningRecordStore.prototype.endLRSContext = function (targetLRS) {
+        if (typeof targetLRS === "string" && targetLRS.trim().length ) {
+            targetLRS = targetLRS.trim();
+            var i = this.lrscontext.indexOf(targetLRS);
+            if (i >= 0) {
+                this.lrscontext.splice(i, 1);
+            }
+        }
+    };
+
+    /**
+     * @protoype
+     * @function clearLRSContext
+     * @param {STRING} targetLRS
+     *
+     * removes all LRS backends from the reporting.
+     */
+    LearningRecordStore.prototype.clearLRSContext = function () {
+        this.lrscontext = [];
+    };
+
+    /**
+     * @protoype
+     * @function setActor
+     * @param {STRING} actorId
+     *
+     * sets the actor's acount for new actions.
+     * uses the org.ieee.papi service to refer to the user information.
+     *
+     * The actor is typically set by the Identity provider at the time of
+     * login.
+     */
+    LearningRecordStore.prototype.setActor = function (actorId) {
+        this.actor.account.name = actorId;
+        this.actor.account.homepage = this.app.serviceURL("org.ieee.papi") + "/" + actorId;
+    };
+
+    /**
+     * @protoype
+     * @function initFilter
+     * @param {NONE}
+     *
+     *
+     */
+    LearningRecordStore.prototype.initFilter = function () {
+    };
+
+    /**
+     * @protoype
+     * @function loadFilter
+     * @param {NONE}
+     *
+     *
+     */
+    LearningRecordStore.prototype.loadFilter = function () {
+
+    };
+
+    /**
+     * @protoype
+     * @function fetchFilter
+     * @param {NONE}
+     *
+     *
+     */
+    LearningRecordStore.prototype.fetchFilter = function () {
+        return;
+    };
+
+    /**
+     * @protoype
+     * @function indexActions
+     * @param {OBJECT} filter
+     *
+     *
+     */
+    LearningRecordStore.prototype.indexActions = function (filter) {
+
+    };
+
+    /**
+     * @protoype
+     * @function indexActions
+     * @param {OBJECT} filter
+     *
+     *
+     */
+    LearningRecordStore.prototype.indexOneAction = function (filter, action) {
+        var self = this;
+
+        return new Promise(function (fullfill, reject) {
+
+        });
+    };
 
 
+    /****** Action Tracking ******/
 
-/**
- * @protoype
- * @function startLRSContext
- * @param {STRING} targetLRS
- *
- * Defines the target LRS backend for the incoming actions.
- * It is possible to report the same actions to different LRS.
- *
- * The targetLRS is a server ID from the Identity Provider.
- * This is used for synchronizing the data to the correct LRS backend.
- */
-LearningRecordStore.prototype.startLRSContext = function (targetLRS) {
-    if (this.lrscontext.indexOf(targetLRS) < 0) {
-        this.lrscontext.push(targetLRS);
-    }
-};
+    /**
+     * @protoype
+     * @function startAction
+     * @param {OBJECT} record
+     * @return {STRING} UUID
+     */
+    LearningRecordStore.prototype.startAction = function (record) {
+        var UUID;
 
-/**
- * @protoype
- * @function endLRSContext
- * @param {STRING} targetLRS
- *
- * removes the targetLRS backend from the reporting.
- * This does not affect the other LRS contexts
- */
-LearningRecordStore.prototype.endLRSContext = function (targetLRS) {
-    var i = this.lrscontext.indexOf(targetLRS);
-    if (i >= 0) {
-        this.lrscontext.splice(i, 1);
-    }
-};
+        if (typeof record === 'object' &&
+            record.hasOwnProperty("Verb") &&
+            record.hasOwnProperty("Object")) {
+            UUID = DB.createUUID();
 
-/**
- * @protoype
- * @function clearLRSContext
- * @param {STRING} targetLRS
- *
- * removes all LRS backends from the reporting.
- */
-LearningRecordStore.prototype.clearLRSContext = function () {
-    this.lrscontext = [];
-};
+            var mom = moment();
+            var created = mom.valueOf();
 
-/**
- * @protoype
- * @function setActor
- * @param {STRING} actorId
- *
- * sets the actor's acount.
- * uses the org.ieee.papi service to refer to the user information.
- */
-LearningRecordStore.prototype.setActor = function (actorId) {
-    this.actor.account.name = actorId;
-    this.actor.account.homepage = this.app.serviceURL("org.ieee.papi") + "/" + actorId;
-};
+            record.ID = UUID;
+            record.timestamp = mom.format();
+            record.actor = this.actor;
+            if (this.context &&
+                this.context.getOwnPropertyNames().length) {
+                record.context = this.context;
+            }
 
-/****** Action Tracking ******/
-
-/**
- * @protoype
- * @function startAction
- * @param {OBJECT} record
- * @return {STRING} UUID
- */
-LearningRecordStore.prototype.startAction = function (record) {
-    var UUID;
-
-    if (typeof record === 'object' &&
-        record.hasOwnProperty("Verb") &&
-        record.hasOwnProperty("Object")) {
-        UUID = DB.createUUID();
-
-        var mom = moment();
-        var created = mom.valueOf();
-
-        record.ID = UUID;
-        record.timestamp = mom.format();
-        record.actor = this.actor;
-        if (this.context &&
-            this.context.getOwnPropertyNames().length) {
-            record.context = this.context;
+            return DB.insert("actions", {
+                "uuid":     UUID,
+                "record":   JSON.stringify(record),
+                "stored":   created
+            })
+            .then(function (res) {
+                res.insertID = UUID;
+                return res;
+            });
         }
 
-        return DB.insert("actions", {
-            "uuid":     UUID,
-            "record":   JSON.stringify(record),
-            "stored":   created,
-            "qpool":    this.content.getQuestionPoolID(),
-            "course":   this.content.getCourseID(),
-            "question": this.content.getQuestionID()
-                                    })
-        .then(function (res) {
-            res.insertID = UUID;
-            return this;
-        });
-    }
+        return Promise.reject({error: {message: "Invalid Record"}});
+    };
 
-    return new Promise(function (resolve, reject) {
-        // immediately reject.
-        reject({}, new Error("Invalid Record"));
-    });
-};
-
-/**
- * @protoype
- * @function updateAction
- * @param {STRING} UUID
- * @param {OBJECT} record
- */
-LearningRecordStore.prototype.updateAction = function (UUID, record) {
-    if (typeof UUID === "string" && UUID.length && typeof record === "object") {
-        var self = this, end   = moment();
-        DB.select({
-            'from': 'actions',
-            'result': "record",
-            'where': {"=": "uuid"}
-        }, [UUID])
-        .then(function(res) {
-            var rr = res.rows.item(0);
-            if (rr) {
-                var ar = JSON.parse(rr.record), i, k;
-                k = record.getOwnPropertyNames();
-                for (i = 0; i < k.length; i++) {
-                    if (!ar.hasOwnProperty(k[i])) {
-                        ar[k[i]] = record[k[i]];
+    /**
+     * @protoype
+     * @function updateAction
+     * @param {STRING} UUID
+     * @param {OBJECT} record
+     */
+    LearningRecordStore.prototype.updateAction = function (UUID, record) {
+        if (typeof UUID === "string" && UUID.length && typeof record === "object") {
+            var self = this, end   = moment();
+            DB.select({
+                'from': 'actions',
+                'result': "record",
+                'where': {"=": "uuid"}
+            }, [UUID])
+            .then(function(res) {
+                var rr = res.rows.item(0);
+                if (rr) {
+                    var ar = JSON.parse(rr.record), i, k;
+                    k = record.getOwnPropertyNames();
+                    for (i = 0; i < k.length; i++) {
+                        if (!ar.hasOwnProperty(k[i])) {
+                            ar[k[i]] = record[k[i]];
+                        }
                     }
-                }
 
-                DB.update({
-                    set: {record: JSON.stringify(ar)},
-                    from: "actions",
-                    where: {"=": {uuid: UUID}}
-                });
+                    DB.update({
+                        set: {record: JSON.stringify(ar)},
+                        from: "actions",
+                        where: {"=": {uuid: UUID}}
+                    });
+                }
+            });
+        }
+    };
+
+    /**
+     * @protoype
+     * @function finishAction
+     * @param {STRING} UUID
+     * @param {OBJECT} record
+     */
+    LearningRecordStore.prototype.finishAction = function (UUID, record) {
+        // sets the duration - now - created
+        if (typeof UUID === "string" && UUID.length && typeof record === "object") {
+            var self = this, end   = moment();
+            DB.select({
+                'from': 'actions',
+                'result': "record",
+                'where': {"=": "uuid"}
+            }, [UUID])
+            .then(function(res) {
+                var pa = [];
+                var rr = res.rows.item(0);
+                if (rr) {
+                    var ar = JSON.parse(rr.record), i, k;
+                    k = record.getOwnPropertyNames();
+                    for (i = 0; i < k.length; i++) {
+                        if (!ar.hasOwnProperty(k[i])) {
+                            ar[k[i]] = record[k[i]];
+                        }
+                    }
+                    var start = moment(ar.timestamp);
+                    var duration = moment.duration(end.diff(start));
+                    var tD = "PT";
+                    if (duration.hours()) {
+                        tD = tD + duration.hours() + "H";
+                    }
+                    if (duration.minutes()) {
+                        tD = tD + duration.minutes() + "M";
+                    }
+                    tD = tD + duration.seconds() + "S";
+
+                    if (!ar.hasOwnProperty("result")) {
+                        ar.result = {};
+                    }
+
+                    ar.result.duration = tD;
+                    pa.push(DB.update({
+                        set: {record: JSON.stringify(ar)},
+                        from: "actions",
+                        where: {"=": {uuid: UUID}}
+                    }));
+                    self.lrscontext.forEach(function (lrsid) {
+                        pa.push(DB.insert("syncindex", {
+                            "uuid": UUID,
+                            "lrsid": lrsid
+                        }));
+                    });
+                    return Promise.all(pa);
+                }
+                return Promise.resolve()
+            });
+        }
+    };
+
+    /**
+     * @protoype
+     * @function recordAction
+     * @param {OBJECT} record
+     * @return {PROMISE} db promise
+     */
+    LearningRecordStore.prototype.recordAction = function (record) {
+        if (typeof record === 'object' &&
+            record.hasOwnProperty("Verb") &&
+            record.hasOwnProperty("Object")) {
+            var self = this,
+                UUID = DB.createUUID(),
+                mom = moment(),
+                created = mom.valueOf();
+
+            record.ID = UUID;
+            record.timestamp = mom.format();
+            record.actor = this.actor;
+            if (this.context &&
+                this.context.getOwnPropertyNames().length) {
+                record.context = this.context;
             }
-        });
-    }
-};
 
-/**
- * @protoype
- * @function finishAction
- * @param {STRING} UUID
- * @param {OBJECT} record
- */
-LearningRecordStore.prototype.finishAction = function (UUID, record) {
-    // sets the duration - now - created
-    if (typeof UUID === "string" && UUID.length && typeof record === "object") {
-        var self = this, end   = moment();
-        DB.select({
-            'from': 'actions',
-            'result': "record",
-            'where': {"=": "uuid"}
-        }, [UUID])
-        .then(function(res) {
-            var rr = res.rows.item(0);
-            if (rr) {
-                var ar = JSON.parse(rr.record), i, k;
-                k = record.getOwnPropertyNames();
-                for (i = 0; i < k.length; i++) {
-                    if (!ar.hasOwnProperty(k[i])) {
-                        ar[k[i]] = record[k[i]];
-                    }
-                }
-                var start = moment(ar.timestamp);
-                var duration = moment.duration(end.diff(start));
-                var tD = "PT";
-                if (duration.hours()) {
-                    tD = tD + duration.hours() + "H";
-                }
-                if (duration.minutes()) {
-                    tD = tD + duration.minutes() + "M";
-                }
-                tD = tD + duration.seconds() + "S";
+            return new Promise(function(fullfill, reject){
+                DB.insert("actions", {
+                "uuid":     UUID,
+                "record":   JSON.stringify(record),
+                "stored":   created
+                })
+                .then(function (res) {
+                    res.insertID = UUID;
+                    var pa = [];
+                    self.lrscontext.forEach(function (lrsid) {
+                        pa.push(DB.insert("syncindex", {
+                            "uuid": UUID,
+                            "lrsid": lrsid
+                        }));
+                    });
 
-                if (!ar.hasOwnProperty("result")) {
-                    ar.result = {};
-                }
+                    var appCtxt = JSON.stringify(self.appcontext);
+                    self.context.forEach(function (lrsid) {
+                        pa.push(DB.insert("syncindex", {
+                            "uuid": UUID,
+                            "lrsid": lrsid
+                        }));
+                    });
 
-                ar.result.duration = tD;
-                DB.update({
-                    set: {record: JSON.stringify(ar)},
-                    from: "actions",
-                    where: {"=": {uuid: UUID}}
-                });
-                self.lrscontext.forEach(function (lrsid) {
-                DB.insert("syncindex", {
-                    "uuid": UUID,
-                    "lrsid": lrsid
+                    return Promise.all(pa);
                 });
             });
-            }
-        });
-    }
-};
-
-/**
- * @protoype
- * @function recordAction
- * @param {OBJECT} record
- * @return {PROMISE} db promise
- */
-LearningRecordStore.prototype.recordAction = function (record) {
-    if (typeof record === 'object' &&
-        record.hasOwnProperty("Verb") &&
-        record.hasOwnProperty("Object")) {
-        var self = this,
-            UUID = DB.createUUID(),
-            mom = moment(),
-            created = mom.valueOf();
-
-        record.ID = UUID;
-        record.timestamp = mom.format();
-        record.actor = this.actor;
-        if (this.context &&
-            this.context.getOwnPropertyNames().length) {
-            record.context = this.context;
         }
 
-        return DB.insert("actions", {
-            "uuid":     UUID,
-            "record":   JSON.stringify(record),
-            "stored":   created,
-            "qpool":    this.content.getQuestionPoolID(),
-            "course":   this.content.getCourseID(),
-            "question": this.content.getQuestionID()
-                                    })
-        .then(function (res) {
-            res.insertID = UUID;
-            var pa = [];
-            self.lrscontext.forEach(function (lrsid) {
-                pa.push(DB.insert("syncindex", {
-                    "uuid": UUID,
-                    "lrsid": lrsid
-                }));
-            });
-            return Promise.all(pa);
-        });
-    }
-
-    return new Promise(function (resolve, reject) {
-        // immediately reject.
-        reject({}, new Error("Invalid Record"));
-    });
-};
+        return Promise.reject({"error": {message: "Invalid Record"}});
+    };
 
     /**
      * @prototype
@@ -481,106 +566,105 @@ LearningRecordStore.prototype.recordAction = function (record) {
      */
     LearningRecordStore.prototype.indexAction = function (record) {};
 
-/**
- * @protoype
- * @function trackAction
- * @param {NONE}
- *
- * track action monitors a record pattern. If the pattern is matched,
- * then the callback is triggered.
- *
- * This should get used for badge issuing.
- */
-LearningRecordStore.prototype.trackAction = function (record, callback) {
+    /**
+     * @protoype
+     * @function trackAction
+     * @param {NONE}
+     *
+     * track action monitors a record pattern. If the pattern is matched,
+     * then the callback is triggered.
+     *
+     * This should get used for badge issuing.
+     */
+    LearningRecordStore.prototype.trackAction = function (record, callback) {
 
-};
+    };
 
-/****** Activity Analytics ******/
+    /** ***** Activity Analytics ***** */
 
-/**
- * @protoype
- * @function getEntropyMap
- * @param {NONE}
- * @return {ARRAY} entropyMap
- */
-LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder) {
-	if (!binder) {
-        binder = this;
-    }
-    var entropyMap = {};
-    cbFunc.call(binder, entropyMap);
-};
+    /**
+     * @protoype
+     * @function getEntropyMap
+     * @param {NONE}
+     * @return {ARRAY} entropyMap
+     */
+    LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder) {
+        if (!binder) {
+            binder = this;
+        }
+        var entropyMap = {};
+        cbFunc.call(binder, entropyMap);
+    };
 
-/**
- * @protoype
- * @function getDailyProgress
- * @param {NONE}
- */
-LearningRecordStore.prototype.getDailyProgress = function () {
+    /**
+     * @protoype
+     * @function getDailyProgress
+     * @param {NONE}
+     */
+    LearningRecordStore.prototype.getDailyProgress = function () {
 
-};
+    };
 
-/**
- * @protoype
- * @function getDailyScore
- * @param {NONE}
- */
-LearningRecordStore.prototype.getDailyScore = function () {
+    /**
+     * @protoype
+     * @function getDailyScore
+     * @param {NONE}
+     */
+    LearningRecordStore.prototype.getDailyScore = function () {
 
-};
+    };
 
-/**
- * @protoype
- * @function getDailyAvgSpeed
- * @param {NONE}
- */
-LearningRecordStore.prototype.getDailyAvgSpeed = function () {
+    /**
+     * @protoype
+     * @function getDailyAvgSpeed
+     * @param {NONE}
+     */
+    LearningRecordStore.prototype.getDailyAvgSpeed = function () {
 
-};
+    };
 
-/**
- * @protoype
- * @function getDailyActions
- * @param {NONE}
- */
-LearningRecordStore.prototype.getDailyActions = function () {
+    /**
+     * @protoype
+     * @function getDailyActions
+     * @param {NONE}
+     */
+    LearningRecordStore.prototype.getDailyActions = function () {
 
-};
+    };
 
-/**
- * @protoype
- * @function checkBadgeAchievement
- * @param {NONE}
- */
-LearningRecordStore.prototype.checkBadgeAchievement = function () {
+    /**
+     * @protoype
+     * @function checkBadgeAchievement
+     * @param {NONE}
+     */
+    LearningRecordStore.prototype.checkBadgeAchievement = function () {
 
-};
+    };
 
-/**
- * @prototype
- * @function synchronise
- * @param {NONE}
- *
- * synchronises the action statements with the backend LRS.
- */
-LearningRecordStore.prototype.synchronize = function () {
-    return;
-};
+    /**
+     * @prototype
+     * @function synchronise
+     * @param {NONE}
+     *
+     * synchronises the action statements with the backend LRS.
+     */
+    LearningRecordStore.prototype.synchronize = function () {
+        return;
+    };
 
-/**
- * @prototype
- * @function ready
- * @param {NONE}
- * @return {BOOL}
- *
- * returns true if the LRS is ready.
- * This should be always ready.
- */
+    /**
+     * @prototype
+     * @function ready
+     * @param {NONE}
+     * @return {BOOL}
+     *
+     * returns true if the LRS is ready.
+     * This should be always ready.
+     */
+    LearningRecordStore.prototype.ready = function () {
+        return true;
+    };
 
-LearningRecordStore.prototype.ready = function () {
-    return true;
-};
-
-w.LearningRecordStore = LearningRecordStore;
+    w.LearningRecordStore = LearningRecordStore;
 
 }(window));
