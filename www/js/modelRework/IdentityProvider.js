@@ -208,7 +208,8 @@ IdentityProvider.prototype.sessionState = function () {
  * via their app property.
  */
 IdentityProvider.prototype.sessionHeader = function (xhr) {
-    this.usrMgr.setSessionHeader(xhr);
+    this.usrMgr.sessionHeader(xhr);
+    this.lmsMgr.sessionHeader(xhr);
 };
 
 /**
@@ -289,4 +290,4 @@ IdentityProvider.prototype.synchronize = function() {
 
 IdentityProvider.prototype.signWithToken = function (signString) {
     return faultylabs.MD5(signString + this.lmsMgr.getActiveRequestToken());
-}
+};

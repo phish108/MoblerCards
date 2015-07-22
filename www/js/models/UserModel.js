@@ -37,14 +37,14 @@ under the License.
  * It loads data from the local storage. In the first time there are no data in the local storage.
  * It specifies the data for the selected server.
  * It listens to an event that is triggered when statistics are sent to the server.
- * @param {String} controller
+ * @param {String} app
  */
 
-function UserModel(controller) {
+function UserModel(app) {
     var self = this;
 
-    this.controller = controller;
-    this.idprovider = controller.models.identityprovider;
+    this.app = app;
+    this.idprovider = app.models.identityprovider;
     //initialization of model's variables
     this.configuration = {};
     this.urlToLMS = "";
@@ -69,9 +69,9 @@ function UserModel(controller) {
 
     $(document).bind("statisticssenttoserver", function () {
         console.log("statistics sent to server is bound");
-        console.log("self.controller.appLoaded is " + self.controller.appLoaded);
+        console.log("self.app.appLoaded is " + self.app.appLoaded);
         console.log("self.configuration.loginState is" + self.configuration.loginState);
-        if (self.controller.appLoaded && self.configuration.loginState === "loggedOut") {
+        if (self.app.appLoaded && self.configuration.loginState === "loggedOut") {
             console.log("before call sendLogoutToServer");
             self.sendLogoutToServer();
             console.log("user logged out");
@@ -140,7 +140,7 @@ UserModel.prototype.loadData = function () {
  */
 UserModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.controller.serviceURL("ch.isn.lms.auth");
+    var activeURL = self.app.serviceURL("ch.isn.lms.auth");
 
     //if the user is not authenticated yet
     if (activeURL &&
@@ -181,7 +181,7 @@ UserModel.prototype.loadFromServer = function () {
                     //sets the language interface for the authenticated user
                     //its language preferences were received during the authentication
                     //and  were stored in the local storage in the previous step
-                    self.controller.setupLanguage();
+                    self.app.setupLanguage();
 
                     /**
                      * When all authentication data are received and stored in the local storage
@@ -218,8 +218,10 @@ UserModel.prototype.loadFromServer = function () {
 };
 
 UserModel.prototype.sessionHeader = function (xhr) {
-    xhr.setRequestHeader('sessionkey',
-                         this.configuration.userAuthenticationKey);
+    if (this.configuration.userAuthenticationKey) {
+        xhr.setRequestHeader('sessionkey',
+                             this.configuration.userAuthenticationKey);
+    }
 };
 
 /**
@@ -232,7 +234,6 @@ UserModel.prototype.sessionHeader = function (xhr) {
  * @function login
  */
 UserModel.prototype.login = function (username, password) {
-    var self = this;
     var challenge;
     challenge = this.idprovider.signWithToken(username + password);
 
@@ -259,10 +260,10 @@ UserModel.prototype.logout = function (featuredContent_id) {
     var configString = JSON.stringify(this.configuration);
     localStorage.setItem("configuration", configString);
     console.log("configuration login state in logout is " + this.configuration.loginState);
-    this.controller.models.statistics.sendToServer(featuredContent_id);
+    this.app.models.statistics.sendToServer(featuredContent_id);
 
     // remove all question pools and all pending question pool requests
-    var c, courseList = this.controller.models.course.courseList;
+    var c, courseList = this.app.models.course.courseList;
     if (courseList) {
         for (c in courseList) {
             if (courseList.hasOwnProperty(c)) {
@@ -278,7 +279,7 @@ UserModel.prototype.logout = function (featuredContent_id) {
     // remove course list and pending course list request
     localStorage.removeItem("pendingCourseList");
     localStorage.removeItem("courses");
-    this.controller.models.course.resetCourseList();
+    this.app.models.course.resetCourseList();
 
 };
 
@@ -297,7 +298,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var activeURL = self.controller.serviceURL('ch.isn.lms.auth');
+    var activeURL = self.app.serviceURL('ch.isn.lms.auth');
     console.log("url: " + activeURL);
     $
         .ajax({
@@ -313,7 +314,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                     case "invalid client key":
                         console.log("invalid client key - reregister");
                         //if the client key is invalide, register in order to get a new one
-                        self.controller.models.lms.register();
+                        self.app.models.lms.register();
                         /**
                          * The authentication fails if no valid client key is received. An event is triggered
                          * in order notify about the failure and the reason of failure (invalid key)
@@ -362,10 +363,10 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                     //sets the language interface for the authenticated user
                     //its language preferences were received during the authentication
 
-                    self.controller.setupLanguage();
+                    self.app.setupLanguage();
 
                     //get statistics data from server
-                    self.controller.models.statistics.loadFromServer();
+                    self.app.models.statistics.loadFromServer();
                 } else {
                     //no error messages from the server and no userauthentication(session) key received
                     console.log("no error message from server and no session key received");
@@ -409,10 +410,10 @@ UserModel.prototype.sendAuthToServer = function (authData) {
  * @function sendLogoutToServer
  * @param userAuthenticationKey
  */
-UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featuredContent_id) {
+UserModel.prototype.sendLogoutToServer = function (featuredContent_id) {
     console.log("enter send logout to server");
     var sessionKey, self = this;
-    var activeURL = self.controller.serviceURL("ch.isn.lms.auth");
+    var activeURL = self.app.serviceURL("ch.isn.lms.auth");
 
     $
         .ajax({
@@ -436,7 +437,7 @@ UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featur
             },
             //sends via header the session key in order it to be validated
             beforeSend: function setHeader(xhr) {
-                self.controller.sessionHeader(xhr);
+                self.app.sessionHeader(xhr);
             }
         });
 
@@ -460,7 +461,7 @@ UserModel.prototype.sendLogoutToServer = function (userAuthenticationKey, featur
     //this.storeData();
 
     // drop statistics data table from local database
-    this.controller.models.answer.deleteDB(featuredContent_id);
+    this.app.models.answer.deleteDB(featuredContent_id);
 };
 
 /**

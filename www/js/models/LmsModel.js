@@ -636,7 +636,7 @@
                 return true;
             }
         }
-        return false
+        return false;
     };
 
     /**
@@ -689,8 +689,25 @@
      * returns the requestToken (keys.device) for the activeServer
      */
     LMSModel.prototype.getActiveRequestToken = function () {
-        return lmsData[lmsData.activeServer].keys.device;
+        if (lmsData[lmsData.activeServer] && lmsData[lmsData.activeServer].keys) {
+            return lmsData[lmsData.activeServer].keys.device;
+        }
+        return undefined;
     };
+
+    /**
+     * @prototype
+     * @function sessionHeader
+     * @param {OBJECT} xhr
+     *
+     * sets the active RequestToken to the Header.
+     */
+    LMSModel.prototype.sessionHeader = function (xhr) {
+        if (lmsData[lmsData.activeServer].keys.device) {
+            xhr.setRequestHeader('RequestToken',
+                                 lmsData[lmsData.activeServer].keys.device);
+        }
+    }
 
     /**
      * @public @method clearInactiveFlag(serviceid)
