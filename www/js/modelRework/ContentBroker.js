@@ -85,7 +85,7 @@ ContentBroker.prototype.loadQuestionpool = function () {
  * @param {NONE}
  */
 ContentBroker.prototype.checkQuestionpool = function () {
-
+    
 };
 
 /**
@@ -142,7 +142,7 @@ ContentBroker.prototype.loadNewQuestions = function () {
  * @protoype
  * @function getQuestionInfo
  * @param {NONE}
- * @return {OBJECT} activeQuestion - is part of the activeQuestion object
+ * @return {OBJECT} partActiveQuestion - is part of the activeQuestion object
  */
 ContentBroker.prototype.getQuestionInfo = function () {
     var aQ = this.activeQuestion;
@@ -265,11 +265,18 @@ ContentBroker.prototype.loadCourses = function () {
  * @protoype
  * @function getCourseList
  * @param {NONE}
+ * @return {ARRAY} courseIdList
  */
 ContentBroker.prototype.getCourseList = function () {
-
-
-};
+    this.loadCourses();
+    var c, courseIdList[];
+    
+    for (c in this.courseList) {
+        courseIdList[c] = this.courseList[c].id;
+    }
+    
+    return courseIdList;
+}; // done, not checked
 
 /**
  * instruction - when a tap occurs on a course in the course view, then register the current course.
@@ -285,9 +292,15 @@ ContentBroker.prototype.activateCourse = function (courseId) {
  * @protoype
  * @function ignoreCourse
  * @param {VARIABLE} courseId
+ *
+ * this course is not mobler cards compatible
  */
 ContentBroker.prototype.ignoreCourse = function (courseId) {
-
+    var index = this.currentCourseId.indexOf("courseId");
+    
+    if (index) {
+        this.currentCourseId.splice(index, 1);
+    }
 };
 
 /**
