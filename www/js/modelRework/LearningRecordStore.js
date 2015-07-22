@@ -88,6 +88,16 @@ under the License.
     }
 
     /**
+     * @static
+     * @function getUUID
+     *
+     * returns a fresh UUID
+     */
+    LearningRecordStore.getUUID = function () {
+        return DB.createUUID();
+    };
+
+    /**
      * @prototype
      * @function resetDB
      * @param {NONE}
@@ -114,6 +124,7 @@ under the License.
      * @param {STRING} contextId
      */
     LearningRecordStore.prototype.startContext = function (contextType, contextId) {
+        var promise;
         if (typeof contextType === "string" && typeof contextId === "string") {
             var self = this, bh = true;
             contextType = contextType.trim();
@@ -122,23 +133,18 @@ under the License.
                 var arContext = contextType.split(",");
                 switch (arContext[0]) {
                     case "registration":
-                        DB.select({result: "uuid",
-                                   distinct: true,
-                                   where: {"=": "uuid"}
-                                  }, [contextId])
-                        .then(function() {
-                            self.context.registration = contextId;
-                        });
+                        self.context.registration = contextId;
+                        promise = Promise.resolve();
                         break;
                     case "contextActvities":
-                        if (!this.context.hasOwnProperty("contextActivities")) {
-                            this.context.contextActivities = {};
-                        }
                         switch (arContext[1]) {
                             case "parent":
                             case "grouping":
                             case "category":
                             case "other":
+                                if (!this.context.hasOwnProperty("contextActivities")) {
+                                    this.context.contextActivities = {};
+                                }
                                 if (!this.context.contextActivities.hasOwnProperty(arContext[1])) {
                                     this.context.contextActivities[arContext[1]] = [];
                                 }
@@ -152,26 +158,47 @@ under the License.
                                 if (bh) {
                                     this.context.contextActivities[arContext[1]].push({id: contextId});
                                 }
+                                promise = Promise.resolve();
                                 break;
                             default:
+                                promise = Promise.reject("invalid contextActivity subtype");
                                 break;
                         }
                         break;
                     case "statement":
-                        DB.select({result: "uuid",
-                                   distinct: true,
-                                   where: {"=": "uuid"}
-                                  }, [contextId])
-                        .then(function() {
-                            self.context.statement = {"type": "StatementRef",
-                                                      "id": contextId};
+                        promise = new Promise(function (resolve, reject) {
+                            DB.select({result: "uuid",
+                                       distinct: true,
+                                       where: {"=": "uuid"}
+                                      }, [contextId])
+                            .then(function() {
+                                self.context.statement = {"type": "StatementRef",
+                                                          "id": contextId};
+
+                                resolve();
+                            })
+                            .catch(reject);
                         });
                         break;
+                    case "language":
+                        if (typeof contextId === "string" &&
+                            (contextId.trim().length === 2 ||
+                             (contextId.trim().length === 5 &&
+                              contextId.trim().split("-").length === 2))) {
+                            self.context.language = contextId.trim();
+                            promise = Promise.resolve();
+                        }
+                        else {
+                            promise = Promise.reject("invalid language code");
+                        }
+                        break;
                     default:
+                        promise = Promise.reject("invalid context type");
                         break;
                 }
             }
         }
+        return promise;
     };
 
     /**
@@ -216,6 +243,15 @@ under the License.
                          if (this.context.statement &&
                              this.context.statement.id === contextId) {
                             delete this.context.statement;
+                        }
+                        break;
+                    case "language":
+                         if (typeof contextId === "string" &&
+                            (contextId.trim().length === 2 ||
+                             (contextId.trim().length === 5 &&
+                              contextId.trim().split("-").length === 2)) &&
+                             this.context.language === contextId.trim()) {
+                            delete this.context.language;
                         }
                         break;
                     default:
