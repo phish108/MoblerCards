@@ -79,13 +79,34 @@ ContentBroker.prototype.loadQuestionpool = function () {
 }; // done, not checked
 
 /**
-
  * @protoype
  * @function checkQuestionpool
- * @param {NONE}
+ * @param {Object} questionPool
+ * @return {BOOL}
+ *
+ * is called when a new questionpool arrives from the LMS backend.
+ *
+ * returns true when the Question Pool has been added locally.
+ *
+ * removes invalid question pools from the list.
  */
-ContentBroker.prototype.checkQuestionpool = function () {
+ContentBroker.prototype.checkQuestionpool = function (questionPool) {
+    return false;
+};
 
+/**
+ * @protoype
+ * @function checkCourse
+ * @param {OBJECT} course
+ * @return {BOOL}
+ *
+ * is called when the course list arrives from the LMS backend.
+ *
+ * returns false if the present course has no active question pools to offer.
+ * In this case the course is removed from the local list.
+ */
+ContentBroker.prototype.checkCourse = function (course) {
+    return false;
 };
 
 /**
@@ -285,6 +306,11 @@ ContentBroker.prototype.activateCourse = function (courseId) {
  * @protoype
  * @function ignoreCourse
  * @param {VARIABLE} courseId
+ *
+ * IgnoreCourse removes courses provided by the LMS Backend that do not comply to
+ * the Mobler Cards Requirements.
+ *
+ * This function is called from checkQuestionpool()
  */
 ContentBroker.prototype.ignoreCourse = function (courseId) {
 
