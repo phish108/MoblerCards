@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true */
+/*global $, device*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -108,8 +109,6 @@
  */
 
 (function (w) {
-    var $ = w.$;
-
     // set the default inactive timeout to 1h
     var inactiveTimeout = 60 * 60 * 1000;
 
@@ -194,53 +193,69 @@
     function registerDevice(serverRSD) {
         var APP_ID = "org.mobinaut.mobler";
 
-        function setHeaders(xhr) {
+        function setHeadersLegacy(xhr) {
             xhr.setRequestHeader('AppID', APP_ID);
-            xhr.setRequestHeader('UUID', w.device.uuid);
+            xhr.setRequestHeader('UUID', device.uuid);
+        }
+
+        function registerOKLegacy(data) {
+            serverRSD.keys.device = {type: "device", "token": data.ClientKey};
+            storeData();
+            $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerOK(data) {
-            serverRSD.keys.device = data.ClientKey;
+            serverRSD.keys.request = data;
             storeData();
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerFail() {
+            serverRSD.inaccessible = (new Date()).time();
+            storeData();
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
 
-        console.log("try to register the app to the LMS");
-        // first check if the proper OAuth API is present
-        var authurl = getServiceURL(serverRSD, "org.oauth.2");
-        if (authurl && authurl.length) {
-            console.log("try to register using the OAuth Scheme");
-            authurl = authurl + "/device";
-            if (authurl && authurl.length) {
-                $.ajax({
-                    "url": authurl,
-                    "type": "PUT",
-                    "data": JSON.stringify({"uuid": w.device.uuid}),
-                    "dataType": "json",
-                    "contentType": "application/json",
-                    "success": registerOK,
-                    "error": registerFail
-                });
+        console.log("register device");
+
+        var serviceName = "powertla.identity.client",
+            registerURL = getServiceURL(serverRSD, serviceName);
+
+        if (!registerURL.length) {
+            serviceName = "ch.isn.lms.device";
+            registerURL = getServiceURL(serverRSD, serviceName);
+        }
+
+        if (registerURL.length) {
+            var rObj = {
+                "url": registerURL,
+                "dataType": "json",
+                "error": registerFail
+            };
+
+            switch (serviceName) {
+                case "powertla.identity.client":
+                    console.log("register against the new API");
+                    rObj.type = "PUT";
+                    rObj.data = JSON.stringify({"client": device.uuid,
+                                                "domain": APP_ID});
+                    rObj.contentType = "application/json";
+                    rObj.success     = registerOK;
+                    break;
+                default:
+                    console.log("register against the old API");
+                    rObj.type = "GET";
+                    rObj.success = registerOKLegacy;
+                    rObj.beforeSend = setHeadersLegacy;
+                    break;
             }
+
+            $.ajax(rObj);
         }
         else {
-            // if there is no OAuth try to use our own poor mans OAuth
-            authurl = getServiceURL(serverRSD, "ch.isn.lms.device");
-            if (authurl && authurl.length) {
-                console.log("try to register using the Mobler Scheme");
-                $.ajax({
-                    "url": authurl,
-                    "type": "GET",
-                    "dataType": "json",
-                    "success": registerOK,
-                    "error": registerFail,
-                    "beforeSend": setHeaders
-                });
-            }
+            console.log("API link is missing");
+            $(document).trigger("LMS_UNAVAILABLE");
+            serverRSD.inaccessible = -1;
         }
     }
 
@@ -251,17 +266,53 @@
      *
      * If the RSD is valid, this method generates a new serverid and stores the
      * RSD data persistently into the LMS data
-     *
-     * FIXME: uncomment the proper RSD validation.
      */
     function validateRSD(rsddata) {
-        var apisfound = 0; //, eurl;
         console.log("validate RSD file");
 
-        function storeRSD() {
-            apisfound++;
-            if (apisfound >= 4) {
+        if (rsddata &&
+            rsddata.hasOwnProperty("apis") &&
+            rsddata.apis.length &&
+            rsddata.hasOwnProperty("engine") &&
+            rsddata.engine.link &&
+            rsddata.engine.link.length
+           ) {
+            // eurl = rsddata.engine.link;
+
+            console.log('rsd looks good check if the APIs exist');
+
+            var apiOK = {
+                "ch.isn.lms.statistics": false,
+                "ch.isn.lms.auth": false,
+                "ch.isn.lms.courses": false,
+                "ch.isn.lms.questions": false,
+                "gov.adlnet.xapi.lrs": false,
+                "powertla.identity.client": false,
+                "org.ieee.papi": false,
+                "powertla.content.courselist": false,
+                "powertla.content.imsqti": false
+            };
+
+            rsddata.apis.forEach(function (api) {
+                if (apiOK.hasOwnProperty(api.name)) {
+                    apiOK[api.name] = true;
+                }
+            });
+
+            /**
+             * validate either against the old or the new API.
+             * The validation forbids mixing the APIs!
+             */
+            if ((apiOK["powertla.identity.client"] &&
+                 apiOK["org.ieee.papi"] &&
+                 apiOK["powertla.content.courselist"] &&
+                 apiOK["powertla.content.imsqti"]) ||
+                (apiOK["ch.isn.lms.statistics"] &&
+                 apiOK["ch.isn.lms.auth"] &&
+                 apiOK["ch.isn.lms.courses"] &&
+                 apiOK["ch.isn.lms.questions"])) {
                 console.log("detected a valid RSD");
+
                 // got my APIs from the rsd, generate a new ID
                 var ts = (new Date()).getTime();
                 rsddata.id = "lms" + ts;
@@ -276,78 +327,18 @@
                 if (!rsddata.hasOwnProperty("inaccessible")) {
                     console.log("register  the device to the new system");
                     registerDevice(rsddata);
-
-                    // TODO: fetch the logo
                 }
-            }
-        }
-
-        /**
-        function failCheck(req) {
-            if (req.status > 0 &&
-                req.status !== 404) {
-                // the server responds and the service is found
-                console.log("server is available but the service appear to be inactive");
-
-                // store the time when the service was last accessed
-                // so we won't immediately try to access the APIs
-                // NOTE: if 1 API fails the entire server won't be accessible!
-                rsddata.inaccessible = (new Date()).getTime();
-                storeRSD();
+// TODO Fetch Logo
+//                if (rsddata.hasOwnProperty("logolink")) {
+//
+//                }
             }
             else {
-                // inform the app that an important service is missing
-                console.log("server is not available");
                 $(document).trigger("LMS_UNAVAILABLE");
             }
         }
-        */
-
-        if (rsddata &&
-            rsddata.hasOwnProperty("apis") &&
-            rsddata.apis.length &&
-            rsddata.hasOwnProperty("engine") &&
-            rsddata.engine.link &&
-            rsddata.engine.link.length
-           ) {
-            // eurl = rsddata.engine.link;
-
-            console.log('rsd looks good check if the APIs exist');
-
-            rsddata.apis.forEach(function (api) {
-                switch (api.name) {
-                    case "gov.adlnet.xapi.lrs":
-                    case "ch.isn.lms.statistics":
-                    case "ch.isn.lms.auth":
-                    case "ch.isn.lms.courses":
-                    case "ch.isn.lms.questions":
-                        // verify that the APIs do not time out or respond with 404
-
-                        // NOTE the "about" API MUST be present with all services
-                        // without authentication. the legacy services will fail
-
-                        // TODO: test the actual presence of the API
-                        // This has to remain commented for the time being due to the
-                        // bad code in the backend.
-//                        $.ajax({
-//                            "url":eurl + api.link + "/about",
-//                            "success": storeRSD,
-//                            "error": failCheck
-//                        });
-
-                        console.log("got 1 API " + api.name);
-                        // fake validation
-                        storeRSD();
-                        break;
-                    default:
-                        break;
-                }
-            });
-            if (apisfound < 4) {
-                // not all apis are present
-                // FIXME: checking for the API Count is error prone
-                $(document).trigger("LMS_UNAVAILABLE");
-            }
+        else {
+            $(document).trigger("LMS_UNAVAILABLE");
         }
     }
 
@@ -356,9 +347,7 @@
      * It loads data from the local storage. In the first time there are no data
      * in the local storage and sets as active server the default server.
      */
-    function LMSModel(app) {
-        this.idprovider = app.models.identityprovider;
-
+    function LMSModel() {
         loadData();
         if (lmsData.activeServer) {
             this.activeLMS = lmsData[lmsData.activeServer];
@@ -400,19 +389,13 @@
 
 
     LMSModel.prototype.registerDevice = function(serverid) {
-        if (serverid && serverid.length) {
-            registerDevice(this.findServerByID(serverid));
-        }
-        else if (lmsData.activeServer && lmsData.activeServer.length){
+        if (!(serverid && serverid.length) &&
+            lmsData.activeServer &&
+            lmsData.activeServer.length){
             // register active server
-            var rsd = lmsData[lmsData.activeServer];
-            if (!(rsd.keys &&
-                  rsd.keys.device &&
-                  rsd.keys.device.length)) {
-                console.log("missing device token, reregister!");
-                registerDevice(rsd);
-            }
+            serverid = lmsData.activeServer;
         }
+        registerDevice(this.findServerByID(serverid));
     };
 
     /**
@@ -624,9 +607,10 @@
         if (!serverid) {
             serverid = lmsData.activeServer;
         }
-        var tmpLMS = lmsData[serverid];
+        var tmpLMS = this.findServerByID(serverid);
         if (tmpLMS) {
-            if (!tmpLMS.hasOwnProperty('inactive')) {
+            if (!tmpLMS.hasOwnProperty('inactive') &&
+                !tmpLMS.hasOwnProperty('inaccessible')) {
                 return true;
             }
 
@@ -664,8 +648,15 @@
      * getServiceURL() returns the full URL to a service for the active LMS. If the
      * service is not provided by the LMS, the response will be undefined.
      */
-    LMSModel.prototype.getServiceURL = function (serviceName) {
-        return getServiceURL(this.activeLMS, serviceName);
+    LMSModel.prototype.getServiceURL = function (serviceName, serverid) {
+        var rsd = this.activeLMS;
+        if (!serverid) {
+            rsd = lmsData[serverid];
+        }
+        if (rsd) {
+            return getServiceURL(serviceName, serviceName);
+        }
+        return undefined;
     };
 
     /**
@@ -684,15 +675,71 @@
     };
 
     /**
-     * @public @function getActiveRequestToken()
+     * @public @function getActiveToken()
      *
      * returns the requestToken (keys.device) for the activeServer
      */
-    LMSModel.prototype.getActiveRequestToken = function () {
-        if (lmsData[lmsData.activeServer] && lmsData[lmsData.activeServer].keys) {
+    LMSModel.prototype.getActiveToken = function () {
+        if (lmsData.activeServer &&
+            lmsData[lmsData.activeServer] &&
+            lmsData[lmsData.activeServer].keys) {
+            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("MAC")) {
+                return lmsData[lmsData.activeServer].keys.MAC;
+            }
+            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Bearer")) {
+                return lmsData[lmsData.activeServer].keys.Bearer;
+            }
+            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Request")) {
+                return lmsData[lmsData.activeServer].keys.Request;
+            }
             return lmsData[lmsData.activeServer].keys.device;
         }
         return undefined;
+    };
+
+    LMSModel.prototype.getActiveRequestToken = function () {
+        if (lmsData.activeServer &&
+            lmsData[lmsData.activeServer] &&
+            lmsData[lmsData.activeServer].keys) {
+            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Request")) {
+                return lmsData[lmsData.activeServer].keys.Request;
+            }
+            return lmsData[lmsData.activeServer].keys.device;
+        }
+        return undefined;
+    };
+
+    /**
+     * @public @function addToken(newToken)
+     *
+     * adds a new token to the active server's keys
+     */
+    LMSModel.prototype.addToken = function (token) {
+        if (lmsData.activeServer &&
+            lmsData[lmsData.activeServer] &&
+            lmsData[lmsData.activeServer].keys) {
+            var type = token.type;
+            if (typeof type !== "string") {
+                type = "device";
+            }
+
+            // we are bold and override the old token if it exists
+            lmsData[lmsData.activeServer].keys[type] = token;
+        }
+    };
+
+    /**
+     * @public @function removeToken(tokenType)
+     *
+     * removes the token with the given tokenType from the LMS's key chain.
+     */
+    LMSModel.prototype.removeToken = function (tokenType) {
+        if (lmsData.activeServer &&
+            lmsData[lmsData.activeServer] &&
+            lmsData[lmsData.activeServer].keys &&
+            lmsData[lmsData.activeServer].keys.hasOwnProperty(tokenType)) {
+            delete lmsData[lmsData.activeServer].keys[tokenType];
+        }
     };
 
     /**
@@ -700,14 +747,14 @@
      * @function sessionHeader
      * @param {OBJECT} xhr
      *
-     * sets the active RequestToken to the Header.
+     * DEPRECIATED sets the active RequestToken to the Header.
      */
     LMSModel.prototype.sessionHeader = function (xhr) {
         if (lmsData[lmsData.activeServer].keys.device) {
             xhr.setRequestHeader('RequestToken',
                                  lmsData[lmsData.activeServer].keys.device);
         }
-    }
+    };
 
     /**
      * @public @method clearInactiveFlag(serviceid)

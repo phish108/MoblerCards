@@ -1,5 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
-/*global $, faultylabs, LMSModel, UserModel*/
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $, hex_sha1, faultylabs, LMSModel, UserModel, device*/
 
 /**	THIS LICENSE INFORMATION MUST REMAIN INTACT
  *
@@ -36,15 +36,16 @@
  */
 
 function IdentityProvider (app) {
-    this.app      = app;
-    this.lrs      = app.models.learningrecordstore;
-    this.content  = app.models.contentbroker;
-
+    if (app) {
+        this.app      = app;
+        this.lrs      = app.models.learningrecordstore;
+        this.content  = app.models.contentbroker;
+    }
     var language  = navigator.language.split("-");
     this.language = language ? language[0] : "en";
 
-    this.lmsMgr = new LMSModel(app);
-    this.usrMgr = new UserModel(app);
+    this.lmsMgr = new LMSModel(this);
+    this.usrMgr = new UserModel(this);
 }
 
 /****** LMS Management ******/
@@ -158,10 +159,11 @@ IdentityProvider.prototype.disableLMS = function (LMSId) {
  * @protoype
  * @function serviceURL
  * @param {STRING} serviceName
+ * @param {STRING} serverid
  * @return {STRING} serviceURL
  */
-IdentityProvider.prototype.serviceURL = function (serviceName) {
-    this.lmsMgr.getServiceURL(serviceName);
+IdentityProvider.prototype.serviceURL = function (serviceName, serverid) {
+    this.lmsMgr.getServiceURL(serviceName, serverid);
 };
 
 /****** Session Management ******/
@@ -207,9 +209,21 @@ IdentityProvider.prototype.sessionState = function () {
  * sets the session header for all connections. Other models call this
  * via their app property.
  */
-IdentityProvider.prototype.sessionHeader = function (xhr) {
-    this.usrMgr.sessionHeader(xhr);
-    this.lmsMgr.sessionHeader(xhr);
+IdentityProvider.prototype.sessionHeader = function (xhr, url, method) {
+    var token = this.lmsMgr.getActiveToken();
+
+    if (token.type === "device" || token.type === "user") {
+        // legacy headers
+        this.usrMgr.sessionHeader(xhr);
+        this.lmsMgr.sessionHeader(xhr);
+    }
+    else {
+        var authCode = this.signObject(url, method);
+
+        if (authCode && authCode.length) {
+            xhr.setRequestHeader("Authorize", authCode);
+        }
+    }
 };
 
 /**
@@ -288,6 +302,102 @@ IdentityProvider.prototype.synchronize = function() {
     this.usrMgr.loadFromServer();
 };
 
+IdentityProvider.prototype.addToken = function(token) {
+    this.lmsMgr.addToken(token);
+};
+
+IdentityProvider.prototype.removeToken = function (tokenType) {
+    this.lmsMgr.removeToken(tokenType);
+};
+
+/**
+ * @prototye
+ * @function signWithToken
+ * @param {STRING} sign string
+ *
+ * signs the sign string with the app's request token
+ */
 IdentityProvider.prototype.signWithToken = function (signString) {
-    return faultylabs.MD5(signString + this.lmsMgr.getActiveRequestToken());
+    if (typeof signString === "string" && signString.length) {
+        var signObject = this.lmsMgr.getActiveRequestToken();
+        var token = "";
+        if (typeof signObject === "string") {
+            // old device token
+            token = signObject;
+        }
+        else if (signObject.hasOwnProperty("token")) {
+            token = signObject.token;
+        }
+        return hex_sha1(signString + token);
+    }
+    return undefined;
+};
+
+IdentityProvider.prototype.signObject = function (URL, method) {
+    var bOK = true, signString = "", resultString = "";
+
+    var signObject = this.lmsMgr.getActiveToken();
+
+    if (typeof method === "string" && method.length) {
+        signObject.method = method;
+    }
+
+    signObject.nonce = this.nonce(7);
+    signObject.url = URL;
+    if ( window.device && device.uuid) {
+        signObject.client = device.uuid;
+    }
+
+    switch (signObject.type) {
+        case "Bearer":
+            resultString = signObject.type + " " + signObject.token;
+            break;
+        case "Request":
+            /* falls through */
+        case "MAC":
+            signObject.sequence.forEach(function(field) {
+                if (signObject.hasOwnProperty(field)) {
+                    signString += encodeURIComponent(signObject[field]);
+                }
+                else {
+                    bOK = false;
+                }
+            });
+
+            if (bOK) {
+                 resultString = signObject.type + " ";
+                /**
+                 * TODO: add supprot for more sign methods.
+                 *
+                 * The RFC OAuth Draft (https://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-05)
+                 * refers to the HMAC-SHA1 and HMAC-SHA-256 algorithms.
+                 *
+                 * hex_hmac_sha1() is supported by the sha1 module, but PowerTLA does not support it yet.
+                 */
+                switch (signObject.algorithm.toLowerCase()) {
+                    case "md5":
+                        signObject.key = faultylabs.MD5(signString);
+                        break;
+                    case "sha1":
+                        signObject.key = hex_sha1(signString);
+                        break;
+                }
+
+                signObject.paramerter.forEach(function (field) {
+                    resultString += field + "=" + encodeURIComponent(signObject);
+                });
+            }
+            break;
+    }
+    return resultString;
+};
+
+IdentityProvider.prototype.nonce = function nonce(length) {
+        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+        var rnum, i, result = "";
+        for (i = 0; i < length; ++i) {
+            rnum = Math.floor(Math.random() * chars.length);
+            result += chars.substring(rnum, rnum+1);
+        }
+        return result;
 };

@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 /*global $, jQuery, faultylabs*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -40,11 +40,12 @@ under the License.
  * @param {String} app
  */
 
-function UserModel(app) {
-    var self = this;
+/**
+ * TODO SEND requests only when the device is online.
+ */
 
-    this.app = app;
-    this.idprovider = app.models.identityprovider;
+function UserModel(idprovider) {
+    this.idprovider = idprovider;
     //initialization of model's variables
     this.configuration = {};
     this.urlToLMS = "";
@@ -53,7 +54,6 @@ function UserModel(app) {
 
     // load data from the local storage if any
     this.loadData();
-
 
     /**It is triggered after all statistics data are sent successful to the server. This happens when the user logsout.
      * @event statisticssenttoserver
@@ -67,6 +67,8 @@ function UserModel(app) {
      * to the new server and the new user.
      */
 
+    // FIXME MOVE TO LRS.
+    /*
     $(document).bind("statisticssenttoserver", function () {
         console.log("statistics sent to server is bound");
         console.log("self.app.appLoaded is " + self.app.appLoaded);
@@ -77,6 +79,7 @@ function UserModel(app) {
             console.log("user logged out");
         }
     });
+    */
 }
 
 /**
@@ -140,7 +143,7 @@ UserModel.prototype.loadData = function () {
  */
 UserModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.app.serviceURL("ch.isn.lms.auth");
+    var activeURL = self.idprovider.serviceURL("ch.isn.lms.auth");
 
     //if the user is not authenticated yet
     if (activeURL &&
@@ -178,10 +181,6 @@ UserModel.prototype.loadFromServer = function () {
                     //store in the local storage the above received data
                     self.storeData();
 
-                    //sets the language interface for the authenticated user
-                    //its language preferences were received during the authentication
-                    //and  were stored in the local storage in the previous step
-                    self.app.setupLanguage();
 
                     /**
                      * When all authentication data are received and stored in the local storage
@@ -235,7 +234,7 @@ UserModel.prototype.sessionHeader = function (xhr) {
  */
 UserModel.prototype.login = function (username, password) {
     var challenge;
-    challenge = this.idprovider.signWithToken(username + password);
+    challenge = this.idprovider.signWithToken(username + faultylabs.MD5(password));
 
 
     var auth = {
@@ -253,33 +252,39 @@ UserModel.prototype.login = function (username, password) {
  * @prototype
  * @function logout
  */
-UserModel.prototype.logout = function (featuredContent_id) {
+UserModel.prototype.logout = function () {
     console.log("enter logout in configuration model");
-    //send statistics data to server
+    //TODO send statistics data to server
+
     this.configuration.loginState = "loggedOut";
     var configString = JSON.stringify(this.configuration);
     localStorage.setItem("configuration", configString);
     console.log("configuration login state in logout is " + this.configuration.loginState);
-    this.app.models.statistics.sendToServer(featuredContent_id);
+
+    $(document).trigger("userlogoutrequest");
+    // TODO: Content Broker and LRS need to listen to userlogoutrequest
+
+    // FIXME create a logoutready event.
+    // this.app.models.statistics.sendToServer(featuredContent_id);
 
     // remove all question pools and all pending question pool requests
-    var c, courseList = this.app.models.course.courseList;
-    if (courseList) {
-        for (c in courseList) {
-            if (courseList.hasOwnProperty(c)) {
-                console.log("clear local question pools");
-                if (courseList[c].id !== featuredContent_id) {
-                    localStorage.removeItem("questionpool_" + courseList[c].id);
-                    localStorage.removeItem("pendingQuestionPool_" + courseList[c].id);
-                }
-            }
-        }
-    }
+//    var c, courseList = this.app.models.course.courseList;
+//    if (courseList) {
+//        for (c in courseList) {
+//            if (courseList.hasOwnProperty(c)) {
+//                console.log("clear local question pools");
+//                if (courseList[c].id !== featuredContent_id) {
+//                    localStorage.removeItem("questionpool_" + courseList[c].id);
+//                    localStorage.removeItem("pendingQuestionPool_" + courseList[c].id);
+//                }
+//            }
+//        }
+//    }
 
-    // remove course list and pending course list request
-    localStorage.removeItem("pendingCourseList");
-    localStorage.removeItem("courses");
-    this.app.models.course.resetCourseList();
+//    // remove course list and pending course list request
+//    localStorage.removeItem("pendingCourseList");
+//    localStorage.removeItem("courses");
+//    this.app.models.course.resetCourseList();
 
 };
 
@@ -298,107 +303,161 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var activeURL = self.app.serviceURL('ch.isn.lms.auth');
-    console.log("url: " + activeURL);
-    $
-        .ajax({
-            url: activeURL,
-            type: 'POST',
-            dataType: 'json',
-            //if any data are sent back during the authentication
-            success: function (data) {
-                //if  any data are sent during the authentication but they are wrong and they send back different error messages
-                if (data && data.message) {
-                    switch (data.message) {
-                        //1. first error message is that the client key is invalid
-                    case "invalid client key":
-                        console.log("invalid client key - reregister");
-                        //if the client key is invalide, register in order to get a new one
-                        self.app.models.lms.register();
-                        /**
-                         * The authentication fails if no valid client key is received. An event is triggered
-                         * in order notify about the failure and the reason of failure (invalid key)
-                         * @event authenticationfailed
-                         * @event invalidclientkey
-                         */
-                        $(document).trigger("authenticationfailed",
-                                            "invalidclientkey");
-                        break;
-                        //2. second error message is that the user name or password were wrong
-                    case "wrong user data":
-                        console.log("Wrong username or password!");
-                        /**
-                         * The authentication fails if wrong user name or password are received. An event is triggered
-                         * in order notify about the failure and the reason of failure (wrong data)
-                         * @event authenticationfailed
-                         * @event nouser
-                         */
-                        $(document).trigger("authenticationfailed",
-                                            "nouser");
-                        break;
-                    default:
-                        break;
-                    }
-                    //if data are sent back from the server during the authentication and they dont contain any error messages
-                    //and the user has an authenticaiton key
-                } else if (data && data.userAuthenticationKey !== "") {
-                    console.log("userAuthenticationKey: " + data.userAuthenticationKey);
-                    //store the authenticated data (user authentication key, learner information) in the local storage
-                    self.configuration.userAuthenticationKey = data.userAuthenticationKey;
-                    self.configuration.learnerInformation = data.learnerInformation;
-                    self.configuration.loginState = "loggedIn";
-                    self.storeData();
-                    localStorage.setItem("pendingLogout", "");
-                    self.idprovider.enableLMS();
+    var serviceName = "powertla.identity.client";
+    var activeURL = self.idprovider.serviceURL(serviceName);
 
-                    /**
-                     * When all authentication data are received and stored in the local storage
-                     * the authenticationready event is triggered
-                     * @event authenticationready
-                     * @param the user authentication key
-                     */
-                    $(document).trigger("authenticationready",
-                        self.configuration.userAuthenticationKey);
-                    console.log("authentication is ready, statistics can be loaded from the server");
-                    //sets the language interface for the authenticated user
-                    //its language preferences were received during the authentication
+    if (!activeURL.length) {
+        serviceName = "ch.isn.lms.device";
+        activeURL = self.idprovider.serviceURL(serviceName);
+    }
 
-                    self.app.setupLanguage();
+    function setHeader(xhr, settings) {
+        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
+    }
 
-                    //get statistics data from server
-                    self.app.models.statistics.loadFromServer();
-                } else {
-                    //no error messages from the server and no userauthentication(session) key received
-                    console.log("no error message from server and no session key received");
-                    $(document).trigger("authenticationfailed", "connectionerror");
-                }
-            },
-            //the authentication to the server failed because of unknown reason
-            error: function (request) {
+    function setHeaderLegacy(xhr) {
+        self.idprovider.sessionHeader(xhr);
+        xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
+    }
 
-                if (request.status === 403) {
-                    window.turnOnDeactivate(); //from common.js
-                    window.showErrorResponses(request); //from common.js
-                    console.log("Error while authentication to server");
-                    $(document).trigger("authenticationTemporaryfailed");
-                } else {
-                    console.log("Error while authentication to server: status:" + request.status + ", " + request.responseText);
-                    /**
-                     * When the authentication to the server fails for any unknown reason that is independent from validity of the received data
-                     * but related with any internet connectivity or server issue, the authenticationfailed and connectionerror events are triggered
-                     * @event authenticationfailed
-                     * @event connectionerror
-                     */
-                    $(document).trigger("authenticationfailed", "connectionerror");
-                }
-            },
-            //the authentication data (uuid, appid, username, challenge) are sent to the server via headers
-            beforeSend: function setHeader(xhr) {
-                xhr.setRequestHeader('uuid', window.device.uuid);
-                xhr.setRequestHeader('appid', self.app.id);
-                xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
+    function authOKLegacy(data) {
+        //if  any data are sent during the authentication but they are wrong and they send back different error messages
+        if (data && data.message) {
+            switch (data.message) {
+                //1. first error message is that the client key is invalid
+            case "invalid client key":
+                console.log("invalid client key - reregister");
+                //if the client key is invalide, register in order to get a new one
+                self.idprovider.lmsMgr.register();
+                /**
+                 * The authentication fails if no valid client key is received. An event is triggered
+                 * in order notify about the failure and the reason of failure (invalid key)
+                 * @event authenticationfailed
+                 * @event invalidclientkey
+                 */
+                $(document).trigger("authenticationfailed",
+                                    "invalidclientkey");
+                break;
+                //2. second error message is that the user name or password were wrong
+            case "wrong user data":
+                console.log("Wrong username or password!");
+                /**
+                 * The authentication fails if wrong user name or password are received. An event is triggered
+                 * in order notify about the failure and the reason of failure (wrong data)
+                 * @event authenticationfailed
+                 * @event nouser
+                 */
+                $(document).trigger("authenticationfailed",
+                                    "nouser");
+                break;
+            default:
+                break;
             }
-        });
+            //if data are sent back from the server during the authentication and they dont contain any error messages
+            //and the user has an authenticaiton key
+        } else if (data && data.userAuthenticationKey !== "") {
+            var legacyToken = {
+                type: "user",
+                token: data.userAuthenticationKey
+            };
+
+            self.idprovider.addToken(legacyToken);
+
+            console.log("userAuthenticationKey: " + data.userAuthenticationKey);
+            //store the authenticated data (user authentication key, learner information) in the local storage
+            self.configuration.userAuthenticationKey = data.userAuthenticationKey;
+            self.configuration.learnerInformation = data.learnerInformation;
+            self.configuration.loginState = "loggedIn";
+            self.storeData();
+            localStorage.setItem("pendingLogout", "");
+            self.idprovider.enableLMS();
+
+            /**
+             * When all authentication data are received and stored in the local storage
+             * the authenticationready event is triggered
+             * @event authenticationready
+             * @param the user authentication key
+             */
+            $(document).trigger("authenticationready");
+            console.log("authentication is ready, statistics can be loaded from the server");
+            //sets the language interface for the authenticated user
+            //its language preferences were received during the authentication
+
+
+
+            //FIXME MOVE TO LRS: get statistics data from server
+            // self.app.models.statistics.loadFromServer();
+        } else {
+            //no error messages from the server and no userauthentication(session) key received
+            console.log("no error message from server and no session key received");
+            $(document).trigger("authenticationfailed", "connectionerror");
+        }
+    }
+
+    function authOK(data) {
+        self.idprovider.addToken(data);
+        self.loadProfile();
+    }
+
+    function authFail(request) {
+        switch (request.status) {
+            case 403:
+                //from common.js
+                self.idprovider.disableLMS();
+                window.turnOnDeactivate(); // FIXME: this code is part of the LMSModel
+                window.showErrorResponses(request);  // FIXME: this code is part of the LoginView
+
+                console.log("Error while authentication to server");
+                $(document).trigger("authentication_failed", "temporary failure");
+                break;
+            case 500:
+                $(document).trigger("authentication_failed", "broken backend");
+                break;
+            case 404:
+                $(document).trigger("authentication_failed", "missing backend");
+                break;
+            default:
+                $(document).trigger("authentication_failed", "connection error");
+                break;
+        }
+    }
+
+    var rObj = {
+        url: activeURL,
+        dataType: 'json',
+        error: authFail
+    };
+
+    if (typeof serviceName === "string" && serviceName.length) {
+        switch(serviceName) {
+            case "powertla.identity.client":
+                rObj.success = authOK;
+                rObj.type = "PUT";
+                rObj.contentType = "application/json";
+                rObj.beforeSend = setHeader;
+                break;
+            case "ch.isn.lms.device":
+                rObj.success = authOKLegacy;
+                rObj.type = "POST";
+                rObj.beforeSend = setHeaderLegacy;
+                break;
+            default:
+                $(document).trigger("authentication_failed", "invalid service");
+                rObj = null;
+        }
+
+        if (rObj && rObj.url === activeURL) {
+            if (self.idprovider.getLMSStatus()) {
+                $.ajax(rObj);
+            }
+            else {
+                $(document).trigger("authentication_failed", "temporary failure");
+            }
+        }
+    }
+    else {
+        $(document).trigger("authentication_failed", "invalid url");
+    }
 };
 
 /**
@@ -410,58 +469,117 @@ UserModel.prototype.sendAuthToServer = function (authData) {
  * @function sendLogoutToServer
  * @param userAuthenticationKey
  */
-UserModel.prototype.sendLogoutToServer = function (featuredContent_id) {
+UserModel.prototype.sendLogoutToServer = function () {
     console.log("enter send logout to server");
-    var sessionKey, self = this;
-    var activeURL = self.app.serviceURL("ch.isn.lms.auth");
+    var self = this;
+    var serviceName = "powertla.identity.client";
+    var activeURL = self.idprovider.serviceURL(serviceName);
 
-    $
-        .ajax({
-            url: activeURL,
-            type: 'DELETE',
-            dataType: 'json',
-            success: function () {
-                console.log("success in logging out");
-                localStorage.setItem("pendingLogout", "");
-                self.idprovider.enableLMS();
+    if (!activeURL.length) {
+        serviceName = "";
+        activeURL = self.idprovider.serviceURL(serviceName);
+    }
+
+    function setHeader(xhr, settings) {
+        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
+    }
+
+    function logoutFail(request) {
+        if (request.status === 403) {
+            self.idprovider.disableLMS();
+            console.log("Error while logging out from server");
+        }
+
+        //adding in the local storage the session key of the pending
+        // LEGACY CODE
+        localStorage.setItem("pendingLogout", "1"); // the LMS Model should take case about this
+    }
+
+    function logoutOK() {
+        $(document).trigger("logout_success");
+
+        // remove all access tokens
+        self.idprovider.removeToken("MAC");
+        self.idprovider.removeToken("Bearer");
+        self.idprovider.removeToken("user");
+
+        // legacy code should go away.
+        self.configuration = {
+            "userAuthenticationKey": "",
+            "learnerInformation": {
+                "userId": 0
             },
-            error: function (request) {
+            "loginState": "loggedOut",
+            //"loginState": this.configuration.loginState;
+            "statisticsLoaded": false
+        };
 
-                if (request.status === 403) {
-                    self.idprovider.disableLMS();
-                    console.log("Error while logging out from server");
-                }
+        var configString = JSON.stringify(self.configuration);
+        localStorage.setItem("configuration", configString);
+        console.log("Configuration Storage: " + localStorage.getItem("configuration"));
+    }
 
-                //adding in the local storage the session key of the pending
-                localStorage.setItem("pendingLogout", sessionKey);
-            },
-            //sends via header the session key in order it to be validated
-            beforeSend: function setHeader(xhr) {
-                self.app.sessionHeader(xhr);
-            }
-        });
-
-    this.configuration = {
-        "userAuthenticationKey": "",
-        "learnerInformation": {
-            "userId": 0
-        },
-        "loginState": "loggedOut",
-        //"loginState": this.configuration.loginState;
-        "statisticsLoaded": false
+    var rObj = {
+        "url": activeURL,
+        "type": 'DELETE',
+        "dataType": 'json',
+        "success": logoutOK,
+        "error": logoutFail,
+        "beforeSend": setHeader
     };
 
-    console.log("configuration object after loging out" + JSON.stringify(this.configuration));
+    $.ajax(rObj);
+};
 
-    var configString = JSON.stringify(this.configuration);
-    localStorage.setItem("configuration", configString);
-    console.log("Configuration Storage: " + localStorage.getItem("configuration"));
+/**
+ * @function loadProfile()
+ *
+ * loads the learner information profile from the profile service.
+ *
+ * This method is only availble for the new API services.
+ */
+UserModel.prototype.loadProfile = function () {
+    var self = this;
+    function setHeader(xhr, settings) {
+        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
+    }
 
-    //after clearing data from the local storage, save the changes to the local storage item
-    //this.storeData();
+    function loadProfile(data) {
+        self.configuration = {learnerInformation: data};
+        var configString = JSON.stringify(self.configuration);
+        localStorage.setItem("configuration", configString);
+    }
 
-    // drop statistics data table from local database
-    this.app.models.answer.deleteDB(featuredContent_id);
+    function failProfile(request) {
+        switch (request.status) {
+            case 403:
+            case 404:
+            case 500:
+                self.idprovider.disableLMS();
+                $(document).trigger("profile_failed", "server temporary unavailable");
+                break;
+            default:
+                $(document).trigger("profile_failed", "connection error");
+                break;
+        }
+    }
+
+    var serviceName = "org.ieee.papi";
+    var activeURL = self.idprovider.serviceURL(serviceName);
+
+    if (self.idprovider.getLMSStatus()) {
+        $.ajax({
+            url: activeURL,
+            success: loadProfile,
+            error: failProfile,
+            beforeSend: setHeader,
+            type: "GET"
+        });
+    }
+    else {
+        $(document).trigger("profile_failed", "temporary failure");
+    }
+
 };
 
 /**
@@ -472,13 +590,14 @@ UserModel.prototype.sendLogoutToServer = function (featuredContent_id) {
  * @return true if user is logged in, otherwise false
  */
 UserModel.prototype.isLoggedIn = function () {
-    //if (this.configuration.userAuthenticationKey && this.configuration.userAuthenticationKey !== "") {
-    console.log("this.configuration.logingState is " + this.configuration.loginState);
-    if (this.configuration.loginState && this.configuration.loginState === "loggedIn") {
+    var token = this.idprovider.lmsMgr.getActiveToken();
+
+    if (token && (token.type === "MAC" ||
+                  token.type === "Bearer" ||
+                  token.type === "user")) {
         return true;
     }
 
-    console.log("configuration.js: is not logged in ... " + this.configuration.userAuthenticationKey);
     return false;
 };
 
@@ -533,11 +652,7 @@ UserModel.prototype.getLanguage = function () {
         return this.configuration.learnerInformation.language;
     }
 
-    // if we don't know a user's language we try to use the phone's language.
-    var language = navigator.language.split("-");
-    var language_root = language[0];
-
-    return this.configuration.defaultLanguage || language_root;
+    return "";
 };
 
 /**
