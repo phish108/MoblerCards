@@ -107,6 +107,10 @@ function MoblerCards() {
             self.changeView("landing");
         }
     });
+
+    $(document).bind("authenticationready", function() {
+        self.setupLanguage();
+    });
 }
 
 /**
