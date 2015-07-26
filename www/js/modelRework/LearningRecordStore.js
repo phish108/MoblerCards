@@ -533,7 +533,7 @@ under the License.
                     });
                     return Promise.all(pa);
                 }
-                return Promise.resolve()
+                return Promise.resolve();
             });
         }
     };
