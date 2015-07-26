@@ -27,8 +27,8 @@ under the License.
 
 function ContentBroker (app) {
     var self = this;
-    
-    this.lrs      = app.models.LearningRecordStore;
+
+    this.lrs        = app.models.LearningRecordStore;
     this.idprovider = app.models.IdentityProvider;
 
     /** Variables
@@ -185,7 +185,7 @@ ContentBroker.prototype.checkResponse = function () {
  * @param {NONE}
  * @return {ARRAY} feedback;
  */
-ContentBroker.prototype.getFeedback = function () {    
+ContentBroker.prototype.getFeedback = function () {
     if (this.checkResponse) {
         return this.activeQuestion.correctFeedback;
     }
@@ -216,7 +216,7 @@ ContentBroker.prototype.startAttempt = function () {
  * @protoype
  * @function finishAttempt
  * @param {NONE}
- * 
+ *
  * delete the answered question from the questionlist.
  */
 ContentBroker.prototype.finishAttempt = function () {
@@ -230,7 +230,7 @@ ContentBroker.prototype.finishAttempt = function () {
         }
     };
     var uuid = this.lrs.getAttemptUUID(); // FIXME SUDO CODE
-    
+
     this.lrs.finishAttempt(uuid, record);
 
     var index = this.questionList.indexOf(this.activeQuestion);
@@ -252,7 +252,7 @@ ContentBroker.prototype.finishAttempt = function () {
 ContentBroker.prototype.fetchQuestionpoolList = function (courseId, lmsId) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var serviceURL = self.idprovider.serviceURL("io.mobinaut.contentbroker.questionpool", lmsId);
+        var serviceURL = self.idprovider.serviceURL("powertla.content.imsqti", lmsId);
         if (serviceURL) {
             $.ajax({
                 url: serviceURL + "/" + courseId,
@@ -273,7 +273,7 @@ ContentBroker.prototype.fetchQuestionpoolList = function (courseId, lmsId) {
             reject("ERR_NO_SERVICE_URL");
         }
     });
-    
+
 }; // done, not checked
 
 /**
@@ -316,7 +316,7 @@ ContentBroker.prototype.storeQuestionpool = function (questionpool, courseId) {
 ContentBroker.prototype.checkQuestionpool = function (questionpool) {
     var i;
     var questions = questionpool.questions;
-    
+
     for (i = 0; i < questions.length; i++) {
         switch (questions[i].type) {
             case "assSingleChoice":
@@ -330,7 +330,7 @@ ContentBroker.prototype.checkQuestionpool = function (questionpool) {
                 questions.splice(questions.indexOf(questions[i]), 1);
                 break;
         }
-        // TODO also check for images and other incompatible features. 
+        // TODO also check for images and other incompatible features.
     }
 }; // done, not checked
 
@@ -358,7 +358,7 @@ ContentBroker.prototype.activateQuestionpool = function (poolId) {
     if (this.activeQuestionpool.indexOf(poolId) < 0) {
         this.activeQuestionpool.push(poolId);
     }
-    
+
 }; // done, not checked
 
 /**
@@ -383,7 +383,7 @@ ContentBroker.prototype.resetActiveQuestionpool = function () {
 ContentBroker.prototype.fetchCourseList = function (lmsId) {
     var self = this;
     return new Promise(function (resolve, reject) {
-        var serviceURL = self.idprovider.serviceURL("io.mobinaut.contentbroker.courses",lmsId);
+        var serviceURL = self.idprovider.serviceURL("powertla.content.courselist",lmsId);
         if (serviceURL) {
             $.ajax({
                 url: serviceURL,
@@ -404,7 +404,7 @@ ContentBroker.prototype.fetchCourseList = function (lmsId) {
             reject("ERR_NO_SERVICE_URL");
         }
     });
-    
+
 }; // done, not checked
 
 /**
@@ -412,7 +412,7 @@ ContentBroker.prototype.fetchCourseList = function (lmsId) {
  * @function loadCourseList
  * @param {INTEGER} lmsId
  */
-ContentBroker.prototype.loadCourseList = function (lmsId) {    
+ContentBroker.prototype.loadCourseList = function (lmsId) {
     var courseObject;
     try {
         courseObject = JSON.parse(localStorage.getItem("courselist_" + lmsId)) || {};
@@ -465,8 +465,8 @@ ContentBroker.prototype.checkCourse = function (course) {
  */
 ContentBroker.prototype.activateCourse = function (courseId) {
     this.currentCourseId = courseId;
-    // TODO set context activity.parent in learning record store. 
-}; 
+    // TODO set context activity.parent in learning record store.
+};
 
 /**
  * @protoype
@@ -480,7 +480,7 @@ ContentBroker.prototype.activateCourse = function (courseId) {
  */
 ContentBroker.prototype.ignoreCourse = function (courseId) {
     var index = this.currentCourseId.indexOf(courseId);
-    
+
     if (index) {
         this.currentCourseId.splice(index, 1);
     }
@@ -511,7 +511,7 @@ ContentBroker.prototype.synchronize = function (lmsId) {
                                 self.storeQuestionpool(questionPool, course.id);
                             }
                         });
-                        $(document).trigger("QUESTIONPOOL_IS_LOADED");             
+                        $(document).trigger("QUESTIONPOOL_IS_LOADED");
                     });
                 }
                 else {
@@ -522,8 +522,8 @@ ContentBroker.prototype.synchronize = function (lmsId) {
         })
         .catch(function (){
             // send apologise signal depending on error
-            $(document).trigger("MY_SERVER_ERROR"); 
-        });   
+            $(document).trigger("MY_SERVER_ERROR");
+        });
     }
 }; // done, not checked
 
@@ -538,7 +538,7 @@ ContentBroker.prototype.synchronizeAll = function () {
     this.idprovider.eachLMS(function(lms) {
         this.synchronize(lms.id);
     }, this);
-    
+
 }; // done, not checked
 
 /**
