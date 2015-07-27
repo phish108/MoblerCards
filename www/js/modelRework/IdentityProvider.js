@@ -1,7 +1,7 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 /*global $, hex_sha1, faultylabs, LMSModel, UserModel, device*/
 
-/**	THIS LICENSE INFORMATION MUST REMAIN INTACT
+/**	THIS LICENSE INFORMATION MUST NOT BE REMOVED AND REMAIN INTACT
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -13,10 +13,10 @@
  * http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
  *
  * Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- *  License for the specific language governing permissions and limitations
- *  under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 
 /**
@@ -209,7 +209,7 @@ IdentityProvider.prototype.sessionState = function () {
  * sets the session header for all connections. Other models call this
  * via their app property.
  */
-IdentityProvider.prototype.sessionHeader = function (xhr, url, method) {
+IdentityProvider.prototype.sessionHeader = function (xhr, url, method, tokenType) {
     var token = this.lmsMgr.getActiveToken();
 
     if (token.type === "device" || token.type === "user") {
@@ -217,7 +217,8 @@ IdentityProvider.prototype.sessionHeader = function (xhr, url, method) {
         this.usrMgr.sessionHeader(xhr);
         this.lmsMgr.sessionHeader(xhr);
     }
-    else {
+    else if (!(tokenType && tokenType.length) ||
+             tokenType.indexOf(token.type) >= 0){
         var authCode = this.signObject(url, method);
 
         if (authCode && authCode.length) {
@@ -302,10 +303,26 @@ IdentityProvider.prototype.synchronize = function() {
     this.usrMgr.loadFromServer();
 };
 
+/**
+ * @prototye
+ * @function addToken
+ * @param {Object} token
+ *
+ * stores a new token for the active LMS. There can be exactly one token per
+ * token type. This function is called from the internal userModel during
+ * authentication.
+ */
 IdentityProvider.prototype.addToken = function(token) {
     this.lmsMgr.addToken(token);
 };
 
+/**
+ * @prototye
+ * @function removeToken
+ * @param {STRING} token type
+ *
+ * Removes the given token type from the token chain of the active LMS.
+ */
 IdentityProvider.prototype.removeToken = function (tokenType) {
     this.lmsMgr.removeToken(tokenType);
 };
