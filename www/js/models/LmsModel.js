@@ -63,45 +63,51 @@
  *
  * A working system needs to provide 4 APIs
  *
- *  * LRS (statistics) service (name = "Sensor:XAPI LRS")
- *  * Identity service for devices and user registration (name = "Identity:MBC AUTH")
- *  * QTI service that returns all questions for a course (name = "Content:LMS TestPool")
- *  * Course Service to get all courses for the active user (name = "Content:LMS Course")
+ *  * LRS (statistics) service
+ *  * Identity service for devices (client) and user registration
+ *  * QTI service that returns all questions for a course
+ *  * Course Service to get all courses for the active user
  *
- * The baseurl needs to be the same as the base url for the RSD file.
- * The logo url needs to point to a valid PNG file with the size of 32x32 pixels.
+ * The baseurl needs to be the same as the base url for the RSD file. The
+ * RSD file contains server information, the pointers to the available
+ * services, and generic default settings of the backend, such as the system's
+ * default language and the logo image URL. The logo url needs to point to a
+ * valid PNG file with the size of 32x32 pixels.
  *
- * All API urls have to be relative to the baseurl.
+ * All urls in the RSD have to be relative to the baseurl of the engine.
  *
- * The TLA version has to be "MBC.1.0" to indicate the initial non-standard
- * interface.
+ * The LMS Model will connect to any LMS that satisfies the following steps.
  *
- * The LMS Model will connect to any LMS that satisfies the following steps
  * 1. Responds with a valid rsd.json file.
  * 2. Provides the APIs for the 4 required services in the RSD.
  * 3. Responds with 200 and content-type "image/png"
- * 4. Responds with 200 to /about requests to all 4 services using the urls given in the rsd.json.
+ * 4. Responds with 200 to /about requests to all 4 services using the urls
+ *    given in the rsd.json.
  * 5. Allows the device to register against the Identity service
  *
  * The LMS will get added to the LMS list if step 1-3 succeed.
- * The LMS will be only selectable by the user if step 4 and 5 succeed as well. These steps may
- * fail due to system maintenance. However, they MUST NOT return 404 errors in this case the
- * system is flagged as invalid.
+ * The LMS will be only selectable by the user if step 4 and 5 succeed as well.
+ * These steps may fail due to system maintenance. However, they MUST NOT
+ * return 404 errors in this case the system is flagged as invalid.
  *
- * As soon a LMS is registered for the device the LMS is stored in the app's LMS list.
- * The model extends the service object with an "key" object. This key object holds three keys:
+ * As soon a LMS is registered for the device the LMS is stored in the app's
+ * LMS list. The model extends the service object with an "key" object. This
+ * key object holds three keys:
+ *
  *  * "device"
  *  * "userid"
  *  * "userkey"
  *
- * These keys are used to authenticate the individual requests against the various services.
+ * These keys are used to authenticate the individual requests against the
+ * various services.
  *
- * Finally, the model generates an internal serverid that identifies a LMS uniquely in the
- * context of the app on the device.
+ * Finally, the model generates an internal serverid that identifies a LMS
+ * uniquely in the context of the app on the device.
  *
  * This model sends the following signals
  *
- * LMS_AVAILABLE: sent if a new LMS has been successfully registered to the app
+ * LMS_AVAILABLE: sent if a new LMS has been successfully registered to the
+ *                app
  * LMS_UNAVAILABLE: sent if a LMS URL cannot be registered to the app
  * LMS_DEVICE_READY: send if the LMS as provided a device key to the app
  * LMS_DEVICE_NOTALLOWED: sent the app is not allowed to register itself for the LMS
@@ -192,6 +198,7 @@
      */
     function registerDevice(serverRSD) {
         var APP_ID = "org.mobinaut.mobler";
+        var self = this;
 
         function setHeadersLegacy(xhr) {
             xhr.setRequestHeader('AppID', APP_ID);
@@ -199,20 +206,17 @@
         }
 
         function registerOKLegacy(data) {
-            serverRSD.keys.device = {type: "device", "token": data.ClientKey};
-            storeData();
+            self.addToken({type: "device", "token": data.ClientKey});
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerOK(data) {
-            serverRSD.keys.request = data;
-            storeData();
+            self.addToken(data);
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerFail() {
-            serverRSD.inaccessible = (new Date()).time();
-            storeData();
+            self.setInactiveFlag();
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
 
@@ -425,6 +429,7 @@
             if (xhr.status > 0) {
                 console.log("check for dynamic rsd file ");
                 $.ajax({
+                    "type": "GET",
                     "url": serverURL + ".php",
                     "dataType": "json",
                     "success": validateRSD,
@@ -468,6 +473,7 @@
             serverURL = serverURL + "rsd";
 
             $.ajax({
+                "type": "GET",
                 "url": serverURL + ".json",
                 "dataType": "json",
                 "success": validateRSD,
@@ -544,11 +550,10 @@
                 ts = (new Date()).getTime();
 
             // remove the inaccessible flag after some time.
-             if (rsd.inaccessible > 0) {
-                var delta = ts - rsd.inaccessible;
+             if (rsd.inactive > 0) {
+                var delta = ts - rsd.inactive;
                 if (delta > 3600000) { // wait for one hour
-                    delete rsd.inaccessible;
-                    storeData();
+                    this.clearInactiveFlag();
                 }
             }
             console.log('server is inaccessible? ' + rsd.inaccessible);
@@ -725,6 +730,7 @@
 
             // we are bold and override the old token if it exists
             lmsData[lmsData.activeServer].keys[type] = token;
+            storeData();
         }
     };
 
@@ -739,6 +745,7 @@
             lmsData[lmsData.activeServer].keys &&
             lmsData[lmsData.activeServer].keys.hasOwnProperty(tokenType)) {
             delete lmsData[lmsData.activeServer].keys[tokenType];
+            storeData();
         }
     };
 
