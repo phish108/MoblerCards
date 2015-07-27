@@ -70,10 +70,7 @@ under the License.
     }
 
     function LearningRecordStore (app) {
-        if (app) {
-            this.idprovider = app.models.IdentityProvider;
-            this.content  = app.models.ContentBroker;
-        }
+        this.app = app;
         this.clearContext();
         this.clearLRSContext();
 

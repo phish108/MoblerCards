@@ -35,12 +35,7 @@
  *  Authentication, and User Preferences.
  */
 
-function IdentityProvider (app) {
-    if (app) {
-        this.app      = app;
-        this.lrs      = app.models.learningrecordstore;
-        this.content  = app.models.contentbroker;
-    }
+function IdentityProvider () {
     var language  = navigator.language.split("-");
     this.language = language ? language[0] : "en";
 
