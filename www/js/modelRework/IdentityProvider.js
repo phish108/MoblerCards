@@ -94,6 +94,10 @@ IdentityProvider.prototype.addLMS = function (LMSURL) {
     this.lmsMgr.getServerRSD(LMSURL);
 };
 
+IdentityProvider.prototype.updateAllLMS = function () {
+    this.lmsMgr.updateAllServerRSD();
+};
+
 /**
  * @protoype
  * @function loadLMS

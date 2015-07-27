@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true */
-/*global $, device*/
+/*global $, device, Promise */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -419,29 +419,6 @@
             $(document).trigger("LMS_UNAVAILABLE");
         }
 
-        /**
-         * @private @method rsdCheckAgain
-         *
-         * This method checks whether there is a dynamic version of the rsd.json
-         * (we expect a php script for Ilias and Moodle)
-         */
-        function rsdCheckAgain(xhr) {
-            if (xhr.status > 0) {
-                console.log("check for dynamic rsd file ");
-                $.ajax({
-                    "type": "GET",
-                    "url": serverURL + ".php",
-                    "dataType": "json",
-                    "success": validateRSD,
-                    "error": rsdFail
-                });
-            }
-            else {
-                // in this case we could not reach the target host
-                rsdFail();
-            }
-        }
-
         serverURL.trim(); // remove whitespaces
 
         // strip any "index.*" from the end of the URL
@@ -472,14 +449,126 @@
             // add the rsd.json to the URL
             serverURL = serverURL + "rsd";
 
-            $.ajax({
-                "type": "GET",
-                "url": serverURL + ".json",
-                "dataType": "json",
-                "success": validateRSD,
-                "error": rsdCheckAgain
+            var self = this;
+            this.fetchRSD(serverURL + ".json")
+                .then(validateRSD)
+                .catch(function(xhr) {
+                if (xhr.status > 0) {
+                    self.fetchRSD(serverURL + ".php")
+                        .then(validateRSD)
+                        .catch(rsdFail);
+                }
+                else {
+                    rsdFail(xhr);
+                }
             });
         }
+    };
+
+    LMSModel.prototype.updateAllServerRSD = function () {
+        // for each LMS secure the keys
+        Object.keys(lmsData).forEach(this.updateServerRSD,this);
+
+    };
+
+    LMSModel.prototype.updateServerRSD = function (serverID) {
+        // secure the LMS tokens
+        var self = this;
+        var keys = lmsData[serverID].keys,
+            ts = (new Date()).time();
+
+        function cbCheckRSD(rsddata) {
+            if (rsddata &&
+                rsddata.hasOwnProperty("apis") &&
+                rsddata.apis.length &&
+                rsddata.hasOwnProperty("engine") &&
+                rsddata.engine.link &&
+                rsddata.engine.link.length
+               ) {
+                console.log('rsd looks good check if the APIs exist');
+
+                var apiOK = {
+                    "ch.isn.lms.statistics": false,
+                    "ch.isn.lms.auth": false,
+                    "ch.isn.lms.courses": false,
+                    "ch.isn.lms.questions": false,
+                    "gov.adlnet.xapi.lrs": false,
+                    "powertla.identity.client": false,
+                    "org.ieee.papi": false,
+                    "powertla.content.courselist": false,
+                    "powertla.content.imsqti": false
+                };
+
+                rsddata.apis.forEach(function (api) {
+                    if (apiOK.hasOwnProperty(api.name)) {
+                        apiOK[api.name] = true;
+                    }
+                });
+
+                /**
+                 * validate either against the old or the new API.
+                 * The validation forbids mixing the APIs!
+                 */
+                if ((apiOK["powertla.identity.client"] &&
+                     apiOK["org.ieee.papi"] &&
+                     apiOK["powertla.content.courselist"] &&
+                     apiOK["powertla.content.imsqti"]) ||
+                    (apiOK["ch.isn.lms.statistics"] &&
+                     apiOK["ch.isn.lms.auth"] &&
+                     apiOK["ch.isn.lms.courses"] &&
+                     apiOK["ch.isn.lms.questions"])) {
+                    console.log("detected a valid RSD");
+
+                    rsddata.id = serverID;
+                    rsddata.keys = keys;
+
+                    lmsData[serverID] = rsddata;
+                    storeData();
+
+                    // inform the app that the service is OK
+                    $(document).trigger("LMS_AVAILABLE");
+
+    // TODO Fetch Logo
+    //                if (rsddata.hasOwnProperty("logolink")) {
+    //
+    //                }
+                }
+
+            }
+        }
+
+        // check if an update is possible
+        var rsd = lmsData[serverID];
+        if (rsd.inaccessible > 0) {
+            var delta = ts - rsd.inaccessible;
+            if (delta > 3600000) { // wait for one hour
+                delete rsd.inaccessible;
+                storeData();
+            }
+        }
+
+        if (!rsd.hasOwnProperty("inaccessible")) {
+            var url = rsd.engine.link + "/rsd";
+            this.fetchRSD(url + ".json")
+                .then(cbCheckRSD)
+                .catch(function () {
+                self.fetchRSD(url + ".php")
+                    .then(cbCheckRSD);
+                // if another error happens we leave the old RSD
+            });
+        }
+    };
+
+    LMSModel.prototype.fetchRSD = function (url) {
+        return new Promise(function (resolve, reject) {
+             $.ajax({
+                    "type": "GET",
+                    "url": url + ".php",
+                    "dataType": "json",
+                    "success": resolve,
+                    "error": reject
+                });
+        });
     };
 
     /**
