@@ -135,9 +135,14 @@ UserModel.prototype.loadData = function () {
 };
 
 /**
- * Loads the configuration data from the server such as learner information and synchronization state
- * and stores it in the local storage. When all data is loaded, the authenticationready event is triggered
- * If any error occurs during the authentication then an event will be triggered to notify this.
+ * Loads the configuration data from the server such as learner information
+ * and synchronization state and stores it in the local storage. When all
+ * data is loaded, the authenticationready event is triggered
+ * If any error occurs during the authentication then an event will be
+ * triggered to notify this.
+ *
+ * LEGACY CODE: new API uses ONLY load Profile!
+ *
  * @prototype
  * @function loadFromServer
  */
@@ -207,8 +212,11 @@ UserModel.prototype.loadFromServer = function () {
                 },
                 // we send the user authentication key as "sessionkey" via headers
                 // before the autentication takes plae and in order it to be validated or not
-                beforeSend: function setHeader(xhr) {
-                    self.sessionHeader(xhr);
+                beforeSend: function setHeader(xhr, settings) {
+                    self.idprovider.sessionHeader(xhr,
+                                                  settings.url,
+                                                  settings.type,
+                                                  ["Request"]);
                 }
 
             });
