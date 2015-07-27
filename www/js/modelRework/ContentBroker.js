@@ -26,6 +26,7 @@
 
 function ContentBroker (app) {
     var self = this;
+    this.app = app;
 
     this.lrs        = app.models.LearningRecordStore;
     this.idprovider = app.models.IdentityProvider;
@@ -250,6 +251,10 @@ ContentBroker.prototype.finishAttempt = function () {
  */
 ContentBroker.prototype.fetchQuestionpoolList = function (courseId, lmsId) {
     var self = this;
+    if (!self.idprovider) {
+        self.idprovider = self.app.models.identityprovider;
+    }
+
     return new Promise(function (resolve, reject) {
         var serviceURL = self.idprovider.serviceURL("powertla.content.imsqti", lmsId);
         if (serviceURL) {
@@ -388,6 +393,9 @@ ContentBroker.prototype.resetActiveQuestionpool = function () {
  */
 ContentBroker.prototype.fetchCourseList = function (lmsId) {
     var self = this;
+    if (!self.idprovider) {
+        self.idprovider = self.app.models.identityprovider;
+    }
     return new Promise(function (resolve, reject) {
         var serviceURL = self.idprovider.serviceURL("powertla.content.courselist",lmsId);
         if (serviceURL) {
@@ -548,6 +556,9 @@ ContentBroker.prototype.synchronize = function (lmsId) {
  * loops through the lms list and synchronises them.
  */
 ContentBroker.prototype.synchronizeAll = function () {
+    if(!this.idprovider) {
+        this.idprovider = this.app.models.identityprovider;
+    }
     this.idprovider.eachLMS(function(lms) {
         this.synchronize(lms.id);
     }, this);
