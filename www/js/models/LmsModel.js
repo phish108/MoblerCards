@@ -264,16 +264,12 @@
     }
 
     /**
-     * @private @method validateRSD(rsddata)
+     * @private function checkRSD
+     * @param {OBJECT} RSD data
      *
-     * helper function to validate the rsd response from a server.
-     *
-     * If the RSD is valid, this method generates a new serverid and stores the
-     * RSD data persistently into the LMS data
+     * validates incoming RSD objects
      */
-    function validateRSD(rsddata) {
-        console.log("validate RSD file");
-
+    function checkRSD(rsddata) {
         if (rsddata &&
             rsddata.hasOwnProperty("apis") &&
             rsddata.apis.length &&
@@ -316,30 +312,42 @@
                  apiOK["ch.isn.lms.courses"] &&
                  apiOK["ch.isn.lms.questions"])) {
                 console.log("detected a valid RSD");
+                return true;
+            }
+        }
+        return false;
+    }
 
-                // got my APIs from the rsd, generate a new ID
-                var ts = (new Date()).getTime();
-                rsddata.id = "lms" + ts;
-                rsddata.keys = {};
+    /**
+     * @private @method validateRSD(rsddata)
+     *
+     * helper function to validate the rsd response from a server.
+     *
+     * If the RSD is valid, this method generates a new serverid and stores the
+     * RSD data persistently into the LMS data
+     */
+    function validateRSD(rsddata) {
+        console.log("validate RSD file");
+        if (checkRSD(rsddata)) {
+            // got my APIs from the rsd, generate a new ID
+            var ts = (new Date()).getTime();
+            rsddata.id = "lms" + ts;
+            rsddata.keys = {};
 
-                lmsData["lms" + ts] = rsddata;
-                storeData();
+            lmsData["lms" + ts] = rsddata;
+            storeData();
 
-                // inform the app that the service is OK
-                $(document).trigger("LMS_AVAILABLE");
+            // inform the app that the service is OK
+            $(document).trigger("LMS_AVAILABLE");
 
-                if (!rsddata.hasOwnProperty("inaccessible")) {
-                    console.log("register  the device to the new system");
-                    registerDevice(rsddata);
-                }
+            if (!rsddata.hasOwnProperty("inaccessible")) {
+                console.log("register  the device to the new system");
+                registerDevice(rsddata);
+            }
 // TODO Fetch Logo
 //                if (rsddata.hasOwnProperty("logolink")) {
 //
 //                }
-            }
-            else {
-                $(document).trigger("LMS_UNAVAILABLE");
-            }
         }
         else {
             $(document).trigger("LMS_UNAVAILABLE");
@@ -478,61 +486,20 @@
             ts = (new Date()).time();
 
         function cbCheckRSD(rsddata) {
-            if (rsddata &&
-                rsddata.hasOwnProperty("apis") &&
-                rsddata.apis.length &&
-                rsddata.hasOwnProperty("engine") &&
-                rsddata.engine.link &&
-                rsddata.engine.link.length
-               ) {
-                console.log('rsd looks good check if the APIs exist');
+            if (checkRSD(rsddata)) {
+                rsddata.id = serverID;
+                rsddata.keys = keys;
 
-                var apiOK = {
-                    "ch.isn.lms.statistics": false,
-                    "ch.isn.lms.auth": false,
-                    "ch.isn.lms.courses": false,
-                    "ch.isn.lms.questions": false,
-                    "gov.adlnet.xapi.lrs": false,
-                    "powertla.identity.client": false,
-                    "org.ieee.papi": false,
-                    "powertla.content.courselist": false,
-                    "powertla.content.imsqti": false
-                };
+                lmsData[serverID] = rsddata;
+                storeData();
 
-                rsddata.apis.forEach(function (api) {
-                    if (apiOK.hasOwnProperty(api.name)) {
-                        apiOK[api.name] = true;
-                    }
-                });
+                // inform the app that the service is OK
+                $(document).trigger("LMS_AVAILABLE");
 
-                /**
-                 * validate either against the old or the new API.
-                 * The validation forbids mixing the APIs!
-                 */
-                if ((apiOK["powertla.identity.client"] &&
-                     apiOK["org.ieee.papi"] &&
-                     apiOK["powertla.content.courselist"] &&
-                     apiOK["powertla.content.imsqti"]) ||
-                    (apiOK["ch.isn.lms.statistics"] &&
-                     apiOK["ch.isn.lms.auth"] &&
-                     apiOK["ch.isn.lms.courses"] &&
-                     apiOK["ch.isn.lms.questions"])) {
-                    console.log("detected a valid RSD");
-
-                    rsddata.id = serverID;
-                    rsddata.keys = keys;
-
-                    lmsData[serverID] = rsddata;
-                    storeData();
-
-                    // inform the app that the service is OK
-                    $(document).trigger("LMS_AVAILABLE");
-
-    // TODO Fetch Logo
-    //                if (rsddata.hasOwnProperty("logolink")) {
-    //
-    //                }
-                }
+// TODO Fetch Logo
+//                if (rsddata.hasOwnProperty("logolink")) {
+//
+//                }
 
             }
         }
