@@ -190,6 +190,23 @@
         return url;
     }
 
+    function setInactiveFlag(serviceid) {
+        lmsData[serviceid].inactive = (new Date()).getTime();
+        storeData();
+    }
+
+    function addToken(serviceid, token) {
+        if (serviceid &&
+            lmsData[serviceid].keys) {
+            if (typeof token === "string") {
+                token = {"type": "device", "token": token};
+            }
+
+            // we are bold and override the old token if it exists
+            lmsData[serviceid].keys[token.type] = token;
+            storeData();
+        }
+    }
     /**
      * @private @function registerDevice(rsd)
      * @param {Object} rsd - the service's RSD data object
@@ -198,7 +215,7 @@
      */
     function registerDevice(serverRSD) {
         var APP_ID = "org.mobinaut.mobler";
-        var self = this;
+        var serviceid = serverRSD.id;
 
         function setHeadersLegacy(xhr) {
             xhr.setRequestHeader('AppID', APP_ID);
@@ -206,17 +223,17 @@
         }
 
         function registerOKLegacy(data) {
-            self.addToken({type: "device", "token": data.ClientKey});
+            addToken(serviceid, data.ClientKey);
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerOK(data) {
-            self.addToken(data);
+            addToken(serviceid, data);
             $(document).trigger("LMS_DEVICE_READY");
         }
 
         function registerFail() {
-            self.setInactiveFlag();
+            setInactiveFlag(serviceid);
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
 
@@ -232,7 +249,7 @@
 
         if (registerURL.length) {
             var rObj = {
-                "url": registerURL,
+                "url": registerURL + "/dummy",
                 "dataType": "json",
                 "error": registerFail
             };
@@ -432,14 +449,16 @@
         // strip any "index.*" from the end of the URL
         serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/"); // i means case insensitive
 
-        if (serverURL.search(/^https?:\/\//i) !== 0) {
-            // add the protocol to the front. assume https, refuse anything else
-            serverURL = "https://" + serverURL;
-        }
+//      //FIXME uncomment for production use
+//        if (serverURL.search(/^https?:\/\//i) !== 0) {
+//            // add the protocol to the front. assume https, refuse anything else
+//            serverURL = "https://" + serverURL;
+//        }
 
         // first check whether the URL is already registeed
         if (this.findServerByURL(serverURL)) {
             // nothing has to be done the LMS is already available
+            console.log("LMS url has been added already");
             $(document).trigger("LMS_AVAILABLE");
         }
         else {
@@ -530,7 +549,7 @@
         return new Promise(function (resolve, reject) {
              $.ajax({
                     "type": "GET",
-                    "url": url + ".php",
+                    "url": url,
                     "dataType": "json",
                     "success": resolve,
                     "error": reject
@@ -777,16 +796,8 @@
      */
     LMSModel.prototype.addToken = function (token) {
         if (lmsData.activeServer &&
-            lmsData[lmsData.activeServer] &&
-            lmsData[lmsData.activeServer].keys) {
-            var type = token.type;
-            if (typeof type !== "string") {
-                type = "device";
-            }
-
-            // we are bold and override the old token if it exists
-            lmsData[lmsData.activeServer].keys[type] = token;
-            storeData();
+            lmsData[lmsData.activeServer]) {
+            addToken(lmsData.activeServer, token);
         }
     };
 
@@ -841,8 +852,7 @@
         if (!serviceid) {
             serviceid = lmsData.activeServer;
         }
-        lmsData[serviceid].inactive = (new Date()).getTime();
-        storeData();
+        setInactiveFlag(serviceid);
     };
 
     // in a future release the models should be moved into a static objects
