@@ -71,6 +71,13 @@ IdentityProvider.prototype.eachLMS = function (cbFunc, bind) {
     this.lmsMgr.eachLMS(cbFunc, bind);
 };
 
+/**
+ * @prototype
+ * @function hasLMS
+ */
+IdentityProvider.prototype.hasLMS = function (lmsurl) {
+    return this.lmsMgr.findServerByURL(lmsurl);
+};
 
 /**
  * @protoype
@@ -211,18 +218,25 @@ IdentityProvider.prototype.sessionState = function () {
 IdentityProvider.prototype.sessionHeader = function (xhr, url, method, tokenType) {
     var token = this.lmsMgr.getActiveToken();
 
+    console.log("set session header for " + url + " using " + JSON.stringify(token));
     if (token.type === "device" || token.type === "user") {
         // legacy headers
+        console.log("set legacy headers");
         this.usrMgr.sessionHeader(xhr);
         this.lmsMgr.sessionHeader(xhr);
     }
     else if (!(tokenType && tokenType.length) ||
              tokenType.indexOf(token.type) >= 0){
+        console.log("set new headers");
+
         var authCode = this.signObject(url, method);
 
         if (authCode && authCode.length) {
             xhr.setRequestHeader("Authorize", authCode);
         }
+    }
+    else {
+        console.log("no headers set");
     }
 };
 
