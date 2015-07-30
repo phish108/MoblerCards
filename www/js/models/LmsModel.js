@@ -182,7 +182,7 @@
         if (rsd && serviceName && serviceName.length) {
             rsd.apis.forEach(function(api){
                 if (api.name === serviceName) {
-                    url = rsd.engine.link + api.link;
+                    url = rsd.engine.servicelink.slice(0, - 1) + api.link;
                     console.log("service URL is " + url);
                 }
             });
@@ -356,7 +356,7 @@
 
             // inform the app that the service is OK
             $(document).trigger("LMS_AVAILABLE");
-
+            console
             if (!rsddata.hasOwnProperty("inaccessible")) {
                 console.log("register  the device to the new system");
                //  registerDevice(rsddata);
@@ -731,11 +731,11 @@
      */
     LMSModel.prototype.getServiceURL = function (serviceName, serverid) {
         var rsd = this.activeLMS;
-        if (!serverid) {
+        if (serverid) {
             rsd = lmsData[serverid];
         }
         if (rsd) {
-            return getServiceURL(serviceName, serviceName);
+            return getServiceURL(rsd, serviceName);
         }
         return undefined;
     };

@@ -123,16 +123,18 @@ LoginView.prototype.prepare = function () {
         this.hideDeactivateMessage();
         $("#selectLMS").removeClass("gradientSelected");
         this.active = true;
-        this.app.models.lms.registerDevice();
-        this.app.models.featured.loadFeaturedCourseFromServer();
+//        this.app.models.lms.registerDevice();
+//        this.app.models.featured.loadFeaturedCourseFromServer();
     }
 };
 
 LoginView.prototype.update = function () {
     var activeLMS = {};
-    this.app.models.lms.getActiveLMS(function (data) {
+    
+    this.app.models.identityprovider.getActiveLMS(function (data) {
         activeLMS = data;
     });
+    console.dir(this.app.models);
 
     $("#loginimg").attr("src", activeLMS.logofile);
 

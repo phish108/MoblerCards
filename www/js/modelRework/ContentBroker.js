@@ -287,18 +287,20 @@
                 if (serviceURL) {
                     $.ajax({
                         url: serviceURL + "/" + courseId,
-                        type: "GET",
-                        beforeSend: function (xhr, settings) {
-                            self.idprovider.sessionHeader(xhr,
-                                                          settings.url,
-                                                          settings.type,
-                                                          ["MAC", "Bearer"]);
+                        settings: {
+                            beforeSend: function (xhr, settings) {
+                                self.idprovider.sessionHeader(xhr,
+                                                              settings.url,
+                                                              settings.type,
+                                                              ["MAC", "Bearer"]);
+                            }
                         },
                         success: resolve,
                         error:   reject
                     });
                 }
                 else {
+                    console.log("no service url");
                     reject("ERR_NO_SERVICE_URL");
                 }
             });
@@ -330,7 +332,11 @@
         // this is not the correct way, because a course may have multiple qp
         localStorage.setItem("questionpool_" + courseId, JSON.stringify(questionpool));
     }; // done, not checked
+    
+    ContentBroker.prototype.deleteQuestionpool = function (questionpool, courseId) {
 
+    };
+    
     /**
      * @protoype
      * @function checkQuestionpool
@@ -427,16 +433,17 @@
             self.idprovider = self.app.models.identityprovider;
         }
         return new Promise(function (resolve, reject) {
-            var serviceURL = self.idprovider.serviceURL("powertla.content.courselist",lmsId);
+            var serviceURL = self.idprovider.serviceURL("powertla.content.courselist", lmsId);
             if (serviceURL) {
                 $.ajax({
-                    "type": "GET",
                     url: serviceURL,
-                    beforeSend: function (xhr, settings) {
-                        self.idprovider.sessionHeader(xhr,
-                                                      settings.url,
-                                                      settings.type,
-                                                      ["MAC", "Bearer"]);
+                    settings: {
+                        beforeSend: function (XHR, settings) {
+                            self.idprovider.sessionHeader(XHR,
+                                                          settings.url,
+                                                          settings.type,
+                                                          ["MAC", "Bearer"]);
+                        }
                     },
                     success: resolve,
                     error: reject
@@ -469,6 +476,8 @@
         this.syncDateTime = courseObject.syncDateTime || (new Date()).getTime();
         this.syncState    = courseObject.syncState    || false;
         this.syncTimeOut  = courseObject.syncTimeOut  || 6000;
+        
+        console.log(this.courseList);
     }; // done, not checked
 
     /**
@@ -495,7 +504,7 @@
      * In this case the course is removed from the local list.
      */
     ContentBroker.prototype.checkCourse = function (course) {
-        if (course.content.type.indexOf("x-application/imsqti") >= 0) {
+        if (course["content-type"].indexOf("x-application/imsqti") >= 0) {
             return true;
         }
         return false;
@@ -523,27 +532,31 @@
      */
     ContentBroker.prototype.synchronize = function (lmsId) {
         var self = this;
-
-        if (this.synchronizeNeeded) {
-            this.fetchCourseList(lmsId)
+        var id = lmsId;
+//        if (this.synchronizeNeeded) {
+            this.fetchCourseList(id)
                 .then(function (courseList) {
+                console.log(courseList);
                 // load one course after the other
-                self.fetchCourseData(courseList, lmsId);
-                self.storeCourseList(courseList, lmsId);
+                self.fetchCourseData(courseList, id);
+                self.storeCourseList(courseList, id);
+//                self.cleanup(courseList, oldCourseList, lmsId);
             })
                 .catch(function (){
                 // send apologise signal depending on error
+                console.log("server error");
                 $(document).trigger("MY_SERVER_ERROR");
             });
-        }
+//        }
     }; // done, not checked
 
 
     ContentBroker.prototype.fetchCourseData = function (courseList, lmsId) {
+        courseList = JSON.parse(courseList);
         var self = this,
             i = 0,
             course = courseList[i];
-
+        console.log(course);
         function handleCourse(qpools) {
             var k = 0;
             qpools.foreach(function (questionPool, id) {
@@ -566,10 +579,23 @@
 
             i++;
 
-            self.fetchQuestionpoolList(courseList[i],lmsId).then(handleCourse);
+            self.fetchQuestionpoolList(courseList[i],lmsId)
+                .then(handleCourse)
+                .catch(
+                function () {
+                    console.log("server error");
+                    $(document).trigger("MY_SERVER_ERROR");
+                });
         }
 
-        self.fetchQuestionpoolList(courseList[i],lmsId).then(handleCourse);
+        self.fetchQuestionpoolList(courseList[i],lmsId)
+            .then(handleCourse)
+            .catch(
+                function () {
+                    console.log("server error");
+                    $(document).trigger("MY_SERVER_ERROR");
+                });
+            
     };
 
     /**

@@ -1,0 +1,5 @@
+{
+    "jscodehints.detectedExclusions": [
+        "/Users/dijan/MoblerCards/plugins/org.apache.cordova.file/www/blackberry10/readAsBinaryString.js"
+    ]
+}
