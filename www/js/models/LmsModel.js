@@ -359,7 +359,8 @@
 
             if (!rsddata.hasOwnProperty("inaccessible")) {
                 console.log("register  the device to the new system");
-                registerDevice(rsddata);
+               //  registerDevice(rsddata);
+                $(document).trigger("LMS_DEVICE_READY");
             }
 // TODO Fetch Logo
 //                if (rsddata.hasOwnProperty("logolink")) {
