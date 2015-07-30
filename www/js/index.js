@@ -149,10 +149,10 @@ MoblerCards.prototype.isOffline = function () {
 MoblerCards.prototype.initialize = function () {
     this.setupLanguage();
     // add default LMS
-    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
-        console.log("add default lms");
-        this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
-    }
+//    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
+//        console.log("add default lms");
+//        this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
+//    }
 };
 
 /**
