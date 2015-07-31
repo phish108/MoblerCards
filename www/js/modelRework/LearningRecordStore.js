@@ -336,8 +336,8 @@ under the License.
      * login.
      */
     LearningRecordStore.prototype.setActor = function (actorId) {
-        this.actor.account.name = actorId;
-        this.actor.account.homepage = this.app.serviceURL("org.ieee.papi") + "/" + actorId;
+        // requires a idToken
+        this.actor.openid = this.app.serviceURL("org.ieee.papi") + "/user/" + actorId;
     };
 
     /**
