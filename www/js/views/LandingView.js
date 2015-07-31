@@ -57,11 +57,13 @@ function LandingView() {
     $(document).bind("featuredContentlistupdate", function () {
         self.showForm();
     });
+    
+    $(document).bind("LMS_AVAILABLE", function () {
+        self.showfeaturedCourse();
+    });
 }
 
 LandingView.prototype.prepare = function () {
-    console.log("[landingView] prepare");
-
     // TODO check login state ? redirect to coursView ;
     if (this.app.getLoginState()) {
         this.app.changeView("course");
@@ -69,6 +71,7 @@ LandingView.prototype.prepare = function () {
     else {
         this.showForm();
     }
+    this.showfeaturedCourse();
 };
 
 LandingView.prototype.showForm = function () {
@@ -79,12 +82,17 @@ LandingView.prototype.showForm = function () {
     if (this.app.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
-
+    
     // $("#landingfeaturedlabel").text(featuredModel.getTitle());
 
 //    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
 //        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
 //    }
+};
+
+LandingView.prototype.showfeaturedCourse = function () {
+    console.log("showing featured course");
+
 };
 
 // test function to check for complex gestures on new OSes
