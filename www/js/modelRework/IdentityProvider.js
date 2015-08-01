@@ -114,6 +114,10 @@ IdentityProvider.prototype.getActiveLMS = function (cbFunc, bind) {
     this.lmsMgr.getActiveLMS(cbFunc, bind);
 };
 
+IdentityProvider.prototype.getActiveLMSID = function () {
+    return this.lmsMgr.activeLMS.id;
+};
+
 /**
  * @protoype
  * @function activateLMS

@@ -359,7 +359,7 @@
             storeData();
 
             // inform the app that the service is OK
-            $(document).trigger("LMS_AVAILABLE");
+            $(document).trigger("LMS_AVAILABLE", [rsddata.id]);
 
             if (!rsddata.hasOwnProperty("inaccessible")) {
                 console.log("register  the device to the new system");
@@ -371,7 +371,7 @@
 //                }
         }
         else {
-            $(document).trigger("LMS_UNAVAILABLE");
+            $(document).trigger("LMS_UNAVAILABLE", [rsddata.id]);
         }
     }
 
@@ -445,7 +445,7 @@
          */
         function rsdFail() {
             console.log("failed to load the rsd, server not found");
-            $(document).trigger("LMS_UNAVAILABLE");
+            $(document).trigger("LMS_INVALID", [serverURL]);
         }
 
         serverURL.trim(); // remove whitespaces
@@ -459,7 +459,7 @@
 //            serverURL = "https://" + serverURL;
 //        }
 
-        // first check whether the URL is already registeed
+        // first check whether the URL is already registered
         if (this.findServerByURL(serverURL)) {
             // nothing has to be done the LMS is already available
             console.log("LMS url has been added already");

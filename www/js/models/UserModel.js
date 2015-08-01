@@ -148,7 +148,8 @@ UserModel.prototype.loadData = function () {
  */
 UserModel.prototype.loadFromServer = function () {
     var self = this;
-    var activeURL = self.idprovider.serviceURL("ch.isn.lms.auth");
+    var activeURL = self.idprovider.serviceURL("ch.isn.lms.auth"),
+        serverid  = self.idprovider.getActiveLMSID();
 
     //if the user is not authenticated yet
     if (activeURL &&
@@ -191,6 +192,8 @@ UserModel.prototype.loadFromServer = function () {
                  */
                 $(document).trigger("authenticationready",
                                     authenticationObject.learnerInformation.userId);
+                $(document).trigger("ID_AUTHENTICATION_OK",
+                                    [serverid]);
             },
             // the receive of authenticated data was failed
             error: function (request) {
@@ -199,11 +202,14 @@ UserModel.prototype.loadFromServer = function () {
                 switch (request.status) {
                     case 403:
                         console.log("Error while authentication to server");
-                        $(document).trigger("authenticationTemporaryfailed");
+                        $(document).trigger("ID_AUTHENTICATION_FAILED",
+                                           [serverid]);
+                        $(document).trigger("authenticationTemporaryfailed"); // TODO: move the listeners to ID_AUTHENTICATION_FAILED
                         break;
                     default:
                         self.idprovider.disableLMS();
-                        $(document).trigger("authenticationfailed");
+                        $(document).trigger("ID_AUTHENTICATION_REJECTED",
+                                            [serverid]);
                         break;
                 }
             },
@@ -253,13 +259,15 @@ UserModel.prototype.login = function (username, password) {
 UserModel.prototype.logout = function () {
     console.log("enter logout in configuration model");
     //TODO send statistics data to server
+    var serverid = this.idprovider.getActiveLMSID();
 
     this.configuration.loginState = "loggedOut";
     var configString = JSON.stringify(this.configuration);
     localStorage.setItem("configuration", configString);
     console.log("configuration login state in logout is " + this.configuration.loginState);
 
-    $(document).trigger("userlogoutrequest");
+    $(document).trigger("userlogoutrequest"); // replace with
+    $(document).trigger("ID_LOGOUT_REQUESTED", [serverid]);
     // TODO: Content Broker and LRS need to listen to userlogoutrequest
 
     // FIXME create a logoutready event.
@@ -301,8 +309,9 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var serviceName = "powertla.identity.client";
-    var activeURL = self.idprovider.serviceURL(serviceName);
+    var serviceName = "powertla.identity.client",
+        activeURL   = self.idprovider.serviceURL(serviceName),
+        serverid    = self.idprovider.getActiveLMSID();
 
     if (!activeURL.length) {
         serviceName = "ch.isn.lms.device";
@@ -322,6 +331,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             case "invalid client key":
                 console.log("invalid client key - reregister");
                 //if the client key is invalide, register in order to get a new one
+
+                    // FIXME: Move to LMS Model
                 self.idprovider.lmsMgr.register();
                 /**
                  * The authentication fails if no valid client key is received. An event is triggered
@@ -329,8 +340,12 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                  * @event authenticationfailed
                  * @event invalidclientkey
                  */
+
                 $(document).trigger("authenticationfailed",
                                     "invalidclientkey");
+                $(document).trigger("ID_TOKEN_REJECTED",
+                                    [serverid]);
+
                 break;
                 //2. second error message is that the user name or password were wrong
             case "wrong user data":
@@ -343,6 +358,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                  */
                 $(document).trigger("authenticationfailed",
                                     "nouser");
+                $(document).trigger("ID_AUTHENTICATION_FAILED",
+                                    [serverid]);
                 break;
             default:
                 break;
@@ -373,6 +390,9 @@ UserModel.prototype.sendAuthToServer = function (authData) {
              * @param the user authentication key
              */
             $(document).trigger("authenticationready");
+            $(document).trigger("ID_AUTHENTICATION_OK",
+                                [serverid]);
+
             console.log("authentication is ready, statistics can be loaded from the server");
             //sets the language interface for the authenticated user
             //its language preferences were received during the authentication
@@ -385,11 +405,17 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             //no error messages from the server and no userauthentication(session) key received
             console.log("no error message from server and no session key received");
             $(document).trigger("authenticationfailed", "connectionerror");
+            $(document).trigger("ID_CONNECTION_FAILURE",
+                                [serverid]);
+
         }
     }
 
     function authOK(data) {
         self.idprovider.addToken(data);
+        $(document).trigger("ID_AUTHENTICATION_OK",
+                            [serverid]);
+
         self.loadProfile();
     }
 
@@ -403,15 +429,23 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 
                 console.log("Error while authentication to server");
                 $(document).trigger("authentication_failed", "temporary failure");
+                $(document).trigger("ID_AUTHENTICATION_FAILED",
+                                    [serverid]);
                 break;
             case 500:
                 $(document).trigger("authentication_failed", "broken backend");
+                $(document).trigger("ID_SERVER_FAILURE",
+                                    [serverid]);
                 break;
             case 404:
                 $(document).trigger("authentication_failed", "missing backend");
+                $(document).trigger("ID_SERVER_FAILURE",
+                                    [serverid]);
                 break;
             default:
                 $(document).trigger("authentication_failed", "connection error");
+                $(document).trigger("ID_CONNECTION_FAILURE",
+                                    [serverid]);
                 break;
         }
     }
@@ -422,35 +456,33 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         error: authFail
     };
 
-    if (typeof serviceName === "string" && serviceName.length) {
-        switch(serviceName) {
-            case "powertla.identity.client":
-                rObj.success = authOK;
-                rObj.type = "PUT";
-                rObj.contentType = "application/json";
-                rObj.beforeSend = self.idprovider.sessionHeader();
-                break;
-            case "ch.isn.lms.device":
-                rObj.success = authOKLegacy;
-                rObj.type = "POST";
-                rObj.beforeSend = setHeaderLegacy;
-                break;
-            default:
-                $(document).trigger("authentication_failed", "invalid service");
-                rObj = null;
-        }
-
-        if (rObj && rObj.url === activeURL) {
-            if (self.idprovider.getLMSStatus()) {
-                $.ajax(rObj);
-            }
-            else {
-                $(document).trigger("authentication_failed", "temporary failure");
-            }
-        }
+    switch(serviceName) {
+        case "powertla.identity.client":
+            rObj.success = authOK;
+            rObj.type = "PUT";
+            rObj.contentType = "application/json";
+            rObj.beforeSend = self.idprovider.sessionHeader();
+            break;
+        case "ch.isn.lms.device":
+            rObj.success = authOKLegacy;
+            rObj.type = "POST";
+            rObj.beforeSend = setHeaderLegacy;
+            break;
+        default:
+            // should never happen!
+            rObj = null;
+            break;
     }
-    else {
-        $(document).trigger("authentication_failed", "invalid url");
+
+    if (rObj && rObj.url === activeURL) {
+        if (self.idprovider.getLMSStatus()) {
+            $.ajax(rObj);
+        }
+        else {
+            $(document).trigger("authentication_failed", "temporary failure");
+            $(document).trigger("ID_SERVER_UNAVAILABLE",
+                                [serverid]);
+        }
     }
 };
 
@@ -466,8 +498,9 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 UserModel.prototype.sendLogoutToServer = function () {
     console.log("enter send logout to server");
     var self = this;
-    var serviceName = "powertla.identity.client";
-    var activeURL = self.idprovider.serviceURL(serviceName);
+    var serviceName = "powertla.identity.client",
+        activeURL   = self.idprovider.serviceURL(serviceName),
+        serverid    = self.idprovider.getActiveLMSID();
 
     if (!activeURL.length) {
         serviceName = "";
@@ -507,6 +540,9 @@ UserModel.prototype.sendLogoutToServer = function () {
         var configString = JSON.stringify(self.configuration);
         localStorage.setItem("configuration", configString);
         console.log("Configuration Storage: " + localStorage.getItem("configuration"));
+
+        $(document).trigger("ID_LOGOUT_OK",
+                            [serverid]);
     }
 
     var rObj = {
@@ -518,7 +554,13 @@ UserModel.prototype.sendLogoutToServer = function () {
         "beforeSend": self.idprovider.sessionHeader()
     };
 
-    $.ajax(rObj);
+    if (self.idprovider.getLMSStatus()) {
+        $.ajax(rObj);
+    }
+    else {
+        $(document).trigger("ID_SERVER_UNAVAILABLE",
+                            [serverid]);
+    }
 };
 
 /**
@@ -529,21 +571,27 @@ UserModel.prototype.sendLogoutToServer = function () {
  * This method is only availble for the new API services.
  */
 UserModel.prototype.loadProfile = function () {
-    var self = this;
+    var self = this,
+        serverid = self.idprovider.getActiveLMSID();
 
     function loadProfile(data) {
         self.configuration = {learnerInformation: data};
         var configString = JSON.stringify(self.configuration);
+
         localStorage.setItem("configuration", configString);
     }
 
     function failProfile(request) {
         switch (request.status) {
             case 403:
+                $(document).trigger("ID_TOKEN_REJECTED",
+                                    [serverid]);
+                break;
             case 404:
             case 500:
                 self.idprovider.disableLMS();
-                $(document).trigger("profile_failed", "server temporary unavailable");
+                $(document).trigger("ID_SERVER_FAILURE",
+                                    [serverid]);
                 break;
             default:
                 $(document).trigger("profile_failed", "connection error");
@@ -565,6 +613,8 @@ UserModel.prototype.loadProfile = function () {
     }
     else {
         $(document).trigger("profile_failed", "temporary failure");
+        $(document).trigger("ID_SERVER_UNAVAILABLE",
+                            [serverid]);
     }
 
 };
