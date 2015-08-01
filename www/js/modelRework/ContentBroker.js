@@ -50,12 +50,8 @@
         }
     }
 
-    function ContentBroker (app) {
+    function ContentBroker () {
         var self = this;
-        this.app = app;
-
-        this.lrs        = app.models.LearningRecordStore;
-        this.idprovider = app.models.IdentityProvider;
 
         /** Variables
          * this.courseList              List of all courses connected to your account.
@@ -73,7 +69,9 @@
          */
         $(document).bind("online", function() {
             console.log("Bind event 'online' detected");
-            self.synchronizeAll();
+            if (self.app) {
+                self.synchronizeAll();
+            }
         });
 
         /**
@@ -452,6 +450,20 @@
     /****** Synchronize Management ******/
 
     /**
+     * @protoype
+     * @function synchronizeAll
+     * @param {NONE}
+     *
+     * loops through the lms list and synchronises them.
+     */
+    ContentBroker.prototype.synchronizeAll = function () {
+        this.idprovider.eachLMS(function(lms) {
+            this.synchronize(lms.id);
+        }, this);
+
+    }; // done, not checked
+
+    /**
      * @prototype
      * @function synchronize
      * @param {NONE}
@@ -460,11 +472,8 @@
      *
      * this
      */
-    ContentBroker.prototype.synchronize = function () {
+    ContentBroker.prototype.synchronize = function (lmsid) {
         var self = this;
-        var lmsid;
-
-        // for each server we run the synchronisation
 
 //        if (this.synchronizeNeeded) {
             this.fetchCourseList(lmsid)
@@ -531,22 +540,6 @@
 
     };
 
-    /**
-     * @protoype
-     * @function synchronizeAll
-     * @param {NONE}
-     *
-     * loops through the lms list and synchronises them.
-     */
-    ContentBroker.prototype.synchronizeAll = function () {
-        if(!this.idprovider) {
-            this.idprovider = this.app.models.identityprovider;
-        }
-        this.idprovider.eachLMS(function(lms) {
-            this.synchronize(lms.id);
-        }, this);
-
-    }; // done, not checked
 
     /**
      * @protoype
@@ -574,9 +567,6 @@
      */
     ContentBroker.prototype.fetchCourseList = function (lmsId) {
         var self = this;
-        if (!self.idprovider) {
-            self.idprovider = self.app.models.identityprovider;
-        }
 
         return this.fetchService("powertla.content.courselist", lmsId);
     }; // done, not checked
@@ -592,10 +582,6 @@
      */
     ContentBroker.prototype.fetchQuestionpoolList = function (course, lmsId) {
         if (this.checkCourse(course)) {
-            if (!this.idprovider) {
-                this.idprovider = self.app.models.identityprovider;
-            }
-
             return this.fetchService("powertla.content.imsqti", lmsId, [course.id]);
         }
 
@@ -604,7 +590,8 @@
 
     //
     ContentBroker.prototype.fetchService = function (servicename, lmsId, pathvalues) {
-        var serviceURL = self.idprovider.serviceURL(servicename,
+        var self = this,
+            serviceURL = this.idprovider.serviceURL(servicename,
                                                     lmsId,
                                                     pathvalues);
         if (serviceURL) {

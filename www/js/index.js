@@ -119,7 +119,7 @@ function MoblerCards() {
  *
  * points to the predefined LMS of the app.
  */
-MoblerCards.DefaultLMS = "http://hornet.ethz.ch/scorm_editor/";
+MoblerCards.DefaultLMS = "http://beta.mobinaut.org";
 
 /**
  * Returns the present connection state of the app.
@@ -148,7 +148,18 @@ MoblerCards.prototype.isOffline = function () {
 
 MoblerCards.prototype.initialize = function () {
     this.setupLanguage();
+
+    // setup the models
+    this.models.contentbroker.idprovder = this.models.identityprovider;
+    this.models.contentbroker.lrs       = this.models.identityprovider;
+
+    var kList = Object.getOwnPropertyNames(this.models);
+    kList.forEach(function(m){
+        this.models[m].app = this;
+    }, this);
+
     // add default LMS
+
 //    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
 //        console.log("add default lms");
 //        this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
