@@ -177,12 +177,16 @@
      * This allows Models to request their APIs without considering any server side
      * organisation or setup.
      */
-    function getServiceURL(rsd, serviceName) {
+    function getServiceURL(rsd, serviceName, path) {
         var url = "";
         if (rsd && serviceName && serviceName.length) {
             rsd.apis.forEach(function(api){
                 if (api.name === serviceName) {
-                    url = rsd.engine.servicelink.slice(0, - 1) + api.link;
+                    url = rsd.engine.servicelink + api.link;
+                    if (path && Array.isArray(path) && path.length) {
+                        url += "/" + path.join("/");
+                    }
+
                     console.log("service URL is " + url);
                 }
             });
@@ -249,7 +253,7 @@
 
         if (registerURL.length) {
             var rObj = {
-                "url": registerURL + "/dummy",
+                "url": registerURL,
                 "dataType": "json",
                 "error": registerFail
             };
@@ -721,20 +725,22 @@
     };
 
     /**
-     * @public @function getServiceURL(serviceName)
+     * @public @function getServiceURL(serviceName, serverid, path)
      * @param {String} serviceName - the name of the service
+     * @param {STRING} serverid - the internal id of the server
+     * @param {ARRAY} path - optional, additional pathinfo variables
      * @return {String} serviceURL - the url to the service for the active server.
      *
      * getServiceURL() returns the full URL to a service for the active LMS. If the
      * service is not provided by the LMS, the response will be undefined.
      */
-    LMSModel.prototype.getServiceURL = function (serviceName, serverid) {
+    LMSModel.prototype.getServiceURL = function (serviceName, serverid, path) {
         var rsd = this.activeLMS;
         if (serverid) {
             rsd = lmsData[serverid];
         }
         if (rsd) {
-            return getServiceURL(rsd, serviceName);
+            return getServiceURL(rsd, serviceName, path);
         }
         return undefined;
     };

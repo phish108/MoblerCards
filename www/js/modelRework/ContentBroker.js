@@ -264,41 +264,6 @@
 
     /****** Questionpool Management ******/
 
-    /**
-     * @protoype
-     * @function fetchQuestionpoolList
-     * @param {INTEGER} courseId
-     * @param {INTEGER} lmsId
-     * @return {OBJECT} Promise
-     *
-     * get CourseList from the LMS Backend
-     */
-    ContentBroker.prototype.fetchQuestionpoolList = function (course, lmsId) {
-        if (this.checkCourse(course)) {
-            var self = this,
-                courseId = course.id;
-
-            if (!self.idprovider) {
-                self.idprovider = self.app.models.identityprovider;
-            }
-
-            return new Promise(function (resolve, reject) {
-                var serviceURL = self.idprovider.serviceURL("powertla.content.imsqti", lmsId);
-                if (serviceURL) {
-                    $.ajax({
-                        url: serviceURL + "/" + courseId,
-                        beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
-                        success: resolve,
-                        error:   reject
-                    });
-                }
-                else {
-                    console.log("no service url");
-                    reject("ERR_NO_SERVICE_URL");
-                }
-            });
-        }
-    }; // done, not checked
 
     /**
      * @protoype
@@ -418,36 +383,6 @@
     }; // done, not checked
 
     /****** Course Management ******/
-
-    /**
-     * @protoype
-     * @function fetchCourseList
-     * @param {INTEGER} lmsId
-     * @return {OBJECT} Promise
-     *
-     * Performs the network request for fetchug the CourseList from the LMS Backend.
-     */
-    ContentBroker.prototype.fetchCourseList = function (lmsId) {
-        var self = this;
-        if (!self.idprovider) {
-            self.idprovider = self.app.models.identityprovider;
-        }
-        return new Promise(function (resolve, reject) {
-            var serviceURL = self.idprovider.serviceURL("powertla.content.courselist", lmsId);
-            if (serviceURL) {
-                $.ajax({
-                    url: serviceURL,
-                    beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
-                    success: resolve,
-                    error: reject
-                });
-            }
-            else {
-                reject("ERR_NO_SERVICE_URL");
-            }
-        });
-
-    }; // done, not checked
 
     /**
      * @protoype
@@ -625,6 +560,67 @@
         }
         return false;
     }; // done, not checked
+
+
+    /** NETWORK REQUESTS **/
+
+    /**
+     * @protoype
+     * @function fetchCourseList
+     * @param {INTEGER} lmsId
+     * @return {OBJECT} Promise
+     *
+     * Performs the network request for fetchug the CourseList from the LMS Backend.
+     */
+    ContentBroker.prototype.fetchCourseList = function (lmsId) {
+        var self = this;
+        if (!self.idprovider) {
+            self.idprovider = self.app.models.identityprovider;
+        }
+
+        return this.fetchService("powertla.content.courselist", lmsId);
+    }; // done, not checked
+
+    /**
+     * @protoype
+     * @function fetchQuestionpoolList
+     * @param {INTEGER} courseId
+     * @param {INTEGER} lmsId
+     * @return {OBJECT} Promise
+     *
+     * get CourseList from the LMS Backend
+     */
+    ContentBroker.prototype.fetchQuestionpoolList = function (course, lmsId) {
+        if (this.checkCourse(course)) {
+            if (!this.idprovider) {
+                this.idprovider = self.app.models.identityprovider;
+            }
+
+            return this.fetchService("powertla.content.imsqti", lmsId, [course.id]);
+        }
+
+        return Promise.reject("ERR_COURSE_CONTENT_NOT_SUPPORTED");
+    }; // done, not checked
+
+    //
+    ContentBroker.prototype.fetchService = function (servicename, lmsId, pathvalues) {
+        var serviceURL = self.idprovider.serviceURL(servicename,
+                                                    lmsId,
+                                                    pathvalues);
+        if (serviceURL) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    url: serviceURL,
+                    beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
+                    success: resolve,
+                    error:   reject
+                });
+            });
+        }
+
+        console.log("no service url");
+        return Promise.reject("ERR_NO_SERVICE_URL");
+    };
 
     w.ContentBroker = ContentBroker;
 }(window));

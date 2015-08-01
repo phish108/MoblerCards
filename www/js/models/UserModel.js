@@ -152,71 +152,65 @@ UserModel.prototype.loadFromServer = function () {
 
     //if the user is not authenticated yet
     if (activeURL &&
-        activeURL.length &&
-        this.configuration.userAuthenticationKey &&
-        this.configuration.userAuthenicationKey !== "") {
+        activeURL.length) {
         // authenticate the user by "GETing" his data/learner information from the server
-        $
-            .ajax({
-                url: activeURL,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    console.log("success");
-                    console.log("in success before turining off deactivate");
-                    self.idprovider.enableLMS(); // FROM common.js
-                    console.log("JSON: " + data);
-                    var authenticationObject;
-                    try {
-                        //the authentication data are successfully received
-                        //its object format is assigned to the authentication object variable
-                        authenticationObject = data;
-                        console.log("authenticationData from server");
-                    } catch (err) {
-                        //the authentication data couln't be parsed properly
-                        console.log("Error: Couldn't parse JSON for authentication");
-                        authenticationObject = {};
-                    }
-                    //assign as value to the learner information property of the configuration object
-                    //the user authentication data, which were received from server
-                    self.configuration.learnerInformation = authenticationObject.learnerInformation;
-                    //store in the local storage the synchronization state
-                    self.configuration.globalSynchronizationState = authenticationObject.globalSynchronizationState;
+        $.ajax({
+            url: activeURL,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log("success");
+                console.log("in success before turining off deactivate");
+                self.idprovider.enableLMS(); // FROM common.js
+                console.log("JSON: " + data);
+                var authenticationObject;
+                try {
+                    //the authentication data are successfully received
+                    //its object format is assigned to the authentication object variable
+                    authenticationObject = data;
+                    console.log("authenticationData from server");
+                } catch (err) {
+                    //the authentication data couln't be parsed properly
+                    console.log("Error: Couldn't parse JSON for authentication");
+                    authenticationObject = {};
+                }
+                //assign as value to the learner information property of the configuration object
+                //the user authentication data, which were received from server
+                self.configuration.learnerInformation = authenticationObject.learnerInformation;
+                //store in the local storage the synchronization state
+                self.configuration.globalSynchronizationState = authenticationObject.globalSynchronizationState;
 
-                    //store in the local storage the above received data
-                    self.storeData();
+                //store in the local storage the above received data
+                self.storeData();
 
-
-                    /**
-                     * When all authentication data are received and stored in the local storage
-                     * the authenticationready event is triggered
-                     * @event authenticationready
-                     * @param the user id
-                     */
-                    $(document).trigger("authenticationready", authenticationObject.learnerInformation.userId);
-                },
-                // the receive of authenticated data was failed
-                error: function (request) {
-                    // the specific view should decide on the response.
-                    window.showErrorResponses(request); // from common.js
-                    switch (request.status) {
-                        case 403:
-                            console.log("Error while authentication to server");
-                            $(document).trigger("authenticationTemporaryfailed");
-                            break;
-                        default:
-                            self.idprovider.disableLMS();
-                            $(document).trigger("authenticationfailed");
-                            break;
-                    }
-                },
-                // we send the user authentication key as "sessionkey" via headers
-                // before the autentication takes plae and in order it to be validated or not
-                beforeSend: self.idprovider.sessionHeader(["Request"])
-            }
-
+                /**
+                 * When all authentication data are received and stored in the local storage
+                 * the authenticationready event is triggered
+                 * @event authenticationready
+                 * @param the user id
+                 */
+                $(document).trigger("authenticationready",
+                                    authenticationObject.learnerInformation.userId);
+            },
+            // the receive of authenticated data was failed
+            error: function (request) {
+                // the specific view should decide on the response.
+                window.showErrorResponses(request); // from common.js
+                switch (request.status) {
+                    case 403:
+                        console.log("Error while authentication to server");
+                        $(document).trigger("authenticationTemporaryfailed");
+                        break;
+                    default:
+                        self.idprovider.disableLMS();
+                        $(document).trigger("authenticationfailed");
+                        break;
+                }
+            },
+            // we send the user authentication key as "sessionkey" via headers
+            // before the autentication takes plae and in order it to be validated or not
+            beforeSend: self.idprovider.sessionHeader(["Request"])
         });
-
     }
 };
 

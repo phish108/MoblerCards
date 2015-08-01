@@ -168,8 +168,8 @@ IdentityProvider.prototype.disableLMS = function (LMSId) {
  * @param {STRING} serverid
  * @return {STRING} serviceURL
  */
-IdentityProvider.prototype.serviceURL = function (serviceName, serverid) {
-    return this.lmsMgr.getServiceURL(serviceName, serverid);
+IdentityProvider.prototype.serviceURL = function (serviceName, serverid, path) {
+    return this.lmsMgr.getServiceURL(serviceName, serverid, path);
 };
 
 /****** Session Management ******/
