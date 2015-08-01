@@ -287,14 +287,7 @@
                 if (serviceURL) {
                     $.ajax({
                         url: serviceURL + "/" + courseId,
-                        settings: {
-                            beforeSend: function (xhr, settings) {
-                                self.idprovider.sessionHeader(xhr,
-                                                              settings.url,
-                                                              settings.type,
-                                                              ["MAC", "Bearer"]);
-                            }
-                        },
+                        beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
                         success: resolve,
                         error:   reject
                     });
@@ -328,15 +321,22 @@
      * @param {ARRAY} questionPool
      * @param {INTEGER} courseId
      */
-    ContentBroker.prototype.storeQuestionpool = function (questionpool, courseId) {
+    ContentBroker.prototype.storeQuestionpool = function (questionpool, courseId, lmsid) {
         // this is not the correct way, because a course may have multiple qp
         localStorage.setItem("questionpool_" + courseId, JSON.stringify(questionpool));
     }; // done, not checked
-    
-    ContentBroker.prototype.deleteQuestionpool = function (questionpool, courseId) {
+
+    /**
+     * @prototype
+     * @function deleteQuestionpool
+     * @param {INTEGER} questionpoolid
+     * @param {INTEGER} courseID
+     * @param {STRING}  internal lms id
+     */
+    ContentBroker.prototype.deleteQuestionpool = function (questionpool, courseId, lmsid) {
 
     };
-    
+
     /**
      * @protoype
      * @function checkQuestionpool
@@ -425,7 +425,7 @@
      * @param {INTEGER} lmsId
      * @return {OBJECT} Promise
      *
-     * get CourseList from the LMS Backend
+     * Performs the network request for fetchug the CourseList from the LMS Backend.
      */
     ContentBroker.prototype.fetchCourseList = function (lmsId) {
         var self = this;
@@ -437,14 +437,7 @@
             if (serviceURL) {
                 $.ajax({
                     url: serviceURL,
-                    settings: {
-                        beforeSend: function (XHR, settings) {
-                            self.idprovider.sessionHeader(XHR,
-                                                          settings.url,
-                                                          settings.type,
-                                                          ["MAC", "Bearer"]);
-                        }
-                    },
+                    beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
                     success: resolve,
                     error: reject
                 });
@@ -472,11 +465,11 @@
             localStorage.setItem("courselist", JSON.stringify(courseObject));
         }
 
-        this.courseList   = courseObject.courses      || [];
+        this.courseList   = courseObject.courses      || {};
         this.syncDateTime = courseObject.syncDateTime || (new Date()).getTime();
         this.syncState    = courseObject.syncState    || false;
         this.syncTimeOut  = courseObject.syncTimeOut  || 6000;
-        
+
         console.log(this.courseList);
     }; // done, not checked
 
@@ -529,20 +522,25 @@
      * @param {NONE}
      *
      * synchronizes the data with the backend content broker.
+     *
+     * this
      */
-    ContentBroker.prototype.synchronize = function (lmsId) {
+    ContentBroker.prototype.synchronize = function () {
         var self = this;
-        var id = lmsId;
+        var lmsid;
+
+        // for each server we run the synchronisation
+
 //        if (this.synchronizeNeeded) {
-            this.fetchCourseList(id)
-                .then(function (courseList) {
+            this.fetchCourseList(lmsid)
+            .then(function (courseList) {
                 console.log(courseList);
                 // load one course after the other
-                self.fetchCourseData(courseList, id);
-                self.storeCourseList(courseList, id);
+                self.verifyCourseData(courseList, lmsid);
+                self.storeCourseList(courseList, lmsid);
 //                self.cleanup(courseList, oldCourseList, lmsId);
             })
-                .catch(function (){
+            .catch(function (){
                 // send apologise signal depending on error
                 console.log("server error");
                 $(document).trigger("MY_SERVER_ERROR");
@@ -551,7 +549,7 @@
     }; // done, not checked
 
 
-    ContentBroker.prototype.fetchCourseData = function (courseList, lmsId) {
+    ContentBroker.prototype.verifyCourseData = function (courseList, lmsId) {
         courseList = JSON.parse(courseList);
         var self = this,
             i = 0,
@@ -595,7 +593,7 @@
                     console.log("server error");
                     $(document).trigger("MY_SERVER_ERROR");
                 });
-            
+
     };
 
     /**

@@ -356,11 +356,10 @@
 
             // inform the app that the service is OK
             $(document).trigger("LMS_AVAILABLE");
-            console
+
             if (!rsddata.hasOwnProperty("inaccessible")) {
                 console.log("register  the device to the new system");
-               //  registerDevice(rsddata);
-                $(document).trigger("LMS_DEVICE_READY");
+                registerDevice(rsddata);
             }
 // TODO Fetch Logo
 //                if (rsddata.hasOwnProperty("logolink")) {
@@ -824,7 +823,7 @@
      *
      * DEPRECIATED sets the active RequestToken to the Header.
      */
-    LMSModel.prototype.sessionHeader = function (xhr) {
+    LMSModel.prototype.setSessionHeader = function (xhr) {
         if (lmsData[lmsData.activeServer].keys.device) {
             xhr.setRequestHeader('RequestToken',
                                  lmsData[lmsData.activeServer].keys.device);

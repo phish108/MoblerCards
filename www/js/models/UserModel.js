@@ -212,19 +212,15 @@ UserModel.prototype.loadFromServer = function () {
                 },
                 // we send the user authentication key as "sessionkey" via headers
                 // before the autentication takes plae and in order it to be validated or not
-                beforeSend: function setHeader(xhr, settings) {
-                    self.idprovider.sessionHeader(xhr,
-                                                  settings.url,
-                                                  settings.type,
-                                                  ["Request"]);
-                }
+                beforeSend: self.idprovider.sessionHeader(["Request"])
+            }
 
-            });
+        });
 
     }
 };
 
-UserModel.prototype.sessionHeader = function (xhr) {
+UserModel.prototype.setSessionHeader = function (xhr) {
     if (this.configuration.userAuthenticationKey) {
         xhr.setRequestHeader('sessionkey',
                              this.configuration.userAuthenticationKey);
@@ -319,12 +315,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         activeURL = self.idprovider.serviceURL(serviceName);
     }
 
-    function setHeader(xhr, settings) {
-        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
-    }
-
     function setHeaderLegacy(xhr) {
-        self.idprovider.sessionHeader(xhr);
+        self.idprovider.setSessionHeader(xhr);
         xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
     }
 
@@ -442,7 +434,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                 rObj.success = authOK;
                 rObj.type = "PUT";
                 rObj.contentType = "application/json";
-                rObj.beforeSend = setHeader;
+                rObj.beforeSend = self.idprovider.sessionHeader();
                 break;
             case "ch.isn.lms.device":
                 rObj.success = authOKLegacy;
@@ -488,10 +480,6 @@ UserModel.prototype.sendLogoutToServer = function () {
         activeURL = self.idprovider.serviceURL(serviceName);
     }
 
-    function setHeader(xhr, settings) {
-        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
-    }
-
     function logoutFail(request) {
         if (request.status === 403) {
             self.idprovider.disableLMS();
@@ -533,7 +521,7 @@ UserModel.prototype.sendLogoutToServer = function () {
         "dataType": 'json',
         "success": logoutOK,
         "error": logoutFail,
-        "beforeSend": setHeader
+        "beforeSend": self.idprovider.sessionHeader()
     };
 
     $.ajax(rObj);
@@ -548,9 +536,6 @@ UserModel.prototype.sendLogoutToServer = function () {
  */
 UserModel.prototype.loadProfile = function () {
     var self = this;
-    function setHeader(xhr, settings) {
-        self.idprovider.sessionHeader(xhr, settings.url, settings.type);
-    }
 
     function loadProfile(data) {
         self.configuration = {learnerInformation: data};
@@ -580,7 +565,7 @@ UserModel.prototype.loadProfile = function () {
             url: activeURL,
             success: loadProfile,
             error: failProfile,
-            beforeSend: setHeader,
+            beforeSend: self.idprovider.sessionHeader(),
             type: "GET"
         });
     }
