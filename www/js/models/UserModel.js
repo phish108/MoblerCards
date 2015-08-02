@@ -190,6 +190,7 @@ UserModel.prototype.loadFromServer = function () {
                  * @event authenticationready
                  * @param the user id
                  */
+                // TODO: remove legacy event
                 $(document).trigger("authenticationready",
                                     authenticationObject.learnerInformation.userId);
                 $(document).trigger("ID_AUTHENTICATION_OK",
@@ -202,6 +203,7 @@ UserModel.prototype.loadFromServer = function () {
                 switch (request.status) {
                     case 403:
                         console.log("Error while authentication to server");
+                        // TODO: remove legacy event
                         $(document).trigger("ID_AUTHENTICATION_FAILED",
                                            [serverid]);
                         $(document).trigger("authenticationTemporaryfailed"); // TODO: move the listeners to ID_AUTHENTICATION_FAILED
@@ -265,7 +267,7 @@ UserModel.prototype.logout = function () {
     var configString = JSON.stringify(this.configuration);
     localStorage.setItem("configuration", configString);
     console.log("configuration login state in logout is " + this.configuration.loginState);
-
+    // TODO: remove legacy event
     $(document).trigger("userlogoutrequest"); // replace with
     $(document).trigger("ID_LOGOUT_REQUESTED", [serverid]);
     // TODO: Content Broker and LRS need to listen to userlogoutrequest
@@ -341,6 +343,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                  * @event invalidclientkey
                  */
 
+                // TODO: remove legacy event
                 $(document).trigger("authenticationfailed",
                                     "invalidclientkey");
                 $(document).trigger("ID_TOKEN_REJECTED",
@@ -356,6 +359,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                  * @event authenticationfailed
                  * @event nouser
                  */
+                // TODO: remove legacy event
                 $(document).trigger("authenticationfailed",
                                     "nouser");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
@@ -389,6 +393,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
              * @event authenticationready
              * @param the user authentication key
              */
+            // TODO: remove legacy event
             $(document).trigger("authenticationready");
             $(document).trigger("ID_AUTHENTICATION_OK",
                                 [serverid]);
@@ -402,6 +407,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             //FIXME MOVE TO LRS: get statistics data from server
             // self.app.models.statistics.loadFromServer();
         } else {
+            // TODO: remove legacy event
             //no error messages from the server and no userauthentication(session) key received
             console.log("no error message from server and no session key received");
             $(document).trigger("authenticationfailed", "connectionerror");
@@ -428,21 +434,25 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                 window.showErrorResponses(request);  // FIXME: this code is part of the LoginView
 
                 console.log("Error while authentication to server");
+                // TODO: remove legacy event
                 $(document).trigger("authentication_failed", "temporary failure");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
                                     [serverid]);
                 break;
             case 500:
+                // TODO: remove legacy event
                 $(document).trigger("authentication_failed", "broken backend");
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
                 break;
             case 404:
+                // TODO: remove legacy event
                 $(document).trigger("authentication_failed", "missing backend");
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
                 break;
             default:
+                // TODO: remove legacy event
                 $(document).trigger("authentication_failed", "connection error");
                 $(document).trigger("ID_CONNECTION_FAILURE",
                                     [serverid]);
@@ -479,6 +489,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             $.ajax(rObj);
         }
         else {
+            // TODO: remove legacy event
             $(document).trigger("authentication_failed", "temporary failure");
             $(document).trigger("ID_SERVER_UNAVAILABLE",
                                 [serverid]);
@@ -519,6 +530,7 @@ UserModel.prototype.sendLogoutToServer = function () {
     }
 
     function logoutOK() {
+        // TODO: remove legacy event
         $(document).trigger("logout_success");
 
         // remove all access tokens
@@ -594,6 +606,7 @@ UserModel.prototype.loadProfile = function () {
                                     [serverid]);
                 break;
             default:
+                // TODO: remove legacy event
                 $(document).trigger("profile_failed", "connection error");
                 break;
         }
@@ -612,6 +625,7 @@ UserModel.prototype.loadProfile = function () {
         });
     }
     else {
+        // TODO: remove legacy event
         $(document).trigger("profile_failed", "temporary failure");
         $(document).trigger("ID_SERVER_UNAVAILABLE",
                             [serverid]);

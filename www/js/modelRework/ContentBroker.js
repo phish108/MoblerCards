@@ -251,7 +251,7 @@
                 }
             }
         };
-        var uuid = this.lrs.getAttemptUUID(); // FIXME SUDO CODE
+        var uuid = this.lrs.getAttemptUUID(); // FIXME store the attempt id on startAttempt()
 
         this.lrs.finishAttempt(uuid, record);
 
@@ -320,9 +320,12 @@
             switch (questions[i].type) {
                 case "assSingleChoice":
                 case "assMultipleChoice":
-                    if (questions[i].image.length) {
-                        bad = true;
-                    }
+                    questions[i].answer.forEach(function(a, j) {
+                        if (a.hasOwnProperty("image") && a.image && a.image.length) {
+                            console.log("bad question with image at pos " + j);
+                            bad = true;
+                        }
+                    });
                     break;
                 case "assOrderingQuestion":
                 case "assOrderingHorizontal":
@@ -331,6 +334,7 @@
                     break;
                 default:
                     // restrict the questionpool
+                    console.log("bad question of type " + questions[i].type);
                     bad = true;
                     break;
             }
@@ -338,10 +342,12 @@
             // TODO also check for images and other incompatible features.
 
             if (bad) {
-                break;
+                console.log("bad question pool")
+                return false;
             }
         }
-        return !bad;
+        console.log("QP validated");
+        return true;
     }; // done, not checked
 
     /**
@@ -460,7 +466,6 @@
         this.idprovider.eachLMS(function(lms) {
             this.synchronize(lms.id);
         }, this);
-
     }; // done, not checked
 
     /**
@@ -474,19 +479,23 @@
      */
     ContentBroker.prototype.synchronize = function (lmsid) {
         var self = this;
+        if (typeof lmsid !== "string") {
+            this.synchronizeAll();
+            return;
+        }
 
 //        if (this.synchronizeNeeded) {
             this.fetchCourseList(lmsid)
             .then(function (courseList) {
-                console.log(courseList);
                 // load one course after the other
                 self.verifyCourseData(courseList, lmsid);
                 self.storeCourseList(courseList, lmsid);
 //                self.cleanup(courseList, oldCourseList, lmsId);
             })
-            .catch(function (){
+            .catch(function (msg){
                 // send apologise signal depending on error
-                console.log("server error");
+                console.log("server error 0: " + msg);
+                // TODO: trigger correct event
                 $(document).trigger("MY_SERVER_ERROR");
             });
 //        }
@@ -494,14 +503,26 @@
 
 
     ContentBroker.prototype.verifyCourseData = function (courseList, lmsId) {
-        courseList = JSON.parse(courseList);
         var self = this,
             i = 0,
             course = courseList[i];
-        console.log(course);
+
+        function loadPool() {
+            self.fetchQuestionpoolList(courseList[i],lmsId)
+                .then(handleCourse)
+                .catch(function (msg) {
+                     console.log("server error " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
+                    // TODO: trigger correct event
+                    $(document).trigger("MY_SERVER_ERROR");
+            });
+        }
+
         function handleCourse(qpools) {
             var k = 0;
-            qpools.foreach(function (questionPool, id) {
+
+            console.log(qpools);
+
+            qpools.forEach(function (questionPool, id) {
                 if (self.checkQuestionpool(questionPool)) {
                     k++;
                 }
@@ -512,32 +533,22 @@
             });
 
             if (k) {
+                console.log("got valid course");
                 self.storeQuestionpool(qpools, course);
             }
             else {
                 // ignore this course, because it has no or invalid question pools
+                console.log("ignore course");
                 ignoreCourse(courseList, course);
             }
 
             i++;
-
-            self.fetchQuestionpoolList(courseList[i],lmsId)
-                .then(handleCourse)
-                .catch(
-                function () {
-                    console.log("server error");
-                    $(document).trigger("MY_SERVER_ERROR");
-                });
+            if (i < courseList.length) {
+                loadPool();
+            }
         }
 
-        self.fetchQuestionpoolList(courseList[i],lmsId)
-            .then(handleCourse)
-            .catch(
-                function () {
-                    console.log("server error");
-                    $(document).trigger("MY_SERVER_ERROR");
-                });
-
+        loadPool();
     };
 
 
@@ -567,7 +578,6 @@
      */
     ContentBroker.prototype.fetchCourseList = function (lmsId) {
         var self = this;
-
         return this.fetchService("powertla.content.courselist", lmsId);
     }; // done, not checked
 
@@ -581,7 +591,7 @@
      * get CourseList from the LMS Backend
      */
     ContentBroker.prototype.fetchQuestionpoolList = function (course, lmsId) {
-        if (this.checkCourse(course)) {
+        if (course && this.checkCourse(course)) {
             return this.fetchService("powertla.content.imsqti", lmsId, [course.id]);
         }
 
@@ -590,19 +600,23 @@
 
     //
     ContentBroker.prototype.fetchService = function (servicename, lmsId, pathvalues) {
-        var self = this,
-            serviceURL = this.idprovider.serviceURL(servicename,
-                                                    lmsId,
-                                                    pathvalues);
-        if (serviceURL) {
-            return new Promise(function (resolve, reject) {
-                $.ajax({
-                    url: serviceURL,
-                    beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
-                    success: resolve,
-                    error:   reject
+        if (servicename && lmsId) {
+            var self = this,
+                serviceURL = this.idprovider.serviceURL(servicename,
+                                                        lmsId,
+                                                        pathvalues);
+            if (serviceURL) {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        type: "GET",
+                        url: serviceURL,
+                        dataType: 'json',
+                        beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
+                        success: resolve,
+                        error:   reject
+                    });
                 });
-            });
+            }
         }
 
         console.log("no service url");
