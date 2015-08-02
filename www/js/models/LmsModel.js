@@ -586,8 +586,9 @@
 
         console.log("LMS List: " + JSON.stringify(lmsData));
 
-        Object.keys(lmsData).forEach(function (lmsid) {
+        Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
             if (lmsid !== "activeServer") {
+                console.log(">>> "+ lmsid);
                 var rsd = lmsData[lmsid];
                 if (rsd.inaccessible > 0) {
                     var delta = ts - rsd.inaccessible;

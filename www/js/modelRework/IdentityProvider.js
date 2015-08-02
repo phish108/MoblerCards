@@ -115,7 +115,9 @@ IdentityProvider.prototype.getActiveLMS = function (cbFunc, bind) {
 };
 
 IdentityProvider.prototype.getActiveLMSID = function () {
-    return this.lmsMgr.activeLMS.id;
+    return this.lmsMgr.activeLMS &&
+           this.lmsMgr.activeLMS.hasOwnProperty("id") ?
+               this.lmsMgr.activeLMS.id : undefined;
 };
 
 /**
@@ -222,21 +224,23 @@ IdentityProvider.prototype.sessionState = function () {
 IdentityProvider.prototype.setSessionHeader = function (xhr, url, method, tokenType) {
     var token = this.lmsMgr.getActiveToken();
 
-    console.log("set session header for " + url + " using " + JSON.stringify(token));
-    if (token.type === "device" || token.type === "user") {
-        // legacy headers
-        console.log("set legacy headers");
-        this.usrMgr.setSessionHeader(xhr);
-        this.lmsMgr.setSessionHeader(xhr);
-    }
-    else if (!(tokenType && tokenType.length) ||
-             tokenType.indexOf(token.type) >= 0){
-        console.log("set new headers");
+    if (token) {
+        console.log("set session header for " + url + " using " + JSON.stringify(token));
+        if (token.type === "device" || token.type === "user") {
+            // legacy headers
+            console.log("set legacy headers");
+            this.usrMgr.setSessionHeader(xhr);
+            this.lmsMgr.setSessionHeader(xhr);
+        }
+        else if (!(tokenType && tokenType.length) ||
+                  tokenType.indexOf(token.type) >= 0) {
+            console.log("set new headers");
 
-        var authCode = this.signObject(url, method);
+            var authCode = this.signObject(url, method);
 
-        if (authCode && authCode.length) {
-            xhr.setRequestHeader("Authorize", authCode);
+            if (authCode && authCode.length) {
+                xhr.setRequestHeader("Authorize", authCode);
+            }
         }
     }
     // if no Token is requested, we will set no Auth headers in the new API
@@ -246,7 +250,11 @@ IdentityProvider.prototype.sessionHeader = function (tokenType) {
     var self = this;
     var tt   = tokenType;
     return function (xhr, settings) {
-        self.setSessionHeader(xhr, settings.url, settings.type, tt);
+        var tp = "GET";
+        if (settings.type) {
+            tp = settings.type;
+        }
+        self.setSessionHeader(xhr, settings.url, tp, tt);
     };
 };
 
