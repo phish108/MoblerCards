@@ -43,6 +43,8 @@ function MoblerCards() {
         cache: false
     });
 
+
+    // FIXME: REMOVE This should be handled by the Courselist View or the landing view
     $(document).bind("allstatisticcalculationsdone", function () {
         console.log("all statistics calculations done is ready");
         // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
@@ -62,6 +64,8 @@ function MoblerCards() {
      * @event statisticssenttoserver
      * @param a callback function that loads the login form
      */
+
+    // FIXME: REMOVE This is a background event and should not be handled by the controller!
     $(document).bind("statisticssenttoserver", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the synchronization of sent statistics");
@@ -71,11 +75,15 @@ function MoblerCards() {
 
     /**
      * This event is triggered  when questions are loaded from the server. It is
-     * binded also in courses list view and we want to avoid loading that view.
-     * For that reason we check IF WE ARE  not LOGGED IN(=logged out) in order to show the login form.
+     * bound also in courses list view and we want to avoid loading that view.
+     * For that reason we check IF WE ARE  not LOGGED IN(=logged out) in order
+     * to show the login form.
+     *
      * @event questionpoolready
      * @param a callback function that loads the login form
      */
+
+    // FIXME: REMOVE The views should handle events ONLY if they are active.
     $(document).bind("questionpoolready", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the synchronization of questionpool ready");
@@ -90,6 +98,8 @@ function MoblerCards() {
      * @event courselistupdate
      * @param a callback function that loads the login form
      */
+
+    //FIXME: REMOVE This should be handled by the views.
     $(document).bind("courselistupdate", function () {
         if (!self.getLoginState()) {
             console.log("stays in login view, despite the courses synchronization updates");
@@ -97,6 +107,7 @@ function MoblerCards() {
         }
     });
 
+    // FIXME: REMOVE This should be handled by the views.
     $(document).bind("activeServerReady", function () {
         if (self.appLoaded && self.activeView === self.views.lms.tagID) {
             console.log("transition to login view after selecting server in lms view");
@@ -108,7 +119,13 @@ function MoblerCards() {
         }
     });
 
-    $(document).bind("authenticationready", function() {
+
+    /**
+     * @EVENT ID_PROFILE_OK
+     *
+     * Whenever a user profile arrives, we need to check if the app's language has to get changed.
+     */
+    $(document).bind("ID_PROFILE_OK", function() {
         self.setupLanguage();
     });
 }
@@ -147,23 +164,22 @@ MoblerCards.prototype.isOffline = function () {
 };
 
 MoblerCards.prototype.initialize = function () {
-    this.setupLanguage();
-
     // setup the models
-    this.models.contentbroker.idprovder = this.models.identityprovider;
-    this.models.contentbroker.lrs       = this.models.identityprovider;
+    this.models.contentbroker.idprovider  = this.models.identityprovider;
+    this.models.contentbroker.lrs         = this.models.identityprovider;
 
     var kList = Object.getOwnPropertyNames(this.models);
     kList.forEach(function(m){
         this.models[m].app = this;
     }, this);
 
-    // add default LMS
+    this.setupLanguage();
 
-//    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
-//        console.log("add default lms");
-//        this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
-//    }
+    // add default LMS
+    console.log("add default LMS " + MoblerCards.DefaultLMS);
+    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
+        this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
+    }
 };
 
 /**
@@ -378,7 +394,6 @@ MoblerCards.prototype.setupLanguage = function () {
  * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
  **/
 MoblerCards.prototype.getLoginState = function () {
-    console.log("call isLoggedIn()");
     return this.models.identityprovider.sessionState();
 };
 
