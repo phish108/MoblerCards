@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 /*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -57,21 +57,37 @@ function LandingView() {
     $(document).bind("featuredContentlistupdate", function () {
         self.showForm();
     });
-    
-    $(document).bind("LMS_AVAILABLE", function () {
-        self.showfeaturedCourse();
+
+    $(document).bind("CONTENT_COURSELIST_UPDATED", function () {
+        console.log("refresh!");
+        self.refresh();
+    });
+
+    $(document).bind("CONTENT_COURSE_UPDATED", function () {
+        console.log("refresh!");
+        self.refresh();
     });
 }
 
 LandingView.prototype.prepare = function () {
-    // TODO check login state ? redirect to coursView ;
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     }
-    else {
-        this.showForm();
+};
+
+LandingView.prototype.update = function () {
+    this.showForm();
+
+    var courseList = this.models.contentbroker.getCourseList(true);
+
+    console.log("LV.update! courselist " + courseList.length);
+    // FUTURE show featured courses!
+    if (courseList.length) {
+        var lvTemplate = this.app.templates.getTemplate("landingcourse");
+
+        // for now we show the first featured course
+        lvTemplate.landingfeaturedlabel.text = courseList[0].title;
     }
-    this.showfeaturedCourse();
 };
 
 LandingView.prototype.showForm = function () {
@@ -82,7 +98,7 @@ LandingView.prototype.showForm = function () {
     if (this.app.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
-    
+
     // $("#landingfeaturedlabel").text(featuredModel.getTitle());
 
 //    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
@@ -90,22 +106,12 @@ LandingView.prototype.showForm = function () {
 //    }
 };
 
-LandingView.prototype.showfeaturedCourse = function () {
-    console.log("showing featured course");
-
-};
-
-// test function to check for complex gestures on new OSes
-LandingView.prototype.swipe = function () {
-    console.log('swipe');
-};
-
 LandingView.prototype.tap_landingfeaturedimage = function () {
     this.app.changeView("statistics");
 };
 
 LandingView.prototype.tap_landingfeaturedlist = function() {
-    var featuredContentId = window.FEATURED_CONTENT_ID;
+    console.log("select featured course");
     // this.app.selectCourseItem(featuredContentId);
 };
 
