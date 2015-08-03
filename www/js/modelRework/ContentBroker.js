@@ -24,34 +24,246 @@
  * @author Dijan Helbling
  */
 (function (w) {
+    /**
+     * there is only one courseList for the entire system.
+     * The content broker is just the interface to that list.
+     */
+    var courseList      = {};
+
+    /**
+     * @private @method loadCourseList()
+     *
+     * loads the global course list from local storage
+     */
+    function loadCourseList() {
+        var tl;
+        try {
+            tl = JSON.parse(localStorage.getItem("contentCourseList"));
+        }
+        catch (err) {
+            tl = {};
+            localStorage.setItem("contentCourseList", "{}");
+        }
+
+        courseList      = tl;
+    }
+
+    /**
+     * @private @method storeCourseList()
+     *
+     * writes the global course list to local storage.
+     */
+    function storeCourseList() {
+        if (!courseList) {
+            courseList = {};
+        }
+        localStorage.setItem("contentCourseList",  JSON.stringify(courseList));
+    }
 
     /**
      * @private @method ignoreCourse(courseList, course)
-     * @param {OBJECT} courseList
      * @param {OBJECT} course
      *
      * finds a course in a courseList and removes the course.
      *
      * This happens every time a course has no question pools.
      */
-    function ignoreCourse(courseList, course) {
-        var index = -1;
-
-        var i = 0, k = courseList.length;
-        for (i = 0; i < k; i++) {
-            if (courseList[i].id === course.id) {
-                index = i;
-                break;
+    function ignoreCourse(tCourseList, courseId) {
+        tCourseList.some(function (c, i) {
+            if (c.id === courseId) {
+                tCourseList.splice(i, 1);
+                return true;
             }
+            return false;
+        });
+
+        return tCourseList;
+    }
+
+    /**
+     * @private @method ignoreCourseForLMS(lmsId, courseId)
+     *
+     * ignores a course that is already in local storage
+     */
+    function ignoreCourseForLMS(lmsId, courseId) {
+        if (!courseList) {
+            courseList = {};
         }
 
-        if (index >= 0) {
-            this.currentCourseId.splice(index, 1);
+        if (courseList[lmsId] &&
+            Array.isArray(courseList[lmsId])) {
+            var tLen = courseList[lmsId].length;
+            courseList[lmsId] = ignoreCourse(courseList[lmsId], courseId);
+            storeCourseList();
+            // was course actually removed?
+            if (tLen > courseList[lmsId].length) {
+                // remove the course data from local storage
+                localStorage.removeItem("course_" + lmsId + "_" + courseId);
+            }
+        }
+    }
+
+    /**
+     * @private @method addCoursesForLMS(lmsId, courseList)
+     *
+     * adds a course list that has been reported by an lms
+     */
+    function setCourseListForLMS(lmsId, lmsCourseList) {
+        var idList = {};
+        if (!courseList) {
+            courseList = {};
+        }
+
+        if (!courseList[lmsId]) {
+            // cleanup the existing questionpools
+            courseList[lmsId] = [];
+        }
+
+        // update the course list
+        courseList[lmsId].forEach(function (ocl) {
+            idList[ocl.id] = 1;
+        });
+
+        courseList[lmsId] = lmsCourseList;
+
+        storeCourseList();
+
+        // remove those question pools that continue to exit
+        courseList[lmsId].forEach(function (ncl) {
+            ncl.lmsId = lmsId; // we need this for setting the LRS context
+            delete idList[ncl.id];
+        });
+
+        // remove the remaining items in the idList
+        Object.getOwnPropertyNames(idList).forEach(function (id) {
+            localStorage.removeItem("course_" + lmsId + "_" + id);
+        });
+    }
+
+    /**
+     * @private @function getCourseList(LMSList)
+     * @optional @param {ARRAY} lmsId List
+     *
+     * returns an Array with all courses in the system.
+     */
+    function getCourseList(lmsList) {
+        if (!courseList) {
+            courseList = {};
+        }
+
+        var bSelectLMS = false;
+        if (lmsList && Array.isArray(lmsList) && lmsList.length) {
+            bSelectLMS = true;
+        }
+
+        var courses = [];
+
+        console.log(JSON.stringify(courseList));
+
+        Object.getOwnPropertyNames(courseList).forEach(function (cl) {
+            console.log(cl);
+
+            if ((!bSelectLMS &&
+                 cl &&
+                 Array.isArray(courseList[cl])) ||
+                (bSelectLMS &&
+                 lmsList.indexOf(cl) >= 0 &&
+                 cl &&
+                 Array.isArray(courseList[cl]))) {
+                courseList[cl].forEach(function (c) {
+                    courses.push(c);
+                });
+            }
+        });
+
+        return courses;
+    }
+
+    /**
+     * @private @method getCourseForLMS(lmsId, courseID, arrayIncludePools)
+     *
+     * returns an array with all questions for the course
+     */
+    function getCourseForLMS(lmsId, courseId, arrayIncludePools) {
+        if (!courseList) {
+            courseList = {};
+        }
+
+        var incl = true, questionPool = [];
+        if (courseList[lmsId] &&
+            Array.isArray(courseList[lmsId])) {
+            var qpList;
+            courseList[lmsId].some(function (c) {
+                if (c.id === courseId) {
+                    // now fetch the questions
+                    try {
+                        qpList = JSON.parse(localStorage.getItem("course_" + lmsId + "_" + courseId));
+                    }
+                    catch (err) {
+                        qpList = [];
+                        console.log("no questions in the course " + courseId);
+                    }
+
+                    if (qpList &&
+                        Array.isArray(qpList) &&
+                        qpList.length) {
+                        qpList.forEach(function (qp) {
+                            if (arrayIncludePools &&
+                                Array.isArray(arrayIncludePools) &&
+                                arrayIncludePools.length) {
+                                if (arrayIncludePools.indexOf(qp.id) >= 0) {
+                                    incl = false;
+                                }
+                            }
+                            if (incl &&
+                                qp.questions &&
+                                Array.isArray(qp.questions) &&
+                                qp.questions.length) {
+                                qp.questions.forEach(function (q) {
+                                    questionPool.push(q);
+                                });
+                            }
+                            incl = true;
+                        });
+                    }
+                    return true;
+                }
+            });
+        }
+
+        return questionPool;
+    }
+
+    /**
+     * @private @method setCourseForLMS(lmsId, courseId, questionPool)
+     *
+     * sets the question pool list for a course that is returned by an LMS.
+     */
+    function setCourseForLMS(lmsId, courseId, questionPool) {
+        if (questionPool &&
+            Array.isArray(questionPool) &&
+            questionPool.length) {
+            questionPool.forEach(function (qp) {
+                if (qp.questions &&
+                    Array.isArray(qp.questions) &&
+                    qp.questions.length) {
+                    qp.questions.forEach(function (q) {
+                        // precache the context information for the LRS interaction
+                        q.courseId = courseId;
+                        q.lmsId    = lmsId;
+                        q.poolId   = qp.id;
+                    });
+                }
+            });
+            localStorage.setItem("course_" + lmsId + "_" +courseId,
+                                 JSON.stringify(questionPool));
         }
     }
 
     function ContentBroker () {
         var self = this;
+
+        loadCourseList();
 
         /** Variables
          * this.courseList              List of all courses connected to your account.
@@ -63,67 +275,106 @@
          * this.responseList            The list of user selected answers.
          */
 
-        /**
-         * @event online
-         * @param {FUNCTION} switchToOnline() - courses(and any pending questions) are loaded from the server
-         */
-        $(document).bind("online", function() {
-            console.log("Bind event 'online' detected");
+        function cbSyncAll() {
             if (self.app) {
+                console.log("refresh lms content");
                 self.synchronizeAll();
             }
-        });
+        }
 
-        /**
-         * It is triggered in the identity provider.
-         * @event authenticationready
-         * @param {FUNCTION} loadFromServer() - loads the courses from the server
-         **/
-        $(document).bind("authenticationready", function() {
-            console.log("Bind event 'authenticationready' detected");
-            self.synchronizeAll();
-        });
+        $(document).bind("online",               cbSyncAll);
+        $(document).bind("APP_READY",            cbSyncAll);
+        $(document).bind("ID_AUTHENTICATION_OK", cbSyncAll);
+        $(document).bind("LMS_AVAILABLE",        cbSyncAll);
     }
 
     /**
-     * instruction - tell the model to give a new active question.
      * @protoype
      * @function nextQuestion
      * @param {NONE}
+     *
+     * instruction - indentify the new active question.
      */
     ContentBroker.prototype.nextQuestion = function () {
-        var temporaryQuestions = [];
-        var randomId, i;
+        var randomId,
+            qList         = [],
+            qSel          = [],
+            questions     = [],
+            entropyMap    = this.lrs.getEntropyMap(), // returns the entropyMap for the current context
+            newQuestions  = [];
 
-        this.loadNewQuestions();
-        /*  if there are still unanswered questions, get one of those randomly. */
-        if (this.questionList.length) {
-            randomId = Math.floor(Math.random() * this.questionList.length);
-            this.activeQuestion = this.questionList[randomId];
+        if (entropyMap && entropyMap.questions) {
+            // entropyMap.selection contains only the min entropy questions
+            qSel      = entropyMap.selection;
+            // entropyMap.questions contains the list of all active questions in the map
+            questions = entropyMap.questions;
         }
-        /*  otherwise, get the question with the lowest entropy, if there is more
-            than one with the same entropy, choose one randomly. */
-        else {
-            for (i = 0; i < this.newQuestions.length; i++) {
-                if (this.newQuestions[i].entropy === this.newQuestions[i - 1].entropy) {
-                    temporaryQuestions[i] = this.newQuestions[i];
+
+        if (this.questionPool &&
+            Array.isArray(this.questionPool) &&
+            this.questionPool.length) {
+
+            // identify the unanswered questions and weed out the "hot" questions
+            this.questionPool.forEach(function (q) {
+                if (!questions.length ||
+                    questions.indexOf(q.id) < 0) {
+                    newQuestions.push(q);
                 }
-                else {
-                    i = this.newQuestions.length;
+                else if (qSel &&
+                         qSel.length &&
+                         qSel.indexOf(q.id) >= 0) {
+                    qList.push(q);
                 }
+            });
+
+            // prioritize the unanswered questions
+            if (newQuestions.length) {
+                qList = newQuestions;
             }
-            randomId = Math.floor(Math.random() * temporaryQuestions.length);
-            this.activeQuestion = temporaryQuestions[randomId];
+
+            randomId = Math.floor(Math.random() * qList.length);
+            this.activeQuestion = qList[randomId];
+
+            // reset the response list.
+            this.responseList = [];
         }
-    }; // done, not checked
+    };
 
     /**
      * @protoype
-     * @function loadNewQuestion
-     * @param {NONE}
+     * @function activateCourse
+     * @param {VARIABLE} courseId
+     * instruction - when a tap occurs on a course in the course view, then register the current course.
      */
-    ContentBroker.prototype.loadNewQuestions = function () {
-        this.newQuestions = this.lrs.getEntropyMap();
+    // FUTURE limit the questions to selected question pools
+    ContentBroker.prototype.activateCourse = function (lmsId, courseId) {
+        var idurl;
+
+        if (this.currentLMSId !== lmsId) {
+            this.lrs.endLRSContext(this.currentLMSId);
+        }
+
+        if (this.currentCourseId !== courseId) {
+            this.lrs.endContext("contextActivities.parent",
+                                this.currentCourseContext);
+            this.currentCourseContext = null;
+        }
+
+        this.currentCourseId = courseId;
+        this.currentLMSId    = lmsId;
+        // this.questionPool contains all ACTIVE questions
+        this.questionPool    = getCourseForLMS(lmsId, courseId);
+
+        this.lrs.startLRSContext(lmsId);
+
+        idurl = this.idprovider.serviceURL("powertla.content.imsqti",
+                                           this.currentLMSId,
+                                           [courseId]);
+
+        this.currentCourseContext = idurl;
+        if (idurl) {
+            this.lrs.startontext("contextActivities.parent", idurl);
+        }
     };
 
     /**
@@ -131,17 +382,17 @@
      * @function getQuestionInfo
      * @param {NONE}
      * @return {OBJECT} partActiveQuestion - is part of the activeQuestion object
+     *
+     * returns the question information of the active question
      */
     ContentBroker.prototype.getQuestionInfo = function () {
         var aQ = this.activeQuestion;
-        var partActiveQuestion = {
+        return {
             "id":       aQ.id,
             "type":     aQ.type,
             "question": aQ.question,
             "answer":   aQ.answer
         };
-
-        return partActiveQuestion;
     }; // done, not checked
 
     /**
@@ -149,6 +400,8 @@
      * @function getAnswerList
      * @param {NONE}
      * @return {ARRAy} answerList
+     *
+     * returns the possible answers of the question
      */
     ContentBroker.prototype.getAnswerList = function () {
         return this.activeQuestion.answer;
@@ -158,9 +411,15 @@
      * @protoype
      * @function addResponse
      * @param {ARRAY} response
+     *
+     * Adds a new Response to the response list.
+     *
+     * verifies the response with the active answer
      */
     ContentBroker.prototype.addResponse = function (response) {
         var index = this.responseList.indexOf(response);
+
+        // TODO: verify that the response is a valid answer
 
         if (index < 0) {
             this.responseList.push(response);
@@ -182,22 +441,25 @@
 
     /**
      * @protoype
+     * @function resetResponseList
+     * @param {NONE}
+     *
+     * Convenience function: resets the response list to an empty response.
+     */
+    ContentBroker.prototype.resetResponseList = function () {
+        this.responseList = [];
+    };
+
+    /**
+     * @protoype
      * @function checkResponse
      * @param {NONE}
-     * @return {BOOL} - answer is correct if true
+     * @return {DOUBLE} - 1 if the entire response is correct, 0.5 partially correct, 0 wrong
+     *
+     * Validates the given response.
      */
     ContentBroker.prototype.checkResponse = function () {
-        var answerList = this.getAnswerList();
-        var i;
-
-        if (this.responseList.length !== answerList.length) {
-            return false;
-        }
-        for (i = 0; i < answerList.length; i++) {
-            if (this.responseList.indexOf(answerList[i]) < 0) {
-                return false;
-            }
-        }
+        // old code won't work
         return true;
     }; // done, not checked
 
@@ -208,7 +470,8 @@
      * @return {ARRAY} feedback;
      */
     ContentBroker.prototype.getFeedback = function () {
-        if (this.checkResponse) {
+        // FIXME checkResponse will not determine if the answer is correct!
+        if (this.checkResponse()) {
             return this.activeQuestion.correctFeedback;
         }
         return this.activeQuestion.errorFeedback;
@@ -221,17 +484,23 @@
      * @param {NONE}
      */
     ContentBroker.prototype.startAttempt = function () {
+        var objectId = this.idprovider.serviceURL("powertla.content.imsqti",
+                                                  this.activeQuestion.lmsId,
+                                                  [this.activeQuestion.courseId,
+                                                   this.activeQuestion.poolId,
+                                                   this.activeQuestion.id]);
+
         var record = {
             "Verb": {
                 "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
             },
             "Object": {
-                "id": this.currentQuestionId,
+                "id": objectId,
                 "ObjectType": "Activity"
             }
         };
 
-        this.lrs.startAction(record);
+        this.attemptUUID = this.lrs.startAction(record);
     }; // done, not checked
 
     /**
@@ -239,7 +508,7 @@
      * @function finishAttempt
      * @param {NONE}
      *
-     * delete the answered question from the questionlist.
+     * finish the attempt before receiving feedback
      */
     ContentBroker.prototype.finishAttempt = function () {
         var record = {
@@ -251,54 +520,11 @@
                 }
             }
         };
-        var uuid = this.lrs.getAttemptUUID(); // FIXME store the attempt id on startAttempt()
 
-        this.lrs.finishAttempt(uuid, record);
-
-        var index = this.questionList.indexOf(this.activeQuestion);
-        this.questionList.splice(index, 1);
+        this.lrs.finishAttempt(this.attemptUUID, record);
     };
-
 
     /****** Questionpool Management ******/
-
-
-    /**
-     * @protoype
-     * @function loadQuestionpool
-     * @param {NONE}
-     */
-    ContentBroker.prototype.loadQuestionpool = function () {
-        try {
-            this.questionpoolList = JSON.parse(localStorage.getItem("questionpool_" + this.currentCourseId)) || {};
-        }
-        catch (error) {
-            console.log("The question list could not be loaded: " + error);
-            this.questionpoolList = {};
-        }
-    }; // done, not checked
-
-    /**
-     * @protoype
-     * @function storeQuestionpool
-     * @param {ARRAY} questionPool
-     * @param {INTEGER} courseId
-     */
-    ContentBroker.prototype.storeQuestionpool = function (questionpool, courseId, lmsid) {
-        // this is not the correct way, because a course may have multiple qp
-        localStorage.setItem("questionpool_" + courseId, JSON.stringify(questionpool));
-    }; // done, not checked
-
-    /**
-     * @prototype
-     * @function deleteQuestionpool
-     * @param {INTEGER} questionpoolid
-     * @param {INTEGER} courseID
-     * @param {STRING}  internal lms id
-     */
-    ContentBroker.prototype.deleteQuestionpool = function (questionpool, courseId, lmsid) {
-
-    };
 
     /**
      * @protoype
@@ -316,16 +542,18 @@
         var i, bad = false;
         var questions = questionpool.questions;
 
+        function checkImage(a, j) {
+            if (a.hasOwnProperty("image") && a.image && a.image.length) {
+                console.log("bad question with image at pos " + j);
+                bad = true;
+            }
+        }
+
         for (i = 0; i < questions.length; i++) {
             switch (questions[i].type) {
                 case "assSingleChoice":
                 case "assMultipleChoice":
-                    questions[i].answer.forEach(function(a, j) {
-                        if (a.hasOwnProperty("image") && a.image && a.image.length) {
-                            console.log("bad question with image at pos " + j);
-                            bad = true;
-                        }
-                    });
+                    questions[i].answer.forEach(checkImage);
                     break;
                 case "assOrderingQuestion":
                 case "assOrderingHorizontal":
@@ -342,7 +570,7 @@
             // TODO also check for images and other incompatible features.
 
             if (bad) {
-                console.log("bad question pool")
+                console.log("bad question pool");
                 return false;
             }
         }
@@ -350,79 +578,7 @@
         return true;
     }; // done, not checked
 
-    /**
-     * @protoype
-     * @function activeAllQuestionpools
-     * @param {NONE}
-     */
-    ContentBroker.prototype.activateAllQuestionpools = function () {
-        this.loadQuestionpool();
-        this.questionpoolList.forEach(function (questionpool) {
-            this.activeQuestionpool.push(questionpool);
-        });
-    }; // done, not checked
-
-    /**
-     * @protoype
-     * @function activeQuestionpool
-     * @param {VARIABLE} poolId
-     */
-    ContentBroker.prototype.activateQuestionpool = function (poolId) {
-        if (!this.activeQuestionpool) {
-            this.activeQuestionpool = [];
-        }
-        if (this.activeQuestionpool.indexOf(poolId) < 0) {
-            this.activeQuestionpool.push(poolId);
-        }
-
-    }; // done, not checked
-
-    /**
-     * @protoype
-     * @function resetActiveQuestionpool
-     * @param {NONE}
-     */
-    ContentBroker.prototype.resetActiveQuestionpool = function () {
-        this.activeQuestionpool = [];
-    }; // done, not checked
-
     /****** Course Management ******/
-
-    /**
-     * @protoype
-     * @function loadCourseList
-     * @param {INTEGER} lmsId
-     */
-    ContentBroker.prototype.loadCourseList = function (lmsId) {
-        var courseObject;
-        try {
-            courseObject = JSON.parse(localStorage.getItem("courselist_" + lmsId)) || {};
-        }
-        catch (error) {
-            console.log("course list not initialized, initialize now!");
-            courseObject = {};
-            localStorage.setItem("courselist", JSON.stringify(courseObject));
-        }
-
-        this.courseList   = courseObject.courses      || {};
-        this.syncDateTime = courseObject.syncDateTime || (new Date()).getTime();
-        this.syncState    = courseObject.syncState    || false;
-        this.syncTimeOut  = courseObject.syncTimeOut  || 6000;
-
-        console.log(this.courseList);
-    }; // done, not checked
-
-    /**
-     * @protoype
-     * @function storeCourseList
-     * @param {OBJECT} course
-     * @param {INTEGER} lmsId
-     */
-    ContentBroker.prototype.storeCourseList = function (courseList, lmsId) {
-        console.log("store courselist for " + lmsId + ": " + JSON.stringify(courseList));
-
-        localStorage.setItem("courselist_" + lmsId, JSON.stringify(courseList));
-    }; // done, not checked
 
     /**
      * @protoype
@@ -436,22 +592,31 @@
      * In this case the course is removed from the local list.
      */
     ContentBroker.prototype.checkCourse = function (course) {
-        if (course["content-type"].indexOf("x-application/imsqti") >= 0) {
-            return true;
-        }
-        return false;
-    }; // done, not checked
+        return (course["content-type"].indexOf("x-application/imsqti") >= 0);
+    };
 
     /**
-     * instruction - when a tap occurs on a course in the course view, then register the current course.
-     * @protoype
-     * @function activateCourse
-     * @param {VARIABLE} courseId
+     * @prototype
+     * @function getCourseList;
+     * @param {BOOL} public
+     *
+     * if public is set (== true), then return only "featured courses".
+     * "Featured Courses" are courses that are available even without an
+     * active Access Token.
      */
-    ContentBroker.prototype.activateCourse = function (courseId) {
-        this.currentCourseId = courseId;
-        // TODO set context activity.parent in learning record store.
+    ContentBroker.prototype.getCourseList = function (bPublic) {
+        var lmsList = [];
+        if (bPublic) {
+            this.idprovider.eachLMSPublic(function (lms) {
+                console.log("got lms");
+                console.log(lms);
+                lmsList.push(lms.id);
+            });
+        }
+        console.log("LMSLIST: "+ lmsList.join("; "));
+        return getCourseList(lmsList);
     };
+
 
     /****** Synchronize Management ******/
 
@@ -462,9 +627,16 @@
      *
      * loops through the lms list and synchronises them.
      */
-    ContentBroker.prototype.synchronizeAll = function () {
+    ContentBroker.prototype.synchronizeAll = function (force) {
+        var now = (new Date()).getTime();
+
         this.idprovider.eachLMS(function(lms) {
-            this.synchronize(lms.id);
+            console.log(JSON.stringify(lms));
+
+            if (force || !lms.lastSyncTime ||
+                (now - lms.syncTimeOut) < lms.lastSyncTime) {
+                this.synchronize(lms.id);
+            }
         }, this);
     }; // done, not checked
 
@@ -474,8 +646,6 @@
      * @param {NONE}
      *
      * synchronizes the data with the backend content broker.
-     *
-     * this
      */
     ContentBroker.prototype.synchronize = function (lmsid) {
         var self = this;
@@ -484,37 +654,61 @@
             return;
         }
 
-//        if (this.synchronizeNeeded) {
-            this.fetchCourseList(lmsid)
-            .then(function (courseList) {
-                // load one course after the other
-                self.verifyCourseData(courseList, lmsid);
-                self.storeCourseList(courseList, lmsid);
-//                self.cleanup(courseList, oldCourseList, lmsId);
-            })
-            .catch(function (msg){
-                // send apologise signal depending on error
-                console.log("server error 0: " + msg);
-                // TODO: trigger correct event
-                $(document).trigger("MY_SERVER_ERROR");
-            });
-//        }
+        this.fetchCourseList(lmsid)
+        .then(function (courseList) {
+            // load one course after the other
+            self.verifyCourseData(courseList, lmsid);
+        })
+        .catch(function (msg){
+            // send apologise signal depending on error
+            console.log("server error 0: " + msg);
+            // TODO: trigger correct event
+            $(document).trigger("MY_SERVER_ERROR");
+        });
     }; // done, not checked
 
 
     ContentBroker.prototype.verifyCourseData = function (courseList, lmsId) {
         var self = this,
-            i = 0,
-            course = courseList[i];
+            tList = [];
+
+        courseList.forEach(function (c) {
+            if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
+                tList.push(c);
+            }
+        });
+
+        courseList = tList;
+
+        setCourseListForLMS(lmsId, courseList);
+        $(document).trigger("CONTENT_COURSELIST_UPDATED", [lmsId]);
+
+        // load the question pools for the courses
+
+        /**
+         * question pool loading is performed sequentially per LMS. This
+         * will reduce the load per server, but take slightly longer if there are many courses
+         * on a LMS. The sequential approach has been chosen in order to limit the amount
+         * of active data connections. This way there will be only as many concurrent
+         * requests open as there are LMSes registered.
+         */
+        var i = 0,
+            course;
 
         function loadPool() {
-            self.fetchQuestionpoolList(courseList[i],lmsId)
-                .then(handleCourse)
-                .catch(function (msg) {
-                     console.log("server error " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
-                    // TODO: trigger correct event
-                    $(document).trigger("MY_SERVER_ERROR");
-            });
+            if (i < courseList.length) {
+                course = courseList[i];
+                self.fetchQuestionpoolList(course,lmsId)
+                    .then(handleCourse)
+                    .catch(function (msg) {
+                         console.log("server error " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
+                        // TODO: trigger correct event
+
+                });
+            }
+            else {
+                self.idprovider.setSyncState(lmsId);
+            }
         }
 
         function handleCourse(qpools) {
@@ -534,37 +728,24 @@
 
             if (k) {
                 console.log("got valid course");
-                self.storeQuestionpool(qpools, course);
+                setCourseForLMS(lmsId, course.id, qpools);
             }
             else {
                 // ignore this course, because it has no or invalid question pools
                 console.log("ignore course");
-                ignoreCourse(courseList, course);
+                ignoreCourseForLMS(lmsId, course.id);
             }
+            // the event is always triggerd, because a course update could be
+            // that the course is removed.
+            $(document).trigger("COURSE_COURSE_UPDATED", [lmsId, course.id]);
 
+            // fetch the next course
             i++;
-            if (i < courseList.length) {
-                loadPool();
-            }
+            loadPool();
         }
 
         loadPool();
     };
-
-
-    /**
-     * @protoype
-     * @function synchronizeNeeded
-     * @param {NONE}
-     * @return {BOOL}
-     */
-    ContentBroker.prototype.synchronizeNeeded = function () {
-        if ((Date().getTime - this.syncDateTime) > this.syncTimeOut) {
-            return true;
-        }
-        return false;
-    }; // done, not checked
-
 
     /** NETWORK REQUESTS **/
 
@@ -577,7 +758,6 @@
      * Performs the network request for fetchug the CourseList from the LMS Backend.
      */
     ContentBroker.prototype.fetchCourseList = function (lmsId) {
-        var self = this;
         return this.fetchService("powertla.content.courselist", lmsId);
     }; // done, not checked
 
@@ -598,7 +778,14 @@
         return Promise.reject("ERR_COURSE_CONTENT_NOT_SUPPORTED");
     }; // done, not checked
 
-    //
+    /**
+     * @prototype
+     * @method fetchService(servicename, lmsId, pathvalues)
+     *
+     * @param {STRING} servicename - name of the service to fetch data from
+     * @param {STRING} lmsId - internal ID of the LMS.
+     * @param {ARRAY} pathvalues - additional pathinfo parameters
+     */
     ContentBroker.prototype.fetchService = function (servicename, lmsId, pathvalues) {
         if (servicename && lmsId) {
             var self = this,
