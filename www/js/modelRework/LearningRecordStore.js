@@ -118,7 +118,7 @@ under the License.
      * @protoype
      * @function startContext
      * @param {STRING} contextType
-     * @param {STRING} contextId
+     * @param {STRING} contextId - the external contextID (the qti.php request)
      */
     LearningRecordStore.prototype.startContext = function (contextType, contextId) {
         var promise;
@@ -127,7 +127,7 @@ under the License.
             contextType = contextType.trim();
             contextId = contextId.trim();
             if (contextType.length && contextId.length) {
-                var arContext = contextType.split(",");
+                var arContext = contextType.split(".");
                 switch (arContext[0]) {
                     case "registration":
                         self.context.registration = contextId;
