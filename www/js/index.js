@@ -180,6 +180,7 @@ MoblerCards.prototype.initialize = function () {
     if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
         this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
     }
+    $(document).trigger("APP_READY");
 };
 
 /**
