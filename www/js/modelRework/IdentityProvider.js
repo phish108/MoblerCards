@@ -72,6 +72,13 @@ IdentityProvider.prototype.eachLMS = function (cbFunc, bind) {
 };
 
 /**
+ * variant for accessing only LMSes without user tokens
+ */
+IdentityProvider.prototype.eachLMSPublic = function (cbFunc, bind) {
+    this.lmsMgr.eachLMSPublic(cbFunc, bind);
+};
+
+/**
  * @prototype
  * @function hasLMS
  */
@@ -333,6 +340,10 @@ IdentityProvider.prototype.getLanguage =  function () {
  */
 IdentityProvider.prototype.synchronize = function() {
     this.usrMgr.loadFromServer();
+};
+
+IdentityProvider.prototype.setSyncState = function(lmsId) {
+    this.lmsMgr.setSyncStateForServer(lmsId);
 };
 
 /**

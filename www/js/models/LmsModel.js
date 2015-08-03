@@ -612,6 +612,53 @@
     };
 
     /**
+     * @prototype
+     * @method eachLMSPublic
+     *
+     * variant of eachLMS to access only those LMSes that have
+     * no active user token
+     */
+    LMSModel.prototype.eachLMSPublic = function (cbFunc, bind) {
+        if (!bind) {
+            bind = this;
+        }
+
+        var ts = (new Date()).getTime();
+
+        console.log("LMS List: " + JSON.stringify(lmsData));
+
+        Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
+            if (lmsid !== "activeServer" &&
+                lmsData[lmsid].keys &&
+                (!lmsData[lmsid].keys.hasOwnProperty("user") ||
+                 !lmsData[lmsid].keys.hasOwnProperty("Bearer") ||
+                 !lmsData[lmsid].keys.hasOwnProperty("MAC"))) {
+                console.log(">>> "+ lmsid);
+                var rsd = lmsData[lmsid];
+                if (rsd.inaccessible > 0) {
+                    var delta = ts - rsd.inaccessible;
+                    if (delta > 3600000) { // wait for one hour
+                        delete rsd.inaccessible;
+                        storeData();
+                    }
+                }
+                var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+
+                console.log('server is inaccessible? ' + rsd.inaccessible);
+
+                cbFunc.call(bind, {"id": rsd.id,
+                                   "name": rsd.name,
+                                   "logofile": rsd.logolink,
+                                   "inactive": ((rsd.inaccessible &&
+                                                rsd.inaccessible > 0) ? 1 : 0),
+                                   "selected": isSelected});
+            }
+        });
+    };
+
+
+
+    /**
      * @public @method activeLMS(callback, bindObject)
      *
      * @param callback - the callback function to handle the LMS data
@@ -835,6 +882,23 @@
             xhr.setRequestHeader('RequestToken',
                                  lmsData[lmsData.activeServer].keys.device);
         }
+    };
+
+    /**
+     * manage the syncstate centrally.
+     *
+     * Allow the server to toggle the timeout time.
+     */
+    LMSModel.prototype.setSyncStateForServer = function (serverid) {
+        if (!serverid) {
+            serverid = lmsData.activeServer;
+        }
+
+        lmsData[serverid].lastSyncTime = (new Date()).getTime();
+        if (!lmsData[serverid].syncTimeOut) {
+            lmsData[serverid].syncTimeOut = inactiveTimeout;
+        }
+        storeData();
     };
 
     /**
