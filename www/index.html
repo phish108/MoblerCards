@@ -35,7 +35,7 @@
             <div id="landingtitle" class="headercontent">Mobler Cards</div>
         </div>
 
-        <div id="landingcontent" class="contentbox">
+        <div id="landingcontent" class="contentbox static">
             <ul id="landingelements">
                 <component id="landingcourse">
                 <li id="landingfeaturedlist" class="listbox gradient2">
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div id="logincontent" class="contentbox">
+        <div id="logincontent" class="contentbox static withfooter">
             <ul id="loginelements">
 <!--                Username-->
                 <li id="courselistusername" class="listbox gradient2">
@@ -208,7 +208,7 @@
             </div>
         </div>
 
-        <div id="settingscontent" class="contentbox">
+        <div id="settingscontent" class="contentbox static withfooter">
             <ul id="settingsData" class="gradient2">
                 <li class="listbox gradient2">
                     <span id="setingsLmsSet" class="settingslabel">LMS</span>
@@ -258,7 +258,7 @@
             </div>
         </div>
 
-        <div id="aboutcontent" class="contentbox">
+        <div id="aboutcontent" class="contentbox static">
             <ul>
                 <li id="abouttitlelist" class="listbox">
                     <div class="listlabel">Mobler Cards</div>
@@ -291,7 +291,7 @@
             </div>
         </div>
 
-        <div id="logoutcontent" class="contentbox">
+        <div id="logoutcontent" class="contentbox static withfooter">
             <ul>
                 <li class="listbox gradient2">
                     <div id="logoutText" class="listlabel"></div>
@@ -307,9 +307,11 @@
     </div>
 
     <div id="question" class="screen" data-view="QuestionView" data-model="ContentBroker" data-touch="tap swipe">
-        <div id="questionheader" class="headerbox">
-            <div id="questionicon"  class="titleicon">
-                <span id="questiondynamicicon"></span>
+        <component id="wQuestionView">
+
+        <div class="headerbox">
+            <div class="titleicon">
+                <span id="questionicon"></span>
             </div>
             <div id="questiontitle" class="headercontent"></div>
             <div id="questioncross" class="closeicon touchable">
@@ -317,13 +319,14 @@
             </div>
         </div>
 
-        <div id="questioncontent" class="contentbox touchable">
+        <div id="questionbox" class="contentbox static withfooter touchable">
             <ul>
-                <li id="questionlist" class="listbox gradient2">
-                    <div id="questionlisttext" class="listlabel"></div>
+                <li class="listbox gradient2">
+                    <div id="questiontext" class="listlabel"></div>
                 </li>
             </ul>
         </div>
+        </component>
 
         <div id="questionfooter" class="footerbox touchable">
             <div id="questionbutton" class="footerlabel">
@@ -332,7 +335,7 @@
         </div>
     </div>
 
-    <div id="answer" class="screen" data-view="AnswerView" data-model="ContentBroker" data-touch="tap move">
+    <div id="answer" class="screen" data-view="AnswerView" data-model="ContentBroker" data-touch="tap">
         <div id="answerheader" class="headerbox touchable">
             <div id="answericon"  class="titleicon"><span id="answerdynamicicon"></span></div>
             <div id="answertitle" class="headercontent"></div>
@@ -342,7 +345,7 @@
             </div>
         </div>
 
-        <div id="answercontent" class="contentbox touchable" >
+        <div id="answercontent" class="contentbox touchable withfooter" >
             <ul id="answerbox">
                 <template id="answerlistbox">
                     <li id="answerlist" class="listbox gradient2">
@@ -374,7 +377,7 @@
             </div>
         </div>
 
-        <div id="feedbackcontent" class="contentbox touchable">
+        <div id="feedbackcontent" class="contentbox touchable withfooter">
             <ul id="feedbackbox">
                 <template id="feedbacklistbox">
                     <li id="feedbacklist" class="listbox gradient2">
@@ -409,7 +412,7 @@
             </div>
         </div>
 
-        <div class="content full">
+        <div id="statisticsbox" class="contentbox static">
             <ul id="statisticsBody" class="">
                 <li id="statsSlot1" class="gradient1">
                     <div class=" left lineContainer selectItemContainer ">
@@ -537,7 +540,7 @@
             </div>
         </div>
 
-        <div class="content full">
+        <div id="achievementbox" class="contentbox static">
             <ul>
                 <li class="courseLiContainer gradient2">
                     <div class="dashContainer lineContainer selectItemContainer ">
