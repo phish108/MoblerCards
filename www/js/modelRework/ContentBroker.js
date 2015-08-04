@@ -28,7 +28,7 @@
      * there is only one courseList for the entire system.
      * The content broker is just the interface to that list.
      */
-    var courseList      = {};
+    var courseList      = {}; // persistent
 
     /**
      * @private @method loadCourseList()
@@ -347,8 +347,40 @@
      * instruction - when a tap occurs on a course in the course view, then register the current course.
      */
     // FUTURE limit the questions to selected question pools
-    ContentBroker.prototype.activateCourse = function (lmsId, courseId) {
+    ContentBroker.prototype.activateCourseById = function (lmsId, courseId) {
         var idurl;
+
+        if (this.currentLMSId !== lmsId) {
+            this.lrs.endLRSContext(this.currentLMSId);
+        }
+
+        if (this.currentCourseId !== courseId) {
+            this.lrs.endContext("contextActivities.parent",
+                                this.currentCourseContext);
+            this.currentCourseContext = null;
+        }
+
+        this.currentCourseId = courseId;
+        this.currentLMSId    = lmsId;
+        // this.questionPool contains all ACTIVE questions
+        this.questionPool    = getCourseForLMS(lmsId, courseId);
+
+        this.lrs.startLRSContext(lmsId);
+
+        idurl = this.idprovider.serviceURL("powertla.content.imsqti",
+                                           this.currentLMSId,
+                                           [courseId]);
+
+        this.currentCourseContext = idurl;
+        if (idurl) {
+            this.lrs.startontext("contextActivities.parent", idurl);
+        }
+    };
+
+    ContentBroker.prototype.activateCourse = function (course) {
+        var idurl,
+            lmsId = course.lmsId,
+            courseId = course.id;
 
         if (this.currentLMSId !== lmsId) {
             this.lrs.endLRSContext(this.currentLMSId);
