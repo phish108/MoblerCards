@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -41,9 +42,6 @@ under the License.
  * @param {String} controller
  */
 function AnswerView() {
-    var self = this;
-
-    this.tagID = this.app.viewId;
     this.widget = null;
 
     // init widget delegates
@@ -57,32 +55,6 @@ function AnswerView() {
     this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: true});
 
     this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
-
-    /**
-     * It is triggered after statistics are loaded locally from the server. This can happen during the
-     * authentication or if we had clicked on the statistics icon and moved to the questions.
-     * @event loadstatisticsfromserver
-     * @param: a callback function that displays the answer body and preventing the display of the statistics view
-     */
-    $(document).bind("loadstatisticsfromserver", function () {
-        if (self.app.isActiveView(self.tagID) &&  self.app.getLoginState()) {
-            console.log("enters load statistics from server is done in answer view 1");
-            self.update();
-        }
-    });
-
-    /**
-     * It is triggered when the calculation of all the statistics metrics is done
-     * @event allstatisticcalculationsdone
-     * @param: a callback function that displays the answer body and preventing the display of the statistics view
-     */
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("enters in calculations done in question view1 ");
-        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
-            console.log("enters in calculations done in  answer view 2 ");
-            self.update();
-        }
-    });
 }
 
 /**
@@ -95,7 +67,7 @@ AnswerView.prototype.prepare = function () {
     this.didApologize = false;
     // TODO: There should be an apologize widget.
 
-    var qt = this.app.models.questionpool.getQuestionType();
+    var qt = this.model.getQuestionInfo().type;
     switch (qt) {
         case 'assSingleChoice':
         case 'assMultipleChoice':
@@ -110,6 +82,7 @@ AnswerView.prototype.prepare = function () {
             break;
     }
 
+    console.log("use delegate " + qt);
     this.useDelegate(qt);
 };
 
@@ -134,24 +107,25 @@ AnswerView.prototype.update = function () {
  */
 
 AnswerView.prototype.tap_answerfooter = function () {
-    this.app.models.answer.finishAttempt(); // inform the answer model that we are done.
+    this.model.finishAttempt(); // inform the answer model that we are done.
     if (this.didApologize) {
-        this.app.models.questionpool.nextQuestion();
-        this.app.changeView("question");
+        this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+        this.model.nextQuestion();
     }
     else {
         this.app.changeView("feedback");
     }
 };
 
-AnswerView.prototype.tap_answercontent = AnswerView.prototype.tap_answerfooter;
+// AnswerView.prototype.tap_answercontent = AnswerView.prototype.tap_answerfooter;
 
 AnswerView.prototype.tap_answerheader = function () {
     this.app.changeView("question");
 };
 
 AnswerView.prototype.tap_answercross = function () {
-    this.app.models.answer.finishAttempt();
+    this.model.finishAttempt(); // avoid cancel here
+    this.model.deactivateCourse(); // reset the contexts
     this.app.chooseView("course", "landing");
 };
 
@@ -162,7 +136,7 @@ AnswerView.prototype.tap_answercross = function () {
  * @param {NONE}
  **/
 AnswerView.prototype.showAnswerTitle = function () {
-    var currentAnswerTitle = this.app.models.questionpool.getQuestionType();
+    var currentAnswerTitle = this.model.getQuestionInfo().type;
     $("#answerdynamicicon").removeClass();
     $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
     $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));

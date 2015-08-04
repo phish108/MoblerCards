@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -41,50 +42,17 @@ under the License.
  */
 function QuestionView() {
     var self = this;
-
-    this.tagID = this.app.viewId;
-    var featuredContentId = FEATURED_CONTENT_ID;
-
-    /**
-     * It is triggered after statistics are loaded locally from the server. This can happen during the
-     * authentication or if we had clicked on the statistics icon and moved to the questions.
-     * @event loadstatisticsfromserver
-     * @param: a callback function that displays the question text and preventing the display of the statistics view
-     */
-    $(document).bind("loadstatisticsfromserver", function () {
-        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
-            console.log("enters load statistics from server is done in question view");
-            self.showQuestionBody();
-        }
-    });
-
-    /**
-     * It is triggered when the calculation of all the statistics metrics is done
-     * @event allstatisticcalculationsdone
-     * @param: a callback function that displays the answer body and preventing the display of the statistics view
-     */
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("enters in calculations done in question view1 ");
-
-        if ((self.app.isActiveView(self.tagID)) && self.app.getLoginState()) {
-            console.log("enters in calculations done in question view 2 ");
-            self.showQuestionBody();
-        }
+    $(document).bind("CONTENT_QUESTION_READY", function () {
+        self.refresh();
     });
 }
 
-/**
- * Call 'showQuestionTitle()' and 'showQuestionBody()'.
- * Start the timer.
- * @prototype
- * @function prepare
- * @param {NONE}
- */
-QuestionView.prototype.prepare = function () {};
-
 QuestionView.prototype.update = function () {
-    this.showQuestionTitle();
-    this.showQuestionBody();
+    this.qInfo = this.model.getQuestionInfo();
+
+    this.template.questionicon.clearClass();
+    this.template.questionicon.addClass(jQuery.i18n.prop('msg_' + this.qInfo.type + '_icon'));
+    this.template.questiontext.text = this.qInfo.question;
 };
 
 /**
@@ -93,62 +61,37 @@ QuestionView.prototype.update = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-QuestionView.prototype.tap = function (event) {
-    var id = event.target.id;
-    var questionID = this.app.models.questionpool.getId();
-
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
-
-    if (this.app.models.answer.answerScore > -1) {
+QuestionView.prototype.tap = function () {
+    if (this.model.answerScore >= 0) {
         this.app.changeView("feedback");
     }
     else {
-        this.app.models.answer.startAttempt(questionID);
+        if (!this.model.isAttempt()) {
+            this.model.startAttempt(this.qInfo.id);
+        }
         this.app.changeView("answer");
     }
 
 };
 
-QuestionView.prototype.swipe = function (event, touches) {
+QuestionView.prototype.swipe = function (event) {
     var id = event.target.id;
-    var tx = touches.touch(0).total.x(),
-        ax = Math.abs(tx);
-    console.log("a swipe event" + id + " distance: " + ax);
+//    var tx = touches.touch(0).total.x(),
+//        ax = Math.abs(tx);
+//    console.log("a swipe event" + id + " distance: " + ax);
 
-    if (id !== "questioncross" &&
-        ax > 50) {
-        this.app.models.answer.deleteData();
-        this.app.models.questionpool.nextQuestion();
-        this.app.changeView("question");
+    if (id !== "questioncross") {
+        if (this.model.isAttempt()){
+            this.app.changeView("answer");
+        }
+        else {
+            this.model.nextQuestion();
+        }
     }
 };
 
-QuestionView.prototype.tap_questioncross = function (event) {
-    this.app.models.answer.resetTimer();
+QuestionView.prototype.tap_questioncross = function () {
+    this.model.cancelAttempt();
     this.app.chooseView("course", "landing");
 };
 
-/**
- * Shows the current question title and the corresponding icon.
- * @prototype
- * @function showQuestionTitle
- * @param {NONE}
- */
-QuestionView.prototype.showQuestionTitle = function () {
-    var currentQuestionType = this.app.models.questionpool.getQuestionType();
-
-    $("#questiondynamicicon").removeClass();
-    $("#questiondynamicicon").addClass(jQuery.i18n.prop('msg_' + currentQuestionType + '_icon'));
-};
-
-/**
- * Shows the current question text.
- * @prototype
- * @function showQuestionBody
- * @param {NONE}
- */
-QuestionView.prototype.showQuestionBody = function () {
-    var currentQuestionBody = this.app.models.questionpool.getQuestionBody();
-
-    $("#questionlisttext").html(currentQuestionBody);
-};

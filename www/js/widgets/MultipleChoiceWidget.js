@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -63,6 +64,7 @@ function MultipleChoiceWidget (opts) {
  */
 MultipleChoiceWidget.prototype.prepare = function () {
     this.selectedAnswer = [];
+    this.answers = this.model.getAnswerList(true); // mix answers
 };
 
 /**
@@ -73,8 +75,8 @@ MultipleChoiceWidget.prototype.prepare = function () {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.update = function() {
-    this.tickedAnswers = this.app.models.answer.getAnswers();
-    
+    this.tickedAnswers = this.model.getResponseList();
+
     if (this.interactive) {
         this.showAnswer();
     }
@@ -90,7 +92,8 @@ MultipleChoiceWidget.prototype.update = function() {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.cleanup = function () {
-    this.app.models.answer.setAnswers(this.selectedAnswer);
+//    this.app.models.answer.setAnswers(this.selectedAnswer);
+    this.answers = null;
 };
 
 /**
@@ -99,7 +102,7 @@ MultipleChoiceWidget.prototype.cleanup = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-MultipleChoiceWidget.prototype.tap = function (event) {    
+MultipleChoiceWidget.prototype.tap = function (event) {
     if (this.interactive) {
         var id = event.target.id;
 
@@ -121,29 +124,18 @@ MultipleChoiceWidget.prototype.tap = function (event) {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.showAnswer = function () {
-    var app = this.app;
-    var questionpoolModel = app.models.questionpool;
 
     console.log("[MultipleChoiceWidget] showAnswer");
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (questionpoolModel.questionList && questionpoolModel.getAnswer()[0].answertext) {
-
-        //mix answer items in an random order
-        if (!questionpoolModel.currAnswersMixed()) {
-            questionpoolModel.mixAnswers();
-        }
-
-        //returns an array containing the possible answers
-        var answers = questionpoolModel.getAnswer();
-        var mixedAnswers = questionpoolModel.getMixedAnswersArray();
+    if (this.answers.length) {
         var c;
 
-        var tmpl = app.templates.getTemplate("answerlistbox");
+        var tmpl = this.template;
 
-        for (c = 0; c < mixedAnswers.length; c++) {
-            tmpl.attach(mixedAnswers[c].toString());
-            tmpl.answertext.text = answers[mixedAnswers[c]].answertext;
+        for (c = 0; c < this.answers.length; c++) {
+            tmpl.attach(c.toString());
+            tmpl.answertext.text = this.answers[c].answertext;
         }
     }
 };
@@ -159,24 +151,22 @@ MultipleChoiceWidget.prototype.showFeedback = function () {
 
     var app = this.app;
 
-    var questionpoolModel = app.models.questionpool;
-    var answers = questionpoolModel.getAnswer();
-    var mixedAnswers = questionpoolModel.getMixedAnswersArray();
     var c;
 
     var fTmpl = app.templates.getTemplate("feedbacklistbox");
 
-    for (c = 0; c < mixedAnswers.length; c++) {
-        fTmpl.attach(mixedAnswers[c].toString());
-        fTmpl.feedbacktext.text = answers[mixedAnswers[c]].answertext;
+    for (c = 0; c < this.answers.length; c++) {
+        fTmpl.attach(c.toString());
+        fTmpl.feedbacktext.text = this.answers[c].answertext;
 
-        if (app.models.answer.getAnswers().indexOf(mixedAnswers[c].toString()) !== -1) {
-            fTmpl.feedbacklist.removeClass("gradient2");
-            fTmpl.feedbacklist.addClass("gradientSelected");
-        }
-
-        if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
-            fTmpl.feedbacktickicon.addClass("icon-checkmark");
-        }
+        // TODO: handle responses correctly
+//        if (app.models.answer.getAnswers().indexOf(this[c].toString()) !== -1) {
+//            fTmpl.feedbacklist.removeClass("gradient2");
+//            fTmpl.feedbacklist.addClass("gradientSelected");
+//        }
+//
+//        if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
+//            fTmpl.feedbacktickicon.addClass("icon-checkmark");
+//        }
     }
 };
