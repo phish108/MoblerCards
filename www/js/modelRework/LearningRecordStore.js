@@ -133,7 +133,7 @@ under the License.
                         self.context.registration = contextId;
                         promise = Promise.resolve();
                         break;
-                    case "contextActvities":
+                    case "contextActivities":
                         switch (arContext[1]) {
                             case "parent":
                             case "grouping":
@@ -231,7 +231,7 @@ under the License.
                             if (!this.context.contextActivities[arContext[1]].length) {
                                 delete this.context.contextActivities[arContext[1]];
                             }
-                            if (!this.context.contextActivities.getOwnPropertyNames().length) {
+                            if (!Object.getOwnPropertyNames(this.context.contextActivities).length) {
                                 delete this.context.contextActivities;
                             }
                         }
@@ -408,31 +408,32 @@ under the License.
      * @return {STRING} UUID
      */
     LearningRecordStore.prototype.startAction = function (record) {
-        var UUID;
+        var myUUID;
 
         if (typeof record === 'object' &&
             record.hasOwnProperty("Verb") &&
             record.hasOwnProperty("Object")) {
-            UUID = DB.createUUID();
+            myUUID = DB.createUUID();
+            console.log("new uuid is " + myUUID);
 
             var mom = moment();
             var created = mom.valueOf();
 
-            record.ID = UUID;
+            record.ID = myUUID;
             record.timestamp = mom.format();
             record.actor = this.actor;
             if (this.context &&
-                this.context.getOwnPropertyNames().length) {
+                Object.getOwnPropertyNames(this.context).length) {
                 record.context = this.context;
             }
 
             return DB.insert("actions", {
-                "uuid":     UUID,
+                "uuid":     myUUID,
                 "record":   JSON.stringify(record),
                 "stored":   created
             })
             .then(function (res) {
-                res.insertID = UUID;
+                res.insertID = myUUID;
                 return res;
             });
         }
@@ -458,7 +459,7 @@ under the License.
                 var rr = res.rows.item(0);
                 if (rr) {
                     var ar = JSON.parse(rr.record), i, k;
-                    k = record.getOwnPropertyNames();
+                    k = Object.getOwnPropertyNames(record);
                     for (i = 0; i < k.length; i++) {
                         if (!ar.hasOwnProperty(k[i])) {
                             ar[k[i]] = record[k[i]];
@@ -495,7 +496,7 @@ under the License.
                 var rr = res.rows.item(0);
                 if (rr) {
                     var ar = JSON.parse(rr.record), i, k;
-                    k = record.getOwnPropertyNames();
+                    k = Object.getOwnPropertyNames(record);
                     for (i = 0; i < k.length; i++) {
                         if (!ar.hasOwnProperty(k[i])) {
                             ar[k[i]] = record[k[i]];
@@ -535,6 +536,21 @@ under the License.
         }
     };
 
+    LearningRecordStore.prototype.cancelAction = function(uuid) {
+         if (typeof uuid === "string" && uuid.length) {
+             DB.delete({
+                'from': 'actions',
+                'where': {"=": "uuid"}
+            }, [uuid])
+             .then(function () {
+                 console.log("record cancelled");
+             })
+             .catch(function (err) {
+                 console.log("cancelling failed: " + JSON.stringify(err));
+             });
+         }
+    };
+
     /**
      * @protoype
      * @function recordAction
@@ -554,7 +570,7 @@ under the License.
             record.timestamp = mom.format();
             record.actor = this.actor;
             if (this.context &&
-                this.context.getOwnPropertyNames().length) {
+                Object.getOwnPropertyNames(this.context).length) {
                 record.context = this.context;
             }
 

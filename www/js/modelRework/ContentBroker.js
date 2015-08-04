@@ -300,44 +300,52 @@
             qList         = [],
             qSel          = [],
             questions     = [],
-            entropyMap    = this.lrs.getEntropyMap(), // returns the entropyMap for the current context
             newQuestions  = [];
 
-        if (entropyMap && entropyMap.questions) {
-            // entropyMap.selection contains only the min entropy questions
-            qSel      = entropyMap.selection;
-            // entropyMap.questions contains the list of all active questions in the map
-            questions = entropyMap.questions;
-        }
+        this.mixed = false;
+        this.mixedAnswers = [];
 
-        if (this.questionPool &&
-            Array.isArray(this.questionPool) &&
-            this.questionPool.length) {
+        this.lrs.getEntropyMap(function (eM) {
+            var entropyMap = eM;
 
-            // identify the unanswered questions and weed out the "hot" questions
-            this.questionPool.forEach(function (q) {
-                if (!questions.length ||
-                    questions.indexOf(q.id) < 0) {
-                    newQuestions.push(q);
-                }
-                else if (qSel &&
-                         qSel.length &&
-                         qSel.indexOf(q.id) >= 0) {
-                    qList.push(q);
-                }
-            });
-
-            // prioritize the unanswered questions
-            if (newQuestions.length) {
-                qList = newQuestions;
+            if (entropyMap && entropyMap.questions) {
+                // entropyMap.selection contains only the min entropy questions
+                qSel      = entropyMap.selection;
+                // entropyMap.questions contains the list of all active questions in the map
+                questions = entropyMap.questions;
             }
 
-            randomId = Math.floor(Math.random() * qList.length);
-            this.activeQuestion = qList[randomId];
+            if (this.questionPool &&
+                Array.isArray(this.questionPool) &&
+                this.questionPool.length) {
 
-            // reset the response list.
-            this.responseList = [];
-        }
+                // identify the unanswered questions and weed out the "hot" questions
+                this.questionPool.forEach(function (q) {
+                    if (!questions.length ||
+                        questions.indexOf(q.id) < 0) {
+                        newQuestions.push(q);
+                    }
+                    else if (qSel &&
+                             qSel.length &&
+                             qSel.indexOf(q.id) >= 0) {
+                        qList.push(q);
+                    }
+                });
+
+                // prioritize the unanswered questions
+                if (newQuestions.length) {
+                    qList = newQuestions;
+                }
+
+                randomId = Math.floor(Math.random() * qList.length);
+                this.activeQuestion = qList[randomId];
+
+                // reset the response list.
+                this.responseList = [];
+            }
+            console.log("trigger CONTENT_QUESTION_READY " + JSON.stringify(this.activeQuestion));
+            $(document).trigger("CONTENT_QUESTION_READY");
+        }, this);
     };
 
     /**
@@ -373,39 +381,23 @@
 
         this.currentCourseContext = idurl;
         if (idurl) {
-            this.lrs.startontext("contextActivities.parent", idurl);
+            this.lrs.startContext("contextActivities.parent", idurl);
         }
     };
 
     ContentBroker.prototype.activateCourse = function (course) {
-        var idurl,
-            lmsId = course.lmsId,
-            courseId = course.id;
+        this.activateCourseById(course.lmsId, course.id);
+    };
 
-        if (this.currentLMSId !== lmsId) {
+    ContentBroker.prototype.deactivateCourse = function () {
+        if (this.currentLMSId) {
             this.lrs.endLRSContext(this.currentLMSId);
         }
 
-        if (this.currentCourseId !== courseId) {
+        if (this.currentCourseId) {
             this.lrs.endContext("contextActivities.parent",
                                 this.currentCourseContext);
             this.currentCourseContext = null;
-        }
-
-        this.currentCourseId = courseId;
-        this.currentLMSId    = lmsId;
-        // this.questionPool contains all ACTIVE questions
-        this.questionPool    = getCourseForLMS(lmsId, courseId);
-
-        this.lrs.startLRSContext(lmsId);
-
-        idurl = this.idprovider.serviceURL("powertla.content.imsqti",
-                                           this.currentLMSId,
-                                           [courseId]);
-
-        this.currentCourseContext = idurl;
-        if (idurl) {
-            this.lrs.startontext("contextActivities.parent", idurl);
         }
     };
 
@@ -422,8 +414,7 @@
         return {
             "id":       aQ.id,
             "type":     aQ.type,
-            "question": aQ.question,
-            "answer":   aQ.answer
+            "question": aQ.question
         };
     }; // done, not checked
 
@@ -435,7 +426,22 @@
      *
      * returns the possible answers of the question
      */
-    ContentBroker.prototype.getAnswerList = function () {
+    ContentBroker.prototype.getAnswerList = function (mix) {
+        if (mix) {
+            if (!this.mixed) {
+                this.mixedAnswers = [];
+
+                var tmpArray = this.activeQuestion.answer.slice(0),
+                    random, answ;
+                while (tmpArray.length) {
+                    random = Math.floor((Math.random() * tmpArray.length));
+                    answ = tmpArray.splice(random, 1);
+                    this.mixedAnswers.push(answ.pop());
+                }
+                this.mixed = true;
+            }
+            return this.mixedAnswers;
+        }
         return this.activeQuestion.answer;
     }; // done, not checked
 
@@ -516,6 +522,7 @@
      * @param {NONE}
      */
     ContentBroker.prototype.startAttempt = function () {
+        var self = this;
         var objectId = this.idprovider.serviceURL("powertla.content.imsqti",
                                                   this.activeQuestion.lmsId,
                                                   [this.activeQuestion.courseId,
@@ -532,7 +539,14 @@
             }
         };
 
-        this.attemptUUID = this.lrs.startAction(record);
+        this.lrs.startAction(record)
+        .then(function (res) {
+            self.attemptUUID = res.insertID;
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
+
     }; // done, not checked
 
     /**
@@ -553,7 +567,18 @@
             }
         };
 
-        this.lrs.finishAttempt(this.attemptUUID, record);
+        this.lrs.finishAction(this.attemptUUID, record);
+        this.attemptUUID = null;
+    };
+
+    ContentBroker.prototype.cancelAttempt = function () {
+        if (this.attemptUUID) {
+            this.lrs.cancelAction(this.attemptUUID);
+        }
+    };
+
+    ContentBroker.prototype.isAttempt = function () {
+        return typeof this.attemptUUID === "string";
     };
 
     /****** Questionpool Management ******/
@@ -769,7 +794,7 @@
             }
             // the event is always triggerd, because a course update could be
             // that the course is removed.
-            $(document).trigger("COURSE_COURSE_UPDATED", [lmsId, course.id]);
+            $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);
 
             // fetch the next course
             i++;
