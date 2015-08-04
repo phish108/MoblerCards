@@ -91,13 +91,17 @@ li, .touchable, .screen {
 /*********************** Content ***********************/
 .contentbox {
     display: block;
-    position: fixed;
-    top: 62px;
-    left: 0px;
+    min-height: 100vh;
+
+    box-sizing: border-box;
+    padding-top: 62px;
     width: 100%;
-    height: 80vh;
-    overflow: scroll;
 }
+
+.contentbox.withfooter {
+    padding-bottom: 62px;
+}
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -239,7 +243,7 @@ input.listlabel {
     color: black;
 }
 /****************** Question View ******************************/
-#questionlisttext {
+#questiontext {
     font-size: 20px;
 }
 /* <<<<<<<<<<<<<<<<< Colors and Gradients START <<<<<<<<<<<<<<<<<<<< */
