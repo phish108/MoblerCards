@@ -166,7 +166,7 @@ MoblerCards.prototype.isOffline = function () {
 MoblerCards.prototype.initialize = function () {
     // setup the models
     this.models.contentbroker.idprovider  = this.models.identityprovider;
-    this.models.contentbroker.lrs         = this.models.identityprovider;
+    this.models.contentbroker.lrs         = this.models.learningrecordstore;
 
     var kList = Object.getOwnPropertyNames(this.models);
     kList.forEach(function(m){
