@@ -25,8 +25,6 @@ under the License.
  * @author Dijan Helbling
  */
 
-
-
 /**
  * @Class LandingView
  * View for displaying the first page that is visible to the user when the app is launched.
@@ -43,76 +41,60 @@ under the License.
 function LandingView() {
     var self = this;
 
-    /**
-     * It is triggered when an online connection is detected.
-     * @event errormessagehide
-     * @param: a function that hides the error message from login view
-     * **/
-    $(document).bind("errormessagehide", function () {
-        console.log(" hide error message loaded ");
-        self.hideErrorMessage();
-    });
+    this.pList = [];
 
-    //this will be called when a synchronization update takes place
-    $(document).bind("featuredContentlistupdate", function () {
-        self.showForm();
-    });
-
-    $(document).bind("CONTENT_COURSELIST_UPDATED", function () {
-        console.log("refresh!");
+    function refresh() {
         self.refresh();
-    });
+    }
 
-    $(document).bind("CONTENT_COURSE_UPDATED", function () {
-        console.log("refresh!");
-        self.refresh();
-    });
+    window.addEventListener("offline",             refresh, true);
+    window.addEventListener("online",              refresh, true);
+    $(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
+    $(document).bind("CONTENT_COURSE_UPDATED",     refresh);
 }
 
 LandingView.prototype.prepare = function () {
+    this.hideErrorMessage();
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     }
 };
 
 LandingView.prototype.update = function () {
-    this.showForm();
-
     var courseList = this.models.contentbroker.getCourseList(true);
+    this.hideErrorMessage();
 
     console.log("LV.update! courselist " + courseList.length);
-    // FUTURE show featured courses!
+    // FUTURE show ALL featured courses!
     if (courseList.length) {
+        this.pList = courseList;
+
         var lvTemplate = this.app.templates.getTemplate("landingcourse");
 
         // for now we show the first featured course
         lvTemplate.landingfeaturedlabel.text = courseList[0].title;
     }
-};
-
-LandingView.prototype.showForm = function () {
-    // var featuredModel = this.app.models.featured;
-
-    this.hideErrorMessage();
-
-    if (this.app.isOffline()) {
+    else if (this.app.isOffline()) {
         this.showErrorMessage(jQuery.i18n.prop('msg_landing_message'));
     }
-
-    // $("#landingfeaturedlabel").text(featuredModel.getTitle());
-
-//    if ($("#selectarrowLanding").hasClass("icon-loading loadingRotation")) {
-//        $("#selectarrowLanding").addClass("icon-bars").removeClass("icon-loading loadingRotation");
-//    }
+    else {
+        // no content!
+        this.showErrorMessage(jQuery.i18n.prop('msg_no_courses_message'));
+    }
 };
 
 LandingView.prototype.tap_landingfeaturedimage = function () {
-    this.app.changeView("statistics");
+    console.log("select featured course");
+    this.models.contentbroker.activateCourse(this.pList[0]);
+    this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
 };
 
 LandingView.prototype.tap_landingfeaturedlist = function() {
     console.log("select featured course");
-    // this.app.selectCourseItem(featuredContentId);
+    this.models.contentbroker.activateCourse(this.pList[0]);
+    this.models.contentbroker.nextQuestion();
+
+    this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
 };
 
 LandingView.prototype.tap_landingexclusivelist = function () {
@@ -140,9 +122,11 @@ LandingView.prototype.tap_landingexclusivelist = function () {
  * @function showErrorMessage
  */
 LandingView.prototype.showErrorMessage = function (message) {
-    $("#warningmessageLanding").hide();
-    $("#errormessageLanding").text(message);
-    $("#errormessageLanding").show();
+    if (this.active) {
+        $("#warningmessageLanding").hide();
+        $("#errormessageLanding").text(message);
+        $("#errormessageLanding").show();
+    }
 };
 
 /**
@@ -151,6 +135,8 @@ LandingView.prototype.showErrorMessage = function (message) {
  * @function hideErrorMessage
  **/
 LandingView.prototype.hideErrorMessage = function () {
-    $("#errormessageLanding").text("");
-    $("#errormessageLanding").hide();
+    if (this.active) {
+        $("#errormessageLanding").text("");
+        $("#errormessageLanding").hide();
+    }
 };
