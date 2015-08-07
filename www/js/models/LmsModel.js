@@ -448,7 +448,7 @@
             $(document).trigger("LMS_INVALID", [serverURL]);
         }
 
-        serverURL.trim(); // remove whitespaces
+        serverURL.trim(); // trim whitespaces
 
         // strip any "index.*" from the end of the URL
         serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/"); // i means case insensitive
@@ -676,7 +676,7 @@
             var rsd = this.activeLMS,
                 ts = (new Date()).getTime();
 
-            // remove the inaccessible flag after some time.
+            // clear the inaccessible flag after some time.
              if (rsd.inactive > 0) {
                 var delta = ts - rsd.inactive;
                 if (delta > 3600000) { // wait for one hour

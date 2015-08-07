@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -42,14 +43,27 @@ function FeedbackView() {
 
     this.tagID = this.app.viewId;
 
-    this.delegate(window.SingleChoiceWidget,'assSingleChoice', {interactive: false});
-    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {interactive: false});
-    this.delegate(window.TextSortWidget,'assOrderingQuestion', {interactive: false});
-    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
+    this.delegate(MultipleChoiceWidget,
+                  'assSingleChoice',
+                  {single: true, interactive: false});
+    this.delegate(MultipleChoiceWidget,
+                  'assMultipleChoice',
+                  {single: true, interactive: false});
+    this.delegate(TextSortWidget,
+                  'assOrderingQuestion',
+                  {interactive: false});
 
-    this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: false});
-    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: false});
-    this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
+    this.delegate(NumericQuestionWidget,
+                  'assNumeric',
+                  {interactive: false});
+    this.delegate(ClozeQuestionTypeView,
+                  'assClozeTest',
+                  {interactive: false});
+    this.delegate(ApologizeWidget,
+                  'apologize',
+                  {interactive: true});
+
+    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
 
     /**
      * It is triggered after statistics are loaded locally from the server. This can happen during the
@@ -85,7 +99,7 @@ function FeedbackView() {
  * @param {NONE}
  */
 FeedbackView.prototype.prepare = function () {
-    var qt = this.app.models.questionpool.getQuestionType();
+    var qt = this.model.getQuestionInfo().type;
 
     $("#feedbacktip").hide();
 
@@ -113,10 +127,6 @@ FeedbackView.prototype.prepare = function () {
  * @param {NONE}
  **/
 FeedbackView.prototype.update = function () {
-    if (this.app.models.answer.answerScore === -1) {
-        this.app.models.answer.calculateScore();
-    }
-
     this.showFeedbackTitle();
     this.showFeedbackBody();
 };
@@ -138,8 +148,6 @@ FeedbackView.prototype.cleanup = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-
-
 FeedbackView.prototype.tap_feedbackfooter = function () {
     this.app.models.answer.deleteData();
     this.app.models.questionpool.nextQuestion();
@@ -149,7 +157,7 @@ FeedbackView.prototype.tap_feedbackfooter = function () {
 FeedbackView.prototype.tap_feedbackcontent = FeedbackView.prototype.tap_feedbackfooter;
 
 FeedbackView.prototype.tap_feedbackinfo = function () {
-     this.getFeedbackInfo();
+     this.getFeedbackInfo(); // fixme - create a separate view
 };
 FeedbackView.prototype.tap_feedbackheader = function () {
     this.app.changeView("question");
@@ -178,10 +186,22 @@ FeedbackView.prototype.getFeedbackInfo = function () {
  * @param {NONE}
  */
 FeedbackView.prototype.showFeedbackTitle = function () {
-    var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
+    var score = this.model.score;
+    var currentFeedbackTitle = "Wrong";
 
-    $("#feedbacktitle").text(jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title'));
-    $("#feedbackdynamicicon").attr('class', jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'));
+    if (score >= 1) {
+        // the score should be max 1, but we never know.
+        currentFeedbackTitle = "Excellent";
+    }
+    else if (score > 0) {
+        currentFeedbackTitle = "PartiallyCorrect";
+    }
+
+    var icon  = jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'),
+        title = jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title');
+
+    $("#feedbacktitle").text(title);
+    $("#feedbackdynamicicon").attr('class', icon);
 };
 
 /**
@@ -192,16 +212,10 @@ FeedbackView.prototype.showFeedbackTitle = function () {
  * @function showFeedbackBody
  * @param {NONE}
  */
-FeedbackView.prototype.showFeedbackBody = function () {
-    var questionpoolModel = this.app.models.questionpool;
-    var questionType = questionpoolModel.getQuestionType();
-    var feedbackText = questionpoolModel.getWrongFeedback();
-    var currentFeedbackTitle = this.app.models.answer.getAnswerResults();
 
-    if (currentFeedbackTitle === "Excellent") {
-        //gets correct feedback text
-        feedbackText = questionpoolModel.getCorrectFeedback();
-    }
+// FIXME - move into separate view
+FeedbackView.prototype.showFeedbackBody = function () {
+    var feedbackText = this.model.getFeedback();
 
     if (feedbackText && feedbackText.length > 0) {
         $("#feedbacktip").html(feedbackText);

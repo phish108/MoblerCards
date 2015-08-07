@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $, jQuery*/
+/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -45,18 +45,28 @@ function AnswerView() {
     this.widget = null;
 
     // init widget delegates
-    this.delegate(window.MultipleChoiceWidget,'assSingleChoice', {single: true,
-                                                                  interactive: true});
-    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {single: false,
-                                                                    interactive: true});
+    this.delegate(MultipleChoiceWidget,
+                  'assSingleChoice',
+                  {single: true, interactive: true});
+    this.delegate(MultipleChoiceWidget,
+                  'assMultipleChoice',
+                  {single: false, interactive: true});
+    this.delegate(TextSortWidget,
+                  'assOrderingQuestion',
+                  {interactive: true});
+    this.delegate(NumericQuestionWidget,
+                  'assNumeric',
+                  {interactive: true});
+    this.delegate(ClozeQuestionTypeView,
+                  'assClozeTest',
+                  {interactive: true});
+    this.delegate(ApologizeWidget,
+                  'apologize',
+                  {interactive: true});
 
-    this.delegate(window.TextSortWidget,'assOrderingQuestion', {interactive: true});
-    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
+    this.mapDelegate('assOrderingQuestion',
+                     'assOrderingHorizontal');
 
-    this.delegate(window.NumericQuestionWidget,'assNumeric', {interactive: true});
-    this.delegate(window.ClozeQuestionTypeView,'assClozeTest', {interactive: true});
-
-    this.delegate(window.ApologizeWidget,'apologize', {interactive: true});
 }
 
 /**
@@ -93,12 +103,19 @@ AnswerView.prototype.prepare = function () {
  * @prototype
  * @function update
  * @param {NONE}
+ *
+ * note that the actual view contents is done by the widget delegates.
  **/
 AnswerView.prototype.update = function () {
-    this.showAnswerTitle();
+    var currentAnswerTitle = "msg_" + this.model.getQuestionInfo().type;
 
-    $("#dataErrorMessage").empty();
-    $("#dataErrorMessage").hide();
+    var title = jQuery.i18n.prop(currentAnswerTitle +'_title'),
+        icon  = jQuery.i18n.prop(currentAnswerTitle + '_icon');
+
+    // fixme use the component style
+    $("#answerdynamicicon").removeClass();
+    $("#answerdynamicicon").addClass(icon);
+    $("#answertitle").text(title);
 };
 
 /**
@@ -107,7 +124,6 @@ AnswerView.prototype.update = function () {
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
-
 AnswerView.prototype.tap_answerfooter = function () {
     this.model.finishAttempt(); // inform the answer model that we are done.
     if (this.didApologize) {
@@ -115,6 +131,7 @@ AnswerView.prototype.tap_answerfooter = function () {
         this.model.nextQuestion();
     }
     else {
+        this.model.checkResponse();
         this.app.changeView("feedback");
     }
 };
@@ -129,17 +146,4 @@ AnswerView.prototype.tap_answercross = function () {
     this.model.finishAttempt(); // avoid cancel here
     this.model.deactivateCourse(); // reset the contexts
     this.app.chooseView("course", "landing");
-};
-
-/**
- * Displays the title area of the answer view, containing a title icon and the title text.
- * @prototype
- * @function showAnswerTitle
- * @param {NONE}
- **/
-AnswerView.prototype.showAnswerTitle = function () {
-    var currentAnswerTitle = this.model.getQuestionInfo().type;
-    $("#answerdynamicicon").removeClass();
-    $("#answerdynamicicon").addClass(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_icon'));
-    $("#answertitle").text(jQuery.i18n.prop('msg_' + currentAnswerTitle + '_title'));
 };

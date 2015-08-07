@@ -51,6 +51,8 @@ function MultipleChoiceWidget (opts) {
 
     // Single choice or Multiple Choice?
     this.single = typeof opts === "object" ? opts.single : false;
+
+    // TODO: setup local widget template as soon the other widgets get their own templates.
 }
 
 /**
