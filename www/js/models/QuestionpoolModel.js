@@ -1,5 +1,7 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
+// REMOVE
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -86,7 +88,6 @@ QuestionPoolModel.prototype.loadData = function (course_id) {
 //        console.log("questionpool Object is " + questionPoolObject);
     } catch (err) {
 //        console.log("question pool object is zero");
-        // FIXME it might be just a questionpoolObject
         // [before] questionPoolObject2 = [];
         questionPoolObject = [];
     }
@@ -120,7 +121,6 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
             success: function (data) {
 //                console.log("success");
 
-                // FIXME: this is either a view event or part of the configuration model
                 turnOffDeactivate();
 
                 //if this was a pending question pool, remove it from the storage
@@ -181,11 +181,9 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
 //                var servername = lmsModel.activeLMS.id;
                 if (request.status === 403) {
                     if (lmsModel.activeLMS.deactivateFlag === false) {
-                        // FIXME cleanup common.js
                         turnOnDeactivate();
 //                        console.log("Error while loading question pool from server");
 
-                        // FIXME cleanup common.js
                         showErrorResponses(request);
                     }
                 }
@@ -194,7 +192,6 @@ QuestionPoolModel.prototype.loadFromServer = function (courseId) {
                 //store the course id for the question pool in the local storage
                 if (request.status === 404) {
 //                    console.log("Error while loading question pool from server");
-                    // FIXME cleanup common.js
 
                     showErrorResponses(request);
                 }
@@ -243,10 +240,9 @@ QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
 
     helperDiv.empty();
     helperDiv.html(htmltext);
-    // remove all the image tags
+    // clear all the image tags
     helperDiv.find("img, hr, br + br").remove();
 
-    // FIXME cleanup common.js
     var contentsArray = elementContents(helperDiv[0]);
     for (i = 0; i < contentsArray.length; i++) {
 //        console.log("element in loop is" + contentsArray[i]);
@@ -256,7 +252,6 @@ QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
     }
 
 //    console.log(">>>PRE REVERSE>>> " + helperDiv.html());
-    // FIXME cleanup common.js
     contentsArray = elementContents(helperDiv[0]);
 
     var reversedArray = contentsArray.reverse();
@@ -267,7 +262,7 @@ QuestionPoolModel.prototype.cleanupHTML = function (htmltext) {
         }
     }
 
-    // remove all the empty p, div, span tags
+    // clear all the empty p, div, span tags
     var pTags = helperDiv.find("p, div, span");
     pTags.each(function () {
         if (!/\S/.test($(this).text())) {
@@ -380,8 +375,6 @@ QuestionPoolModel.prototype.getQuestionBody = function () {
 QuestionPoolModel.prototype.getAnswer = function () {
     return this.activeQuestion.answer;
 };
-
-// TODO: implement getCorrectGaps alternative for CLOZE questions
 
 /**
  * @prototype
@@ -573,7 +566,3 @@ QuestionPoolModel.prototype.dataAvailable = function () {
 //    console.log("questionpool list does not exist");
     return false;
 };
-
-// TODO
-QuestionPoolModel.prototype.getPoolID = function () {};
-QuestionPoolModel.prototype.setPoolID = function () {};

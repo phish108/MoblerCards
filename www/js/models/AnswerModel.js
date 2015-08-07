@@ -1,5 +1,7 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 
+// REMOVE
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file

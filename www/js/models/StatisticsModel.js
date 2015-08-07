@@ -1,6 +1,8 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
 /*global device*/
 
+// remove
+
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -75,7 +77,7 @@ function StatisticsModel(controller) {
     this.idprovider = controller.models.identityprovider;
 
     this.lastSendToServer = 0;
-    this.clickOutOfStatisticsIcon = 0; // FIXME move UI Statements into views
+    this.clickOutOfStatisticsIcon = 0;
     this.db = window.openDatabase('ISNLCDB', '1.0', 'ISN Learning Cards Database', 100000);
     this.currentCourseId = -1;
     this.firstActiveDay = 0;
@@ -586,7 +588,7 @@ StatisticsModel.prototype.sendToServer = function (featuredContent_id) {
                         statistics: statistics
                     };
                     localStorage.setItem("pendingStatistics", JSON.stringify(statisticsToStore));
-                    //FIXME:to pass the session key as argument in the triggering of the event
+
                     $(document).trigger("statisticssenttoserver", sessionkey, activeURL, featuredContent_id);
                 },
                 beforeSend: function setHeader(xhr) {
@@ -678,7 +680,6 @@ StatisticsModel.prototype.checkclickOutOfStatisticsIcon = function () {
  * generates a UUID
  */
 StatisticsModel.prototype.generateUUID = function() {
-    // TODO: include device UUID, timestamp, and userid as random seed
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     uuid.replace(/[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);

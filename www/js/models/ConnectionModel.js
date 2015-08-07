@@ -1,4 +1,6 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+
+// REMOVE
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -166,7 +168,6 @@ ConnectionModel.prototype.synchronizeData = function () {
 
 //        console.log('check synchronization - question pools');
         // if a pending question pool exists, load the question pool from the server
-        // FIXME improve /=void conditioning
         if (this.controller &&
             this.controller.models &&
             this.controller.models.course &&
@@ -231,7 +232,6 @@ ConnectionModel.prototype.synchronizeData = function () {
             }
         }
 
-        // FIXME remove all tracking model references.
 //        var trackingModel = this.controller.models.tracking;
 
 //        console.log('check synchronization - tracking');
