@@ -45,8 +45,10 @@ function AnswerView() {
     this.widget = null;
 
     // init widget delegates
-    this.delegate(window.SingleChoiceWidget,'assSingleChoice', {interactive: true});
-    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {interactive: true});
+    this.delegate(window.MultipleChoiceWidget,'assSingleChoice', {single: true,
+                                                                  interactive: true});
+    this.delegate(window.MultipleChoiceWidget,'assMultipleChoice', {single: false,
+                                                                    interactive: true});
 
     this.delegate(window.TextSortWidget,'assOrderingQuestion', {interactive: true});
     this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');

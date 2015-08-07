@@ -21,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -28,6 +29,7 @@ under the License.
 
 /**
  * @Class MultipleChoiceWidget
+ *
  * The Multiple choice widget has two views, an answer and a feedback view.
  * The answer view contains a list with possible solutions and is highlighted by the selected answers of users.
  * The feedback view contains the list with the possible solutions highlighted by both the correct answers and learner's ticked answers.
@@ -41,19 +43,14 @@ under the License.
  * @param {Boolean} interactive
  */
 function MultipleChoiceWidget (opts) {
-    var self = this;
-
     //Check the boolean value of interactive. This is set through the answer and feedback view.
-    self.interactive = typeof opts === "object" ? opts.interactive : false;
+    this.interactive = typeof opts === "object" ? opts.interactive : false;
 
-    // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
-    self.didApologize = false;
+    // stating whether the widget allows moving, used by parent view
+    this.moveEnabled = false;
 
-    // current selected Answer
-    self.selectedAnswer = [];
-
-    // stating whether the widget allows moving
-    self.moveEnabled = false;
+    // Single choice or Multiple Choice?
+    this.single = typeof opts === "object" ? opts.single : false;
 }
 
 /**
@@ -63,24 +60,7 @@ function MultipleChoiceWidget (opts) {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.prepare = function () {
-    this.selectedAnswer = [];
     this.answers = this.model.getAnswerList(true); // mix answers
-};
-
-/**
- * Decide whether to show the widget for the answer or feedback view.
- * Update a list with the currently selected answers.
- * @prototype
- * @function update
- * @param {NONE}
- */
-MultipleChoiceWidget.prototype.update = function() {
-    if (this.interactive) {
-        this.showAnswer();
-    }
-    else {
-        this.showFeedback();
-    }
 };
 
 /**
@@ -90,7 +70,6 @@ MultipleChoiceWidget.prototype.update = function() {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.cleanup = function () {
-//    this.app.models.answer.setAnswers(this.selectedAnswer);
     this.answers = null;
 };
 
@@ -104,62 +83,58 @@ MultipleChoiceWidget.prototype.tap = function (event) {
     if (this.interactive) {
         var id = event.target.id;
 
-        // automatically toggles the response
-        this.model.addResponse(id.split('_')[2]);
-        $(event.target).toogleClass("selected");
-    }
-};
+        if (this.single) {
+            var tag       = event.target,
+                realId    = id.split("_")[2],
+                answerId  = this.model.getResponseList()[0];
 
-/**
- * Create a mixed list of answers.
- * @prototype
- * @function showAnswer
- * @param {NONE}
- */
-MultipleChoiceWidget.prototype.showAnswer = function () {
+            if (answerId) {
+                $("#answerlist_answerlistbox_" + answerId)
+                    .removeClass("selected");
+                this.model.clearResponse();
+            }
 
-    console.log("[MultipleChoiceWidget] showAnswer");
-
-    // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (this.answers.length) {
-        var c;
-
-        var tmpl = this.template;
-
-        for (c = 0; c < this.answers.length; c++) {
-            tmpl.attach(this.answers[c].order.toString());
-            tmpl.answertext.text = this.answers[c].answertext;
+            // now add the new answer if we really want to add it
+            if (realId !== answerId) {
+                this.model.addResponse(realId);
+                $(tag).addClass("selected");
+            }
+        }
+        else {
+            // automatically toggles the response
+            this.model.addResponse(id.split('_')[2]);
+            $(event.target).toogleClass("selected");
         }
     }
 };
 
 /**
- * Create the answer list.
- * Tick the correct answers and mark the users answer choice.
+ * Display the List of Answers (if necessary with feedback)
  * @prototype
- * @function showFeedback
+ * @function update
+ * @param {NONE}
  */
-MultipleChoiceWidget.prototype.showFeedback = function () {
-    console.log("start show feedback in multiple choice");
+MultipleChoiceWidget.prototype.update = function() {
+    var response  = this.model.getResponseList(),
+        aTmpl     = this.template;
 
-    var app = this.app;
+    this.answers.forEach(function (a) {
+        var os = a.order.toString();
+        aTmpl.attach(os);
+        aTmpl.answertext.text = a.answertext;
 
-    var c;
+        if (response.indexOf(os) >= 0) {
+            this.answerlist.addClass("selected");
 
-    var fTmpl = app.templates.getTemplate("feedbacklistbox");
+            // in feedback mode  display the feedback too
+            if (!this.interactive && a.points) {
+                aTmpl.answertickicon.addClass("icon-checkmark");
+            }
+        }
+    }, this);
 
-    for (c = 0; c < this.answers.length; c++) {
-        fTmpl.attach(c.toString());
-        fTmpl.feedbacktext.text = this.answers[c].answertext;
-
-        // TODO: handle responses correctly
-//        if (app.models.answer.getAnswers().indexOf(this[c].toString()) !== -1) {
-//            fTmpl.feedbacklist.removeClass("gradient2");
-//            fTmpl.feedbacklist.addClass("gradientSelected");
-//        }
-//
-//        if (questionpoolModel.getScore(mixedAnswers[c]) > 0) {
-//            fTmpl.feedbacktickicon.addClass("icon-checkmark");
-//        }
+    if (!this.answers.length) {
+        // should never happen
+        this.useDelegate("apologize");
     }
 };
