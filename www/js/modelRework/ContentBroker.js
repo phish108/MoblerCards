@@ -487,7 +487,7 @@
     ContentBroker.prototype.getXAPIResponseList = function () {
         var aR = [];
 
-        this.responseList.forEach(function (v,i) {
+        this.responseList.forEach(function (v) {
             v = v.toString();
             switch (this.activeQuestion.type) {
                 case "assSingleQuestion":
@@ -540,15 +540,14 @@
 
         this.score = 0; // wrong by default
 
+        // TODO: Move Type based Score Calculations to individual functions
         switch (this.activeQuestion.type) {
             case "assSingleQuestion":
-                if (this.responseList.length === 1) {
-                    if (this.activeQuestion.answers[parseInt(this.responseList[0], 10)].points) {
-                        this.score = 1;
-                    }
-                }
-                break;
             case "assMultipleQuestion":
+                /**
+                 * Single Choice can be calculated easier, but IMS QTI does not
+                 * differentiate between the two.
+                 */
                 var nCorr = 0,
                     nOK = 0,
                     nBad = 0,
@@ -625,8 +624,6 @@
             default:
                 break;
         }
-
-        return (this.score === 1);
     }; // done, not checked
 
     /**
@@ -636,8 +633,7 @@
      * @return {ARRAY} feedback;
      */
     ContentBroker.prototype.getFeedback = function () {
-        // FIXME checkResponse will not determine if the answer is correct!
-        if (this.checkResponse()) {
+        if (this.score >= 1) {
             return this.activeQuestion.correctFeedback;
         }
         return this.activeQuestion.errorFeedback;
