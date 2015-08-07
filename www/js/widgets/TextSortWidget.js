@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -67,7 +68,7 @@ function TextSortWidget(opts) {
  * @param {NONE}
  */
 TextSortWidget.prototype.prepare = function () {
-    
+
 };
 
 /**
@@ -79,7 +80,7 @@ TextSortWidget.prototype.prepare = function () {
  */
 TextSortWidget.prototype.update = function () {
     // loads answers from model for displaying already by the user ordered elements
-    this.tickedAnswers = this.app.models.answer.getAnswers();
+    this.tickedAnswers = this.model.getAnswerList(true); // get mixed answers
 
     if (this.interactive) {
         // make the list sortable using JQuery UI's function
@@ -96,7 +97,7 @@ TextSortWidget.prototype.update = function () {
                 $(ui.item).removeClass("currentSortedItem");
             }
         });
-        
+
         this.showAnswer();
     }
     else {
@@ -112,7 +113,7 @@ TextSortWidget.prototype.update = function () {
  */
 TextSortWidget.prototype.cleanup = function () {
     var answers = [];
-    
+
     if (!this.didApologize) {
         $("#answerbox").find("li").each(function (index) {
             var id = $(this).attr("id").split("_")[2];
@@ -149,7 +150,7 @@ function createEvent(type, event) {
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
     console.log("[TextSortWidget] startMove detected: " + id);
-    
+
     if (id.split("_")[0] === "answertick") {
         createEvent("mousedown", event);
         this.dragActive = true;
@@ -189,7 +190,7 @@ TextSortWidget.prototype.endMove = function (event) {
 
     if (this.dragActive && y < 60) {
         window.scrollTo(0, 0);
-        this.dragActive = false; 
+        this.dragActive = false;
     }
 };
 
@@ -203,13 +204,13 @@ TextSortWidget.prototype.showAnswer = function () {
     var self = this;
 
     var app = this.app;
-    
+
     var questionpoolModel = app.models.questionpool;
     var answers = questionpoolModel.getAnswer();
     var answerModel = app.models.answer;
     var tmpl = app.templates.getTemplate("answerlistbox");
     var i;
-    
+
     if (questionpoolModel.questionList && answers && answers[0].answertext) {
         var mixedAnswers;
 
@@ -236,7 +237,7 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
         }
     }
-    
+
     $("#answerbox").find("li").addClass("untouchable");
     $(".dragicon").show();
     $(".listimage").addClass("touchable");
@@ -250,8 +251,8 @@ TextSortWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 TextSortWidget.prototype.showFeedback = function () {
-    var answers = this.app.models.questionpool.getAnswer();
-    var scores = this.app.models.answer.getScoreList();
+    var answers = this.model.getAnswerList(true);
+    // var scores = this.app.models.answer.getScoreList();
     var fTmpl = this.app.templates.getTemplate("feedbacklistbox");
     var i;
 

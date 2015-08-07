@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 /*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -75,8 +75,6 @@ MultipleChoiceWidget.prototype.prepare = function () {
  * @param {NONE}
  */
 MultipleChoiceWidget.prototype.update = function() {
-    this.tickedAnswers = this.model.getResponseList();
-
     if (this.interactive) {
         this.showAnswer();
     }
@@ -106,14 +104,9 @@ MultipleChoiceWidget.prototype.tap = function (event) {
     if (this.interactive) {
         var id = event.target.id;
 
-        if ($("#" + id).hasClass("gradient2")) {
-            $("#" + id).removeClass("gradient2").addClass("gradientSelected");
-            this.selectedAnswer.push(id.split("_")[2]);
-        }
-        else {
-            $("#" + id).addClass("gradient2").removeClass("gradientSelected");
-            this.selectedAnswer.splice(this.selectedAnswer.indexOf(id.split("_")[2]), 1);
-        }
+        // automatically toggles the response
+        this.model.addResponse(id.split('_')[2]);
+        $(event.target).toogleClass("selected");
     }
 };
 
@@ -134,7 +127,7 @@ MultipleChoiceWidget.prototype.showAnswer = function () {
         var tmpl = this.template;
 
         for (c = 0; c < this.answers.length; c++) {
-            tmpl.attach(c.toString());
+            tmpl.attach(this.answers[c].order.toString());
             tmpl.answertext.text = this.answers[c].answertext;
         }
     }

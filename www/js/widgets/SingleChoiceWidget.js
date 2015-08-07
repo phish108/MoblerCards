@@ -63,9 +63,8 @@ function SingleChoiceWidget(opts) {
  * @param {NONE}
  */
 SingleChoiceWidget.prototype.prepare = function () {
-    console.log("SINGLE CHOICE!!");
     this.selectedAnswer = [];
-    this.answers = this.model.getAnswerList(true); // mix answers
+    this.answers = this.model.getAnswerList(true); // get mixed answers
 };
 
 /**
@@ -76,8 +75,6 @@ SingleChoiceWidget.prototype.prepare = function () {
  * @param {NONE}
  */
 SingleChoiceWidget.prototype.update = function () {
-    this.tickedAnswers = this.model.getResponseList();
-
     if (this.interactive) {
         this.showAnswer();
     }
@@ -106,20 +103,21 @@ SingleChoiceWidget.prototype.cleanup = function () {
  */
 SingleChoiceWidget.prototype.tap = function (event) {
     if (this.interactive) {
-        var id = event.target.id;
-        var answerId = "answerlist_answerlistbox_";
-        var li = $("#" + answerId + this.selectedAnswer[0]);
+        var id        = event.target.id,
+            tag       = event.target,
+            realId    = id.split("_")[2],
+            answerId  = this.model.getResponseList()[0];
 
-        if ($("#" + id).hasClass("gradient2")) {
-            if (li.hasClass("gradientSelected")) {
-                li.removeClass("gradientSelected").addClass("gradient2");
-            }
-            $("#" + id).removeClass("gradient2").addClass("gradientSelected");
-            this.selectedAnswer[0] = id.split("_")[2];
+        if (answerId) {
+            $("#answerlist_answerlistbox_" + answerId)
+                .removeClass("selected");
+            this.model.clearResponse();
         }
-        else if ($("#" + id).hasClass("gradientSelected")) {
-            $("#" + id).removeClass("gradientSelected").addClass("gradient2");
-            this.selectedAnswer[0] = -1;
+
+        // now add the new answer if we really want to add it
+        if (realId !== answerId) {
+            this.model.addResponse(realId);
+            $(tag).addClass("selected");
         }
     }
 };
@@ -144,7 +142,7 @@ SingleChoiceWidget.prototype.showAnswer = function () {
 
         for (c = 0; c < this.answers.length; c++) {
             console.log( c + "  " + this.answers[c].answertext);
-            aTmpl.attach(c.toString());
+            aTmpl.attach(this.answers[c].order.toString());
             aTmpl.answertext.text = this.answers[c].answertext;
         }
     }
