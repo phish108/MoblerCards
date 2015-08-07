@@ -273,7 +273,7 @@ input.listlabel {
     /* the standard */
 }
 /*selected item before being selected*/
-
+.listbox.gradient,
 .gradient2 {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #bebebe));
     /* Safari 4+, Chrome 2+ */
@@ -284,6 +284,7 @@ input.listlabel {
     background: linear-gradient(#dddddd, #bebebe);
     /* the standard */
 }
+.listbox.gradient.selected,
 .gradientSelected {
     color: white;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e5e5e), color-stop(100%, #8c8c8c));

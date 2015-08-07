@@ -212,7 +212,7 @@ LMSView.prototype.tap = function (event) {
     if (id.indexOf("lmslist") === 0)  {
         this.clickLMSItem(sn, $(event.target));
         if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
-            $("#lmslabel_lmslistbox_" + this.preServername).addClass("gradientSelected");
+            $("#lmslabel_lmslistbox_" + this.preServername).addClass("selected");
         }
     }
 };
@@ -298,15 +298,14 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     lmstmpl.attach(lmsData.id);
 
     if (lmsData.selected) {
-        lmstmpl.lmslist.addClass("gradientSelected");
+        lmstmpl.lmslist.addClass("selected");
     }
     else {
-        lmstmpl.lmslist.addClass("gradient2");
         lmstmpl.lmslist.addClass("textShadow");
     }
 
     lmstmpl.lmsimg.addClass("hidden");
-    lmstmpl.lmslabel.addClass("lightgrey");
+    // lmstmpl.lmslabel.addClass("lightgrey");
 
     lmstmpl.lmslabel.text = lmsData.name;
     lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
@@ -324,8 +323,8 @@ LMSView.prototype.createLMSItem = function (lmsData) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.selectItemVisuals = function (servername) {
-    $("#lmslist_lmslistbox_" + servername).addClass("gradientSelected");
-    $("#lmslist_lmslistbox_" + servername).removeClass("textShadow gradient2");
+    $("#lmslist_lmslistbox_" + servername).addClass("selected");
+    $("#lmslist_lmslistbox_" + servername).removeClass("textShadow");
 };
 
 /**
@@ -336,8 +335,8 @@ LMSView.prototype.selectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deselectItemVisuals = function (servername) {
-    $("#lmslist_lmslistbox_" + servername).removeClass("gradientSelected ");
-    $("#lmslist_lmslistbox_" + servername).addClass("textShadow gradient2");
+    $("#lmslist_lmslistbox_" + servername).removeClass("selected");
+    $("#lmslist_lmslistbox_" + servername).addClass("textShadow");
 };
 
 /**when the attempt of registrating with the selected lms has failed,
@@ -426,10 +425,10 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
     var self = this;
     var lb = $("#lmslist_lmslistbox_" + servername);
 
-    if (!lb.hasClass("gradientSelected")) {
+    if (!lb.hasClass("selected")) {
 
-        lb.removeClass("gradientSelected");
-        lb.addClass("gradient2 textShadow");
+        lb.removeClass("selected");
+        lb.addClass("textShadow");
 
 //        lmsModel.storePreviousServer();
 //        this.preServername = lmsModel.getPreviousServer();
@@ -521,7 +520,7 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
         // activate the previsous LMS before changing the visuals
         var previouslms = this.model.getPreviousServer();
         self.model.activateLMS(previouslms);
-        $("#lmslist_lmslistbox_" + previouslms).addClass("gradientSelected");
+        $("#lmslist_lmslistbox_" + previouslms).addClass("selected");
     }, 2800);
 };
 
@@ -562,7 +561,7 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
         //console.log("previouslms is "+previouslms);
         //var previouslms=this.app.models['lms'].getPreviousServer();
         self.model.activateLMS(previousLMS);
-        $("#lmslist_lmslistbox_" + previousLMS).addClass("gradientSelected");
+        $("#lmslist_lmslistbox_" + previousLMS).addClass("selected");
     }, 2800);
 
 
