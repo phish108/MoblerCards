@@ -498,10 +498,13 @@ under the License.
                     var ar = JSON.parse(rr.record), i, k;
                     k = Object.getOwnPropertyNames(record);
                     for (i = 0; i < k.length; i++) {
-                        if (!ar.hasOwnProperty(k[i])) {
-                            ar[k[i]] = record[k[i]];
+                        if (ar.hasOwnProperty(k[i])) {
+                            this.cancelAction(UUID);
+                            return Promise.reject("ERR_XAPI_RECORD_OVERWRITE");
                         }
+                        ar[k[i]] = record[k[i]];
                     }
+
                     var start = moment(ar.timestamp);
                     var duration = moment.duration(end.diff(start));
                     var tD = "PT";
