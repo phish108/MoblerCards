@@ -467,6 +467,13 @@
         }
     }; // done, not checked
 
+    ContentBroker.prototype.isResponse = function (response) {
+        if (this.responseList.indexOf(response) >= 0) {
+            return true;
+        }
+        return false;
+    };
+
     /**
      * @protoype
      * @function getResponseList
@@ -477,14 +484,46 @@
         return this.responseList;
     }; // done, not checked
 
+    ContentBroker.prototype.getXAPIResponseList = function () {
+        var aR = [];
+
+        this.responseList.forEach(function (v,i) {
+            v = v.toString();
+            switch (this.activeQuestion.type) {
+                case "assSingleQuestion":
+                case "assMultipleQuestion":
+                    if (this.activeAnswer.answers[v]) {
+                        aR.push(this.activeAnswer.answers[v]);
+                    }
+                    break;
+                case "assOrderingQuestion":
+                case "assOrderingHorizontal":
+                    // TODO how to represent ordering questions
+                    break;
+                case "assNumeric":
+                    // TODO : what is the internal representation
+                    // TODO : how to represent the result
+                    break;
+                case "assClozeTest":
+                    // TODO : what is the internal representationw
+                    // TODO: how to represent the result (mixture between single questions and numeric?)
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        return aR;
+    };
+
     /**
      * @protoype
-     * @function resetResponseList
+     * @function clearResponseList
      * @param {NONE}
      *
      * Convenience function: resets the response list to an empty response.
      */
-    ContentBroker.prototype.resetResponseList = function () {
+    ContentBroker.prototype.clearResponseList = function () {
         this.responseList = [];
     };
 
@@ -497,8 +536,97 @@
      * Validates the given response.
      */
     ContentBroker.prototype.checkResponse = function () {
-        // old code won't work
-        return true;
+        // checks if the response is correct
+
+        this.score = 0; // wrong by default
+
+        switch (this.activeQuestion.type) {
+            case "assSingleQuestion":
+                if (this.responseList.length === 1) {
+                    if (this.activeQuestion.answers[parseInt(this.responseList[0], 10)].points) {
+                        this.score = 1;
+                    }
+                }
+                break;
+            case "assMultipleQuestion":
+                var nCorr = 0,
+                    nOK = 0,
+                    nBad = 0,
+                    tOrder,
+                    tLen = this.responseList.length;
+                this.activateQuestion.answers.forEach(function (a) {
+                    tOrder = a.order.toString();
+                    if (a.points === 1) {
+                        nCorr++;
+                        if (this.responseList.indexOf(tOrder) >= 0) {
+                            nOK++;
+                        }
+                    }
+                    else if (this.responseList.indexOf(tOrder) >= 0) {
+                        nBad++;
+                    }
+
+                }, this);
+
+                // the score is between 0 and 1
+                if (nCorr !== 0) {
+                    this.score = (nOK - nBad) / nCorr;
+                    if (this.score < 0) {
+                        this.score = 0;
+                    }
+
+                    if (tLen > nCorr &&
+                        tLen === this.activeQuestion.answers.length) {
+                        // if not all answers are correct but the user ticked all we set wrong!
+                        this.score = 0;
+                    }
+                }
+                else if (nBad === 0 && nOK === 0) {
+                    this.score = 1;
+                }
+                break;
+            case "assOrderingQuestion":
+            case "assOrderingHorizontal":
+                var minSequence = 3;
+                var maxS = 0, tS = 0, posOK = 0, v;
+                var rl = this.responseList;
+
+                rl.forEach(function (r, i) {
+                    v = parseInt(r, 10);
+                    if (v === i) {
+                        posOK++;
+                    }
+                    // check for sequences
+                    if ((v + 1) === rl[i+1]) {
+                        tS++;
+                        if (maxS < tS) {
+                            maxS = tS;
+                        }
+                    }
+                    else if ((v + 1) !== rl.length) { // reset if not on the last response
+                       tS = 0;
+                    }
+                });
+
+                if (posOK === rl.length) {  // if all POS are OK we are good
+                    this.score = 1;
+                }
+                else if (maxS >= minSequence) { // calculate the score if there are sequences
+                    this.score = maxS / rl.length;
+                }
+                break;
+            case "assNumeric":
+                // TODO : what is the internal representation
+                // TODO : inlcude predefined ranges
+                break;
+            case "assClozeTest":
+                // TODO : what is the internal representationw
+                break;
+            default:
+                break;
+        }
+
+        return (this.score === 1);
     }; // done, not checked
 
     /**
@@ -559,10 +687,9 @@
     ContentBroker.prototype.finishAttempt = function () {
         var record = {
             "result": {
-                "duration": -1,
-                "score": this.answerScore,
+                "score": this.score,
                 "extensions": {
-                    "http://www.mobinaut.io/mobler/xapiextensions/IMSQTIResult": this.getResponseList()
+                    "http://www.mobinaut.io/mobler/xapiextensions/IMSQTIResult": this.getXAPIResponseList()
                 }
             }
         };
