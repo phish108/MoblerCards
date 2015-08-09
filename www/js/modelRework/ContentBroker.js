@@ -488,12 +488,12 @@
         var aR = [];
 
         this.responseList.forEach(function (v) {
-            v = v.toString();
+            //v = v.toString();
             switch (this.activeQuestion.type) {
                 case "assSingleQuestion":
                 case "assMultipleQuestion":
-                    if (this.activeAnswer.answers[v]) {
-                        aR.push(this.activeAnswer.answers[v]);
+                    if (this.activeQuestion.answer[v]) {
+                        aR.push(this.activeQuestion.answer[v]);
                     }
                     break;
                 case "assOrderingQuestion":
@@ -511,7 +511,7 @@
                 default:
                     break;
             }
-        });
+        }, this);
 
         return aR;
     };
@@ -542,8 +542,8 @@
 
         // TODO: Move Type based Score Calculations to individual functions
         switch (this.activeQuestion.type) {
-            case "assSingleQuestion":
-            case "assMultipleQuestion":
+            case "assSingleChoice":
+            case "assMultipleChoice":
                 /**
                  * Single Choice can be calculated easier, but IMS QTI does not
                  * differentiate between the two.
@@ -553,9 +553,13 @@
                     nBad = 0,
                     tOrder,
                     tLen = this.responseList.length;
-                this.activateQuestion.answers.forEach(function (a) {
+                this.activeQuestion.answer.forEach(function (a) {
                     tOrder = a.order.toString();
-                    if (a.points === 1) {
+                    if (a.points_checked > 0) {
+                        a.points = a.points_checked;
+                    }
+                    if (a.points > 0) {
+
                         nCorr++;
                         if (this.responseList.indexOf(tOrder) >= 0) {
                             nOK++;
@@ -567,20 +571,24 @@
 
                 }, this);
 
+                console.log( "Variables: "+ nCorr +" : " +nOK +" : " +nBad +" : " +tOrder +" : " +tLen +" : ");
                 // the score is between 0 and 1
-                if (nCorr !== 0) {
+                if (nCorr > 0) {
                     this.score = (nOK - nBad) / nCorr;
+
                     if (this.score < 0) {
                         this.score = 0;
                     }
 
                     if (tLen > nCorr &&
-                        tLen === this.activeQuestion.answers.length) {
+                        tLen === this.activeQuestion.answer.length) {
                         // if not all answers are correct but the user ticked all we set wrong!
+                        console.log("cheating attempt!");
                         this.score = 0;
                     }
                 }
                 else if (nBad === 0 && nOK === 0) {
+                    console.log("no correct answer, none ticked!");
                     this.score = 1;
                 }
                 break;
@@ -624,6 +632,7 @@
             default:
                 break;
         }
+        console.log("checkScore? " + this.score);
     }; // done, not checked
 
     /**
