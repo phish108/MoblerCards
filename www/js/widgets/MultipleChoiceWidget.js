@@ -93,7 +93,7 @@ MultipleChoiceWidget.prototype.tap = function (event) {
             if (answerId) {
                 $("#answerlist_answerlistbox_" + answerId)
                     .removeClass("selected");
-                this.model.clearResponse();
+                this.model.clearResponseList();
             }
 
             // now add the new answer if we really want to add it
@@ -105,7 +105,7 @@ MultipleChoiceWidget.prototype.tap = function (event) {
         else {
             // automatically toggles the response
             this.model.addResponse(id.split('_')[2]);
-            $(event.target).toogleClass("selected");
+            $(event.target).toggleClass("selected");
         }
     }
 };
@@ -126,12 +126,11 @@ MultipleChoiceWidget.prototype.update = function() {
         aTmpl.answertext.text = a.answertext;
 
         if (response.indexOf(os) >= 0) {
-            this.answerlist.addClass("selected");
-
-            // in feedback mode  display the feedback too
-            if (!this.interactive && a.points) {
-                aTmpl.answertickicon.addClass("icon-checkmark");
-            }
+            aTmpl.answerlist.addClass("selected");
+        }
+        // in feedback mode  display the feedback too
+        if (!this.interactive && a.points) {
+            aTmpl.answertickicon.addClass("icon-checkmark");
         }
     }, this);
 
