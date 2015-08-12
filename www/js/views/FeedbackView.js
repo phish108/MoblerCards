@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
+/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget, jstap*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -117,6 +117,7 @@ FeedbackView.prototype.prepare = function () {
     }
 
     this.useDelegate(qt);
+    this.scroll = true;
 };
 
 /**
@@ -143,15 +144,36 @@ FeedbackView.prototype.cleanup = function () {
 };
 
 /**
+ * Scrolling during move events
+ *
+ * We need to manage the scrolling ourselves, because Android refuses to scroll
+ * if preventDefault has been called during move events.
+ */
+FeedbackView.prototype.duringMove = function () {
+    if (this.scroll) {
+        this.doScroll();
+    }
+};
+
+/**
+ * Scroll helper - can be used by the widgets if they want to scroll
+ *
+ * TODO: include doScroll() in CoreView, so we don't have to bother here.
+ */
+FeedbackView.prototype.doScroll = function () {
+    var dY = jstap().touches(0).delta.y();
+    this.container.scrollTop(this.container.scrollTop() - dY);
+};
+
+/**
  * Handles action when a tap occurs.
  * @protoype
  * @function tap
  * @param {object} event - contains all the information for the touch interaction.
  */
 FeedbackView.prototype.tap_feedbackfooter = function () {
-    this.app.models.answer.deleteData();
-    this.app.models.questionpool.nextQuestion();
-    this.app.changeView("question");
+    this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+    this.model.nextQuestion();
 };
 
 FeedbackView.prototype.tap_feedbackcontent = FeedbackView.prototype.tap_feedbackfooter;
@@ -187,6 +209,7 @@ FeedbackView.prototype.getFeedbackInfo = function () {
  */
 FeedbackView.prototype.showFeedbackTitle = function () {
     var score = this.model.score;
+    console.log("response score = " + score);
     var currentFeedbackTitle = "Wrong";
 
     if (score >= 1) {

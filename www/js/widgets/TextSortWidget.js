@@ -68,7 +68,8 @@ function TextSortWidget(opts) {
  * @param {NONE}
  */
 TextSortWidget.prototype.prepare = function () {
-
+    // inform the master view that we do the scrolling.
+    this.master.scroll = false;
 };
 
 /**

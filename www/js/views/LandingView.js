@@ -84,15 +84,12 @@ LandingView.prototype.update = function () {
 };
 
 LandingView.prototype.tap_landingfeaturedimage = function () {
-    console.log("select featured course");
     this.models.contentbroker.activateCourse(this.pList[0]);
-
     this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
     // NOW RUN THE STATS
 };
 
 LandingView.prototype.tap_landingfeaturedlist = function() {
-    console.log("select featured course");
     this.models.contentbroker.activateCourse(this.pList[0]);
 
     this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");

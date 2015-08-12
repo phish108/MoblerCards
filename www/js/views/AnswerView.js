@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
+/*global jstap, $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -94,8 +94,32 @@ AnswerView.prototype.prepare = function () {
             break;
     }
 
+    this.scroll = true;
+
+    this.activeDelegate = qt;
     console.log("use delegate " + qt);
     this.useDelegate(qt);
+};
+
+/**
+ * Scrolling during move events
+ *
+ * We need to manage the scrolling ourselves, because Android refuses to scroll
+ * if preventDefault has been called during move events.
+ */
+AnswerView.prototype.duringMove = function () {
+    if (this.scroll) {
+        this.doScroll();
+    }
+};
+
+/**
+ * Scroll helper - can be used by the widgets if they want to scroll
+ * TODO: include doScroll() in CoreView, so we don't have to bother here.
+ */
+AnswerView.prototype.doScroll = function () {
+    var dY = jstap().touches(0).delta.y();
+    this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
 /**
