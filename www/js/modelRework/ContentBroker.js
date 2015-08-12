@@ -158,11 +158,7 @@
 
         var courses = [];
 
-        console.log(JSON.stringify(courseList));
-
         Object.getOwnPropertyNames(courseList).forEach(function (cl) {
-            console.log(cl);
-
             if ((!bSelectLMS &&
                  cl &&
                  Array.isArray(courseList[cl])) ||
@@ -171,6 +167,7 @@
                  cl &&
                  Array.isArray(courseList[cl]))) {
                 courseList[cl].forEach(function (c) {
+                    c.lmsId = cl;
                     courses.push(c);
                 });
             }
@@ -370,6 +367,7 @@
 
         this.currentCourseId = courseId;
         this.currentLMSId    = lmsId;
+
         // this.questionPool contains all ACTIVE questions
         this.questionPool    = getCourseForLMS(lmsId, courseId);
 
@@ -411,6 +409,9 @@
      */
     ContentBroker.prototype.getQuestionInfo = function () {
         var aQ = this.activeQuestion;
+        if (typeof aQ === "undefined") {
+            return {}; // shit happens :(
+        }
         return {
             "id":       aQ.id,
             "type":     aQ.type,
@@ -818,15 +819,14 @@
      */
     ContentBroker.prototype.synchronizeAll = function (force) {
         var now = (new Date()).getTime();
-
-        this.idprovider.eachLMS(function(lms) {
-            console.log(JSON.stringify(lms));
-
-            if (force || !lms.lastSyncTime ||
-                (now - lms.syncTimeOut) < lms.lastSyncTime) {
-                this.synchronize(lms.id);
-            }
-        }, this);
+        if (this.app.isOnline()) {
+            this.idprovider.eachLMS(function(lms) {
+                if (force || !lms.lastSyncTime ||
+                    (now - lms.syncTimeOut) < lms.lastSyncTime) {
+                    this.synchronize(lms.id);
+                }
+            }, this);
+        }
     }; // done, not checked
 
     /**
@@ -837,23 +837,25 @@
      * synchronizes the data with the backend content broker.
      */
     ContentBroker.prototype.synchronize = function (lmsid) {
-        var self = this;
-        if (typeof lmsid !== "string") {
-            this.synchronizeAll();
-            return;
-        }
+        if (this.app.isOnline()) {
+            var self = this;
+            if (typeof lmsid !== "string") {
+                this.synchronizeAll();
+                return;
+            }
 
-        this.fetchCourseList(lmsid)
-        .then(function (courseList) {
-            // load one course after the other
-            self.verifyCourseData(courseList, lmsid);
-        })
-        .catch(function (msg){
-            // send apologise signal depending on error
-            console.log("server error 0: " + msg);
-            // TODO: trigger correct event
-            $(document).trigger("MY_SERVER_ERROR");
-        });
+            this.fetchCourseList(lmsid)
+            .then(function (courseList) {
+                // load one course after the other
+                self.verifyCourseData(courseList, lmsid);
+            })
+            .catch(function (msg){
+                // send apologise signal depending on error
+                console.log("server error 0: " + msg);
+                // TODO: trigger correct event
+                $(document).trigger("MY_SERVER_ERROR");
+            });
+        }
     }; // done, not checked
 
 

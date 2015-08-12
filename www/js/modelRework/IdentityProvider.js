@@ -339,7 +339,9 @@ IdentityProvider.prototype.getLanguage =  function () {
  * This will also determine whether the backend is online
  */
 IdentityProvider.prototype.synchronize = function() {
-    this.usrMgr.loadFromServer();
+    if (this.app.isOnline()) {
+        this.usrMgr.loadFromServer();
+    }
 };
 
 IdentityProvider.prototype.setSyncState = function(lmsId) {
