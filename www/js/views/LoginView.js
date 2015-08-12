@@ -1,4 +1,6 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true*/
+
+/*global jstap*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -130,7 +132,7 @@ LoginView.prototype.prepare = function () {
 
 LoginView.prototype.update = function () {
     var activeLMS = {};
-    
+
     this.app.models.identityprovider.getActiveLMS(function (data) {
         activeLMS = data;
     });
@@ -160,8 +162,6 @@ LoginView.prototype.cleanup = function () {
     $("#usernameInput").val("");
     $("#password").blur();
     $("#usernameInput").blur();
-    this.active = false;
-    this.app.injectStyle();
 };
 
 
@@ -285,4 +285,22 @@ LoginView.prototype.hideDeactivateMessage = function () {
 LoginView.prototype.clickCloseLoginButton = function () {
     //set the active server to be the previous server
     this.app.changeView("landing");
+};
+
+LoginView.prototype.duringMove = function () {
+    this.doScroll();
+};
+
+LoginView.prototype.doScroll = function () {
+    var dY = jstap().touches(0).delta.y();
+    this.container.scrollTop(this.container.scrollTop() - dY);
+};
+
+
+LoginView.prototype.cleanup = function () {
+    // hack for scrolling the content box into place.
+    this.container.addClass("active");
+    this.container.scrollTop(0);
+    // console.log("container during cleanup at " + this.container.scrollTop());
+    this.container.removeClass("active");
 };
