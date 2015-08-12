@@ -141,7 +141,7 @@ MoblerCards.DefaultLMS = "http://beta.mobinaut.org";
 /**
  * Returns the present connection state of the app.
  * @prototype
- * @function isOffline
+ * @function isOnline
  * @return {Boolean} true if the connection state is offline, otherwise false
  */
 MoblerCards.prototype.isOnline = function () {
