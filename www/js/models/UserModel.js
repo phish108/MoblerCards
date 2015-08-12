@@ -311,12 +311,12 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
-    var serviceName = "powertla.identity.client",
+    var serviceName = "org.ieee.papi",
         activeURL   = self.idprovider.serviceURL(serviceName),
         serverid    = self.idprovider.getActiveLMSID();
 
     if (!activeURL.length) {
-        serviceName = "ch.isn.lms.device";
+        serviceName = "ch.isn.lms.auth";
         activeURL = self.idprovider.serviceURL(serviceName);
     }
 
@@ -467,13 +467,13 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     };
 
     switch(serviceName) {
-        case "powertla.identity.client":
+        case "org.ieee.papi":
             rObj.success = authOK;
             rObj.type = "PUT";
             rObj.contentType = "application/json";
             rObj.beforeSend = self.idprovider.sessionHeader();
             break;
-        case "ch.isn.lms.device":
+        case "ch.isn.lms.auth":
             rObj.success = authOKLegacy;
             rObj.type = "POST";
             rObj.beforeSend = setHeaderLegacy;
@@ -509,7 +509,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 UserModel.prototype.sendLogoutToServer = function () {
     console.log("enter send logout to server");
     var self = this;
-    var serviceName = "powertla.identity.client",
+    var serviceName = "org.ieee.papi",
         activeURL   = self.idprovider.serviceURL(serviceName),
         serverid    = self.idprovider.getActiveLMSID();
 
