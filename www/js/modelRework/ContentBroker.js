@@ -260,6 +260,8 @@
     function ContentBroker () {
         var self = this;
 
+        this.lockoutIds = [];
+
         loadCourseList();
 
         /** Variables
@@ -334,7 +336,21 @@
                     qList = newQuestions;
                 }
 
+                if (this.lockoutIds.length === qList.length) {
+                    this.lockoutIds = [];
+                }
+
+
                 randomId = Math.floor(Math.random() * qList.length);
+                if (this.activeQuestion) {
+                    this.lockoutIds.push(this.activeQuestion.id);
+                    // ensure that we will see a different question
+                    while (this.lockoutIds.indexOf(randomId) >= 0) {
+                        randomId = Math.floor(Math.random() * qList.length);
+                    }
+                }
+
+                this.lockoutIds.push(randomId);
                 this.activeQuestion = qList[randomId];
 
                 // reset the response list.
@@ -409,7 +425,7 @@
      */
     ContentBroker.prototype.getQuestionInfo = function () {
         var aQ = this.activeQuestion;
-        if (typeof aQ === "undefined") {
+        if (aQ === undefined) {
             return {}; // shit happens :(
         }
         return {
@@ -702,6 +718,7 @@
 
         this.lrs.finishAction(this.attemptUUID, record);
         this.attemptUUID = null;
+        this.lockoutIds = [];
     };
 
     ContentBroker.prototype.cancelAttempt = function () {
