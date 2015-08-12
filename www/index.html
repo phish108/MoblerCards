@@ -75,7 +75,6 @@
                 <span class="icon-cross"></span>
             </div>
         </div>
-
         <div id="logincontent" class="contentbox static withfooter">
             <ul id="loginelements">
 <!--                Username-->
@@ -85,7 +84,7 @@
                     </div>
                     <div id="loginnamelabel" class="listlabel touchable">
                         <input id="usernameInput" required="required" type="text"
-                               placeholder="username" name="username">
+                               placeholder="username" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                     </div>
                 </li>
 <!--                Password-->
@@ -95,7 +94,7 @@
                     </div>
                     <div id="loginpwlabel" class="listlabel touchable">
                         <input id="password" required="required" type="password"
-                               placeholder="password" name="password" autofocus>
+                               placeholder="password">
                     </div>
                 </li>
 <!--                LMS selection-->

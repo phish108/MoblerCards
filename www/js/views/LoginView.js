@@ -103,7 +103,6 @@ function LoginView() {
     $(document).bind("authenticationready", cbLoginSuccess);
     $(document).bind("authenticationfailed", cbLoginFailure);
     $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
-
 }
 
 /**
@@ -138,10 +137,11 @@ LoginView.prototype.update = function () {
     });
     console.dir(this.app.models);
 
+    // TODO convert to Template Format
     $("#loginimg").attr("src", activeLMS.logofile);
-
-    // TODO: TRANSFORM STRING TO i18n.prop
     $("#loginlmslabel").text(activeLMS.name);
+
+    $("#usernameInput").focus();
 
     this.hideErrorMessage();
     this.hideDeactivateMessage();
@@ -162,8 +162,21 @@ LoginView.prototype.cleanup = function () {
     $("#usernameInput").val("");
     $("#password").blur();
     $("#usernameInput").blur();
+
+    // hack for scrolling the content box into place.
+    this.container.addClass("active");
+    this.container.scrollTop(0);
+    // console.log("container during cleanup at " + this.container.scrollTop());
+    this.container.removeClass("active");
 };
 
+LoginView.prototype.tap_loginnamelabel = function () {
+    $("#usernameInput").focus();
+};
+
+LoginView.prototype.tap_loginpwlabel = function () {
+    $("#password").focus();
+};
 
 LoginView.prototype.tap_loginfooter = function () {
     this.clickLoginButton();
@@ -273,7 +286,7 @@ LoginView.prototype.hideDeactivateMessage = function () {
     console.log("enter hide deactivate message");
     $("#deactivatemessage").text("");
     $("#deactivatemessage").hide();
-    console.log("hided deactivate message");
+    console.log("hid deactivate message");
 };
 
 /**
@@ -296,11 +309,3 @@ LoginView.prototype.doScroll = function () {
     this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
-
-LoginView.prototype.cleanup = function () {
-    // hack for scrolling the content box into place.
-    this.container.addClass("active");
-    this.container.scrollTop(0);
-    // console.log("container during cleanup at " + this.container.scrollTop());
-    this.container.removeClass("active");
-};
