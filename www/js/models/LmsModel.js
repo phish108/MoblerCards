@@ -251,6 +251,8 @@
             registerURL = getServiceURL(serverRSD, serviceName);
         }
 
+        console.log("register at:  "+ registerURL);
+
         if (registerURL.length) {
             var rObj = {
                 "url": registerURL,
@@ -380,7 +382,8 @@
      * It loads data from the local storage. In the first time there are no data
      * in the local storage and sets as active server the default server.
      */
-    function LMSModel() {
+    function LMSModel(idp) {
+        this.idp = idp; // the calling identifyprovider
         loadData();
         if (lmsData.activeServer) {
             this.activeLMS = lmsData[lmsData.activeServer];
@@ -389,6 +392,13 @@
             this.activeLMS = null;
         }
         this.previousLMS = null;
+
+        var self = this;
+
+        // ensure that all LMSes are properly registered
+        document.addEventListener("online",
+                                  function () {self.synchronize();},
+                                  false);
     }
 
     /**
@@ -924,6 +934,27 @@
             serviceid = lmsData.activeServer;
         }
         setInactiveFlag(serviceid);
+    };
+
+    LMSModel.prototype.synchronize = function () {
+        // checks all servers for request tokens, if no token is available then a new token is collected from the service.
+        console.log("attempting lms model sync");
+        if (this.idp && this.idp.app && this.idp.app.isOnline()) {
+            console.log("lms model sync possible");
+            Object.getOwnPropertyNames(lmsData).forEach(function (v) {
+                if (v !== "activeServer") {
+
+                    if (lmsData[v].keys && !lmsData[v].keys.Request) {
+                        console.log("lms status No Token ... get one");
+                        // has no request token
+                        registerDevice(lmsData[v]);
+                    }
+                    else {
+                        console.log("lms status OK");
+                    }
+                }
+            }, this);
+        }
     };
 
     // in a future release the models should be moved into a static objects
