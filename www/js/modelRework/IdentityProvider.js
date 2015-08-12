@@ -340,6 +340,7 @@ IdentityProvider.prototype.getLanguage =  function () {
  */
 IdentityProvider.prototype.synchronize = function() {
     if (this.app.isOnline()) {
+        this.lmsMgr.synchronize();
         this.usrMgr.loadFromServer();
     }
 };
@@ -382,15 +383,18 @@ IdentityProvider.prototype.removeToken = function (tokenType) {
 IdentityProvider.prototype.signWithToken = function (signString) {
     if (typeof signString === "string" && signString.length) {
         var signObject = this.lmsMgr.getActiveRequestToken();
-        var token = "";
-        if (typeof signObject === "string") {
-            // old device token
-            token = signObject;
+        if (signObject) {
+            var token = "";
+            if (typeof signObject === "string") {
+                // old device token
+                token = signObject;
+            }
+            else if (signObject.hasOwnProperty("token")) {
+                token = signObject.token;
+            }
+            return hex_sha1(signString + token);
         }
-        else if (signObject.hasOwnProperty("token")) {
-            token = signObject.token;
-        }
-        return hex_sha1(signString + token);
+        console.log("no sign object!");
     }
     return undefined;
 };
@@ -445,7 +449,7 @@ IdentityProvider.prototype.signObject = function (URL, method) {
                         break;
                 }
 
-                signObject.paramerter.forEach(function (field) {
+                signObject.parameter.forEach(function (field) {
                     resultString += field + "=" + encodeURIComponent(signObject);
                 });
             }
