@@ -141,6 +141,14 @@ FeedbackView.prototype.update = function () {
 FeedbackView.prototype.cleanup = function () {
     $("#feedbackbox").show();
     $("#feedbacktip").hide();
+
+    this.content.html(""); // remove everything from the content
+
+    // hack for scrolling the content box into place.
+    this.container.addClass("active");
+    this.container.scrollTop(0);
+    // console.log("container during cleanup at " + this.container.scrollTop());
+    this.container.removeClass("active");
 };
 
 /**

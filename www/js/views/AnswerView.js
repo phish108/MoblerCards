@@ -98,6 +98,7 @@ AnswerView.prototype.prepare = function () {
 
     this.activeDelegate = qt;
     console.log("use delegate " + qt);
+
     this.useDelegate(qt);
 };
 
@@ -111,6 +112,23 @@ AnswerView.prototype.duringMove = function () {
     if (this.scroll) {
         this.doScroll();
     }
+};
+
+/**
+ * @prototype
+ * @function cleanup
+ * @param {NONE}
+ *
+ * scrolls the container to the default position.
+ */
+AnswerView.prototype.cleanup = function () {
+    this.content.html(""); // remove everything from the content
+
+    // hack for scrolling the content box into place.
+    this.container.addClass("active");
+    this.container.scrollTop(0);
+    // console.log("container during cleanup at " + this.container.scrollTop());
+    this.container.removeClass("active");
 };
 
 /**
