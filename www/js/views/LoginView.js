@@ -61,14 +61,14 @@ function LoginView() {
         console.log("authentication failed, reason: " + errormessage);
         switch (errormessage) {
         case "connectionerror":
-            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
+            self.showErrorMessage('msg_connection_message');
             break;
         case "nouser":
             console.log("no user error");
-            self.showErrorMessage(jQuery.i18n.prop('msg_authenticationFail_message'));
+            self.showErrorMessage('msg_authenticationFail_message');
             break;
         case "invalidclientkey":
-            self.showErrorMessage(jQuery.i18n.prop('msg_connection_message'));
+            self.showErrorMessage('msg_connection_message');
             break;
         default:
             console.log("unknown error");
@@ -76,10 +76,10 @@ function LoginView() {
         }
     }
 
-    function cbLoginTemporaryFailure(servername) {
+    function cbLoginTemporaryFailure() {
         console.log("enter cbLogin tempoerary failure");
         console.log("will show the deactivate message");
-        self.showDeactivateMessage(jQuery.i18n.prop('msg_login_deactivate_message'));
+        self.showDeactivateMessage('msg_login_deactivate_message');
     }
 
     /**
@@ -97,7 +97,7 @@ function LoginView() {
     });
 
     $(document).bind("DEVICE_OFFLINE", function () {
-        self.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
+        self.showErrorMessage('msg_network_message');
     });
 
     $(document).bind("authenticationready", cbLoginSuccess);
@@ -147,7 +147,7 @@ LoginView.prototype.update = function () {
     this.hideDeactivateMessage();
 
     if (this.app.isOffline()) {
-        this.showErrorMessage(jQuery.i18n.prop('msg_network_message'));
+        this.showErrorMessage('msg_network_message');
     }
 };
 
@@ -208,7 +208,7 @@ LoginView.prototype.clickLoginButton = function () {
         if (!self.app.isOffline()) {
             console.log("has logIn data");
 
-            self.showWarningMessage(jQuery.i18n.prop('msg_warning_message'));
+            self.showWarningMessage('msg_warning_message');
             self.model.startSession($("#usernameInput").val(),
                                     $("#password").val());
         }
@@ -216,8 +216,62 @@ LoginView.prototype.clickLoginButton = function () {
     // the isOffline seems to work not properly
     }
     else {
-        self.showErrorMessage(jQuery.i18n.prop('msg_authentication_message'));
+        self.showErrorMessage('msg_authentication_message');
     }
+};
+
+/**
+ * @prototype
+ * @function displayMessage(targetId, messageCode)
+ * @param {STRING} targetId
+ * @param {STRING} messageCode
+ *
+ * The targetId is the id of the message type as it appears in the dom.
+ *
+ * The messageCode is the I18N code as it appears in the language files.
+ *
+ * If the messageCode is not in the language files it will be displayed directly.
+ */
+LoginView.prototype.displayMessage = function (target, i18nMsg) {
+    var atargets = [
+        "warningmessage",
+        "deactivatemessage",
+        "errormessage"
+    ];
+
+    if (target && atargets.indexOf(target) < 0) {
+        return; // invalid target
+    }
+
+    atargets.forEach(function (t) {
+        $("#" + t).hide();
+    });
+
+    var msg = jQuery.i18n.prop(i18nMsg);
+    if (!msg) {
+        msg = i18nMsg;
+    }
+
+    $("#"+ target).text(msg).show();
+};
+
+/**
+ * @prototype
+ * @function hideMessage()
+ *
+ * clears and hides all messages.
+ */
+LoginView.prototype.hideMessage = function () {
+    var atargets = [
+        "warningmessage",
+        "deactivatemessage",
+        "errormessage"
+    ];
+
+    atargets.forEach(function (t) {
+        $("#" + t).text("").hide();
+    });
+
 };
 
 /**
@@ -226,10 +280,7 @@ LoginView.prototype.clickLoginButton = function () {
  * @function showErrorMessage
  */
 LoginView.prototype.showErrorMessage = function (message) {
-    $("#warningmessage").hide();
-    $("#deactivatemessage").hide();
-    $("#errormessage").text(message);
-    $("#errormessage").show();
+    this.displayMessage("errormessage", message);
 };
 
 /**
@@ -238,11 +289,7 @@ LoginView.prototype.showErrorMessage = function (message) {
  * @function showErrorMessage
  */
 LoginView.prototype.showDeactivateMessage = function (message) {
-    console.log("show deactivate message");
-    $("#warningmessage").hide();
-    $("#errormessage").hide();
-    $("#deactivatemessage").text(message);
-    $("#deactivatemessage").show();
+    this.displayMessage("deactivatemessage", message);
 };
 
 /**
@@ -251,10 +298,7 @@ LoginView.prototype.showDeactivateMessage = function (message) {
  * @function showWarningMessage
  */
 LoginView.prototype.showWarningMessage = function (message) {
-    $("#errormessage").hide();
-    $("#deactivatemessage").hide();
-    $("#warningmessage").text(message);
-    $("#warningmessage").show();
+    this.displayMessage("warningmessage", message);
 };
 
 /**
@@ -263,8 +307,7 @@ LoginView.prototype.showWarningMessage = function (message) {
  * @function hideErrorMessage
  **/
 LoginView.prototype.hideErrorMessage = function () {
-    $("#errormessage").text("");
-    $("#errormessage").hide();
+    this.hideMessage();
 };
 
 /**
@@ -273,8 +316,7 @@ LoginView.prototype.hideErrorMessage = function () {
  * @function hideWarningMessage
  **/
 LoginView.prototype.hideWarningMessage = function () {
-    $("#warningmessage").text("");
-    $("#warningmessage").hide();
+    this.hideMessage();
 };
 
 /**
@@ -283,10 +325,7 @@ LoginView.prototype.hideWarningMessage = function () {
  * @function hideDeactivateMessage
  **/
 LoginView.prototype.hideDeactivateMessage = function () {
-    console.log("enter hide deactivate message");
-    $("#deactivatemessage").text("");
-    $("#deactivatemessage").hide();
-    console.log("hid deactivate message");
+    this.hideMessage();
 };
 
 /**
