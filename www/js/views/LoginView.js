@@ -178,46 +178,41 @@ LoginView.prototype.tap_loginpwlabel = function () {
     $("#password").focus();
 };
 
+/**
+ * @prototype
+ * @function clickLoginButton()
+ *
+ * tap on the login button sends data to the authentication model,
+ * data is only sent if input fields contain some values
+ * after successful login the course list is displayed
+ */
 LoginView.prototype.tap_loginfooter = function () {
-    this.clickLoginButton();
-};
+    console.log("check logIn data");
+    if ($("#usernameInput").val() && $("#password").val()) {
+        if (!this.app.isOffline()) {
+            console.log("has logIn data");
+
+            this.showWarningMessage('msg_warning_message');
+            this.model.startSession($("#usernameInput").val(),
+                                    $("#password").val());
+        }
+        // use else to display an error message that the internet connectivity is lost,
+        // or remove the if sanity check (offline)
+    }
+    else {
+        this.showErrorMessage('msg_authentication_message');
+    }};
 
 LoginView.prototype.tap_logincross = function () {
     this.clickCloseLoginButton();
 };
+
 LoginView.prototype.tap_courselistlms = function () {
     $("#selectLMS")
         .removeClass("textShadow")
         .addClass("gradientSelected");
 
     this.app.changeView("lms");
-};
-
-/**
- * click on the login button sends data to the authentication model,
- * data is only sent if input fields contain some values
- * after successful login the course list is displayed
- * @prototype
- * @function clickLoginButton
- */
-LoginView.prototype.clickLoginButton = function () {
-    var self = this;
-
-    console.log("check logIn data");
-    if ($("#usernameInput").val() && $("#password").val()) {
-        if (!self.app.isOffline()) {
-            console.log("has logIn data");
-
-            self.showWarningMessage('msg_warning_message');
-            self.model.startSession($("#usernameInput").val(),
-                                    $("#password").val());
-        }
-    // use else to display an error message that the internet connectivity is lost, or remove the if sanity check (offline)
-    // the isOffline seems to work not properly
-    }
-    else {
-        self.showErrorMessage('msg_authentication_message');
-    }
 };
 
 /**
