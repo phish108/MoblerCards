@@ -58,7 +58,7 @@ function LMSView() {
      */
     $(document).bind("lmsOffline", function (e, servername) {
         console.log("we are offline");
-        self.showLMSConnectionMessage(jQuery.i18n.prop('msg_lms_connection_message'), servername);
+        self.showLMSConnectionMessage('msg_lms_connection_message', servername);
     });
 
     /**It is triggered when an lms is online and failed to register for any reason. More specifically
@@ -69,7 +69,7 @@ function LMSView() {
      */
     $(document).bind("lmsNotRegistrableYet", function (e, servername) {
         self.refresh();
-        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername);
+        self.showLMSRegistrationMessage('msg_lms_registration_message', servername);
     });
 
     /**It is triggered when the registration of an lms fails because of any reason
@@ -79,7 +79,8 @@ function LMSView() {
      */
     $(document).bind("LMS_DEVICE_NOTALLOWED", function (e, servername) {
         // the model must not change the LMS
-        self.refresh();        self.showLMSRegistrationMessage(jQuery.i18n.prop('msg_lms_registration_message'), servername);
+        self.refresh();
+        self.showLMSRegistrationMessage('msg_lms_registration_message', servername);
     });
 
     /**It is triggered when the registration of an lms fails because the backend is not activated
@@ -90,7 +91,8 @@ function LMSView() {
         self.refresh();
         console.log("previous lms in temporary failed lms is " + previousLMS);
         //var previousLMS=self.app.models['lms'].getPreviousServer();
-        self.showLMSTemporaryRegistrationMessage(jQuery.i18n.prop('msg_lms_deactivate_registration_message'), servername, previousLMS);
+        self.showLMSTemporaryRegistrationMessage('msg_lms_deactivate_registration_message',
+                                        servername, previousLMS);
     });
 
     /**It is triggered when the registration of an lms has just started
@@ -217,11 +219,11 @@ LMSView.prototype.tap = function (event) {
     }
 };
 
-LMSView.prototype.tap_lmscross = function (event) {
+LMSView.prototype.tap_lmscross = function () {
     this.back();
 };
 
-LMSView.prototype.tap_addlmsbox = function (event) {
+LMSView.prototype.tap_addlmsbox = function () {
     if ($("#addlmsinputbox").hasClass("hidden")) {
         // add a new LMS
         // TODO if we are offline show a message that "we cannot add new lmses while offline"
@@ -402,7 +404,6 @@ LMSView.prototype.hideRotation = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.toggleIconWait = function (servername) {
-    var self = this;
     console.log("toggle icon wait");
     if (!($("#lmswait_lmslistbox_" + servername).hasClass("hidden"))) {
         $("#lmswait_lmslistbox_" + servername).addClass("icon-loading loadingRotation");
@@ -410,7 +411,7 @@ LMSView.prototype.toggleIconWait = function (servername) {
         $("#lmsimg_lmslistbox_" + servername).addClass("hidden");
     }
     else {
-        self.hideRotation(servername);
+        this.hideRotation(servername);
     }
 };
 
@@ -422,7 +423,6 @@ LMSView.prototype.toggleIconWait = function (servername) {
  * @param {String, string} servername,lmsitem the name of the selected server and the current li element that hosts it
  **/
 LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
-    var self = this;
     var lb = $("#lmslist_lmslistbox_" + servername);
 
     if (!lb.hasClass("selected")) {
@@ -460,7 +460,7 @@ LMSView.prototype.showLMSConnectionMessage = function (message, servername) {
     var warningLi = $('<li/>', {
         "id": "lmserrormessage" + servername,
         "class": "gradientMessages lmsmessage",
-        "text": jQuery.i18n.prop('msg_lms_connection_message')
+        "text": jQuery.i18n.prop(message)
     });
 
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
@@ -496,7 +496,7 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
     var warningLi = $('<li/>', {
         "id": "lmsregistrationmessage" + servername,
         "class": "gradientMessages lmsmessage",
-        "text": jQuery.i18n.prop('msg_lms_registration_message')
+        "text": jQuery.i18n.prop(message)
     });
 
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
@@ -526,7 +526,7 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
 
 /**
  * @prototype
- * @function showLMSRegistrationMessage
+ * @function showLMSTemporaryRegistrationMessage
  * @param {String,String,String} message,servername, previouslms,
  * a text with containing the warning message, the name of the selected server, thename of the previous selected server
  */
@@ -539,7 +539,7 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
     var warningLi = $('<li/>', {
         "id": "lmstemporaryregistrationwaitingmessage" + servername,
         "class": "gradientMessages lmsmessage",
-        "text": jQuery.i18n.prop('msg_lms_deactivate_message')
+        "text": jQuery.i18n.prop(message)
     });
 
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
@@ -575,19 +575,6 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
             self.model.storeActiveServer(servername);
             self.model.register(servername);
         }, 60 * 1000);
-    } //if the active view is the lms list view
-
-    function myTimer() {
-        console.log("reactivation?");
-        self.model.register(servername); //instead of executing the whole registration we can just send the ajax request
-        if (DEACTIVATE) //if we got an 403 again and we are still in deactivate mode
-        {
-            console.log("is calling itself again");
-            setTimeout(this, 60 * 1000);
-        } else {
-            console.log("yes reactivation");
-            self.activateLMS(servername);
-        }
     }
 };
 
