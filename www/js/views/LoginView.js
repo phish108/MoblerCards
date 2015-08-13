@@ -89,11 +89,11 @@ function LoginView() {
      * **/
     $(document).bind("errormessagehide", function () {
         console.log(" hide error message loaded ");
-        self.hideErrorMessage();
+        self.hideMessage();
     });
 
     $(document).bind("DEVICE_ONLINE", function () {
-        self.hideErrorMessage();
+        self.hideMessage();
     });
 
     $(document).bind("DEVICE_OFFLINE", function () {
@@ -119,9 +119,8 @@ LoginView.prototype.prepare = function () {
     }
     else {
         // hide unnecessary errors and warnings
-        this.hideErrorMessage();
-        this.hideWarningMessage();
-        this.hideDeactivateMessage();
+        this.hideMessage();
+
         $("#selectLMS").removeClass("gradientSelected");
         this.active = true;
 //        this.app.models.lms.registerDevice();
@@ -143,8 +142,7 @@ LoginView.prototype.update = function () {
 
     $("#usernameInput").focus();
 
-    this.hideErrorMessage();
-    this.hideDeactivateMessage();
+    this.hideMessage();
 
     if (this.app.isOffline()) {
         this.showErrorMessage('msg_network_message');
@@ -180,7 +178,7 @@ LoginView.prototype.tap_loginpwlabel = function () {
 
 /**
  * @prototype
- * @function clickLoginButton()
+ * @function tap_loginfooter()
  *
  * tap on the login button sends data to the authentication model,
  * data is only sent if input fields contain some values
