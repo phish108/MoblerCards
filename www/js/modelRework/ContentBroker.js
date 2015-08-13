@@ -336,27 +336,31 @@
                     qList = newQuestions;
                 }
 
+                // ensure that questions are not repeated while skipping
                 if (this.lockoutIds.length === qList.length) {
                     this.lockoutIds = [];
+                    if (this.activeQuestion) {
+                        this.lockoutIds.push(this.activeQuestion.id);
+                    }
                 }
 
-
+                // select a random item from the current entropy selection
                 randomId = Math.floor(Math.random() * qList.length);
                 if (this.activeQuestion) {
-                    this.lockoutIds.push(this.activeQuestion.id);
-                    // ensure that we will see a different question
-                    while (this.lockoutIds.indexOf(randomId) >= 0) {
+                    // ensure that a different question is selected
+                    while (this.lockoutIds.indexOf(qList[randomId].id) >= 0) {
                         randomId = Math.floor(Math.random() * qList.length);
                     }
                 }
 
-                this.lockoutIds.push(randomId);
+                this.lockoutIds.push(qList[randomId].id);
                 this.activeQuestion = qList[randomId];
 
                 // reset the response list.
                 this.responseList = [];
             }
-            console.log("trigger CONTENT_QUESTION_READY " + JSON.stringify(this.activeQuestion));
+
+            // signal for deferred view changes
             $(document).trigger("CONTENT_QUESTION_READY");
         }, this);
     };
