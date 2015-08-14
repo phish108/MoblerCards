@@ -124,7 +124,8 @@
      * The list of registered LMSes.
      * This list is actually an object that refers each serverID to the registered RSD info.
      */
-    var lmsData = {};
+    var lmsData = {},
+        activeServer;
 
     /**
      * @private @function loadData()
@@ -146,6 +147,14 @@
             localStorage.setItem("LMSData", "{}");
         }
 
+        if (lmsData.hasOwnProperty("activeServer")) {
+            activeServer = lmsData.activeServer;
+            delete lmsData.activeServer;
+            localStorage.setItem("LMSactiveServer", activeServer);
+        }
+
+        activeServer = localStorage.getItem("LMSactiveServer");
+
         console.log("loaded data >> "+JSON.stringify(lmsData));
     }
 
@@ -164,6 +173,8 @@
             localStorage.setItem("LMSData", "{}");
             lmsData = {};
         }
+
+        localStorage.setItem("LMSactiveServer", activeServer);
 
 //        console.log("stored data >> "+JSON.stringify(lmsData));
     }
@@ -236,7 +247,9 @@
             $(document).trigger("LMS_DEVICE_READY");
         }
 
-        function registerFail() {
+        function registerFail(r) {
+            console.log(">>> set inactive after registration faile " + r.status);
+
             setInactiveFlag(serviceid);
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
@@ -385,8 +398,8 @@
     function LMSModel(idp) {
         this.idp = idp; // the calling identifyprovider
         loadData();
-        if (lmsData.activeServer) {
-            this.activeLMS = lmsData[lmsData.activeServer];
+        if (activeServer) {
+            this.activeLMS = lmsData[activeServer];
         }
         else {
             this.activeLMS = null;
@@ -433,10 +446,10 @@
 
     LMSModel.prototype.registerDevice = function(serverid) {
         if (!(serverid && serverid.length) &&
-            lmsData.activeServer &&
-            lmsData.activeServer.length){
+            activeServer &&
+            activeServer.length){
             // register active server
-            serverid = lmsData.activeServer;
+            serverid = activeServer;
         }
         registerDevice(this.findServerByID(serverid));
     };
@@ -571,6 +584,29 @@
         });
     };
 
+    LMSModel.prototype.eachLMSraw = function (cbFunc, bind) {
+        if (!bind) {
+            bind = this;
+        }
+
+        var ts = (new Date()).getTime();
+
+        console.log("LMS List: " + JSON.stringify(lmsData));
+
+        Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
+            var rsd = lmsData[lmsid];
+            if (rsd.inaccessible > 0) {
+                var delta = ts - rsd.inaccessible;
+                if (delta > inactiveTimeout) { // wait for one hour
+                    delete rsd.inaccessible;
+                    storeData();
+                }
+            }
+            cbFunc.call(bind, rsd);
+        });
+
+    };
+
     /**
      * @public @method eachLMS(callbackFunction, bindObject)
      * @param callback - the callback function to handle the LMS data
@@ -597,12 +633,11 @@
         console.log("LMS List: " + JSON.stringify(lmsData));
 
         Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
-            if (lmsid !== "activeServer") {
                 console.log(">>> "+ lmsid);
                 var rsd = lmsData[lmsid];
                 if (rsd.inaccessible > 0) {
                     var delta = ts - rsd.inaccessible;
-                    if (delta > 3600000) { // wait for one hour
+                    if (delta > inactiveTimeout) { // wait for one hour
                         delete rsd.inaccessible;
                         storeData();
                     }
@@ -617,7 +652,6 @@
                                    "inactive": ((rsd.inaccessible &&
                                                 rsd.inaccessible > 0) ? 1 : 0),
                                    "selected": isSelected});
-            }
         });
     };
 
@@ -638,8 +672,7 @@
         console.log("LMS List: " + JSON.stringify(lmsData));
 
         Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
-            if (lmsid !== "activeServer" &&
-                lmsData[lmsid].keys &&
+            if (lmsData[lmsid].keys &&
                 (!lmsData[lmsid].keys.hasOwnProperty("user") ||
                  !lmsData[lmsid].keys.hasOwnProperty("Bearer") ||
                  !lmsData[lmsid].keys.hasOwnProperty("MAC"))) {
@@ -665,8 +698,6 @@
             }
         });
     };
-
-
 
     /**
      * @public @method activeLMS(callback, bindObject)
@@ -718,7 +749,7 @@
         if (tmpLMS) {
             console.log("activate LMS " + JSON.stringify(tmpLMS));
             this.activeLMS = tmpLMS;
-            lmsData.activeServer = serverid;
+            activeServer = serverid;
             storeData();
 
             if (tmpLMS.keys &&
@@ -747,7 +778,7 @@
      */
     LMSModel.prototype.getLMSStatus = function (serverid) {
         if (!serverid) {
-            serverid = lmsData.activeServer;
+            serverid = activeServer;
         }
         var tmpLMS = this.findServerByID(serverid);
         if (tmpLMS) {
@@ -756,13 +787,20 @@
                 return true;
             }
 
+            console.log("inactive?  "+ tmpLMS.inactive);
+            console.log("inaccessible? "+tmpLMS.inaccessible);
+
             var dt = (new Date()).getTime() - tmpLMS.inactive;
             if (dt > inactiveTimeout) {
                 this.clearInactiveFlag(serverid);
                 return true;
             }
+            console.log("dt ok " + dt);
+            console.log("timeout ok " + inactiveTimeout);
         }
-        return false;
+        console.log("NO tmpLMS");
+        return true;
+//        return false;
     };
 
     /**
@@ -812,7 +850,7 @@
     LMSModel.prototype.restoreActiveServer = function () {
         if (this.previousLMS) {
             this.activeLMS = this.previousLMS;
-            lmsData.activeServer = this.previousLMS.id;
+            activeServer = this.previousLMS.id;
             storeData();
             this.previousLMS = null;
         }
@@ -823,32 +861,36 @@
      *
      * returns the requestToken (keys.device) for the activeServer
      */
-    LMSModel.prototype.getActiveToken = function () {
-        if (lmsData.activeServer &&
-            lmsData[lmsData.activeServer] &&
-            lmsData[lmsData.activeServer].keys) {
-            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("MAC")) {
-                return lmsData[lmsData.activeServer].keys.MAC;
+    LMSModel.prototype.getActiveToken = function (id) {
+        if (!id) {
+            id = activeServer;
+        }
+
+        if (id &&
+            lmsData[id] &&
+            lmsData[id].keys) {
+            if (lmsData[id].keys.hasOwnProperty("MAC")) {
+                return lmsData[id].keys.MAC;
             }
-            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Bearer")) {
-                return lmsData[lmsData.activeServer].keys.Bearer;
+            if (lmsData[id].keys.hasOwnProperty("Bearer")) {
+                return lmsData[id].keys.Bearer;
             }
-            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Request")) {
-                return lmsData[lmsData.activeServer].keys.Request;
+            if (lmsData[id].keys.hasOwnProperty("Request")) {
+                return lmsData[id].keys.Request;
             }
-            return lmsData[lmsData.activeServer].keys.device;
+            return lmsData[id].keys.device;
         }
         return undefined;
     };
 
     LMSModel.prototype.getActiveRequestToken = function () {
-        if (lmsData.activeServer &&
-            lmsData[lmsData.activeServer] &&
-            lmsData[lmsData.activeServer].keys) {
-            if (lmsData[lmsData.activeServer].keys.hasOwnProperty("Request")) {
-                return lmsData[lmsData.activeServer].keys.Request;
+        if (activeServer &&
+            lmsData[activeServer] &&
+            lmsData[activeServer].keys) {
+            if (lmsData[activeServer].keys.hasOwnProperty("Request")) {
+                return lmsData[activeServer].keys.Request;
             }
-            return lmsData[lmsData.activeServer].keys.device;
+            return lmsData[activeServer].keys.device;
         }
         return undefined;
     };
@@ -859,9 +901,9 @@
      * adds a new token to the active server's keys
      */
     LMSModel.prototype.addToken = function (token) {
-        if (lmsData.activeServer &&
-            lmsData[lmsData.activeServer]) {
-            addToken(lmsData.activeServer, token);
+        if (activeServer &&
+            lmsData[activeServer]) {
+            addToken(activeServer, token);
         }
     };
 
@@ -871,11 +913,11 @@
      * removes the token with the given tokenType from the LMS's key chain.
      */
     LMSModel.prototype.removeToken = function (tokenType) {
-        if (lmsData.activeServer &&
-            lmsData[lmsData.activeServer] &&
-            lmsData[lmsData.activeServer].keys &&
-            lmsData[lmsData.activeServer].keys.hasOwnProperty(tokenType)) {
-            delete lmsData[lmsData.activeServer].keys[tokenType];
+        if (activeServer &&
+            lmsData[activeServer] &&
+            lmsData[activeServer].keys &&
+            lmsData[activeServer].keys.hasOwnProperty(tokenType)) {
+            delete lmsData[activeServer].keys[tokenType];
             storeData();
         }
     };
@@ -901,7 +943,7 @@
      */
     LMSModel.prototype.setSyncStateForServer = function (serverid) {
         if (!serverid) {
-            serverid = lmsData.activeServer;
+            serverid = activeServer;
         }
 
         lmsData[serverid].lastSyncTime = (new Date()).getTime();
@@ -918,7 +960,7 @@
      */
     LMSModel.prototype.clearInactiveFlag = function (serviceid) {
         if (!serviceid) {
-            serviceid = lmsData.activeServer;
+            serviceid = activeServer;
         }
         delete lmsData[serviceid].inactive;
         storeData();
@@ -931,8 +973,11 @@
      */
     LMSModel.prototype.setInactiveFlag = function (serviceid) {
         if (!serviceid) {
-            serviceid = lmsData.activeServer;
+            serviceid = activeServer;
         }
+
+        console.log("external deactivation");
+
         setInactiveFlag(serviceid);
     };
 
@@ -942,16 +987,13 @@
         if (this.idp && this.idp.app && this.idp.app.isOnline()) {
             console.log("lms model sync possible");
             Object.getOwnPropertyNames(lmsData).forEach(function (v) {
-                if (v !== "activeServer") {
-
-                    if (lmsData[v].keys && !lmsData[v].keys.Request) {
-                        console.log("lms status No Token ... get one");
-                        // has no request token
-                        registerDevice(lmsData[v]);
-                    }
-                    else {
-                        console.log("lms status OK");
-                    }
+               if (lmsData[v].keys && !lmsData[v].keys.Request) {
+                    console.log("lms status No Token ... get one");
+                    // has no request token
+                    registerDevice(lmsData[v]);
+                }
+                else {
+                    console.log("lms status OK");
                 }
             }, this);
         }
