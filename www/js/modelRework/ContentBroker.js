@@ -285,6 +285,11 @@
         $(document).bind("APP_READY",            cbSyncAll);
         $(document).bind("ID_AUTHENTICATION_OK", cbSyncAll);
         $(document).bind("LMS_AVAILABLE",        cbSyncAll);
+        $(document).bind("ID_LOGOUT_OK",         cbSyncAll);
+
+        $(document).bind("ID_LOGOUT_REQUESTED", function (evt, serverid) {
+            $(document).trigger("CONTENT_LOGOUT_READY", [serverid]);
+        });
     }
 
     /**
@@ -817,13 +822,13 @@
      */
     ContentBroker.prototype.getCourseList = function (bPublic) {
         var lmsList = [];
-        if (bPublic) {
-            this.idprovider.eachLMSPublic(function (lms) {
-                console.log("got lms");
-                console.log(lms);
-                lmsList.push(lms.id);
-            });
+        function addLMS (lms) {
+            lmsList.push(lms.id);
         }
+        if (bPublic) {
+            this.idprovider.eachLMSPublic(addLMS);
+        }
+
         console.log("LMSLIST: "+ lmsList.join("; "));
         return getCourseList(lmsList);
     };
