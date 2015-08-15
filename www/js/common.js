@@ -200,7 +200,7 @@ function debugActivate() {
 /** Does nothing
  * @function doNothing
  * */
-function doNothing() {}
+function doNothing() {return;}
 
 
 
@@ -408,16 +408,17 @@ function elementContents(element) {
 }
 
 function turnOffDeactivate() {
-    DEACTIVATE = false;
-    this.app.models.lms.clearInactiveFlag();
+//    DEACTIVATE = false;
+//    this.app.models.lms.clearInactiveFlag();
 }
 
 function turnOnDeactivate() {
-    DEACTIVATE = true; //set the general deactivate status to true.
-    this.app.models.lms.setInactiveFlag();
+//    DEACTIVATE = true; //set the general deactivate status to true.
+//    this.app.models.lms.setInactiveFlag();
 }
 
 
+// REMOVE
 function showErrorResponses(request) {
     console.log("ERROR status text: " + request.statusText);
     console.log("ERROR status code: " + request.statusCode());
