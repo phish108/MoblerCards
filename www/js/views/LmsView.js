@@ -310,7 +310,7 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     // lmstmpl.lmslabel.addClass("lightgrey");
 
     lmstmpl.lmslabel.text = lmsData.name;
-    lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
+    // lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
     if (lmsData.inactive === 1) {
         lmstmpl.lmsimg.addClass("hidden");
         lmstmpl.lmswait.removeClass("hidden");
