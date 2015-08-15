@@ -115,14 +115,15 @@ CourseView.prototype.cleanup = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 CourseView.prototype.tap = function (event) {
-    var id = event.target.id;
-    console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
+    var id = event.target.id,
+        course = id.split("_");
 
-    var course = id.split("_");
+    if (course.length === 4 && course[0] === "courselist") {
+        console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
-    var cId     = course.pop();
-    var lmsId   = course.pop();
-    if (course[0] === "courselist") {
+        var cId     = course.pop();
+        var lmsId   = course.pop();
+
         this.model.activateCourseById(lmsId, cId);
         this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
         this.models.contentbroker.nextQuestion();
