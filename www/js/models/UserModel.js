@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true */
 /*global $, jQuery, faultylabs*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -713,7 +713,7 @@ UserModel.prototype.getUserName = function () {
  * @function getUserId
  * @return {Number} userId, the user id that is stored in the configuration object
  */
-UserModel.prototype.getUserId = function () {
+UserModel.prototype.getUserId = function (lmsid) {
     return this.configuration.learnerInformation.id;
 };
 

@@ -46,6 +46,7 @@ under the License.
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
             "lrsid" :       "TEXT",
+            "userid":       "TEXT",
             "synchronized": "INTEGER" // timestamp
         }
     };
@@ -340,9 +341,9 @@ under the License.
      * The actor is typically set by the Identity provider at the time of
      * login.
      */
-    LearningRecordStore.prototype.setActor = function (actorId) {
+    LearningRecordStore.prototype.setActor = function (actorToken) {
         // requires a idToken
-        this.actor.openid = this.app.serviceURL("org.ieee.papi") + "/user/" + actorId;
+        this.actor.openid = this.app.serviceURL("org.ieee.papi", ["user", actorToken]);
     };
 
     /**

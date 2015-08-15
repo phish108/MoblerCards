@@ -312,6 +312,10 @@ IdentityProvider.prototype.getUserProfile = function (cbFunc, bind) {
     }
 };
 
+IdentityProvider.prototype.getActorToken = function (lmsid) {
+    return this.usrMgr.getUserId(lmsid);
+};
+
 /**
  * @protoype
  * @function getLanguage

@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true*/
 /*global $, Promise */
 
 /**	THIS COMMENT MUST NOT BE REMOVED  AND REMAIN INTACT
@@ -397,10 +397,13 @@
         this.questionPool    = getCourseForLMS(lmsId, courseId);
 
         this.lrs.startLRSContext(lmsId);
+        this.lrs.setActor(this.idprovider.getActorToken(lmsId));
 
         idurl = this.idprovider.serviceURL("powertla.content.imsqti",
                                            this.currentLMSId,
                                            [courseId]);
+
+        // start user context/ note that the LRS syncs only data for the same user.
 
         this.currentCourseContext = idurl;
         if (idurl) {

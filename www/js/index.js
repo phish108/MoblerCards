@@ -198,13 +198,14 @@ MoblerCards.prototype.sessionHeader = function (xhr) {
 /**
  * @prototype
  * @function serviceURL
- * @param {STRING} serviceid
+ * @param {STRING} servicename
+ * @param {ARRAY} path array (optional)
  *
  * returns the URL to the requested service protovol for the active
  * LMS. This function is a proxy to the identityprovider function
  */
-MoblerCards.prototype.serviceURL = function (serviceid) {
-    return this.models.identityprovider.serviceURL(serviceid);
+MoblerCards.prototype.serviceURL = function (servicename, aPath) {
+    return this.models.identityprovider.serviceURL(servicename, null, aPath);
 };
 
 /**
