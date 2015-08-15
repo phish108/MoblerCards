@@ -71,7 +71,7 @@ function LoginView() {
             self.showErrorMessage('msg_connection_message');
             break;
         default:
-            console.log("unknown error");
+            console.log("unknown error " + errormessage);
             break;
         }
     }
@@ -81,6 +81,8 @@ function LoginView() {
         console.log("will show the deactivate message");
         self.showDeactivateMessage('msg_login_deactivate_message');
     }
+
+    $(document).bind("ID_SERVER_UNAVAILABLE", cbLoginFailure);
 
     /**
      * It is triggered when an online connection is detected.
@@ -92,11 +94,11 @@ function LoginView() {
         self.hideMessage();
     });
 
-    $(document).bind("DEVICE_ONLINE", function () {
+    $(document).bind("online", function () {
         self.hideMessage();
     });
 
-    $(document).bind("DEVICE_OFFLINE", function () {
+    $(document).bind("offline", function () {
         self.showErrorMessage('msg_network_message');
     });
 
@@ -137,7 +139,14 @@ LoginView.prototype.update = function () {
     console.dir(this.app.models);
 
     // TODO convert to Template Format
-    $("#loginimg").attr("src", activeLMS.logofile);
+    // clear logo image
+
+    // NOTE: use background styles in separate style tags instead of image files
+
+    // skip logo
+    // $("#loginimg").attr("src", activeLMS.logofile);
+
+    $("#loginimg").addClass("entypo-mortar-board");
     $("#loginlmslabel").text(activeLMS.name);
 
     $("#usernameInput").focus();
@@ -187,15 +196,13 @@ LoginView.prototype.tap_loginpwlabel = function () {
 LoginView.prototype.tap_loginfooter = function () {
     console.log("check logIn data");
     if ($("#usernameInput").val() && $("#password").val()) {
-        if (!this.app.isOffline()) {
-            console.log("has logIn data");
-
+        if (!this.app.isOffline()) { // refuse to run while being offline
+            this.app.deferredChangeView("ID_AUTHENTICATION_OK", "landing");
             this.showWarningMessage('msg_warning_message');
             this.model.startSession($("#usernameInput").val(),
                                     $("#password").val());
         }
-        // use else to display an error message that the internet connectivity is lost,
-        // or remove the if sanity check (offline)
+        // offline message should be already on display
     }
     else {
         this.showErrorMessage('msg_authentication_message');
@@ -292,33 +299,6 @@ LoginView.prototype.showDeactivateMessage = function (message) {
  */
 LoginView.prototype.showWarningMessage = function (message) {
     this.displayMessage("warningmessage", message);
-};
-
-/**
- * hides the specified error message
- * @prototype
- * @function hideErrorMessage
- **/
-LoginView.prototype.hideErrorMessage = function () {
-    this.hideMessage();
-};
-
-/**
- * hides the specified warning message
- * @prototype
- * @function hideWarningMessage
- **/
-LoginView.prototype.hideWarningMessage = function () {
-    this.hideMessage();
-};
-
-/**
- * hides the specified dectivate message
- * @prototype
- * @function hideDeactivateMessage
- **/
-LoginView.prototype.hideDeactivateMessage = function () {
-    this.hideMessage();
 };
 
 /**
