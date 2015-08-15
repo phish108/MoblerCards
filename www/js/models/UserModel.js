@@ -668,15 +668,10 @@ UserModel.prototype.synchronize = function () {
         if (self.idprovider.app.isOnline() &&
             self.idprovider.getLMSStatus(serverid) &&
             self.isLoggedIn(serverid)) {
-            console.log("fetch profile");
             self.loadProfile(serverid);
-        }
-        else {
-            console.log("skip lms sync");
         }
     }
 
-    console.log("sync all user profiles");
     this.idprovider.eachLMS(function (server) {
         loadProfileFromServer(server.id);
     });
