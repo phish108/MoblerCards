@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true,unparam: true, todo: true */
 /*global $, DBHelper, Promise, device, moment */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -82,6 +82,11 @@ under the License.
         };
 
         initDB();
+
+        $(document).bind("ID_LOGOUT_REQUESTED", function (evt, serverid) {
+            // TODO: synchronise the server if possible
+            $(document).trigger("LRS_LOGOUT_READY", [serverid]);
+        });
     }
 
     /**
