@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true */
 /*global $, hex_sha1, faultylabs, LMSModel, UserModel, device*/
 
 /**	THIS LICENSE INFORMATION MUST NOT BE REMOVED AND REMAIN INTACT
@@ -293,21 +293,21 @@ IdentityProvider.prototype.sessionHeader = function (tokenType) {
  */
 IdentityProvider.prototype.getUserProfile = function (cbFunc, bind) {
     var userInfo = null;
-
-    if (!bind) {
-        bind = this;
-    }
-    if (this.usrMgr.isLoggedIn()) {
-        userInfo = {
-            "displayName": this.usrMgr.getDisplayName(),
-            "userName": this.usrMgr.getUserName(),
-            "userId": this.usrMgr.getUserId(),
-            "email": this.usrMgr.getEmailAddress(),
-            "language": this.usrMgr.getLanguage()
-        };
-    }
-
     if (typeof cbFunc === "function") {
+        if (!bind) {
+            bind = this;
+        }
+        if (this.usrMgr.isLoggedIn()) {
+            userInfo = {
+                "displayName": this.usrMgr.getDisplayName(),
+                "userName": this.usrMgr.getUserName(),
+                "userId": this.usrMgr.getUserId(),
+                "email": this.usrMgr.getEmailAddress(),
+                "language": this.usrMgr.getLanguage()
+            };
+        }
+
+        console.log(userInfo);
         cbFunc.call(bind, userInfo);
     }
 };

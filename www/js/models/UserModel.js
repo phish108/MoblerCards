@@ -96,9 +96,7 @@ UserModel.prototype.storeData = function () {
         configString = "";
         console.log("error while storing");
     }
-    console.log(configString);
     localStorage.setItem("configuration", configString);
-    console.log("Configuration Storage after storeData: " + localStorage.getItem("configuration"));
 };
 
 /**
@@ -117,8 +115,6 @@ UserModel.prototype.loadData = function () {
         console.log("error! while loading");
     }
 
-    console.log("configObject: " + JSON.stringify(configObject));
-
     // when the app is launched and before the user logs in there is no local storage
     // in this case there is no configuration object and it is stated in one of its properties
     // that its login status is set to "loggedOut".
@@ -130,8 +126,6 @@ UserModel.prototype.loadData = function () {
     }
 
     this.configuration = configObject;
-    console.log("configuration login state in load data " + this.configuration.loginState);
-
 };
 
 /**
@@ -702,7 +696,7 @@ UserModel.prototype.isLoggedIn = function (id) {
  * @return {String} displayName, the full name of the user that is stored in the configuration object
  */
 UserModel.prototype.getDisplayName = function () {
-    return this.configuration.learnerInformation.displayName;
+    return this.configuration.learnerInformation.name;
 };
 
 /**
@@ -711,7 +705,7 @@ UserModel.prototype.getDisplayName = function () {
  *  @return {String} displayName, the username that is stored in the configuration object
  */
 UserModel.prototype.getUserName = function () {
-    return this.configuration.learnerInformation.userName;
+    return this.configuration.learnerInformation.login;
 };
 
 /**
@@ -720,7 +714,7 @@ UserModel.prototype.getUserName = function () {
  * @return {Number} userId, the user id that is stored in the configuration object
  */
 UserModel.prototype.getUserId = function () {
-    return this.configuration.learnerInformation.userId;
+    return this.configuration.learnerInformation.id;
 };
 
 /**
@@ -729,7 +723,7 @@ UserModel.prototype.getUserId = function () {
  * @return {String} emailAddress, the email address of the user as it is stored in the configuration object
  */
 UserModel.prototype.getEmailAddress = function () {
-    return this.configuration.learnerInformation.emailAddress;
+    return this.configuration.learnerInformation.email;
 };
 
 /**

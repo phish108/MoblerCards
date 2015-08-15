@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -20,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -67,11 +69,13 @@ SettingsView.prototype.update = function () {
     if (this.lms.length) {
         $("#settingslmslabel").text(this.lms[0].name);
 
-//        $("#nameItemSet").text(config.getDisplayName());
-//        $("#usernameItemSet").text(config.getUserName());
-//        $("#emailItemSet").text(config.getEmailAddress());
-//        $("#languageItemSet").text(jQuery.i18n.prop('msg_' + config.getLanguage() + '_title'));
+        this.model.getUserProfile(function (user) {
+            $("#nameItemSet").text(user.displayName);
+            $("#usernameItemSet").text(user.userName);
+            $("#emailItemSet").text(user.email);
+        }, this);
 
+        $("#languageItemSet").text(jQuery.i18n.prop('msg_' + this.model.getLanguage() + '_title'));
     }
 };
 
@@ -83,34 +87,4 @@ SettingsView.prototype.tap_settingslogout = function (event) {
 };
 SettingsView.prototype.tap_settingsabout = function (event) {
     this.app.chooseView("about", "landing");
-};
-
-/**
- * loads the statistics data
- * @prototype
- * @function loadData
- **/
-SettingsView.prototype.loadData = function () {
-    $("#deactivateLi").hide();
-    var self = this;
-    var config = this.app.models.configuration;
-    var lmsModel = this.app.models.lms;
-    lmsModel.getActiveLMS(function (lms) {
-        console.log("deactivate flag is " + lms.inactive);
-        if (lms.inactive === 1) {
-            console.log("deactivate flag is: will show deactive msg");
-            $("#deactivateLi").show();
-        } else {
-            console.log(" deactivate flag is: will NOT show deactivate msg");
-        }
-        $("#aboutMore").show();
-
-//        $("#settingslmsimg").attr("src", lms.logofile);
-        $("#settingslmslabel").text(lms.name);
-    });
-
-    $("#nameItemSet").text(config.getDisplayName());
-    $("#usernameItemSet").text(config.getUserName());
-    $("#emailItemSet").text(config.getEmailAddress());
-    $("#languageItemSet").text(jQuery.i18n.prop('msg_' + config.getLanguage() + '_title'));
 };
