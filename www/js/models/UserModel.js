@@ -601,11 +601,14 @@ UserModel.prototype.sendLogoutToServer = function () {
  *
  * This method is only availble for the new API services.
  */
-UserModel.prototype.loadProfile = function () {
-    var self = this,
+UserModel.prototype.loadProfile = function (serverid) {
+    var self = this;
+    if (!serverid) {
         serverid = self.idprovider.getActiveLMSID();
+    }
 
     function loadProfile(data) {
+        console.log("profile successfully loaded");
         self.configuration = {learnerInformation: data};
         var configString = JSON.stringify(self.configuration);
 
@@ -614,7 +617,9 @@ UserModel.prototype.loadProfile = function () {
 
     function failProfile(request) {
         switch (request.status) {
+            case 401:
             case 403:
+                console.log("access token rejected");
                 $(document).trigger("ID_TOKEN_REJECTED",
                                     [serverid]);
                 break;
@@ -626,8 +631,10 @@ UserModel.prototype.loadProfile = function () {
                                     [serverid]);
                 break;
             default:
+                console.log("other error" + request.status);
                 // TODO: remove legacy event
-                $(document).trigger("profile_failed", "connection error");
+                $(document).trigger("profile_failed",
+                                    "connection error");
                 break;
         }
     }
@@ -641,7 +648,7 @@ UserModel.prototype.loadProfile = function () {
             success: loadProfile,
             error: failProfile,
             dataType: "json",
-            beforeSend: self.idprovider.sessionHeader(),
+            beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
             type: "GET"
         });
     }
@@ -655,62 +662,22 @@ UserModel.prototype.loadProfile = function () {
 
 
 UserModel.prototype.synchronize = function () {
-    var self        = this,
-        serviceName = "org.ieee.papi";
+    var self        = this;
 
     function loadProfileFromServer(serverid) {
-
-        function loadProfile(data) {
-            self.configuration = {learnerInformation: data};
-            var configString = JSON.stringify(self.configuration);
-
-            localStorage.setItem("configuration", configString);
-        }
-
-        function failProfile(request) {
-            switch (request.status) {
-                case 403:
-                    $(document).trigger("ID_TOKEN_REJECTED",
-                                        [serverid]);
-                    break;
-                case 404:
-                case 500:
-                    console.log("disable after load profile failure in loadProfile() ");
-                    self.idprovider.disableLMS();
-                    $(document).trigger("ID_SERVER_FAILURE",
-                                        [serverid]);
-                    break;
-                default:
-                    // TODO: remove legacy event
-                    $(document).trigger("profile_failed", "connection error");
-                    break;
-            }
-        }
-
-        console.log("sync " + serverid);
-        if (self.idprovider.getLMSStatus(serverid) && self.isLoggedIn(serverid)) {
-
+        if (self.idprovider.app.isOnline() &&
+            self.idprovider.getLMSStatus(serverid) &&
+            self.isLoggedIn(serverid)) {
             console.log("fetch profile");
-
-            var u = self.idprovider.serviceURL(serviceName, serverid);
-            $.ajax({
-                url: u,
-                success: loadProfile,
-                error: failProfile,
-                dataType: "json",
-                beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
-                type: "GET"
-            });
+            self.loadProfile(serverid);
         }
         else {
             console.log("skip lms sync");
         }
     }
 
-
     console.log("sync all user profiles");
     this.idprovider.eachLMS(function (server) {
-        console.log("load server " + JSON.stringify(server));
         loadProfileFromServer(server.id);
     });
 };
