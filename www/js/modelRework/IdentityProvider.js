@@ -68,14 +68,21 @@ function IdentityProvider () {
  * The selection state represents the users last LMS selection.
  */
 IdentityProvider.prototype.eachLMS = function (cbFunc, bind) {
-    this.lmsMgr.eachLMS(cbFunc, bind);
+    this.lmsMgr.eachLMS(cbFunc, bind, 0);
 };
 
 /**
  * variant for accessing only LMSes without user tokens
  */
 IdentityProvider.prototype.eachLMSPublic = function (cbFunc, bind) {
-    this.lmsMgr.eachLMSPublic(cbFunc, bind);
+    this.lmsMgr.eachLMS(cbFunc, bind, -1);
+};
+
+/**
+ * variant for accessing only LMSes without user tokens
+ */
+IdentityProvider.prototype.eachLMSPrivate = function (cbFunc, bind) {
+    this.lmsMgr.eachLMS(cbFunc, bind, 1);
 };
 
 /**
@@ -158,7 +165,7 @@ IdentityProvider.prototype.enableLMS = function (LMSId) {
  * if no LMSID is provided, the active LMS will be tested.
  */
 IdentityProvider.prototype.getLMSStatus = function (LMSId) {
-    this.lmsMgr.getLMSStatus(LMSId);
+    return this.lmsMgr.getLMSStatus(LMSId);
 };
 
 /**
@@ -196,8 +203,10 @@ IdentityProvider.prototype.serviceURL = function (serviceName, serverid, path) {
 IdentityProvider.prototype.startSession = function (username, password) {
     username = username.trim();
     password = password.trim();
-    if (username.length && password.length){
-        this.usrMgr.login(username, faultylabs.MD5(password));
+    if (username.length &&
+        password.length){
+        this.usrMgr.login(username,
+                          password);
     }
 };
 
@@ -206,7 +215,7 @@ IdentityProvider.prototype.startSession = function (username, password) {
  * @function finishSession
  * @param {NONE}
  */
-IdentityProvider.prototype.finishSession = function () {
+IdentityProvider.prototype.finishSession = function (lmsId) {
     this.usrMgr.logout();
 };
 
@@ -241,12 +250,14 @@ IdentityProvider.prototype.setSessionHeader = function (xhr, url, method, tokenT
         }
         else if (!(tokenType && tokenType.length) ||
                   tokenType.indexOf(token.type) >= 0) {
-            console.log("set new headers");
+            console.log("set new headers for " + method + " " + url );
 
-            var authCode = this.signObject(url, method);
+            var authCode = this.signURL(url, method);
+
+            console.log("auth header: Authorization " + authCode);
 
             if (authCode && authCode.length) {
-                xhr.setRequestHeader("Authorize", authCode);
+                xhr.setRequestHeader("Authorization", authCode);
             }
         }
     }
@@ -341,7 +352,7 @@ IdentityProvider.prototype.getLanguage =  function () {
 IdentityProvider.prototype.synchronize = function() {
     if (this.app.isOnline()) {
         this.lmsMgr.synchronize();
-        this.usrMgr.loadFromServer();
+        this.usrMgr.synchronize();
     }
 };
 
@@ -378,11 +389,11 @@ IdentityProvider.prototype.removeToken = function (tokenType) {
  * @function signWithToken
  * @param {STRING} sign string
  *
- * signs the sign string with the app's request token
+ * signs the sign string with the LMS's active token
  */
 IdentityProvider.prototype.signWithToken = function (signString) {
     if (typeof signString === "string" && signString.length) {
-        var signObject = this.lmsMgr.getActiveRequestToken();
+        var signObject = this.lmsMgr.getActiveToken();
         if (signObject) {
             var token = "";
             if (typeof signObject === "string") {
@@ -399,10 +410,11 @@ IdentityProvider.prototype.signWithToken = function (signString) {
     return undefined;
 };
 
-IdentityProvider.prototype.signObject = function (URL, method) {
+IdentityProvider.prototype.signURL = function (URL, method) {
     var bOK = true, signString = "", resultString = "";
 
-    var signObject = this.lmsMgr.getActiveToken();
+    var signObject = {},
+        token      = this.lmsMgr.getActiveToken();
 
     if (typeof method === "string" && method.length) {
         signObject.method = method;
@@ -414,15 +426,23 @@ IdentityProvider.prototype.signObject = function (URL, method) {
         signObject.client = device.uuid;
     }
 
-    switch (signObject.type) {
+    signObject.id = token.id;
+
+    console.log("sign token type " + token.type);
+
+    switch (token.type) {
         case "Bearer":
-            resultString = signObject.type + " " + signObject.token;
+            resultString = token.type + " " + token.token;
             break;
         case "Request":
             /* falls through */
         case "MAC":
-            signObject.sequence.forEach(function(field) {
-                if (signObject.hasOwnProperty(field)) {
+            token.sequence.forEach(function(field) {
+                if (token.hasOwnProperty(field)) {
+                    signString += encodeURIComponent(token[field]);
+                    signObject[field] = token[field];
+                }
+                else if (signObject.hasOwnProperty(field)) {
                     signString += encodeURIComponent(signObject[field]);
                 }
                 else {
@@ -431,7 +451,7 @@ IdentityProvider.prototype.signObject = function (URL, method) {
             });
 
             if (bOK) {
-                 resultString = signObject.type + " ";
+                 resultString = token.type + " ";
                 /**
                  * TODO: add supprot for more sign methods.
                  *
@@ -440,7 +460,7 @@ IdentityProvider.prototype.signObject = function (URL, method) {
                  *
                  * hex_hmac_sha1() is supported by the sha1 module, but PowerTLA does not support it yet.
                  */
-                switch (signObject.algorithm.toLowerCase()) {
+                switch (token.algorithm.toLowerCase()) {
                     case "md5":
                         signObject.key = faultylabs.MD5(signString);
                         break;
@@ -449,10 +469,17 @@ IdentityProvider.prototype.signObject = function (URL, method) {
                         break;
                 }
 
-                signObject.parameter.forEach(function (field) {
-                    resultString += field + "=" + encodeURIComponent(signObject);
+                var tta = [];
+
+                token.parameter.forEach(function (field) {
+                    tta.push(field + "=" + encodeURIComponent(signObject[field]));
                 });
+
+                resultString += tta.join(",");
             }
+            break;
+        default:
+            console.log("invalid token");
             break;
     }
     return resultString;
