@@ -36,11 +36,7 @@ under the License.
  *  - it sets the tag ID for the settings view
  *  - assigns event handler when taping on close button
  **/
-function AboutView() {}
-
-AboutView.prototype.prepare = function () {
-    this.app.models.configuration.loadFromServer();
-};
+function AboutView() {return;}
 
 AboutView.prototype.tap_aboutcross = function () {
     this.app.chooseView("settings", "landing");

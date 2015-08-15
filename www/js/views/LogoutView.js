@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -37,20 +37,15 @@ under the License.
  *    such as the close button, the final logout button
  **/
 function LogoutView() {
-    var self = this;
+    return;
 }
 
-LogoutView.prototype.tap_logoutcross = function (event) {
-    if (this.app.getLoginState()) {
-        this.app.models.connection.goOffline(); // ????
-        this.app.changeView("settings");
-    }
-    else {
-        this.app.changeView("landing");
-    }
+LogoutView.prototype.tap_logoutcross = function () {
+    this.app.chooseView("settings", "landing");
 };
-LogoutView.prototype.tap_logoutfooter = function (event) {
-    var featuredContentId = FEATURED_CONTENT_ID;
-    this.app.models.configuration.logout(featuredContentId);
-    this.app.changeView("landing");
+
+LogoutView.prototype.tap_logoutfooter = function () {
+    this.app.deferredChangeView("ID_LOGOUT_OK", "landing");
+    // TODO visual cues for the logout process.
+    this.model.finishSession();
 };

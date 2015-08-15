@@ -55,11 +55,25 @@ function SettingsView() {
 }
 
 SettingsView.prototype.prepare = function () {
-    this.app.models.featured.loadFeaturedCourseFromServer();
-    this.app.models.course.loadFromServer();
-    this.loadData();
+    this.lms = [];
+
+    this.model.eachLMSPrivate(function (lms) {
+        this.lms.push(lms);
+    }, this);
 };
 
+SettingsView.prototype.update = function () {
+    // display the user information for the first LMS
+    if (this.lms.length) {
+        $("#settingslmslabel").text(this.lms[0].name);
+
+//        $("#nameItemSet").text(config.getDisplayName());
+//        $("#usernameItemSet").text(config.getUserName());
+//        $("#emailItemSet").text(config.getEmailAddress());
+//        $("#languageItemSet").text(jQuery.i18n.prop('msg_' + config.getLanguage() + '_title'));
+
+    }
+};
 
 SettingsView.prototype.tap_settingscross = function (event) {
     this.app.chooseView("course", "landing");
