@@ -199,7 +199,6 @@ UserModel.prototype.loadFromServer = function () {
             // the receive of authenticated data was failed
             error: function (request) {
                 // the specific view should decide on the response.
-                window.showErrorResponses(request); // from common.js
                 switch (request.status) {
                     case 403:
                         console.log("Error while authentication to server");
@@ -209,6 +208,9 @@ UserModel.prototype.loadFromServer = function () {
                         $(document).trigger("authenticationTemporaryfailed"); // TODO: move the listeners to ID_AUTHENTICATION_FAILED
                         break;
                     default:
+                        console.log("request error from " + activeURL);
+                        console.log("disable while loadFromServer (legacy) " + request.status);
+                        console.log("message " + request.resoponseText);
                         self.idprovider.disableLMS();
                         $(document).trigger("ID_AUTHENTICATION_REJECTED",
                                             [serverid]);
@@ -240,8 +242,9 @@ UserModel.prototype.setSessionHeader = function (xhr) {
  */
 UserModel.prototype.login = function (username, password) {
     var challenge;
-    challenge = this.idprovider.signWithToken(username + faultylabs.MD5(password));
-
+    // NOTE: we need to lowercase the password hash.
+    challenge = this.idprovider.signWithToken(username +
+                                              faultylabs.MD5(password).toLowerCase());
 
     var auth = {
         "username": username,
@@ -261,15 +264,14 @@ UserModel.prototype.login = function (username, password) {
 UserModel.prototype.logout = function () {
     console.log("enter logout in configuration model");
     //TODO send statistics data to server
-    var serverid = this.idprovider.getActiveLMSID();
+    if (this.isLoggedIn())  {
+        this.configuration.loginState = "loggedOut";
 
-    this.configuration.loginState = "loggedOut";
-    var configString = JSON.stringify(this.configuration);
-    localStorage.setItem("configuration", configString);
-    console.log("configuration login state in logout is " + this.configuration.loginState);
-    // TODO: remove legacy event
-    $(document).trigger("userlogoutrequest"); // replace with
-    $(document).trigger("ID_LOGOUT_REQUESTED", [serverid]);
+        localStorage.setItem("configuration", JSON.stringify(this.configuration));
+
+        $(document).trigger("ID_LOGOUT_REQUESTED", [this.idprovider.getActiveLMSID()]);
+    }
+
     // TODO: Content Broker and LRS need to listen to userlogoutrequest
 
     // FIXME create a logoutready event.
@@ -402,8 +404,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             //sets the language interface for the authenticated user
             //its language preferences were received during the authentication
 
-
-
             //FIXME MOVE TO LRS: get statistics data from server
             // self.app.models.statistics.loadFromServer();
         } else {
@@ -413,11 +413,11 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             $(document).trigger("authenticationfailed", "connectionerror");
             $(document).trigger("ID_CONNECTION_FAILURE",
                                 [serverid]);
-
         }
     }
 
     function authOK(data) {
+        console.log("normal auth OK with token: " + JSON.stringify(data));
         self.idprovider.addToken(data);
         $(document).trigger("ID_AUTHENTICATION_OK",
                             [serverid]);
@@ -426,12 +426,18 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     }
 
     function authFail(request) {
+        console.log("Request Error during authentication: " +
+                    request.status +
+                    "(URL: "+ activeURL + ")");
+        console.log("Request Error Text" + request.statusText);
+        console.log("Request Error Text" + request.responseText);
+
         switch (request.status) {
             case 403:
                 //from common.js
+                console.log("disable after 403 error in sendAuthToServer");
                 self.idprovider.disableLMS();
                 window.turnOnDeactivate(); // FIXME: this code is part of the LMSModel
-                window.showErrorResponses(request);  // FIXME: this code is part of the LoginView
 
                 console.log("Error while authentication to server");
                 // TODO: remove legacy event
@@ -462,49 +468,60 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 
     var rObj = {
         url: activeURL,
-        dataType: 'json',
         error: authFail
     };
 
+    console.log("servicename is " + serviceName);
     switch(serviceName) {
         case "org.ieee.papi":
-            rObj.success = authOK;
-            rObj.type = "PUT";
-            rObj.contentType = "application/json";
-            rObj.beforeSend = self.idprovider.sessionHeader();
+            console.log("proper code");
+            rObj.success      = authOK;
+            rObj.type         = "PUT";
+            rObj.dataType     = 'json';
+            rObj.contentType  = "application/json";
+            rObj.beforeSend   = self.idprovider.sessionHeader();
+            rObj.data         = JSON.stringify(authData);
             break;
         case "ch.isn.lms.auth":
-            rObj.success = authOKLegacy;
-            rObj.type = "POST";
+            console.log("legacy code");
+            rObj.success    = authOKLegacy;
+            rObj.type       = "POST";
             rObj.beforeSend = setHeaderLegacy;
             break;
         default:
             // should never happen!
+            console.log("// should never happen!");
             rObj = null;
             break;
     }
 
     if (rObj && rObj.url === activeURL) {
+        console.log("fetch data");
         if (self.idprovider.getLMSStatus()) {
             $.ajax(rObj);
         }
         else {
             // TODO: remove legacy event
+            console.log("bad lms status?");
             $(document).trigger("authentication_failed", "temporary failure");
             $(document).trigger("ID_SERVER_UNAVAILABLE",
                                 [serverid]);
         }
     }
+    else {
+        console.log("no request object " + rObj ? rObj.url : "??");
+    }
 };
 
 /**
+ * @prototype
+ * @function sendLogoutToServer
+ * @param userAuthenticationKey
+ *
  * Sends a delete request to the server in order to invalidates the specified session key
  * or if no session key is specified the current session key.
  * We send via header the session key. After the delete request is sent to the server,
  * we clear the local storage. We keep only the app key.
- * @prototype
- * @function sendLogoutToServer
- * @param userAuthenticationKey
  */
 UserModel.prototype.sendLogoutToServer = function () {
     console.log("enter send logout to server");
@@ -520,11 +537,13 @@ UserModel.prototype.sendLogoutToServer = function () {
 
     function logoutFail(request) {
         if (request.status === 403) {
+            console.log("deactivate after logout failure");
             self.idprovider.disableLMS();
             console.log("Error while logging out from server");
         }
 
         //adding in the local storage the session key of the pending
+
         // LEGACY CODE
         localStorage.setItem("pendingLogout", "1"); // the LMS Model should take case about this
     }
@@ -601,6 +620,7 @@ UserModel.prototype.loadProfile = function () {
                 break;
             case 404:
             case 500:
+                console.log("disable after load profile failure in loadProfile() ");
                 self.idprovider.disableLMS();
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
@@ -615,11 +635,12 @@ UserModel.prototype.loadProfile = function () {
     var serviceName = "org.ieee.papi";
     var activeURL = self.idprovider.serviceURL(serviceName);
 
-    if (self.idprovider.getLMSStatus()) {
+    if (self.idprovider.getLMSStatus() && self.isLoggedIn()) {
         $.ajax({
             url: activeURL,
             success: loadProfile,
             error: failProfile,
+            dataType: "json",
             beforeSend: self.idprovider.sessionHeader(),
             type: "GET"
         });
@@ -630,7 +651,68 @@ UserModel.prototype.loadProfile = function () {
         $(document).trigger("ID_SERVER_UNAVAILABLE",
                             [serverid]);
     }
+};
 
+
+UserModel.prototype.synchronize = function () {
+    var self        = this,
+        serviceName = "org.ieee.papi";
+
+    function loadProfileFromServer(serverid) {
+
+        function loadProfile(data) {
+            self.configuration = {learnerInformation: data};
+            var configString = JSON.stringify(self.configuration);
+
+            localStorage.setItem("configuration", configString);
+        }
+
+        function failProfile(request) {
+            switch (request.status) {
+                case 403:
+                    $(document).trigger("ID_TOKEN_REJECTED",
+                                        [serverid]);
+                    break;
+                case 404:
+                case 500:
+                    console.log("disable after load profile failure in loadProfile() ");
+                    self.idprovider.disableLMS();
+                    $(document).trigger("ID_SERVER_FAILURE",
+                                        [serverid]);
+                    break;
+                default:
+                    // TODO: remove legacy event
+                    $(document).trigger("profile_failed", "connection error");
+                    break;
+            }
+        }
+
+        console.log("sync " + serverid);
+        if (self.idprovider.getLMSStatus(serverid) && self.isLoggedIn(serverid)) {
+
+            console.log("fetch profile");
+
+            var u = self.idprovider.serviceURL(serviceName, serverid);
+            $.ajax({
+                url: u,
+                success: loadProfile,
+                error: failProfile,
+                dataType: "json",
+                beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
+                type: "GET"
+            });
+        }
+        else {
+            console.log("skip lms sync");
+        }
+    }
+
+
+    console.log("sync all user profiles");
+    this.idprovider.eachLMS(function (server) {
+        console.log("load server " + JSON.stringify(server));
+        loadProfileFromServer(server.id);
+    });
 };
 
 /**
@@ -640,8 +722,8 @@ UserModel.prototype.loadProfile = function () {
  * @function isLoggedIn
  * @return true if user is logged in, otherwise false
  */
-UserModel.prototype.isLoggedIn = function () {
-    var token = this.idprovider.lmsMgr.getActiveToken();
+UserModel.prototype.isLoggedIn = function (id) {
+    var token = this.idprovider.lmsMgr.getActiveToken(id);
 
     if (token && (token.type === "MAC" ||
                   token.type === "Bearer" ||

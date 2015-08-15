@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true, unparam: true */
 /*global $, device, Promise */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -412,6 +412,79 @@
         document.addEventListener("online",
                                   function () {self.synchronize();},
                                   false);
+
+        // FUTURE enable selective logout for an individual server
+        // FUTURE allow pending logouts (again)
+        var prepLogout      = false,
+            lrsLogoutReady  = false,
+            cbLogoutReady   = false,
+            serviceid       = null;
+
+        function cbDropKey() {
+            // delete the keys ONLY if we really need to delete them.
+
+            if (serviceid && prepLogout) {
+                delete lmsData[serviceid].keys.MAC;
+                delete lmsData[serviceid].keys.Bearer;
+                storeData();
+            }
+
+            $(document).trigger("ID_LOGOUT_OK", [serviceid]);
+
+            serviceid       = null;
+            prepLogout      = false;
+            lrsLogoutReady  = false;
+            cbLogoutReady   = false;
+        }
+
+        function removeAccessKey() {
+            if (serviceid &&
+                prepLogout &&
+                cbLogoutReady &&
+                lrsLogoutReady) {
+                // send delete to profile service
+
+                if (lmsData &&
+                    lmsData[serviceid] &&
+                    lmsData[serviceid].keys &&
+                    (lmsData[serviceid].keys.MAC || lmsData[serviceid].keys.Bearer)) {
+
+                    if(self.idp.app.isOnline()) {
+                        $.ajax({
+                            type: "DELETE",
+                            beforeSend: self.idp.sessionHeader(["MAC", "Bearer"]),
+                            url: self.getServiceURL("org.ieee.papi", serviceid),
+                            success: cbDropKey,
+                            error: cbDropKey
+                        });
+                    }
+                    else {
+                        // TODO remember pending logout
+
+                        // inform views about pending logout
+                        $(document).trigger("ID_LOGOUT_OK", [serviceid]);
+                    }
+                }
+            }
+        }
+
+        $(document).bind("ID_LOGOUT_REQUESTED",  function (evt, serverid) {
+            serviceid = serverid;
+            prepLogout = true;
+            removeAccessKey();
+        });
+
+        $(document).bind("LRS_LOGOUT_READY",     function (evt, serverid) {
+            serviceid = serverid;
+            lrsLogoutReady = true;
+            removeAccessKey();
+        });
+
+        $(document).bind("CONTENT_LOGOUT_READY", function (evt, serverid) {
+            serviceid = serverid;
+            cbLogoutReady = true;
+            removeAccessKey();
+        });
     }
 
     /**
@@ -611,6 +684,7 @@
      * @public @method eachLMS(callbackFunction, bindObject)
      * @param callback - the callback function to handle the LMS data
      * @param bindObject - the object that should be used as this for the callback
+     * @param authstate - which LMS to fetch
      *
      * This method loops through the registered LMSes and passes a simplified RSD
      * to the callback function. The callback function accepts 1 parameter. This
@@ -622,73 +696,37 @@
      *
      * This is list can be used to display the list of registered LMSes for the
      * app. I suppose that most users have only one or two LMSes registered.
-     */
-    LMSModel.prototype.eachLMS = function (cbFunc, bind) {
-        if (!bind) {
-            bind = this;
-        }
-
-        var ts = (new Date()).getTime();
-
-        console.log("LMS List: " + JSON.stringify(lmsData));
-
-        Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
-                console.log(">>> "+ lmsid);
-                var rsd = lmsData[lmsid];
-                if (rsd.inaccessible > 0) {
-                    var delta = ts - rsd.inaccessible;
-                    if (delta > inactiveTimeout) { // wait for one hour
-                        delete rsd.inaccessible;
-                        storeData();
-                    }
-                }
-                var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
-
-                console.log('server is inaccessible? ' + rsd.inaccessible);
-
-                cbFunc.call(bind, {"id": rsd.id,
-                                   "name": rsd.name,
-                                   "logofile": rsd.logolink,
-                                   "inactive": ((rsd.inaccessible &&
-                                                rsd.inaccessible > 0) ? 1 : 0),
-                                   "selected": isSelected});
-        });
-    };
-
-    /**
-     * @prototype
-     * @method eachLMSPublic
      *
-     * variant of eachLMS to access only those LMSes that have
-     * no active user token
+     * authState = 0 means get all LMS
+     * authState = 1 means get only LMS with auth keys
+     * authState = -1 means get only LMS without authkeys
      */
-    LMSModel.prototype.eachLMSPublic = function (cbFunc, bind) {
+    LMSModel.prototype.eachLMS = function (cbFunc, bind, authState) {
         if (!bind) {
             bind = this;
         }
+        var self = this;
 
         var ts = (new Date()).getTime();
 
         console.log("LMS List: " + JSON.stringify(lmsData));
 
         Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
-            if (lmsData[lmsid].keys &&
-                (!lmsData[lmsid].keys.hasOwnProperty("user") ||
-                 !lmsData[lmsid].keys.hasOwnProperty("Bearer") ||
-                 !lmsData[lmsid].keys.hasOwnProperty("MAC"))) {
-                console.log(">>> "+ lmsid);
-                var rsd = lmsData[lmsid];
-                if (rsd.inaccessible > 0) {
-                    var delta = ts - rsd.inaccessible;
-                    if (delta > 3600000) { // wait for one hour
-                        delete rsd.inaccessible;
-                        storeData();
-                    }
+            console.log(">>> "+ lmsid);
+            var rsd = lmsData[lmsid];
+            if (rsd.inaccessible > 0) {
+                var delta = ts - rsd.inaccessible;
+                if (delta > inactiveTimeout) { // wait for one hour
+                    delete rsd.inaccessible;
+                    storeData();
                 }
-                var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+            }
+            var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
 
-                console.log('server is inaccessible? ' + rsd.inaccessible);
-
+            console.log('server is inaccessible? ' + rsd.inaccessible);
+            if (!authState ||
+                (authState === 1 && self.authState(lmsid)) ||
+                (authState === -1 && !self.authState(lmsid))) {
                 cbFunc.call(bind, {"id": rsd.id,
                                    "name": rsd.name,
                                    "logofile": rsd.logolink,
@@ -697,6 +735,19 @@
                                    "selected": isSelected});
             }
         });
+    };
+
+    /**
+     * @prototype
+     * @function authstate(lmsid)
+     * @param {STRING} lmsid
+     *
+     * returns true if access keys exist for the LMS
+     */
+    LMSModel.prototype.authState = function (lmsid) {
+        return (lmsData[lmsid].keys.hasOwnProperty("user") ||
+                lmsData[lmsid].keys.hasOwnProperty("Bearer") ||
+                lmsData[lmsid].keys.hasOwnProperty("MAC"));
     };
 
     /**
