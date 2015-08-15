@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -43,42 +44,14 @@ function CourseView() {
     this.active = false;
     this.firstLoad = true;
 
-    var featuredContentId = FEATURED_CONTENT_ID;
-
+    function refresh() {
+        self.refresh();
+    }
     /**
-     * In some rare cases an automated transition from login view to course list view takes place.
-     * This might have happened because a synchronization of questions ( pending questions exist in the local storage) took place.
-     * So when the courseListView or the CourseModel bind/listen to that event (because it was triggered when pending questions were loaded), we should check
-     * IF WE ARE LOGGED IN in order to perform the callback function
-     * @event questionpoolready
-     * @param a callback function that transforms the loading icon next to a course item, to the statistics icon. this means
-     *        that the specific course including all its questions has been fully loaded
+     * refresh if the content broker reports changes ...
      */
-    $(document).bind("questionpoolready", function (e, courseID) {
-        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
-            console.log("view questionPool ready called " + courseID);
-            self.courseIsLoaded(courseID);
-        }
-    });
-
-    /**
-     * In some rare cases an automated transition from login view to course list view takes place.
-     * This might have happened because a synchronization of courses pending questions took place and when the "courseListUpdate" event was triggered
-     * then the the courses list view (which binds/listens to this event) was displayed by the execution of the update function below.
-     * So we should check IF WE ARE LOGGED IN in order to perform the call back function
-     * @event courselistupdate
-     * @param a callback function that loads the body of the courses list view, which is the list of courses
-     */
-    $(document).bind("courselistupdate", function (e) {
-        if (self.app.isActiveView(self.tagID) && self.app.getLoginState()) {
-            console.log("course list update called");
-            self.firstLoad = false;
-            if (self.active) {
-                console.log("course list view is active");
-                self.update();
-            }
-        }
-    });
+    $(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
+    $(document).bind("CONTENT_COURSE_UPDATED",     refresh);
 }
 
 /**
@@ -91,10 +64,6 @@ CourseView.prototype.prepare = function () {
     if (!this.app.getLoginState()) {
         this.app.changeView("landing");
     }
-    else {
-        this.active = true;
-        this.firstLoad = false;
-    }
 };
 
 /**
@@ -106,9 +75,28 @@ CourseView.prototype.prepare = function () {
  * @param {NONE}
  */
 CourseView.prototype.update = function () {
-    this.setDefaultCourse();
-    this.setCourse();
-};
+    var self = this;
+
+    var courseModel = self.model;
+    var ctmpl = this.app.templates.getTemplate("courselistbox");
+
+    var cList = courseModel.getCourseList(); // get all courses
+
+    if (cList) {
+        cList.forEach(function (course) {
+            if (course.title && course.id) {
+                ctmpl.attach(course.lmsId + "_" + course.id);
+                ctmpl.courselabel.text = course.title;
+                // TODO add course status
+                ctmpl.courseimg.addClass("icon-bars");
+            }
+        });
+    }
+    else {
+        ctmpl.attach("waiting");
+        // FIXME: Translatable text!
+        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
+    }};
 
 /**
  * @protoype
@@ -117,7 +105,7 @@ CourseView.prototype.update = function () {
  */
 CourseView.prototype.cleanup = function () {
     this.active = false;
-    this.app.models.course.loadFromServer();
+    // this.app.models.course.loadFromServer();
 };
 
 /**
@@ -130,87 +118,24 @@ CourseView.prototype.tap = function (event) {
     var id = event.target.id;
     console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
-    var courseId = this.app.models.course.getId();
     var course = id.split("_");
 
-    // ensure that you cannot enter an empty course.
-    if (course.length > 2 &&
-        course[0] === "courselist") {
-        if (course.length === 4 &&
-            course[3] === "fd") {
-            if (this.app.selectCourseItem(course[3])) {
-                this.app. changeView("question");
-            }
-        }
-        else if (this.app.models.course.isSynchronized(course[2])) {
-            if (this.app.selectCourseItem(course[2])) {
-                this.app.changeView("question");
-            }
-        }
+    var cId     = course.pop();
+    var lmsId   = course.pop();
+    if (course[0] === "courselist") {
+        this.model.activateCourseById(lmsId, cId);
+        this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+        this.models.contentbroker.nextQuestion();
     }
 
-    if (course[0] === "courseimage" &&
-        this.app.models.course.isSynchronized(course[2])) {
-        this.app.changeView("statistics");
-    }
+//    if (course[0] === "courseimage") {
+//        // ignore
+//        // this.app.changeView("statistics");
+//    }
 };
 
-CourseView.prototype.tap_coursecross = function (event) {
+CourseView.prototype.tap_coursecross = function () {
     this.app.chooseView("settings", "landing");
-};
-
-/*
- * generates all the current courses you are enrolled in.
- * @prototype
- * @function setCourse
- * @param {NONE}
- */
-CourseView.prototype.setCourse = function () {
-    var self = this;
-
-    var courseModel = self.app.models.course;
-    var ctmpl = this.app.templates.getTemplate("courselistbox");
-    var courseId, courseTitle;
-
-    if (courseModel.courseList.length > 0) {
-        courseModel.reset();
-        do {
-            courseId = courseModel.getId();
-            courseTitle = courseModel.getTitle();
-
-            if (courseTitle !== "false" && courseId !== "false") {
-                ctmpl.attach(courseId);
-                ctmpl.courselabel.text = courseTitle;
-
-                this.setCourseIcon(ctmpl, courseId);
-            }
-        } while (courseModel.nextCourse());
-    }
-    else {
-        ctmpl.attach("waiting");
-        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
-    }
-};
-
-/*
- * generates the default course.
- * FIXME need to get rid of this function.
- * @prototype
- * @function setDefaultCourse
- * @param {NONE}
- */
-CourseView.prototype.setDefaultCourse = function () {
-    var self = this;
-
-    var featuredModel = self.app.models.featured;
-    var ctmpl = this.app.templates.getTemplate("courselistbox");
-    var featuredId = featuredModel.getId();
-
-    ctmpl.attach(featuredId + "_fd");
-    ctmpl.courselabel.text = featuredModel.getTitle();
-
-    // this is a temporary solution
-    ctmpl.courseimg.addClass("icon-bars");
 };
 
 /*
@@ -241,5 +166,7 @@ CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
 CourseView.prototype.courseIsLoaded = function (courseId) {
     console.log("courseIsLoaded: " + courseId);
     console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);
-    $("#course" + courseId + " .icon-loading").addClass("icon-bars").removeClass("icon-loading loadingrotation");
+    $("#course" + courseId + " .icon-loading")
+        .addClass("icon-bars")
+        .removeClass("icon-loading loadingrotation");
 };
