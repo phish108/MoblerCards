@@ -94,7 +94,6 @@ UserModel.prototype.storeData = function () {
         configString = JSON.stringify(this.configuration);
     } catch (err) {
         configString = "";
-        console.log("error while storing");
     }
     localStorage.setItem("configuration", configString);
 };
@@ -154,19 +153,14 @@ UserModel.prototype.loadFromServer = function () {
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                console.log("success");
-                console.log("in success before turining off deactivate");
                 self.idprovider.enableLMS(); // FROM common.js
-                console.log("JSON: " + data);
                 var authenticationObject;
                 try {
                     //the authentication data are successfully received
                     //its object format is assigned to the authentication object variable
                     authenticationObject = data;
-                    console.log("authenticationData from server");
                 } catch (err) {
                     //the authentication data couln't be parsed properly
-                    console.log("Error: Couldn't parse JSON for authentication");
                     authenticationObject = {};
                 }
                 //assign as value to the learner information property of the configuration object
@@ -195,16 +189,12 @@ UserModel.prototype.loadFromServer = function () {
                 // the specific view should decide on the response.
                 switch (request.status) {
                     case 403:
-                        console.log("Error while authentication to server");
                         // TODO: remove legacy event
                         $(document).trigger("ID_AUTHENTICATION_FAILED",
                                            [serverid]);
                         $(document).trigger("authenticationTemporaryfailed"); // TODO: move the listeners to ID_AUTHENTICATION_FAILED
                         break;
                     default:
-                        console.log("request error from " + activeURL);
-                        console.log("disable while loadFromServer (legacy) " + request.status);
-                        console.log("message " + request.resoponseText);
                         self.idprovider.disableLMS();
                         $(document).trigger("ID_AUTHENTICATION_REJECTED",
                                             [serverid]);
@@ -256,7 +246,6 @@ UserModel.prototype.login = function (username, password) {
  * @function logout
  */
 UserModel.prototype.logout = function () {
-    console.log("enter logout in configuration model");
     //TODO send statistics data to server
     if (this.isLoggedIn())  {
         this.configuration.loginState = "loggedOut";
@@ -265,31 +254,6 @@ UserModel.prototype.logout = function () {
 
         $(document).trigger("ID_LOGOUT_REQUESTED", [this.idprovider.getActiveLMSID()]);
     }
-
-    // TODO: Content Broker and LRS need to listen to userlogoutrequest
-
-    // FIXME create a logoutready event.
-    // this.app.models.statistics.sendToServer(featuredContent_id);
-
-    // remove all question pools and all pending question pool requests
-//    var c, courseList = this.app.models.course.courseList;
-//    if (courseList) {
-//        for (c in courseList) {
-//            if (courseList.hasOwnProperty(c)) {
-//                console.log("clear local question pools");
-//                if (courseList[c].id !== featuredContent_id) {
-//                    localStorage.removeItem("questionpool_" + courseList[c].id);
-//                    localStorage.removeItem("pendingQuestionPool_" + courseList[c].id);
-//                }
-//            }
-//        }
-//    }
-
-//    // remove course list and pending course list request
-//    localStorage.removeItem("pendingCourseList");
-//    localStorage.removeItem("courses");
-//    this.app.models.course.resetCourseList();
-
 };
 
 
@@ -304,7 +268,6 @@ UserModel.prototype.logout = function () {
  * @function sendAuthToServer
  */
 UserModel.prototype.sendAuthToServer = function (authData) {
-    console.log("enter send Auth to server " + JSON.stringify(authData));
     var self = this;
 
     var serviceName = "org.ieee.papi",
@@ -355,9 +318,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
                  * @event authenticationfailed
                  * @event nouser
                  */
-                // TODO: remove legacy event
-                $(document).trigger("authenticationfailed",
-                                    "nouser");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
                                     [serverid]);
                 break;
@@ -374,7 +334,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 
             self.idprovider.addToken(legacyToken);
 
-            console.log("userAuthenticationKey: " + data.userAuthenticationKey);
             //store the authenticated data (user authentication key, learner information) in the local storage
             self.configuration.userAuthenticationKey = data.userAuthenticationKey;
             self.configuration.learnerInformation = data.learnerInformation;
@@ -389,29 +348,18 @@ UserModel.prototype.sendAuthToServer = function (authData) {
              * @event authenticationready
              * @param the user authentication key
              */
-            // TODO: remove legacy event
-            $(document).trigger("authenticationready");
             $(document).trigger("ID_AUTHENTICATION_OK",
                                 [serverid]);
-
-            console.log("authentication is ready, statistics can be loaded from the server");
-            //sets the language interface for the authenticated user
-            //its language preferences were received during the authentication
-
-            //FIXME MOVE TO LRS: get statistics data from server
-            // self.app.models.statistics.loadFromServer();
         } else {
             // TODO: remove legacy event
             //no error messages from the server and no userauthentication(session) key received
             console.log("no error message from server and no session key received");
-            $(document).trigger("authenticationfailed", "connectionerror");
             $(document).trigger("ID_CONNECTION_FAILURE",
                                 [serverid]);
         }
     }
 
     function authOK(data) {
-        console.log("normal auth OK with token: " + JSON.stringify(data));
         self.idprovider.addToken(data);
         $(document).trigger("ID_AUTHENTICATION_OK",
                             [serverid]);
@@ -420,40 +368,25 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     }
 
     function authFail(request) {
-        console.log("Request Error during authentication: " +
-                    request.status +
-                    "(URL: "+ activeURL + ")");
-        console.log("Request Error Text" + request.statusText);
-        console.log("Request Error Text" + request.responseText);
-
         switch (request.status) {
+            case 401:
             case 403:
                 //from common.js
-                console.log("disable after 403 error in sendAuthToServer");
-                self.idprovider.disableLMS();
-                window.turnOnDeactivate(); // FIXME: this code is part of the LMSModel
-
+                // console.log("disable after 403 error in sendAuthToServer");
+                // self.idprovider.disableLMS();
                 console.log("Error while authentication to server");
-                // TODO: remove legacy event
-                $(document).trigger("authentication_failed", "temporary failure");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
                                     [serverid]);
                 break;
             case 500:
-                // TODO: remove legacy event
-                $(document).trigger("authentication_failed", "broken backend");
-                $(document).trigger("ID_SERVER_FAILURE",
-                                    [serverid]);
-                break;
             case 404:
-                // TODO: remove legacy event
-                $(document).trigger("authentication_failed", "missing backend");
+                console.log("disable after server error in sendAuthToServer" +
+                            request.status);
+                self.idprovider.disableLMS();
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
                 break;
             default:
-                // TODO: remove legacy event
-                $(document).trigger("authentication_failed", "connection error");
                 $(document).trigger("ID_CONNECTION_FAILURE",
                                     [serverid]);
                 break;
@@ -465,10 +398,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         error: authFail
     };
 
-    console.log("servicename is " + serviceName);
     switch(serviceName) {
         case "org.ieee.papi":
-            console.log("proper code");
             rObj.success      = authOK;
             rObj.type         = "PUT";
             rObj.dataType     = 'json';
@@ -477,7 +408,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             rObj.data         = JSON.stringify(authData);
             break;
         case "ch.isn.lms.auth":
-            console.log("legacy code");
             rObj.success    = authOKLegacy;
             rObj.type       = "POST";
             rObj.beforeSend = setHeaderLegacy;
@@ -490,20 +420,16 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     }
 
     if (rObj && rObj.url === activeURL) {
-        console.log("fetch data");
         if (self.idprovider.getLMSStatus()) {
             $.ajax(rObj);
         }
         else {
-            // TODO: remove legacy event
-            console.log("bad lms status?");
-            $(document).trigger("authentication_failed", "temporary failure");
             $(document).trigger("ID_SERVER_UNAVAILABLE",
                                 [serverid]);
         }
     }
     else {
-        console.log("no request object " + rObj ? rObj.url : "??");
+        console.log("no request object " + (rObj ? rObj.url : "??"));
     }
 };
 
@@ -512,13 +438,12 @@ UserModel.prototype.sendAuthToServer = function (authData) {
  * @function sendLogoutToServer
  * @param userAuthenticationKey
  *
- * Sends a delete request to the server in order to invalidates the specified session key
- * or if no session key is specified the current session key.
- * We send via header the session key. After the delete request is sent to the server,
- * we clear the local storage. We keep only the app key.
+ * Sends a delete request to the server in order to invalidates the specified
+ * session key or if no session key is specified the current session key.
+ * We send via header the session key. After the delete request is sent to the
+ * server, we clear the local storage. We keep only the request token.
  */
 UserModel.prototype.sendLogoutToServer = function () {
-    console.log("enter send logout to server");
     var self = this;
     var serviceName = "org.ieee.papi",
         activeURL   = self.idprovider.serviceURL(serviceName),
@@ -533,25 +458,21 @@ UserModel.prototype.sendLogoutToServer = function () {
         if (request.status === 403) {
             console.log("deactivate after logout failure");
             self.idprovider.disableLMS();
-            console.log("Error while logging out from server");
         }
-
-        //adding in the local storage the session key of the pending
 
         // LEGACY CODE
         localStorage.setItem("pendingLogout", "1"); // the LMS Model should take case about this
     }
 
     function logoutOK() {
-        // TODO: remove legacy event
-        $(document).trigger("logout_success");
-
         // remove all access tokens
         self.idprovider.removeToken("MAC");
         self.idprovider.removeToken("Bearer");
+
+        // LEGACY CODE
         self.idprovider.removeToken("user");
 
-        // legacy code should go away.
+        // LEGACY CODE should go away.
         self.configuration = {
             "userAuthenticationKey": "",
             "learnerInformation": {
@@ -564,8 +485,8 @@ UserModel.prototype.sendLogoutToServer = function () {
 
         var configString = JSON.stringify(self.configuration);
         localStorage.setItem("configuration", configString);
-        console.log("Configuration Storage: " + localStorage.getItem("configuration"));
 
+        // KEEP
         $(document).trigger("ID_LOGOUT_OK",
                             [serverid]);
     }
@@ -613,22 +534,19 @@ UserModel.prototype.loadProfile = function (serverid) {
         switch (request.status) {
             case 401:
             case 403:
-                console.log("access token rejected");
+                console.log("access token rejected in loadProfile()");
                 $(document).trigger("ID_TOKEN_REJECTED",
                                     [serverid]);
                 break;
             case 404:
             case 500:
-                console.log("disable after load profile failure in loadProfile() ");
+                console.log("disable after server failure in loadProfile() ");
                 self.idprovider.disableLMS();
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
                 break;
             default:
-                console.log("other error" + request.status);
-                // TODO: remove legacy event
-                $(document).trigger("profile_failed",
-                                    "connection error");
+                console.log("other error in loadProfile() " + request.status);
                 break;
         }
     }
@@ -647,8 +565,6 @@ UserModel.prototype.loadProfile = function (serverid) {
         });
     }
     else {
-        // TODO: remove legacy event
-        $(document).trigger("profile_failed", "temporary failure");
         $(document).trigger("ID_SERVER_UNAVAILABLE",
                             [serverid]);
     }

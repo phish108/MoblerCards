@@ -154,8 +154,6 @@
         }
 
         activeServer = localStorage.getItem("LMSactiveServer");
-
-        console.log("loaded data >> "+JSON.stringify(lmsData));
     }
 
     /**
@@ -169,14 +167,11 @@
             localStorage.setItem("LMSData", JSON.stringify(lmsData));
         }
         catch (err) {
-            // console.log("error while storing");
             localStorage.setItem("LMSData", "{}");
             lmsData = {};
         }
 
         localStorage.setItem("LMSactiveServer", activeServer);
-
-//        console.log("stored data >> "+JSON.stringify(lmsData));
     }
 
     /**
@@ -197,8 +192,6 @@
                     if (path && Array.isArray(path) && path.length) {
                         url += "/" + path.join("/");
                     }
-
-                    console.log("service URL is " + url);
                 }
             });
         }
@@ -248,13 +241,9 @@
         }
 
         function registerFail(r) {
-            console.log(">>> set inactive after registration faile " + r.status);
-
             setInactiveFlag(serviceid);
             $(document).trigger("LMS_DEVICE_NOTALLOWED");
         }
-
-        console.log("register device");
 
         var serviceName = "powertla.identity.client",
             registerURL = getServiceURL(serverRSD, serviceName);
@@ -263,8 +252,6 @@
             serviceName = "ch.isn.lms.device";
             registerURL = getServiceURL(serverRSD, serviceName);
         }
-
-        console.log("register at:  "+ registerURL);
 
         if (registerURL.length) {
             var rObj = {
@@ -275,7 +262,6 @@
 
             switch (serviceName) {
                 case "powertla.identity.client":
-                    console.log("register against the new API");
                     rObj.type = "PUT";
                     rObj.data = JSON.stringify({"client": device.uuid,
                                                 "domain": APP_ID});
@@ -283,7 +269,6 @@
                     rObj.success     = registerOK;
                     break;
                 default:
-                    console.log("register against the old API");
                     rObj.type = "GET";
                     rObj.success = registerOKLegacy;
                     rObj.beforeSend = setHeadersLegacy;
@@ -293,7 +278,6 @@
             $.ajax(rObj);
         }
         else {
-            console.log("API link is missing");
             $(document).trigger("LMS_UNAVAILABLE");
             serverRSD.inaccessible = -1;
         }
@@ -314,8 +298,6 @@
             rsddata.engine.link.length
            ) {
             // eurl = rsddata.engine.link;
-
-            console.log('rsd looks good check if the APIs exist');
 
             var apiOK = {
                 "ch.isn.lms.statistics": false,
@@ -347,7 +329,6 @@
                  apiOK["ch.isn.lms.auth"] &&
                  apiOK["ch.isn.lms.courses"] &&
                  apiOK["ch.isn.lms.questions"])) {
-                console.log("detected a valid RSD");
                 return true;
             }
         }
@@ -363,7 +344,6 @@
      * RSD data persistently into the LMS data
      */
     function validateRSD(rsddata) {
-        console.log("validate RSD file");
         if (checkRSD(rsddata)) {
             // got my APIs from the rsd, generate a new ID
             var ts = (new Date()).getTime();
@@ -377,7 +357,6 @@
             $(document).trigger("LMS_AVAILABLE", [rsddata.id]);
 
             if (!rsddata.hasOwnProperty("inaccessible")) {
-                console.log("register  the device to the new system");
                 registerDevice(rsddata);
             }
 // TODO Fetch Logo
@@ -488,7 +467,9 @@
     }
 
     /**
+     * @public
      * @function findServerInfo(serverid)
+     * @param {STRING} serverid
      *
      * Finds the serverid in the internal LMS list and returns the server info
      *
@@ -498,14 +479,25 @@
         return lmsData[serverid];
     };
 
+    /**
+     * @public
+     * @function findServerByURL(serverURL)
+     * @param {STRING} serverURL
+     * @returns {OBJECT} rsd
+     *
+     * looks up the service RSD that is associated to the provided URL.
+     *
+     * If the URL has no associated RSD, the function returns undefined.
+     */
     LMSModel.prototype.findServerByURL = function (serverURL) {
         serverURL.trim();
         var serverid;
 
-        if (serverURL.search(/^https?:\/\//i) !== 0) {
-            // add the protocol to the front. assume https, refuse anything else
-            serverURL = "https://" + serverURL;
-        }
+//        if (serverURL.search(/^https?:\/\//i) !== 0) {
+//             add the protocol to the front. assume https, refuse anything else
+//            serverURL = "https://" + serverURL;
+//        }
+
         for (serverid in lmsData) {
             if (lmsData.hasOwnProperty(serverid) &&
                 lmsData[serverid].engine &&
@@ -516,7 +508,17 @@
         return undefined;
     };
 
-
+    /**
+     * @public
+     * @function registerDevice(serverid)
+     * @param {STRING} serverid
+     *
+     * Tries to get a request token for the provided serverid.
+     *
+     * The serverid needs a valid RSD for the given ID.
+     *
+     * call this function only after getServerRSD(serverURL) has succeeded.
+     */
     LMSModel.prototype.registerDevice = function(serverid) {
         if (!(serverid && serverid.length) &&
             activeServer &&
@@ -528,6 +530,7 @@
     };
 
     /**
+     * @public
      * @function getServerRSD(serverURL)
      *
      * tries to fetch the rsd.json for the given serverURL
@@ -540,25 +543,17 @@
          * The UI needs to provide sufficient information to the user.
          */
         function rsdFail() {
-            console.log("failed to load the rsd, server not found");
             $(document).trigger("LMS_INVALID", [serverURL]);
         }
 
         serverURL.trim(); // trim whitespaces
 
         // strip any "index.*" from the end of the URL
-        serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/"); // i means case insensitive
-
-//      //FIXME uncomment for production use
-//        if (serverURL.search(/^https?:\/\//i) !== 0) {
-//            // add the protocol to the front. assume https, refuse anything else
-//            serverURL = "https://" + serverURL;
-//        }
+        serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/");
 
         // first check whether the URL is already registered
         if (this.findServerByURL(serverURL)) {
             // nothing has to be done the LMS is already available
-            console.log("LMS url has been added already");
             $(document).trigger("LMS_AVAILABLE");
         }
         else {
@@ -664,8 +659,6 @@
 
         var ts = (new Date()).getTime();
 
-        console.log("LMS List: " + JSON.stringify(lmsData));
-
         Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
             var rsd = lmsData[lmsid];
             if (rsd.inaccessible > 0) {
@@ -682,13 +675,14 @@
 
     /**
      * @public @method eachLMS(callbackFunction, bindObject)
-     * @param callback - the callback function to handle the LMS data
-     * @param bindObject - the object that should be used as this for the callback
-     * @param authstate - which LMS to fetch
+     * @param callback   - the callback function to handle the LMS data
+     * @param bindObject - the object that should be used as this for the
+     *                     callback
+     * @param authstate  - which LMS to fetch
      *
-     * This method loops through the registered LMSes and passes a simplified RSD
-     * to the callback function. The callback function accepts 1 parameter. This
-     * parameter is an object with the following keys.
+     * This method loops through the registered LMSes and passes a simplified
+     * RSD to the callback function. The callback function accepts 1 parameter.
+     * This parameter is an object with the following keys.
      *
      *  * "name"      - the displayname of the LMS
      *  * "id"        - the app ID of the LMS
@@ -709,10 +703,7 @@
 
         var ts = (new Date()).getTime();
 
-        console.log("LMS List: " + JSON.stringify(lmsData));
-
         Object.getOwnPropertyNames(lmsData).forEach(function (lmsid) {
-            console.log(">>> "+ lmsid);
             var rsd = lmsData[lmsid];
             if (rsd.inaccessible > 0) {
                 var delta = ts - rsd.inaccessible;
@@ -723,7 +714,6 @@
             }
             var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
 
-            console.log('server is inaccessible? ' + rsd.inaccessible);
             if (!authState ||
                 (authState === 1 && self.authState(lmsid)) ||
                 (authState === -1 && !self.authState(lmsid))) {
@@ -753,10 +743,13 @@
     /**
      * @public @method activeLMS(callback, bindObject)
      *
-     * @param callback - the callback function to handle the LMS data
-     * @param bindObject - the object that should be used as this for the callback
+     * @param {FUNCTION} callback - the callback function to handle the LMS
+     *                              data
+     * @param {OBJECT} bindObject - the object that should be used as this
+     *                              for the callback
      *
-     * activeLMS returns the simplified RSD for the active LMS. It provides the same data to
+     * activeLMS returns the simplified RSD for the active LMS. It provides
+     * the same data to
      * the callback as eachLMS().
      */
     LMSModel.prototype.getActiveLMS = function (cbFunc, bind) {
@@ -775,7 +768,6 @@
                     this.clearInactiveFlag();
                 }
             }
-            console.log('server is inaccessible? ' + rsd.inaccessible);
 
             cbFunc.call(bind, {"id": rsd.id,
                                "name": rsd.name,
@@ -790,7 +782,8 @@
      * @public @method setActiveLMS(serverid)
      * @param serverid - the lms id for the presently active server.
      *
-     * This method sets the active LMS that is used for the following LMS operations.
+     * This method sets the active LMS that is used for the following LMS
+     * operations.
      *
      * Presently, it is used only for authentication and request signing.
      */
@@ -798,7 +791,6 @@
         this.previousLMS = this.activeLMS;
         var tmpLMS = lmsData[serverid];
         if (tmpLMS) {
-            console.log("activate LMS " + JSON.stringify(tmpLMS));
             this.activeLMS = tmpLMS;
             activeServer = serverid;
             storeData();
@@ -838,20 +830,20 @@
                 return true;
             }
 
-            console.log("inactive?  "+ tmpLMS.inactive);
-            console.log("inaccessible? "+tmpLMS.inaccessible);
+            // NOTE inactive and inaccessible may exist but are deactivated.
+            if (!tmpLMS.inactive &&
+                !tmpLMS.inaccessible) {
+                return true;
+            }
 
             var dt = (new Date()).getTime() - tmpLMS.inactive;
             if (dt > inactiveTimeout) {
                 this.clearInactiveFlag(serverid);
                 return true;
             }
-            console.log("dt ok " + dt);
-            console.log("timeout ok " + inactiveTimeout);
         }
-        console.log("NO tmpLMS");
-        return true;
-//        return false;
+
+        return false;
     };
 
     /**
@@ -1027,24 +1019,17 @@
             serviceid = activeServer;
         }
 
-        console.log("external deactivation");
-
+        console.log("external deactivation of " + serviceid);
         setInactiveFlag(serviceid);
     };
 
     LMSModel.prototype.synchronize = function () {
         // checks all servers for request tokens, if no token is available then a new token is collected from the service.
-        console.log("attempting lms model sync");
         if (this.idp && this.idp.app && this.idp.app.isOnline()) {
-            console.log("lms model sync possible");
             Object.getOwnPropertyNames(lmsData).forEach(function (v) {
                if (lmsData[v].keys && !lmsData[v].keys.Request) {
-                    console.log("lms status No Token ... get one");
                     // has no request token
                     registerDevice(lmsData[v]);
-                }
-                else {
-                    console.log("lms status OK");
                 }
             }, this);
         }
