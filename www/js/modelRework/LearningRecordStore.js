@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true,unparam: true, todo: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, unparam: true, todo: true */
+
 /*global $, DBHelper, Promise, device, moment */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -46,7 +47,7 @@ under the License.
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
             "lrsid" :       "TEXT",
-            "userid":       "TEXT",
+            "userid":       "TEXT", // this is used for pending logouts
             "synchronized": "INTEGER" // timestamp
         }
     };
@@ -78,8 +79,7 @@ under the License.
         this.loadFilter();
 
         this.actor = {
-          "objectType": "Agent",
-          "account": {}
+          "objectType": "Agent"
         };
 
         initDB();
