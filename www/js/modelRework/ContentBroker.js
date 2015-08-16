@@ -198,7 +198,6 @@
                     }
                     catch (err) {
                         qpList = [];
-                        console.log("no questions in the course " + courseId);
                     }
 
                     if (qpList &&
@@ -276,7 +275,6 @@
 
         function cbSyncAll() {
             if (self.app) {
-                console.log("refresh lms content");
                 self.synchronizeAll();
             }
         }
@@ -600,7 +598,6 @@
 
                 }, this);
 
-                console.log( "Variables: "+ nCorr +" : " +nOK +" : " +nBad +" : " +tOrder +" : " +tLen +" : ");
                 // the score is between 0 and 1
                 if (nCorr > 0) {
                     this.score = (nOK - nBad) / nCorr;
@@ -617,7 +614,6 @@
                     }
                 }
                 else if (nBad === 0 && nOK === 0) {
-                    console.log("no correct answer, none ticked!");
                     this.score = 1;
                 }
                 break;
@@ -832,7 +828,6 @@
             this.idprovider.eachLMSPublic(addLMS);
         }
 
-        console.log("LMSLIST: "+ lmsList.join("; "));
         return getCourseList(lmsList);
     };
 
@@ -934,8 +929,6 @@
         function handleCourse(qpools) {
             var k = 0;
 
-            console.log(qpools);
-
             qpools.forEach(function (questionPool, id) {
                 if (self.checkQuestionpool(questionPool)) {
                     k++;
@@ -947,12 +940,11 @@
             });
 
             if (k) {
-                console.log("got valid course");
                 setCourseForLMS(lmsId, course.id, qpools);
             }
             else {
                 // ignore this course, because it has no or invalid question pools
-                console.log("ignore course");
+                console.log("ignore course " + course.id);
                 ignoreCourseForLMS(lmsId, course.id);
             }
             // the event is always triggerd, because a course update could be
@@ -1026,7 +1018,6 @@
             }
         }
 
-        console.log("no service url");
         return Promise.reject("ERR_NO_SERVICE_URL");
     };
 
