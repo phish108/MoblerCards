@@ -298,6 +298,11 @@
      * instruction - indentify the new active question.
      */
     ContentBroker.prototype.nextQuestion = function () {
+        // if there is an attempt, then cancel it.
+        if (this.isAttempt()) {
+            this.cancelAttempt();
+        }
+
         var randomId,
             qList         = [],
             qSel          = [],
@@ -395,6 +400,8 @@
         this.questionPool    = getCourseForLMS(lmsId, courseId);
 
         this.lrs.startLRSContext(lmsId);
+
+        // getActorToken() returns the LMS identifier token.
         this.lrs.setActor(this.idprovider.getActorToken(lmsId));
 
         idurl = this.idprovider.serviceURL("powertla.content.imsqti",
@@ -517,8 +524,8 @@
         this.responseList.forEach(function (v) {
             //v = v.toString();
             switch (this.activeQuestion.type) {
-                case "assSingleQuestion":
-                case "assMultipleQuestion":
+                case "assSingleChoice":
+                case "assMultipleChoice":
                     if (this.activeQuestion.answer[v]) {
                         aR.push(this.activeQuestion.answer[v]);
                     }
@@ -658,6 +665,8 @@
                 break;
         }
         console.log("checkScore? " + this.score);
+
+        this.finishAttempt();
     }; // done, not checked
 
     /**

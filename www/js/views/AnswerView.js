@@ -167,7 +167,6 @@ AnswerView.prototype.update = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 AnswerView.prototype.tap_answerfooter = function () {
-    this.model.finishAttempt(); // inform the answer model that we are done.
     if (this.didApologize) {
         this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
         this.model.nextQuestion();
