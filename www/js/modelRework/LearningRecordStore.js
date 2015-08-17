@@ -706,13 +706,13 @@ under the License.
             group: "object"
         }, [courseid])
             .then(function(res) {
-            var p = 0, n = res.rows.length;
+            var p = 0, m = res.rows.length;
             var map = [];
             var q = [];
             var d, eo, p1;
 
             // skip the position 0 as it is out present element
-            for (p = 0; p < n; p++) {
+            for (p = 0; p < m; p++) {
                 d = res.rows.item(p);
                 q.push(d.object);
                 eo = {
@@ -744,7 +744,7 @@ under the License.
                  * where As: Attempt Success = attempts ^ 2totalScore
                  * where C: cooldown = (answersSinceLastAttempt-lastScore)/(1 + totalScore)
                  */
-                eo.entropy = (n * (1+ Math.pow(d.a, 2 * d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s)));
+                eo.entropy = (n * (1+ Math.pow(d.a, 2 * d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s));
 
                 totalE = totalE + eo.entropy;
 
