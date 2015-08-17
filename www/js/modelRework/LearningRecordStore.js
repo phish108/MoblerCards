@@ -680,6 +680,8 @@ under the License.
      * @function getEntropyMap
      * @param {NONE}
      * @return {ARRAY} entropyMap
+     *
+     * the entropy map determines which questions should get selected next.
      */
     LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder, context) {
         if (!binder) {
@@ -687,7 +689,10 @@ under the License.
         }
 
         var courseid = context.courseId,
-            n = pow(context.n, 2);
+            n = Math.pow(context.n, 2),
+            min = 100000000, // start with a high value
+            minE= 0.1,
+            totalE= 0;
 
         DB.select({
             from: 'actions',
@@ -719,36 +724,60 @@ under the License.
                 };
 
                 // console.log( d.s + " :: " + d.score + " :: " + d.a + " :: " + p);
-                p1 = p ? p : 1;
+                p1 = p || 1;
 
+                /**
+                 * We use Entropy in the thermodynamic way: it describes the level
+                 * of energy a question its overall success state. The lower a
+                 * question's energy, the more likely it is selected as a next
+                 * question.
+                 *
+                 * The over all entropy of the system is the sum of all questions.
+                 * The higher the entropy, the better the user performs answering
+                 * the questions in the question pool.
+                 *
+                 * Entropy calculation
+                 *
+                 * E = S * (1 + As * lastScore) * 2^-C
+                 *
+                 * where S : QuestionPool Complexity = totalQuestions^2
+                 * where As: Attempt Success = attempts ^ 2totalScore
+                 * where C: cooldown = (answersSinceLastAttempt-lastScore)/(1 + totalScore)
+                 */
+                eo.entropy = (n * (1+ Math.pow(d.a, 2 * d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s)));
 
+                totalE = totalE + eo.entropy;
 
-                // entropy: attempts/ (deltaLastAttempt * (1 + totalScore) * (1 + lastScore))
-
-                eo.entropy = (n * (1+ Math.pow(d.a, 2* d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s)));
+                if (eo.entropy < min) {
+                    min = eo.entropy;
+                }
 
                 console.log("entropy is " + eo.entropy);
                 map.push(eo);
             }
 
-            // sort the entropy map
+            /**
+             * we need a flexible minimum, because if the learners get better
+             * their entropy grows and they would not receive any questions.
+             */
+            if (minE < min) {
+                minE = totalE / n;
+            }
 
+            // sort the entropy map with the lowest entropy on top
             map.sort(function(a, b) {
                 return a.entropy - b.entropy;
             });
 
             var sel = [];
-            if (map.length < 10) {
-                sel = map;
-            }
-            else {
-                map.some(function(e,i) {
-                    if (e.entropy > 0.1) {
-                        return true;
-                    }
-                    sel.push(e);
-                });
-            }
+
+            // add the "cool" questions to the selection list.
+            map.some(function(e,i) {
+                if (e.entropy > minE) {
+                    return true;
+                }
+                sel.push(e.id);
+            });
 
             var entropyMap = {
                 questions: q,
