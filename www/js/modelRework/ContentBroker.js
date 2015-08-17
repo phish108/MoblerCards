@@ -344,21 +344,35 @@
                     qList = newQuestions;
                 }
 
-                // ensure that questions are not repeated while skipping
+                // ensure that questions are not repeated too fast while skipping
                 if (this.lockoutIds.length === qList.length) {
                     this.lockoutIds = [];
-                    if (this.activeQuestion) {
-                        this.lockoutIds.push(this.activeQuestion.id);
+                }
+
+                // ensure that the active question is locked out
+                if (this.activeQuestion) {
+                    this.lockoutIds.push(this.activeQuestion.id);
+                }
+
+                // avoid deadlock when all items in the qList are locked
+                var bOK = false;
+                qList.some(function (i) {
+                    if (this.lockoutIds.indexOf(i) < 0) {
+                        bOK = true;
                     }
+                    return bOK;
+                } , this);
+
+                if (!bOK) {
+                    qList = this.questionPool;
                 }
 
                 // select a random item from the current entropy selection
                 randomId = Math.floor(Math.random() * qList.length);
-                if (this.activeQuestion) {
-                    // ensure that a different question is selected
-                    while (this.lockoutIds.indexOf(qList[randomId].id) >= 0) {
-                        randomId = Math.floor(Math.random() * qList.length);
-                    }
+
+                // ensure that a different question is selected
+                while (this.lockoutIds.indexOf(qList[randomId].id) >= 0) {
+                    randomId = Math.floor(Math.random() * qList.length);
                 }
 
                 this.lockoutIds.push(qList[randomId].id);
@@ -699,12 +713,12 @@
                                                    this.activeQuestion.id]);
 
         var record = {
-            "Verb": {
+            "verb": {
                 "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
             },
-            "Object": {
+            "object": {
                 "id": objectId,
-                "ObjectType": "Activity"
+                "objectType": "Activity"
             }
         };
 

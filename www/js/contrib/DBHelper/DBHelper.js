@@ -186,7 +186,8 @@
                         if (typeof te === 'string') {
                             aTmp.push(te);
                         }
-                        else if (Array.isArray(te)) { // we have an aggregate
+                        else if (Array.isArray(te)) {
+                            // we have an aggregate
                             if (te.length > 1) {
                                 aTmp.push(te[0] + " as " + te[1]);
                             }
@@ -194,7 +195,8 @@
                                 aTmp.push(te[0]);
                             }
                         }
-                        else { // we got an object reference
+                        else if (typeof te === "object") {
+                            // we got an object reference
                             Object.getOwnPropertyNames(te).forEach(function (tableKey) {
                                 aTmp.push(tableKey + '.' + te[tableKey]);
                             });
@@ -401,6 +403,7 @@
      * Generates the table string used for callbacks and query string generation.
      */
     DBHelper.prototype.tableHelper = function (tabs, selectflag) {
+        if (tabs !== undefined) {
         if (typeof tabs === 'string') {
             return tabs;
         }
@@ -466,18 +469,18 @@
                     default:
                         if (selectflag) {
                             if (typeof tabs[tableKey] === 'object') {
-                                qq = [];
-                                this.queryHelper(tabs[tableKey], qq, true);
-                                aTmp.push('(' + qq.join(' ') + ') ' + tableKey);
+                                if (tabs[tableKey].hasOwnProperty("from")) {
+                                    qq = [];
+                                    this.queryHelper(tabs[tableKey], qq, true);
+                                    aTmp.push('(' + qq.join(' ') + ') ' + tableKey);
+                                }
                             }
                             else {
                                 aTmp.push(tabs[tableKey] + ' ' + tableKey);
                             }
                         }
-                        else {
-                            if (typeof tabs[tableKey] !== 'object') {
+                        else if (typeof tabs[tableKey] !== 'object') {
                                 aTmp.push(tabs[tableKey]);
-                            }
                         }
                         break;
                 }
@@ -487,9 +490,11 @@
                     }
                     aTmp.push(sJoin);
                 }
-            });
+            }, this);
         }
         return aTmp.join(', ');
+        }
+        return "";
     };
 
     /**
@@ -590,7 +595,7 @@
                             }
                             break;
                     }
-                });
+                }, this);
             }
         }
         return retstr;
@@ -957,6 +962,7 @@
 
         table = this.tableHelper(jsonquery.source || jsonquery.from || jsonquery.table || jsonquery.tables, true);
 
+        jsonquery.from = table;
         this.queryHelper(jsonquery, query, true);
 
         var qstring;

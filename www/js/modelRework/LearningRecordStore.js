@@ -422,10 +422,9 @@ under the License.
         var myUUID;
 
         if (typeof record === 'object' &&
-            record.hasOwnProperty("Verb") &&
-            record.hasOwnProperty("Object")) {
+            record.hasOwnProperty("verb") &&
+            record.hasOwnProperty("object")) {
             myUUID = DB.createUUID();
-            console.log("new uuid is " + myUUID);
 
             var mom = moment();
             var created = mom.valueOf();
@@ -507,7 +506,6 @@ under the License.
     LearningRecordStore.prototype.finishAction = function (UUID, record, ctxt) {
         // sets the duration - now - created
         if (typeof UUID === "string" && UUID.length && typeof record === "object") {
-            console.log("finish record for " + UUID);
             var self = this, end   = moment();
             DB.select({
                 'from': 'actions',
@@ -539,7 +537,7 @@ under the License.
                     }
                     tD = tD + duration.seconds() + "S";
 
-                    if (!ar.hasOwnProperty("result")) {
+                    if (!ar.hasOwnProperty("Result")) {
                         ar.result = {};
                     }
 
@@ -603,8 +601,8 @@ under the License.
      */
     LearningRecordStore.prototype.recordAction = function (record) {
         if (typeof record === 'object' &&
-            record.hasOwnProperty("Verb") &&
-            record.hasOwnProperty("Object")) {
+            record.hasOwnProperty("verb") &&
+            record.hasOwnProperty("object")) {
             var self = this,
                 UUID = DB.createUUID(),
                 mom = moment(),
@@ -695,15 +693,25 @@ under the License.
             totalE= 0;
 
         DB.select({
-            from: 'actions',
-            result: ["object",
-                     "score",
-                     ["max(stored)", "t"],
-                     ["count(uuid)", "a"],
-                     ["total(score)", "s"]],
-            where: {"=": "courseid"},
-            order: {t: "d"},
-            group: "object"
+            from: {
+                ta: 'actions',
+                sa: {
+                     from: 'actions k',
+                     result: ["k.object",
+                              "k.courseid",
+                              "k.score",
+                              ["max(k.stored)", "t"],
+                              ["count(k.object)", "a"],
+                              ["total(k.score)", "s"]],
+                     where: {"=": "courseid"},
+                     group: "object"
+                }
+            },
+            result: ["count(ta.uuid) p", "sa.object", "sa.score", "a", "t", "s"],
+            where: {"and": [{">=": ["ta.stored", "sa.t"]},
+                    {"=": ["ta.courseid", "sa.courseid"]}]},
+            order: {"sa.t": "d"},
+            group: ["sa.object"]
         }, [courseid])
             .then(function(res) {
             var p = 0, m = res.rows.length;
@@ -717,14 +725,11 @@ under the License.
                 q.push(d.object);
                 eo = {
                     id: d.object,
-                    pos: p,
+                    pos: d.p,
                     actions: d.a,
                     allscore: d.s,
                     score: d.score
                 };
-
-                // console.log( d.s + " :: " + d.score + " :: " + d.a + " :: " + p);
-                p1 = p || 1;
 
                 /**
                  * We use Entropy in the thermodynamic way: it describes the level
@@ -744,7 +749,8 @@ under the License.
                  * where As: Attempt Success = attempts ^ 2totalScore
                  * where C: cooldown = (answersSinceLastAttempt-lastScore)/(1 + totalScore)
                  */
-                eo.entropy = (n * (1+ Math.pow(d.a, 2 * d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s));
+
+                eo.entropy = (n * (1+ Math.pow(d.a, 2 * d.s) * d.score)) * Math.pow(2, (-1 * (d.p - d.score))/(1 + d.s));
 
                 totalE = totalE + eo.entropy;
 
@@ -752,7 +758,6 @@ under the License.
                     min = eo.entropy;
                 }
 
-                console.log("entropy is " + eo.entropy);
                 map.push(eo);
             }
 
@@ -762,6 +767,10 @@ under the License.
              */
             if (minE < min) {
                 minE = totalE / n;
+            }
+
+            if (minE < min) {
+                minE += min;
             }
 
             // sort the entropy map with the lowest entropy on top
@@ -784,8 +793,7 @@ under the License.
                 selection: sel
             };
 
-            console.log(JSON.stringify(entropyMap));
-
+            // console.log(JSON.stringify(entropyMap));
             cbFunc.call(binder, entropyMap);
         });
     };
