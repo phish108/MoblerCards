@@ -186,6 +186,14 @@
                         if (typeof te === 'string') {
                             aTmp.push(te);
                         }
+                        else if (Array.isArray(te)) { // we have an aggregate
+                            if (te.length > 1) {
+                                aTmp.push(te[0] + " as " + te[1]);
+                            }
+                            else {
+                                aTmp.push(te[0]);
+                            }
+                        }
                         else { // we got an object reference
                             Object.getOwnPropertyNames(te).forEach(function (tableKey) {
                                 aTmp.push(tableKey + '.' + te[tableKey]);
@@ -246,7 +254,7 @@
                 if (typeof objQuery.group === 'string') {
                     retval.group = objQuery.group;
                 }
-                else {
+                else if (Array.isArray(objQuery.group)) {
                     retval.group = objQuery.group.join(', ');
                 }
             }
@@ -256,8 +264,38 @@
                 if (typeof objQuery.order === 'string') {
                     retval.order = objQuery.order;
                 }
-                else {
+                else if (Array.isArray(objQuery.order)){
                     retval.order = objQuery.order.join(', ');
+                }
+                else if (typeof objQuery.order === 'object') {
+                    var tOrder = [];
+
+                    Object.getOwnPropertyNames(objQuery.order).forEach(function (k) {
+                        var tval = k;
+                        if (objQuery.order[k] !== undefined) {
+                            switch(objQuery.order[k].toLowerCase()) {
+                                case 'desc':
+                                case 'd':
+                                case 'descending':
+                                case '-':
+                                    tval += ' DESC';
+                                    break;
+                                case 'asc':
+                                case 'a':
+                                case 'ascending':
+                                case '+':
+                                    tval += ' ASC';
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        tOrder.push(tval);
+                    });
+
+                    if (tOrder.length) {
+                        retval.order = tOrder.join(', ');
+                    }
                 }
 
                 if (objQuery.hasOwnProperty("sort") && typeof objQuery.sort === 'string') {
@@ -517,13 +555,34 @@
                             });
                             break;
                         default:
-                            if (typeof wo[k] === 'object' && wo[k].length) {
-                                retstr = wo[k].shift() + ' ' + k.toUpperCase() + ' ';
-                                if (wo[k].length) {
-                                    retstr = retstr + wo[k].shift();
+                            if (typeof wo[k] === 'object') {
+                                // use array notation to compare columns
+                                if (Array.isArray(wo[k]) && wo[k].length) {
+                                    retstr = wo[k].shift() + ' ' + k.toUpperCase() + ' ';
+                                    if (wo[k].length) {
+                                        retstr = retstr + wo[k].shift();
+                                    }
+                                    else {
+                                        retstr = retstr + '?';
+                                    }
                                 }
                                 else {
-                                    retstr = retstr + '?';
+                                    // use key value pairs to compate actual values
+                                    Object.getOwnPropertyNames(wo[k]).some(function (tk) {
+                                        retstr = tk + " " + k.toUpperCase() + " ";
+                                        if (wo[k][tk] || wo[k][tk] === 0) {
+                                            if (typeof wo[k][tk] === "string") {
+                                                retstr = retstr + self.quoteData(wo[k][tk]);
+                                            }
+                                            else {
+                                                retstr = retstr + wo[k][tk];
+                                            }
+                                        }
+                                        else {
+                                            retstr = retstr + '?';
+                                        }
+                                        return true;
+                                    });
                                 }
                             }
                             else if (typeof wo[k] === 'string' && wo[k].length) {
