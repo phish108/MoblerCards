@@ -370,7 +370,7 @@
 
             // signal for deferred view changes
             $(document).trigger("CONTENT_QUESTION_READY");
-        }, this);
+        }, this, this.context);
     };
 
     /**
@@ -398,6 +398,8 @@
 
         // this.questionPool contains all ACTIVE questions
         this.questionPool    = getCourseForLMS(lmsId, courseId);
+        this.context         = {courseId: lmsId + "_" + courseId,
+                                n: this.questionPool.length};
 
         this.lrs.startLRSContext(lmsId);
 
@@ -706,6 +708,7 @@
             }
         };
 
+
         this.lrs.startAction(record)
         .then(function (res) {
             self.attemptUUID = res.insertID;
@@ -733,7 +736,13 @@
             }
         };
 
-        this.lrs.finishAction(this.attemptUUID, record);
+        var context = {
+            courseId: this.activeQuestion.lmsId + "_" + this.activeQuestion.courseId,
+            objectId: this.activeQuestion.id,
+            score:    this.score
+        };
+
+        this.lrs.finishAction(this.attemptUUID, record, context);
         this.attemptUUID = null;
         this.lockoutIds = [];
     };

@@ -34,7 +34,12 @@ under the License.
         "actions" : {    // the actual records
             "uuid":      "TEXT PRIMARY KEY",
             "record":    "TEXT",
-            "stored":    "INTEGER"
+            "stored":    "INTEGER",
+            "courseid":  "text",
+            "object":    "text",
+            "verb":      "text",
+            "score":     "INTEGER",
+            "duration":  "INTEGER"
         },
         "actionindex": {    // the index for the filters
             "uuid":         "TEXT",  // the action UUID
@@ -413,7 +418,7 @@ under the License.
      * @param {OBJECT} record
      * @return {STRING} UUID
      */
-    LearningRecordStore.prototype.startAction = function (record) {
+    LearningRecordStore.prototype.startAction = function (record, ctxt) {
         var myUUID;
 
         if (typeof record === 'object' &&
@@ -433,11 +438,22 @@ under the License.
                 record.context = this.context;
             }
 
-            return DB.insert("actions", {
+            var iData = {
                 "uuid":     myUUID,
                 "record":   JSON.stringify(record),
                 "stored":   created
-            })
+            };
+
+            if (ctxt) {
+                if (ctxt.courseId) {
+                    iData.courseid = ctxt.courseId;
+                }
+                if (ctxt.objectId) {
+                    iData.object = ctxt.objectId;
+                }
+            }
+
+            return DB.insert("actions", iData)
             .then(function (res) {
                 res.insertID = myUUID;
                 return res;
@@ -488,9 +504,10 @@ under the License.
      * @param {STRING} UUID
      * @param {OBJECT} record
      */
-    LearningRecordStore.prototype.finishAction = function (UUID, record) {
+    LearningRecordStore.prototype.finishAction = function (UUID, record, ctxt) {
         // sets the duration - now - created
         if (typeof UUID === "string" && UUID.length && typeof record === "object") {
+            console.log("finish record for " + UUID);
             var self = this, end   = moment();
             DB.select({
                 'from': 'actions',
@@ -526,9 +543,27 @@ under the License.
                         ar.result = {};
                     }
 
+                    var iData = {
+                        record: JSON.stringify(ar),
+                        duration: end.valueOf() - start.valueOf(),
+                        verb: ar.verb.id
+                    };
+
+                    if (ctxt) {
+                        if (ctxt.courseId !== undefined) {
+                            iData.courseid = ctxt.courseId;
+                        }
+                        if (ctxt.objectId !== undefined) {
+                            iData.object = ctxt.objectId;
+                        }
+                        if (ctxt.score !== undefined) {
+                            iData.score = ctxt.score;
+                        }
+                    }
+
                     ar.result.duration = tD;
                     pa.push(DB.update({
-                        set: {record: JSON.stringify(ar)},
+                        set: iData,
                         from: "actions",
                         where: {"=": {uuid: UUID}}
                     }));
@@ -646,12 +681,84 @@ under the License.
      * @param {NONE}
      * @return {ARRAY} entropyMap
      */
-    LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder) {
+    LearningRecordStore.prototype.getEntropyMap = function (cbFunc, binder, context) {
         if (!binder) {
             binder = this;
         }
-        var entropyMap = {};
-        cbFunc.call(binder, entropyMap);
+
+        var courseid = context.courseId,
+            n = pow(context.n, 2);
+
+        DB.select({
+            from: 'actions',
+            result: ["object",
+                     "score",
+                     ["max(stored)", "t"],
+                     ["count(uuid)", "a"],
+                     ["total(score)", "s"]],
+            where: {"=": "courseid"},
+            order: {t: "d"},
+            group: "object"
+        }, [courseid])
+            .then(function(res) {
+            var p = 0, n = res.rows.length;
+            var map = [];
+            var q = [];
+            var d, eo, p1;
+
+            // skip the position 0 as it is out present element
+            for (p = 0; p < n; p++) {
+                d = res.rows.item(p);
+                q.push(d.object);
+                eo = {
+                    id: d.object,
+                    pos: p,
+                    actions: d.a,
+                    allscore: d.s,
+                    score: d.score
+                };
+
+                // console.log( d.s + " :: " + d.score + " :: " + d.a + " :: " + p);
+                p1 = p ? p : 1;
+
+
+
+                // entropy: attempts/ (deltaLastAttempt * (1 + totalScore) * (1 + lastScore))
+
+                eo.entropy = (n * (1+ Math.pow(d.a, 2* d.s) * d.score)) * Math.pow(2, (-1 * (p1 - d.score))/(1 + d.s)));
+
+                console.log("entropy is " + eo.entropy);
+                map.push(eo);
+            }
+
+            // sort the entropy map
+
+            map.sort(function(a, b) {
+                return a.entropy - b.entropy;
+            });
+
+            var sel = [];
+            if (map.length < 10) {
+                sel = map;
+            }
+            else {
+                map.some(function(e,i) {
+                    if (e.entropy > 0.1) {
+                        return true;
+                    }
+                    sel.push(e);
+                });
+            }
+
+            var entropyMap = {
+                questions: q,
+                selection: sel
+            };
+
+            console.log(JSON.stringify(entropyMap));
+
+            cbFunc.call(binder, entropyMap);
+        });
     };
 
     /**
