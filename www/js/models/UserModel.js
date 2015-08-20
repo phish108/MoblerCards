@@ -630,6 +630,9 @@ UserModel.prototype.getUserName = function () {
  * @return {Number} userId, the user id that is stored in the configuration object
  */
 UserModel.prototype.getUserId = function (lmsid) {
+    if (!this.configuration.learnerInformation) {
+        return undefined;
+    }
     return this.configuration.learnerInformation.id;
 };
 
