@@ -1,6 +1,6 @@
 @font-face {
 	font-family: 'icomoon';
-	
+
 	src:url('fonts/icomoon.ttf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
@@ -24,6 +24,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
+.icon-neutral, .icon-increase, .icon-decrease,
 .icon-diamond, .icon-smiley, .icon-happy, .icon-arrow-down, .icon-settings, .icon-question, .icon-numeric, .icon-neutral, .icon-lock, .icon-exit, .icon-equals, .icon-enter, .icon-drag, .icon-dash, .icon-cross, .icon-loadingOld, .icon-loading2, .icon-courses, .icon-checkmark2, .icon-lms, .icon-checkmark, .icon-info, .icon-bars, .icon-icon-move, .icon-arrow-up, .icon-fire, .icon-loading, .icon-clozeQuestion {
 	font-family: 'icomoon';
 	speak: none;
@@ -43,6 +44,7 @@ you can use the generic selector below, but it's slower:
 .icon-happy:before {
 	content: "\e003";
 }
+.icon-decrease:before,
 .icon-arrow-down:before {
 	content: "\e004";
 }
@@ -64,6 +66,7 @@ you can use the generic selector below, but it's slower:
 .icon-exit:before {
 	content: "\e00b";
 }
+.icon-neutral:before,
 .icon-equals:before {
 	content: "\e00c";
 }
@@ -106,6 +109,7 @@ you can use the generic selector below, but it's slower:
 .icon-icon-move:before {
 	content: "\e01d";
 }
+.icon-increase:before,
 .icon-arrow-up:before {
 	content: "\e01e";
 }
