@@ -71,7 +71,7 @@
     <div id="login" class="screen" data-view="LoginView" data-model="IdentityProvider" data-touch="tap move">
         <div id="loginheader" class="headerbox">
             <div id="loginicon"  class="titleicon"><span class="icon-lock"></span></div>
-            <div id="logintitle" class="headercontent">Login</div>
+            <div id="msg_login_title" class="headercontent">Login</div>
             <div id="logincross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -84,7 +84,7 @@
                         <span class="icon-dash"></span>
                     </div>
                     <div id="loginnamelabel" class="listlabel touchable">
-                        <input id="usernameInput" required="required" type="text"
+                        <input id="username" required="required" type="text"
                                placeholder="username"
                                autofocus
                                autocomplete="off" autocorrect="off"
@@ -128,7 +128,7 @@
     <div id="lms" class="screen" data-view="LMSView" data-model="IdentityProvider" data-touch="tap">
         <div id="lmsheader" class="headerbox">
             <div id="lmsicon"  class="titleicon"><span class="icon-courses"></span></div>
-            <div id="lmstitle" class="headercontent">LMS list</div>
+            <div id="msg_lms_list_title" class="headercontent">LMS list</div>
             <div id="lmscross" class="closeicon touchable"><span class="icon-cross"></span></div>
         </div>
 
@@ -153,7 +153,7 @@
                     <div id="addlmsdash"  class="listdash">
                         <span id="addlmsdash2"class="icon-dash"></span>
                     </div>
-                    <div id="addlmsplaceholder" class="listlabel">Add a New LMS</div>
+                    <div id="msg_add_lms_label" class="listlabel">Add a New LMS</div>
                     <div id="addlmsinputbox" class="listlabel hidden touchable">
                         <input id="addlmsinput" type="text" placeholder="LMS URL">
                     </div>
@@ -173,7 +173,7 @@
     <div id="course" class="screen" data-view="CourseView" data-model="ContentBroker" data-touch="tap">
         <div id="courseheader" class="headerbox">
             <div id="courseicon"  class="titleicon"><span class="icon-courses"></span></div>
-            <div id="coursetitle" class="headercontent">Courses</div>
+            <div id="msg_courses_list_title" class="headercontent">Courses</div>
             <div id="coursecross" class="closeicon touchable"><span class="icon-settings"></span></div>
         </div>
 
@@ -205,7 +205,7 @@
     <div id="settings" class="screen" data-view="SettingsView" data-model="IdentityProvider" data-touch="tap">
         <div id="settingsheader" class="headerbox">
             <div id="settingsicon"  class="titleicon"><span class="icon-settings"></span></div>
-            <div id="settingstitle" class="headercontent">Settings</div>
+            <div id="msg_settings_title" class="headercontent">Settings</div>
             <div id="settingscross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -219,24 +219,24 @@
                     <!--<div id="settingslmsimage" class="listimage"><img id="settingslmsimg"/></div>-->
                 </li>
                 <li class="listbox gradient">
-                    <span id="nameLabelSet" class="settingslabel"></span>
+                    <span id="msg_fullname" class="settingslabel"></span>
                     <span id="nameItemSet" class="settingsitem"></span>
                 </li>
                 <li class="listbox gradient">
-                    <span id="usernameLabelSet" class="settingslabel"></span>
+                    <span id="msg_username" class="settingslabel"></span>
                     <span id="usernameItemSet" class="settingsitem"></span>
                 </li>
                 <li class="listbox gradient">
-                    <span id="emailLabelSet" class="settingslabel"></span>
+                    <span id="msg_email" class="settingslabel"></span>
                     <span id="emailItemSet" class="settingsitem"></span>
                 </li>
                 <li class="listbox gradient">
-                    <span id="languageLabelSet" class="settingslabel"></span>
+                    <span id="msg_language" class="settingslabel"></span>
                     <span id="languageItemSet" class="settingsitem"></span>
                 </li>
                 <li id="deactivateLi" class="hidden">
                     <div class="settingsLi gradientMessages ">
-                        <span id="deactivateSettings" class="settingsDeactivate">Deactivated Backend</span><span></span>
+                        <span id="msg_settings_deactivate_message" class="settingsDeactivate">Deactivated Backend</span><span></span>
                     </div>
                 </li>
             </ul>
@@ -255,7 +255,7 @@
     <div id="about" class="screen" data-view="AboutView" data-touch="tap">
         <div id="aboutheader" class="headerbox">
             <div id="abouticon"  class="titleicon"><span class="icon-info"></span></div>
-            <div id="abouttitle" class="headercontent">About</div>
+            <div id="msg_about_title" class="headercontent">About</div>
             <div id="aboutcross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -267,16 +267,16 @@
                     <div class="listlabel">Mobler Cards</div>
                 </li>
                 <li class="listbox gradient">
-                    <div id="copyright" class="listlabel"></div>
+                    <div id="msg_copyright" class="listlabel"></div>
                 </li>
                 <li class="listbox gradient">
-                    <div id="openSource" class="listlabel"></div>
+                    <div id="msg_openSource" class="listlabel"></div>
                     <div id="opensourceicon" class="listimage separator touchable">
                         <span class="icon-new-tab"></span>
                     </div>
                 </li>
                 <li class="listbox gradient">
-                    <div id="license" class="listlabel"></div>
+                    <div id="msg_license" class="listlabel"></div>
                     <div id="licenseicon" class="listimage separator touchable">
                         <span class="icon-new-tab"></span>
                     </div>
@@ -288,7 +288,7 @@
     <div id="logout" class="screen" data-view="LogoutView" data-model="IdentityProvider" data-touch="tap">
         <div id="logoutheader" class="headerbox">
             <div id="logouticon"  class="titleicon"><span class="icon-exit"></span></div>
-            <div id="logouttitle" class="headercontent">Logout</div>
+            <div id="msg_logout_title" class="headercontent">Logout</div>
             <div id="logoutcross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -297,7 +297,7 @@
         <div id="logoutcontent" class="contentbox static withfooter">
             <ul>
                 <li class="listbox gradient">
-                    <div id="logoutText" class="listlabel"></div>
+                    <div id="msg_logout_body" class="listlabel"></div>
                 </li>
             </ul>
         </div>
@@ -316,7 +316,7 @@
             <div class="titleicon">
                 <span id="questionicon"></span>
             </div>
-            <div id="questiontitle" class="headercontent"></div>
+            <div id="msg_question_title" class="headercontent"></div>
             <div id="questioncross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -411,7 +411,7 @@
 
         <div id="statisticsheader" class="headerbox">
             <div id="statisticsicon"  class="titleicon"><span class="icon-bars"></span></div>
-            <div id="statisticstitle" class="headercontent">Statistics</div>
+            <div id="msg_statistics_title" class="headercontent">Statistics</div>
             <div id="statisticscross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>
@@ -421,8 +421,8 @@
             <ul id="statisticsBody" class="">
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_best_day_info"></div>
-                        <div id="statBestDay"></div>
+                        <div id="msg_bestDay_title"></div>
+                        <div><span id="statBestDay"></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statBestDayIcon" class="glow2"></span>
@@ -430,7 +430,7 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_best_score_info"></div>
+                        <div id="msg_bestScore_title"></div>
                         <div id="statBestScore"></div>
                     </div>
                     <div class="listimage separator">
@@ -439,8 +439,8 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_handledCards_info"></div>
-                        <div id="statActions"></div>
+                        <div id="msg_handledCards_title"></div>
+                        <div><span id="statActions"></span> <span id="msg_handledCards_info"></span></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statActionsIcon" class="glow2"></span>
@@ -448,7 +448,7 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_score_info"></div>
+                        <div id="msg_averageScore_title"></div>
                         <div id="statScore"></div>
                     </div>
                     <div class="listimage separator">
@@ -457,16 +457,16 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_progress_info"></div>
-                        <div id="statProgress"></div>
+                        <div id="msg_progress_title"></div>
+                        <div><span id="statProgress"></span> <span id="msg_progress_info"></span></div>
                     </div>                    <div class="listimage separator">
                         <span id="statProgressIcon" class="glow2"></span>
                     </div>
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_speed_info"></div>
-                        <div id="statSpeed"></div>
+                        <div id="msg_speed_title"></div>
+                        <div><span id="statSpeed"></span> <span id="msg_speed_info"></span></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statSpeedIcon" class="glow2"></span>
@@ -474,7 +474,7 @@
                 </li>
             </ul>
 
-            <div id="loadingMessage" class="content hidden">statistics are beeing loaded</div>
+            <div id="msg_loading_message" class="content hidden">statistics are beeing loaded</div>
         </div>
         </component>
     </div>
@@ -482,7 +482,7 @@
     <div id="achievements" class="screen" data-view="AchievementsView" data-model="LearningRecordStore" data-touch="tap swipe pinch">
         <div id="statisticsheader" class="headerbox">
             <div id="achievementsicon"  class="titleicon"><span class="icon-happy"></span></div>
-            <div id="achievementstitle" class="headercontent">Achievements</div>
+            <div id="msg_achievements_title" class="headercontent">Achievements</div>
             <div id="achievementscross" class="closeicon touchable">
                 <span class="icon-cross"></span>
             </div>

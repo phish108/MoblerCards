@@ -944,7 +944,7 @@ under the License.
             if (res.rows.length) {
                 var r = res.rows.item(0);
                 if (r) {
-                    if (r.day === today) {
+                    if (r.day == today) {
                         self.stats.today.progress = r.progress;
 
                         r = res.rows.item(1);

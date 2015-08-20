@@ -228,7 +228,7 @@ FeedbackView.prototype.showFeedbackTitle = function () {
         currentFeedbackTitle = "PartiallyCorrect";
     }
 
-    var icon  = jQuery.i18n.prop('msg_' + currentFeedbackTitle + '_icon'),
+    var icon  = jQuery.i18n.prop('ico_' + currentFeedbackTitle + '_icon'),
         title = jQuery.i18n.prop('msg_' + currentFeedbackTitle + 'Results_title');
 
     $("#feedbacktitle").text(title);

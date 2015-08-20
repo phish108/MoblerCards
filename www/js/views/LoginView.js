@@ -149,7 +149,7 @@ LoginView.prototype.update = function () {
     $("#loginimg").addClass("entypo-mortar-board");
     $("#loginlmslabel").text(activeLMS.name);
 
-    $("#usernameInput").focus();
+    $("#username").focus();
 
     this.hideMessage();
 
@@ -166,9 +166,9 @@ LoginView.prototype.update = function () {
  **/
 LoginView.prototype.cleanup = function () {
     $("#password").val("");
-    $("#usernameInput").val("");
+    $("#username").val("");
     $("#password").blur();
-    $("#usernameInput").blur();
+    $("#username").blur();
 
     // hack for scrolling the content box into place.
     this.container.addClass("active");
@@ -178,7 +178,7 @@ LoginView.prototype.cleanup = function () {
 };
 
 LoginView.prototype.tap_loginnamelabel = function () {
-    $("#usernameInput").focus();
+    $("#username").focus();
 };
 
 LoginView.prototype.tap_loginpwlabel = function () {
@@ -195,11 +195,11 @@ LoginView.prototype.tap_loginpwlabel = function () {
  */
 LoginView.prototype.tap_loginfooter = function () {
     console.log("check logIn data");
-    if ($("#usernameInput").val() && $("#password").val()) {
+    if ($("#username").val() && $("#password").val()) {
         if (!this.app.isOffline()) { // refuse to run while being offline
             this.app.deferredChangeView("ID_AUTHENTICATION_OK", "landing");
             this.showWarningMessage('msg_warning_message');
-            this.model.startSession($("#usernameInput").val(),
+            this.model.startSession($("#username").val(),
                                     $("#password").val());
         }
         // offline message should be already on display

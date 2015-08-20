@@ -103,10 +103,10 @@ StatisticsView.prototype.update = function () {
     t.statSpeed.text      = pv.today;
 
     this.setTrendIcon(t.statSpeedIcon,
-                      pv.trend);
+                      pv.trend, true);
 };
 
-StatisticsView.prototype.setTrendIcon = function (iDiv, trend) {
+StatisticsView.prototype.setTrendIcon = function (iDiv, trend, inverse) {
     iDiv.removeClass([
         "green",
         "red",
@@ -115,9 +115,9 @@ StatisticsView.prototype.setTrendIcon = function (iDiv, trend) {
         "icon-decrease"
     ]);
 
-    var pc = "green", pi = "icon-neutral";
+    var pc = inverse ? "red" : "green", pi = "icon-neutral";
     if (trend < 0) {
-        pc = "red";
+        pc = inverse ? "green" : "red";
         pi = "icon-decrease";
     }
     else if (trend > 0) {

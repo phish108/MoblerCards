@@ -318,49 +318,34 @@ MoblerCards.prototype.setupLanguage = function () {
         mode: 'both',
         language: this.models.identityprovider.getLanguage(),
         callback: function () { // initialize the static strings on all views
-            $("#usernameInput").attr("placeholder",
-                                     jQuery.i18n.prop('msg_placeholder_username'));
-            $("#numberInput").attr("placeholder",
-                                   jQuery.i18n.prop('msg_placeholder_numberinput'));
-            $("#password").attr("placeholder",
-                                jQuery.i18n.prop('msg_placeholder_password'));
-            $("#coursesListTitle").text(jQuery.i18n.prop('msg_courses_list_title'));
-            $("#lmsListTitle").text(jQuery.i18n.prop('msg_lms_list_title'));
-            $("#settingsTitle").text(jQuery.i18n.prop('msg_settings_title'));
-            $("#logoutConfirmationTitle").text(jQuery.i18n.prop('msg_logout_title'));
-            $("#statBestDayTitle").text(jQuery.i18n.prop('msg_bestDay_title'));
-            $("#statBestScoreTitle").text(jQuery.i18n.prop('msg_bestScore_title'));
-            $("#statsBestScoreInfo").text(jQuery.i18n.prop('msg_bestScore_info'));
-            $("#achievementsReference").text(jQuery.i18n.prop('msg_achievements_reference'));
-            $("#statHandledCardsTitle").text(jQuery.i18n.prop('msg_handledCards_title'));
-            $("#statAverageScoreTitle").text(jQuery.i18n.prop('msg_averageScore_title'));
-            $("#statProgressTitle").text(jQuery.i18n.prop('msg_progress_title'));
-            $("#statsProgressInfo").text(jQuery.i18n.prop('msg_progress_info'));
-            $("#statSpeedTitle").text(jQuery.i18n.prop('msg_speed_title'));
-            //$("#statsSpeedinfo").text(msg_speed_info);
-            $("#achievementsTitle").text(jQuery.i18n.prop('msg_achievements_title'));
-            $("#stackHandlerIcon").addClass(jQuery.i18n.prop('msg_achievements_Handler_icon'));
+            Object.getOwnPropertyNames(jQuery.i18n.map).forEach(function (prop) {
+                var p = prop.split("_"), id = p.pop();
+                if (prop.indexOf("html") >= 0) {
+                    $('#' + prop).html(jQuery.i18n.prop(prop));
+                }
+                else if (prop.indexOf("attr") >= 0) {
+                    $('#' + id).attr(p.pop(), jQuery.i18n.prop(prop))
+                }
+                else if (prop.indexOf("ico_") === 0) {
+                    $('#' + prop).addClass(jQuery.i18n.prop(prop));
+                }
+                else {
+                    $('#' + prop).text(jQuery.i18n.prop(prop));
+                }
+            });
+
+            // TODO: fix Achievements View
+
+            $("#stackHandlerIcon").addClass(jQuery.i18n.prop('ico_achievements_Handler_icon'));
             $("#stackHandlerTitle").text(jQuery.i18n.prop('msg_achievementsHandler_title'));
             $("#stackHandlerExplanation").text(jQuery.i18n.prop('msg_achievementsHandler_explanation'));
             $("#starterStackHandler").text(jQuery.i18n.prop('msg_achievements_text1'));
-            $("#loadingMessage").text(jQuery.i18n.prop('msg_loading_message'));
-            $("#loadingMessageAchievements").text(jQuery.i18n.prop('msg_achievementsLoading_message'));
             $("#doneStackHandler").text(jQuery.i18n.prop('msg_achievements_text2'));
-            $("#cardBurnerIcon").addClass(jQuery.i18n.prop('msg_achievements_Burner_icon'));
+            $("#cardBurnerIcon").addClass(jQuery.i18n.prop('ico_achievements_Burner_icon'));
             $("#cardBurnerTitle").text(jQuery.i18n.prop('msg_achievementsBurner_title'));
             $("#cardBurnerExplanation").text(jQuery.i18n.prop('msg_achievementsBurner_explanation'));
             $("#starterCardBurner").text(jQuery.i18n.prop('msg_achievements_text1'));
             $("#doneCardBurner").text(jQuery.i18n.prop('msg_achievements_text2'));
-            $("#aboutTitle").text(jQuery.i18n.prop('msg_about_title'));
-            $("#logoutText").text(jQuery.i18n.prop('msg_logout_body'));
-            $("#nameLabelSet").text(jQuery.i18n.prop('msg_fullname'));
-            $("#usernameLabelSet").text(jQuery.i18n.prop('msg_username'));
-            $("#emailLabelSet").text(jQuery.i18n.prop('msg_email'));
-            $("#languageLabelSet").text(jQuery.i18n.prop('msg_language'));
-            $("#copyright").text(jQuery.i18n.prop('msg_copyright'));
-            $("#openSource").text(jQuery.i18n.prop('msg_openSource'));
-            $("#license").text(jQuery.i18n.prop('msg_license'));
-            $("#questiontitle").text(jQuery.i18n.prop('msg_question_title'));
         }
     });
 };
