@@ -407,6 +407,8 @@
     <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
 
     <div id="statistics" class="screen" data-view="StatisticsView" data-model="LearningRecordStore" data-touch="tap">
+        <component id="statisticsboxc">
+
         <div id="statisticsheader" class="headerbox">
             <div id="statisticsicon"  class="titleicon"><span class="icon-bars"></span></div>
             <div id="statisticstitle" class="headercontent">Statistics</div>
@@ -417,121 +419,64 @@
 
         <div id="statisticsbox" class="contentbox static">
             <ul id="statisticsBody" class="">
-                <li id="statsSlot1" class="gradient1">
-                    <div class=" left lineContainer selectItemContainer ">
-                        <span class="select icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_best_day_info"></div>
+                        <div id="statBestDay"></div>
                     </div>
-                    <div class="right">
-                        <div id="statBestDayValue" class="statsLabel"></div>
+                    <div class="listimage separator">
+                        <span id="statBestDayIcon" class="glow2"></span>
                     </div>
-                    <div id="statBestDayTitle" class="text textShadow marginForCourseList labelContainer"></div>
                 </li>
-
-                <li id="statsSlot2" class="gradient1">
-                    <div class=" left lineContainer selectItemContainer ">
-                        <span class="select icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_best_score_info"></div>
+                        <div id="statBestScore"></div>
                     </div>
-                    <div class="right">
-                        <div id="statBestScoreValue" class="statsLabel"></div>
+                    <div class="listimage separator">
+                        <span id="statBestCoreIcon" class="glow2"></span>
                     </div>
-                    <div id="statBestScoreTitle" class="text textShadow marginForCourseList labelContainer"></div>
                 </li>
-
-                <li id="statsSlot3" class=" courseLiContainer gradient1">
-                    <!--<div class="selectWidget gradient1 ">-->
-                    <div class="dashContainer lineContainer selectItemContainer">
-                        <span class="select icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_handledCards_info"></div>
+                        <div id="statActions"></div>
                     </div>
-
-                    <div id="achievementsReference" class="text textShadow labelContainer"></div>
-
-                    <div id="separatorAchievementsStatistics" class="separatorBlock">
-                        <div id="separatorAchievements" class="lineContainer separatorContainerCourses radialCourses"></div>
+                    <div class="listimage separator">
+                        <span id="statActionsIcon" class="glow2"></span>
                     </div>
-
-                    <div id="selectAchievements" class="lineContainer selectItemContainer select gridContainer">
-                        <span class="icon-enter"></span>
-                    </div>
-
-                    <!--</div>-->
                 </li>
-
-                <li id="statsSlot4" class="courseLiContainer gradient2">
-                    <div class="dashContainer lineContainer selectItemContainer ">
-                        <span class="dashGrey icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_score_info"></div>
+                        <div id="statScore"></div>
                     </div>
-
-                    <div id="statHandledCardsTitle" class="text textShadow labelContainer"></div>
-                    <div class="text textShadow statsValueContainer">
-                        <div id="statHandledCardsValue" class="imageLogo"></div>
-                        <div id="statsHandledCardsInfo" class="clear textSmall"></div>
+                    <div class="listimage separator">
+                        <span id="statScoreIcon" class="glow2"></span>
                     </div>
-
-                    <div class="separatorBlock">
-                        <div id="separator4" class="lineContainer separatorContainerCourses radialCourses"></div>
-                    </div>
-
-                    <div id="statsHandledCardsIconchange" class="lineContainer selectItemContainer gridContainer"></div>
                 </li>
-                <li id="statsSlot5" class=" courseLiContainer gradient2">
-                    <div class=" dashContainer lineContainer selectItemContainer ">
-                        <span class="dashGrey icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_progress_info"></div>
+                        <div id="statProgress"></div>
+                    </div>                    <div class="listimage separator">
+                        <span id="statProgressIcon" class="glow2"></span>
                     </div>
-
-                    <div id="statAverageScoreTitle" class="text textShadow labelContainer"></div>
-                    <div class="valueContainer text textShadow statsValueContainer">
-                        <div id="statAverageScoreValue" class="imageLogo right"></div>
-                    </div>
-
-                    <div class="separatorBlock">
-                        <div id="separator5" class="lineContainer separatorContainerCourses radialCourses"></div>
-                    </div>
-                    <div id="statsAverageScoreIconchange" class="lineContainer selectItemContainer gridContainer"></div>
                 </li>
-                <li id="statsSlot6" class=" courseLiContainer gradient2">
-
-                    <div class="dashContainer lineContainer selectItemContainer">
-                        <span class="dashGrey icon-dash"></span>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_speed_info"></div>
+                        <div id="statSpeed"></div>
                     </div>
-
-                    <div id="statProgressTitle" class="text textShadow labelContainer"></div>
-
-                    <div class="text textShadow statsValueContainer">
-                        <div id="statProgressValue" class="imageLogo right"></div>
+                    <div class="listimage separator">
+                        <span id="statSpeedIcon" class="glow2"></span>
                     </div>
-
-                    <div class="separatorBlock">
-                        <div id="separator6" class="lineContainer separatorContainerCourses radialCourses"></div>
-                    </div>
-                    <div id="statsProgressIconchange" class="lineContainer selectItemContainer gridContainer"></div>
-                </li>
-                <li id="statsSlot7" class=" courseLiContainer gradient2">
-                    <div class="dashContainer lineContainer selectItemContainer ">
-                        <span class="dashGrey icon-dash"></span>
-                    </div>
-
-                    <div id="statSpeedTitle" class=" text textShadow  labelContainer"></div>
-
-                    <div class="text textShadow statsValueContainer">
-                        <div id="statSpeedValue" class="imageLogo"></div>
-                        <div id="statsSpeedinfo" class=" clear textSmall"></div>
-                    </div>
-
-                    <div class="separatorBlock">
-                        <div class="lineContainer separatorContainerCourses radial"></div>
-                    </div>
-                    <div id="statsSpeedIconchange" class="lineContainer selectItemContainer gridContainer"></div>
-                </li>
-                <li>
-                    <div id="shadowStatistics" class="gradient1 shadowedLi"></div>
-                </li>
-                <li>
-                    <div id="spacerStatistics" class="spacerMargin"></div>
                 </li>
             </ul>
 
-            <div id="loadingMessage" class="content">statistics are beeing loaded</div>
+            <div id="loadingMessage" class="content hidden">statistics are beeing loaded</div>
         </div>
+        </component>
     </div>
 
     <div id="achievements" class="screen" data-view="AchievementsView" data-model="LearningRecordStore" data-touch="tap swipe pinch">

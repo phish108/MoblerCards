@@ -47,66 +47,14 @@ function StatisticsView() {
     var self = this;
 
     this.tagID = this.app.viewId;
-    this.featuredContentId = FEATURED_CONTENT_ID;
-
-    self.dataLoaded = false;
-
-    /**It is triggered after statistics are loaded locally from the server. This can happen during the
-     * authentication or if we had clicked on the statistics icon and moved to the questions.
-     * @event loadstatisticsfromserver
-     * @param: a callback function that displays the answer body and preventing the display of the statistics view
-     */
-    $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagID)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-            console.log("enters load statistics from server is done");
-            self.app.models.statistics.getFirstActiveDay();
-        }
-
-    });
-
-    /**It is triggered when the calculation of all the statistics metrics is done in the statistics model
-     * @event allstatisticcalculationsdone
-     * @param: a callback function that displays the statistics view
-     */
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("enters in calculations done 1 ");
-        if (self.app.isActiveView(self.tagID)) {
-            console.log("enters in calculations done 2 ");
-            self.loadData();
-        }
-    });
 }
-
-/**Opens the view. First checks if the statistics are loaded from the server.
- * If not displays a "loading" message on the screen, otherwise it
- * loads the statistics data.
- * @prototype
- * @function open
- **/
-StatisticsView.prototype.prepare = function () {
-    if (this.app.getLoginState()) {
-        if (this.featuredContentId ||
-            this.app.models.learningrecordstore.ready()) {
-            this.loadData();
-        }
-        else {
-            this.showLoadingMessage();
-        }
-    }
-    else {
-        console.log("open statistics view in featured course context");
-        this.loadData();
-    }
-    this.app.models.featured.loadFeaturedCourseFromServer();
-};
 
 StatisticsView.prototype.tap_statisticscross = function() {
     this.app.chooseView("course", "landing");
 };
 
 StatisticsView.prototype.tap_statsSlot3 = function() {
-    this.app.changeView("achievements");
+//    this.app.changeView("achievements");
 };
 
 /**show loading message when statistics have not been fully loaded from the server
@@ -116,6 +64,66 @@ StatisticsView.prototype.tap_statsSlot3 = function() {
 StatisticsView.prototype.showLoadingMessage = function () {
 //    $("#statisticsBody").hide();
 //    $("#loadingMessage").show();
+};
+
+
+StatisticsView.prototype.update = function () {
+    var t = this.template,
+        m = this.model,
+        pv, pc, pi;
+
+    // TODO: Best day stats etc.
+    pv                    = m.getBestDay();
+    t.statBestDay.text   = pv.date;
+    t.statBestScore.text = pv.score;
+
+    // handle attempts
+    pv                    = m.getDailyActions();
+    t.statActions.text    = pv.today;
+
+    this.setTrendIcon(t.statActionsIcon,
+                      pv.trend);
+
+    // handle score
+    pv                    = m.getDailyScore();
+    t.statScore.text     = pv.today;
+
+    this.setTrendIcon(t.statScoreIcon,
+                      pv.trend);
+
+    // handle progress
+    pv                    = m.getDailyProgress();
+    t.statProgress.text   = pv.today;
+
+    this.setTrendIcon(t.statProgressIcon,
+                      pv.trend);
+
+    // handle speed
+    pv                    = m.getDailySpeed();
+    t.statSpeed.text      = pv.today;
+
+    this.setTrendIcon(t.statSpeedIcon,
+                      pv.trend);
+};
+
+StatisticsView.prototype.setTrendIcon = function (iDiv, trend) {
+    iDiv.removeClass([
+        "green",
+        "red",
+        "icon-neutral",
+        "icon-increase",
+        "icon-decrease"
+    ]);
+
+    var pc = "green", pi = "icon-neutral";
+    if (trend < 0) {
+        pc = "red";
+        pi = "icon-decrease";
+    }
+    else if (trend > 0) {
+        pi = "icon-increase";
+    }
+    iDiv.addClass([pc, pi]);
 };
 
 /**loads the statistics data, whose values are calculated in the answer model
