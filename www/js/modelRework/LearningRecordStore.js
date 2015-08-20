@@ -32,27 +32,31 @@ under the License.
 
     var tableDef = {
         "actions" : {    // the actual records
-            "uuid":      "TEXT PRIMARY KEY",
-            "record":    "TEXT",
-            "stored":    "INTEGER",
-            "courseid":  "text",
-            "object":    "text",
-            "verb":      "text",
-            "score":     "INTEGER",
-            "duration":  "INTEGER"
+            "uuid":         "TEXT PRIMARY KEY",
+            "record":       "TEXT",
+            "stored":       "INTEGER",
+            "year":         "INTEGER", // partitioning
+            "month":        "INTEGER", // partitioning
+            "day":          "INTEGER", // partitioning
+            "hour":         "INTEGER", // sampling
+            "week":         "INTEGER", // sampling
+            "weekday":      "INTEGER", // sampling
+            "score":        "INTEGER",
+            "verbid":       "TEXT",    // partitioning
+            "objectid":     "TEXT",    // internal id
+            "courseid":     "TEXT",    // partitioning
+            "duration":     "INTEGER"
         },
-        "actionindex": {    // the index for the filters
+        "contextindex": {    // the index for the filters
             "uuid":         "TEXT",  // the action UUID
-            "created":      "INTEGER",  // the timestamp of the action (in miliseconds)
-            "filter":       "TEXT",  // filtername
-            "valuehash":    "TEXT",  // the filter's keylist
-            "targetdata":   "TEXT",   // the filter's result data
-            "targettype":   "TEXT"    // "json" || "raw"
+            "type":         "TEXT",
+            "contextid":    "TEXT",
+            "stored":       "INTEGER"
         },
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
             "lrsid" :       "TEXT",
-            "userid":       "TEXT", // this is used for pending logouts
+            "userid":       "TEXT", // this is used for pending logouts, keep deferred access tokens in localStorage
             "synchronized": "INTEGER" // timestamp
         }
     };
@@ -133,7 +137,8 @@ under the License.
      */
     LearningRecordStore.prototype.startContext = function (contextType, contextId) {
         var promise;
-        if (typeof contextType === "string" && typeof contextId === "string") {
+        if (typeof contextType === "string" &&
+            typeof contextId === "string") {
             var self = this, bh = true;
             contextType = contextType.trim();
             contextId = contextId.trim();
@@ -177,12 +182,12 @@ under the License.
                         promise = new Promise(function (resolve, reject) {
                             DB.select({result: "uuid",
                                        distinct: true,
+                                       from: "actions",
                                        where: {"=": "uuid"}
                                       }, [contextId])
                             .then(function() {
                                 self.context.statement = {"type": "StatementRef",
                                                           "id": contextId};
-
                                 resolve();
                             })
                             .catch(reject);
@@ -437,10 +442,18 @@ under the License.
                 record.context = this.context;
             }
 
+            // structure the time
             var iData = {
                 "uuid":     myUUID,
                 "record":   JSON.stringify(record),
-                "stored":   created
+                "stored":   created,
+                "year":     mom.format("YYYY"),
+                "month":    mom.format("YYYYMM"),
+                "day":      mom.format("YYYYMMDD"),
+                "week":     mom.format("W"),
+                "hour":     mom.format("HH"),
+                "weekday":  mom.format("E"),
+                "verbid":   record.verb.id
             };
 
             if (ctxt) {
@@ -448,7 +461,7 @@ under the License.
                     iData.courseid = ctxt.courseId;
                 }
                 if (ctxt.objectId) {
-                    iData.object = ctxt.objectId;
+                    iData.objectid = ctxt.objectId;
                 }
             }
 
@@ -543,16 +556,15 @@ under the License.
 
                     var iData = {
                         record: JSON.stringify(ar),
-                        duration: end.valueOf() - start.valueOf(),
-                        verb: ar.verb.id
+                        duration: end.valueOf() - start.valueOf()
                     };
 
                     if (ctxt) {
-                        if (ctxt.courseId !== undefined) {
+                        if (ctxt.courseId) {
                             iData.courseid = ctxt.courseId;
                         }
                         if (ctxt.objectId !== undefined) {
-                            iData.object = ctxt.objectId;
+                            iData.objectid = ctxt.objectId;
                         }
                         if (ctxt.score !== undefined) {
                             iData.score = ctxt.score;
@@ -571,6 +583,7 @@ under the License.
                             "lrsid": lrsid
                         }));
                     });
+
                     return Promise.all(pa);
                 }
                 return Promise.resolve();
@@ -598,6 +611,8 @@ under the License.
      * @function recordAction
      * @param {OBJECT} record
      * @return {PROMISE} db promise
+     *
+     * DONT USE uses the wrong DB schema
      */
     LearningRecordStore.prototype.recordAction = function (record) {
         if (typeof record === 'object' &&
@@ -617,10 +632,18 @@ under the License.
             }
 
             return new Promise(function(fullfill, reject){
+
                 DB.insert("actions", {
                 "uuid":     UUID,
                 "record":   JSON.stringify(record),
-                "stored":   created
+                "stored":   created,
+                "year":     mom.format("YYYY"),
+                "month":    mom.format("YYYYMM"),
+                "day":      mom.format("YYYYMMDD"),
+                "week":     mom.format("W"),
+                "hour":     mom.format("HH"),
+                "weekday":  mom.format("E"),
+                "verbid":   record.verb.id
                 })
                 .then(function (res) {
                     res.insertID = UUID;
@@ -697,21 +720,21 @@ under the License.
                 ta: 'actions',
                 sa: {
                      from: 'actions k',
-                     result: ["k.object",
+                     result: ["k.objectid",
                               "k.courseid",
                               "k.score",
                               ["max(k.stored)", "t"],
-                              ["count(k.object)", "a"],
+                              ["count(k.objectid)", "a"],
                               ["total(k.score)", "s"]],
                      where: {"=": "courseid"},
-                     group: "object"
+                     group: "objectid"
                 }
             },
-            result: ["count(ta.uuid) p", "sa.object", "sa.score", "a", "t", "s"],
+            result: ["count(ta.uuid) p", "sa.objectid", "sa.score", "a", "t", "s"],
             where: {"and": [{">=": ["ta.stored", "sa.t"]},
                     {"=": ["ta.courseid", "sa.courseid"]}]},
             order: {"sa.t": "d"},
-            group: ["sa.object"]
+            group: ["sa.objectid"]
         }, [courseid])
             .then(function(res) {
             var p = 0, m = res.rows.length;
@@ -799,12 +822,189 @@ under the License.
     };
 
     /**
+     * @prototype
+     * @function calculateStats()
+     *
+     * loads the statistics for a course.
+     *
+     * emits LRS_CALCULATION_DONE when all stats arrived.
+     */
+    LearningRecordStore.prototype.calculateStats = function (courseId) {
+        this.stats = {
+            today: {
+                attempts: 0,
+                score: 0,
+                speed: 100000000000,
+                progress: 0
+            },
+            last: {
+                attempts: 0,
+                score: 0,
+                speed: 100000000000,
+                progress: 0
+            },
+        };
+        var self = this,
+        i = 0,
+        today = moment().format("YYYYMMDD");
+
+        // SELECT count(uuid) attempts, avg(score) score, avg(duration) speed
+        DB.select({
+            from: "actions",
+            result: ["day",
+                     "count(uuid) a",
+                     "avg(score) score",
+                     "avg(duration) speed"],
+            where: {"and": [
+                {"=": "courseid"},
+                {"=": "verbid"}
+            ]},
+            order: {day: "desc"},
+            group: ["day"]
+        }, [courseId,
+            "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"])
+        .then(function (res) {
+            var r, k = 0, bDay, bScore = 0, bAtt = 0 ;
+            if (res.rows.length) {
+                 r = res.rows.item(0);
+                if (r) {
+                    if (r.day == today) {
+                        self.stats.today.attempts = r.a;
+                        self.stats.today.score =    r.score.toFixed(2);
+                        self.stats.today.speed =    Math.round(r.speed/1000);
+
+                        if (res.rows.length > 1) {
+                            r = res.rows.item(1);
+                            if (r) {
+                                self.stats.last.attempts = r.a;
+                                self.stats.last.score =    r.score.toFixed(2);
+                                self.stats.last.speed =    Math.round(r.speed/1000);
+                            }
+                        }
+                    }
+                    else {
+                        self.stats.last.attempts = r.a;
+                        self.stats.last.score =    r.score.toFixed(2);
+                        self.stats.last.speed =    Math.round(r.speed/ 1000);
+                    }
+                }
+                // find the best day
+                // best day == day with the highest score
+
+                for (k = 0; k < res.rows.length; k++) {
+                    r = res.rows.item(k);
+                    if (!bDay || (r.score > bScore && r.attempts > bAtt)) {
+                        bDay    = r.day;
+                        bScore  = r.score;
+                        bAtt    = r.attempts;
+                    }
+                }
+
+                bDay = bDay.toString().replace(/(\d\d\d\d)(\d\d)(\d\d)/, '$1-$2-$3');
+                self.bestDay = {
+                    date: bDay,
+                    score: bScore.toFixed(2)
+                };
+
+                console.log(self.bestDay);
+                console.log(self.stats);
+            }
+
+            i++;
+
+            if (i > 1) {
+                $(document).trigger("LRS_CALCULATION_DONE");
+            }
+        })
+        .catch(function (err) {
+            if (err && err.message) {
+                console.error(err.message);
+            }
+            console.log(err);
+            i++;
+            if (i > 1) {
+                $(document).trigger("LRS_CALCULATION_DONE");
+            }
+        });
+        DB.select({
+            from: "actions",
+            result: ["day",
+                     "count(uuid) progress"],
+            where: {"and": [
+                {"=": "courseid"},
+                {"=": "verbid"},
+                {"=": "score"}
+            ]},
+            order: {day: "desc"},
+            group: ["day"]
+        }, [courseId,
+            "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt",
+            "1"])
+        .then(function (res) {
+            if (res.rows.length) {
+                var r = res.rows.item(0);
+                if (r) {
+                    if (r.day === today) {
+                        self.stats.today.progress = r.progress;
+
+                        r = res.rows.item(1);
+                        if (r) {
+                            self.stats.last.progress = r.progress;
+                        }
+                    }
+                    else {
+                        self.stats.last.progress = r.progress;
+                    }
+                }
+            }
+            i++;
+
+            if (i > 1) {
+                $(document).trigger("LRS_CALCULATION_DONE");
+            }
+        })
+        .catch(function (err) {
+            if (err && err.message) {
+                console.error(err.message);
+            }
+            console.log(err);
+            i++;
+            if (i > 1) {
+                $(document).trigger("LRS_CALCULATION_DONE");
+            }
+        });
+
+    };
+
+    function privMakeStatEntry(today, last) {
+        var change = today -  last;
+
+        var cTrend = 0;
+        if (change > 0) {
+            cTrend = 1;
+        }
+        if (change < 0) {
+            cTrend = -1;
+        }
+
+        return {
+            today:    today,
+            previous: last,
+            trend: cTrend
+        };
+    }
+
+    /**
      * @protoype
      * @function getDailyProgress
      * @param {NONE}
      */
     LearningRecordStore.prototype.getDailyProgress = function () {
-
+        if (!this.stats) {
+            return {today: 0, previous: 0};
+        }
+        return privMakeStatEntry(this.stats.today.progress,
+                                 this.stats.last.progress)
     };
 
     /**
@@ -813,7 +1013,11 @@ under the License.
      * @param {NONE}
      */
     LearningRecordStore.prototype.getDailyScore = function () {
-
+        if (!this.stats) {
+            return {today: 0, previous: 0};
+        }
+        return privMakeStatEntry(this.stats.today.score,
+                                 this.stats.last.score)
     };
 
     /**
@@ -821,8 +1025,12 @@ under the License.
      * @function getDailyAvgSpeed
      * @param {NONE}
      */
-    LearningRecordStore.prototype.getDailyAvgSpeed = function () {
-
+    LearningRecordStore.prototype.getDailySpeed = function () {
+        if (!this.stats) {
+            return {today: 0, previous: 0};
+        }
+        return privMakeStatEntry(this.stats.today.speed,
+                                 this.stats.last.speed)
     };
 
     /**
@@ -831,7 +1039,15 @@ under the License.
      * @param {NONE}
      */
     LearningRecordStore.prototype.getDailyActions = function () {
+        if (!this.stats) {
+            return {today: 0, previous: 0};
+        }
+        return privMakeStatEntry(this.stats.today.attempts,
+                                 this.stats.last.attempts)
+    };
 
+    LearningRecordStore.prototype.getBestDay = function () {
+        return this.bestDay || {};
     };
 
     /**

@@ -432,6 +432,13 @@
         }
     };
 
+    ContentBroker.prototype.getCourseId = function () {
+        if (this.currentCourseId && this.currentLMSId) {
+            return this.currentLMSId + "_" + this.currentCourseId;
+        }
+        return "";
+    };
+
     ContentBroker.prototype.activateCourse = function (course) {
         this.activateCourseById(course.lmsId, course.id);
     };
