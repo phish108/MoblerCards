@@ -14,18 +14,18 @@ II.FEATURES
 - Supported Question Types
     - Single Choice
     - Multiple Choice
-    - Cloze
-    - Sort/Order
-    - Numbers
+    - Cloze [TODO]
+    - Sort/Order [TODO]
+    - Numbers [TODO]
 - Automatic answer assessment and feedback
 - Configurable additional feedback
-- Learning badges
+- Learning badges [TODO]
 - Multi course support
 - Multi LMS support
     - Ilias LMS
     - Moodle LMS [TODO]
-- Connects to any LMS that provides the appropriate services [TODO]
-- ADL XAPI Support [TODO]
+- Connects to any LMS that provides the appropriate services
+- ADL XAPI Support
 - IMS QTI Support [TODO]
 - IMS LIP Support [TODO]
 - LMS triggered language detection
