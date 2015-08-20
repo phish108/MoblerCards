@@ -86,6 +86,7 @@ LandingView.prototype.update = function () {
 LandingView.prototype.tap_landingfeaturedimage = function () {
     this.models.contentbroker.activateCourse(this.pList[0]);
     this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
+    this.app.models.learningrecordstore.calculateStats(this.models.contentbroker.getCourseId());
     // NOW RUN THE STATS
 };
 

@@ -117,22 +117,27 @@ CourseView.prototype.cleanup = function () {
 CourseView.prototype.tap = function (event) {
     var id = event.target.id,
         course = id.split("_");
+    var cId, lmsId;
 
     if (course.length === 4 && course[0] === "courselist") {
         console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
-        var cId     = course.pop();
-        var lmsId   = course.pop();
+        cId     = course.pop();
+        lmsId   = course.pop();
 
         this.model.activateCourseById(lmsId, cId);
         this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
         this.models.contentbroker.nextQuestion();
     }
 
-//    if (course[0] === "courseimage") {
-//        // ignore
-//        // this.app.changeView("statistics");
-//    }
+    if (course[0] === "courseimage") {
+        cId     = course.pop();
+        lmsId   = course.pop();
+
+        this.model.activateCourseById(lmsId, cId);
+        this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
+        this.app.models.learningrecordstore.calculateStats(this.app.models.contentbroker.getCourseId());
+    }
 };
 
 CourseView.prototype.tap_coursecross = function () {
