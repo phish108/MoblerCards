@@ -251,10 +251,10 @@ input.listlabel {
 .green {
     color: #33CC33;
 }
+.glow2.red,
 .red {
-    -webkit-text-stroke-color: #7F0000;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-fill-color: #EC2F2D;
+    text-shadow: 0 0 8px #DF1010;
+    -webkit-text-fill-color: #7C2020;
     font-size: 30px;
 }
 .lightgrey {
@@ -292,9 +292,8 @@ input.listlabel {
     z-index: 10;
 }
 .glow2 {
-    -webkit-text-stroke-color: #2da42c;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-fill-color: #59fa56;
+    text-shadow: 0 0 8px  #59fa56;
+    -webkit-text-fill-color:#2da42c;
 }
 .glowNone {
     text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
