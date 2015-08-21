@@ -319,18 +319,29 @@ MoblerCards.prototype.setupLanguage = function () {
         language: this.models.identityprovider.getLanguage(),
         callback: function () { // initialize the static strings on all views
             Object.getOwnPropertyNames(jQuery.i18n.map).forEach(function (prop) {
-                var p = prop.split("_"), id = p.pop();
-                if (prop.indexOf("html") >= 0) {
-                    $('#' + prop).html(jQuery.i18n.prop(prop));
-                }
-                else if (prop.indexOf("attr") >= 0) {
-                    $('#' + id).attr(p.pop(), jQuery.i18n.prop(prop))
-                }
-                else if (prop.indexOf("ico_") === 0) {
-                    $('#' + prop).addClass(jQuery.i18n.prop(prop));
-                }
-                else {
-                    $('#' + prop).text(jQuery.i18n.prop(prop));
+                var p = prop.split("_"),
+                    m = jQuery.i18n.prop(prop),
+                    id, attr;
+
+                // check for a valid prop message
+                if (m) {
+                    // use prefixes for indicating the message type
+                    switch (p[0]) {
+                        case "html":
+                            $('#' + prop).html(m);
+                            break;
+                        case "attr":
+                            id   = p.pop();
+                            attr = p.pop();
+                            $('#' + prop).attr(attr, m);
+                            break;
+                        case "ico":
+                            $('#' + prop).addClass(m);
+                            break;
+                        default:
+                            $('#' + prop).text(m);
+                            break;
+                    }
                 }
             });
 
