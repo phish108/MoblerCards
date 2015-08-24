@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $, jQuery*/
+/*global $, jQuery, LearningRecordStore*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -83,31 +83,42 @@ StatisticsView.prototype.update = function () {
     t.statActions.text    = pv.today;
 
     this.setTrendIcon(t.statActionsIcon,
-                      pv.trend);
+                      pv.trend, pv.today);
 
     // handle score
     pv                   = m.getDailyScore();
     t.statScore.text     = pv.today;
 
     this.setTrendIcon(t.statScoreIcon,
-                      pv.trend);
+                      pv.trend, pv.today);
 
     // handle progress
     pv                    = m.getDailyProgress();
     t.statProgress.text   = pv.today;
 
     this.setTrendIcon(t.statProgressIcon,
-                      pv.trend);
+                      pv.trend, pv.today);
 
     // handle speed
     pv                    = m.getDailySpeed();
-    t.statSpeed.text      = pv.today;
+    if (pv.today === LearningRecordStore.Default_Speed) {
+        t.statSpeed.text = jQuery.i18n.prop('msg_err_no_speed_today');
+        t.msg_speed_info.addClass("hidden");
+        this.setTrendIcon(t.statSpeedIcon,
+                          pv.trend, 0, true);
+    }
+    else {
+        t.statSpeed.text = pv.today;
+        t.msg_speed_info.removeClass("hidden");
+        this.setTrendIcon(t.statSpeedIcon,
+                          pv.trend, pv.today, true);
+    }
 
-    this.setTrendIcon(t.statSpeedIcon,
-                      pv.trend, true);
+
+
 };
 
-StatisticsView.prototype.setTrendIcon = function (iDiv, trend, inverse) {
+StatisticsView.prototype.setTrendIcon = function (iDiv, trend, score, inverse) {
     iDiv.removeClass([
         "green",
         "red",
@@ -123,6 +134,9 @@ StatisticsView.prototype.setTrendIcon = function (iDiv, trend, inverse) {
     }
     else if (trend > 0) {
         pi = "icon-increase";
+    }
+    if (score === 0) {
+        pc = "red";
     }
     iDiv.addClass([pc, pi]);
 };
