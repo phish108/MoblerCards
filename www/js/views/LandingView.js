@@ -85,7 +85,7 @@ LandingView.prototype.update = function () {
 
 LandingView.prototype.tap_landingfeaturedimage = function () {
     this.models.contentbroker.activateCourse(this.pList[0]);
-    this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
+    this.app.changeView("statistics", "LRS_CALCULATION_DONE");
     this.app.models.learningrecordstore.calculateStats(this.models.contentbroker.getCourseId());
     // NOW RUN THE STATS
 };
@@ -93,7 +93,7 @@ LandingView.prototype.tap_landingfeaturedimage = function () {
 LandingView.prototype.tap_landingfeaturedlist = function() {
     this.models.contentbroker.activateCourse(this.pList[0]);
 
-    this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+    this.app.changeView("question", "CONTENT_QUESTION_READY");
     this.models.contentbroker.nextQuestion();
 };
 

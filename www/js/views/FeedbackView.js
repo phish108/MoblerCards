@@ -180,7 +180,7 @@ FeedbackView.prototype.doScroll = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 FeedbackView.prototype.tap_feedbackfooter = function () {
-    this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+    this.app.changeView("question", "CONTENT_QUESTION_READY");
     this.model.nextQuestion();
 };
 

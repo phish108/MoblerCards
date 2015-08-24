@@ -1,6 +1,6 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true*/
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, unparam: true, todo: true*/
 
-/*global jstap*/
+/*global jstap, $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -37,7 +37,7 @@ under the License.
  *
  * FIXME click event must not select the password input
  **/
-var $ = window.$, jQuery = window.jQuery;
+
 
 function LoginView() {
     var self = this;
@@ -197,7 +197,7 @@ LoginView.prototype.tap_loginfooter = function () {
     console.log("check logIn data");
     if ($("#username").val() && $("#password").val()) {
         if (!this.app.isOffline()) { // refuse to run while being offline
-            this.app.deferredChangeView("ID_AUTHENTICATION_OK", "landing");
+            this.app.changeView("landing", "ID_AUTHENTICATION_OK");
             this.showWarningMessage('msg_warning_message');
             this.model.startSession($("#username").val(),
                                     $("#password").val());

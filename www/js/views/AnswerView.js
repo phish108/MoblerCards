@@ -168,7 +168,7 @@ AnswerView.prototype.update = function () {
  */
 AnswerView.prototype.tap_answerfooter = function () {
     if (this.didApologize) {
-        this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+        this.app.changeView("question", "CONTENT_QUESTION_READY");
         this.model.nextQuestion();
     }
     else {

@@ -126,7 +126,7 @@ CourseView.prototype.tap = function (event) {
         lmsId   = course.pop();
 
         this.model.activateCourseById(lmsId, cId);
-        this.app.deferredChangeView("CONTENT_QUESTION_READY", "question");
+        this.app.changeView("question", "CONTENT_QUESTION_READY");
         this.models.contentbroker.nextQuestion();
     }
 
@@ -135,7 +135,7 @@ CourseView.prototype.tap = function (event) {
         lmsId   = course.pop();
 
         this.model.activateCourseById(lmsId, cId);
-        this.app.deferredChangeView("LRS_CALCULATION_DONE", "statistics");
+        this.app.changeView("statistics", "LRS_CALCULATION_DONE");
         this.app.models.learningrecordstore.calculateStats(this.app.models.contentbroker.getCourseId());
     }
 };
