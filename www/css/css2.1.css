@@ -254,8 +254,7 @@ input.listlabel {
 .glow2.red,
 .red {
     text-shadow: 0 0 8px #DF1010;
-    -webkit-text-fill-color: #7C2020;
-    font-size: 30px;
+    color: #bf1010;
 }
 .lightgrey {
     color: #BEBEBE;
@@ -293,7 +292,7 @@ input.listlabel {
 }
 .glow2 {
     text-shadow: 0 0 8px  #59fa56;
-    -webkit-text-fill-color:#2da42c;
+    color:#33CC33;
 }
 .glowNone {
     text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
