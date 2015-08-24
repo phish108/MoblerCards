@@ -1,4 +1,5 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -44,9 +45,7 @@ under the License.
  * @param {String} controller
  */
 function StatisticsView() {
-    var self = this;
-
-    this.tagID = this.app.viewId;
+    return this;
 }
 
 StatisticsView.prototype.tap_statisticscross = function() {
@@ -55,6 +54,7 @@ StatisticsView.prototype.tap_statisticscross = function() {
 
 StatisticsView.prototype.tap_statsSlot3 = function() {
 //    this.app.changeView("achievements");
+    return;
 };
 
 /**show loading message when statistics have not been fully loaded from the server
@@ -64,18 +64,19 @@ StatisticsView.prototype.tap_statsSlot3 = function() {
 StatisticsView.prototype.showLoadingMessage = function () {
 //    $("#statisticsBody").hide();
 //    $("#loadingMessage").show();
+    return;
 };
 
 
 StatisticsView.prototype.update = function () {
     var t = this.template,
         m = this.model,
-        pv, pc, pi;
+        pv;
 
     // TODO: Best day stats etc.
-    pv                    = m.getBestDay();
-    t.statBestDay.text   = pv.date;
-    t.statBestScore.text = pv.score;
+    pv                   = m.getBestDay();
+    t.statBestDay.text   = pv.date  || jQuery.i18n.prop('msg_err_no_bestday');
+    t.statBestScore.text = pv.score || jQuery.i18n.prop('msg_err_no_bestscore');
 
     // handle attempts
     pv                    = m.getDailyActions();
@@ -85,7 +86,7 @@ StatisticsView.prototype.update = function () {
                       pv.trend);
 
     // handle score
-    pv                    = m.getDailyScore();
+    pv                   = m.getDailyScore();
     t.statScore.text     = pv.today;
 
     this.setTrendIcon(t.statScoreIcon,
@@ -124,87 +125,4 @@ StatisticsView.prototype.setTrendIcon = function (iDiv, trend, inverse) {
         pi = "icon-increase";
     }
     iDiv.addClass([pc, pi]);
-};
-
-/**loads the statistics data, whose values are calculated in the answer model
- * additionally, depending on the improvement or not of their values in
- * comparison with the previous 24 hours a red or green up or down arrow is
- * displayed next to the value.
- * @prototype
- * @function loadData
- **/
-StatisticsView.prototype.loadData = function () {
-    var self = this;
-    var statisticsModel = this.app.models.statistics;
-
-    console.dir(statisticsModel);
-
-    console.log("init values for statistics");
-    //starts the calculation of the values of the various
-    //statistics metrics
-    var avgScore = statisticsModel.averageScore.averageScore;
-    console.log("average score is: " + avgScore);
-    var improvementAvgScore = statisticsModel.averageScore.improvementAverageScore;
-    if (avgScore < 0) {
-        avgScore = 0;
-    }
-
-    var avgSpeed = statisticsModel.averageSpeed.averageSpeed;
-    var improvementSpeed = statisticsModel.averageSpeed.improvementSpeed;
-    if (avgSpeed <= 0) {
-        avgSpeed = "-";
-    }
-
-    var handledCards = statisticsModel.handledCards.handledCards;
-    var improvementhandledCards = statisticsModel.handledCards.improvementHandledCards;
-    if (handledCards < 0) {
-        handledCards = 0;
-    }
-
-    var progress = statisticsModel.progress.progress;
-    var improvementProgress = statisticsModel.progress.improvementProgress;
-    if (progress < 0) {
-        progress = 0;
-    }
-
-    var bestDay = statisticsModel.bestDay.bestDay;
-    if (!bestDay) {
-        // if the database does not know better, today is the best day!
-        bestDay = new Date().getTime();
-    }
-    var oBestDay = new Date(bestDay);
-
-    var bestScore = statisticsModel.bestDay.bestScore;
-    if (bestScore < 0) {
-        bestScore = 0;
-    }
-    console.log("initialization of data done");
-
-    var removeClasses = msg_positiveImprovement_icon + " " + msg_negativeImprovement_icon + " " + msg_neutralImprovement_icon +
-        " red green";
-    //once the calculation of the values is done
-    // we display the values, their text and the improvement arrow
-    $("#loadingMessage").hide();
-    $("#statisticsBody").show();
-    $("#statBestDayValue").text(oBestDay.getDate() + " " + jQuery.i18n.prop('msg_monthName_' + (oBestDay.getMonth() + 1)));
-    $("#statBestDayInfo").text(oBestDay.getFullYear());
-    $("#statBestScoreValue").text(bestScore + "%");
-    //$("#statHandledCardsValue").text(handledCards+ " "+ jQuery.i18n.prop('msg_handledCards_info'));
-    $("#statHandledCardsValue").text(handledCards);
-    $("#statsHandledCardsInfo").text(jQuery.i18n.prop('msg_handledCards_info'));
-    $("#statsHandledCardsIconchange").removeClass(removeClasses);
-    $("#statsHandledCardsIconchange").addClass(checkImprovement(improvementhandledCards));
-    $("#statAverageScoreValue").text(avgScore + "%");
-    $("#statsAverageScoreIconchange").removeClass(removeClasses);
-    $("#statsAverageScoreIconchange").addClass(checkImprovement(improvementAvgScore));
-    $("#statProgressValue").text(progress + "%");
-    $("#statsProgressIconchange").removeClass(removeClasses);
-    $("#statsProgressIconchange").addClass(checkImprovement(improvementProgress));
-    //$("#statSpeedValue").text(avgSpeed+" "+ jQuery.i18n.prop('msg_speed_info'));
-    $("#statSpeedValue").text(avgSpeed);
-    $("#statsSpeedinfo").text(jQuery.i18n.prop('msg_speed_info'));
-    $("#statsSpeedIconchange").removeClass(removeClasses);
-    $("#statsSpeedIconchange").addClass(checkSpeedImprovement(improvementSpeed));
-
-    console.log("end load data");
 };

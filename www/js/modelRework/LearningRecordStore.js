@@ -61,7 +61,7 @@ under the License.
         }
     };
 
-    var defaultFilters = [];
+//    var defaultFilters = [];
 
     function initDB () {
         DB = new DBHelper({
@@ -99,6 +99,8 @@ under the License.
         });
     }
 
+    LearningRecordStore.Default_Speed = 100000000;
+
     /**
      * @static
      * @function getUUID
@@ -134,6 +136,8 @@ under the License.
      * @function startContext
      * @param {STRING} contextType
      * @param {STRING} contextId - the external contextID (the qti.php request)
+     *
+     * whenever the context changes, the statistics MUST be reset.
      */
     LearningRecordStore.prototype.startContext = function (contextType, contextId) {
         var promise;
@@ -407,11 +411,7 @@ under the License.
      *
      */
     LearningRecordStore.prototype.indexOneAction = function (filter, action) {
-        var self = this;
 
-        return new Promise(function (fullfill, reject) {
-
-        });
     };
 
 
@@ -483,7 +483,6 @@ under the License.
      */
     LearningRecordStore.prototype.updateAction = function (UUID, record) {
         if (typeof UUID === "string" && UUID.length && typeof record === "object") {
-            var self = this, end   = moment();
             DB.select({
                 'from': 'actions',
                 'result': "record",
@@ -655,7 +654,7 @@ under the License.
                         }));
                     });
 
-                    var appCtxt = JSON.stringify(self.appcontext);
+//                    var appCtxt = JSON.stringify(self.appcontext);
                     self.context.forEach(function (lrsid) {
                         pa.push(DB.insert("syncindex", {
                             "uuid": UUID,
@@ -711,7 +710,7 @@ under the License.
 
         var courseid = context.courseId,
             n = Math.pow(context.n, 2),
-            min = 100000000, // start with a high value
+            min = LearningRecordStore.Default_Speed, // start with a high value
             minE= 0.1,
             totalE= 0;
 
@@ -740,7 +739,7 @@ under the License.
             var p = 0, m = res.rows.length;
             var map = [];
             var q = [];
-            var d, eo, p1;
+            var d, eo;
 
             // skip the position 0 as it is out present element
             for (p = 0; p < m; p++) {
@@ -834,16 +833,19 @@ under the License.
             today: {
                 attempts: 0,
                 score: 0,
-                speed: 100000000000,
+                speed: LearningRecordStore.Default_Speed,
                 progress: 0
             },
             last: {
                 attempts: 0,
                 score: 0,
-                speed: 100000000000,
+                speed: LearningRecordStore.Default_Speed,
                 progress: 0
-            },
+            }
         };
+
+        this.bestDay = {};
+
         var self = this,
         i = 0,
         today = moment().format("YYYYMMDD");
@@ -866,9 +868,9 @@ under the License.
         .then(function (res) {
             var r, k = 0, bDay, bScore = 0, bAtt = 0 ;
             if (res.rows.length) {
-                 r = res.rows.item(0);
+                r = res.rows.item(0);
                 if (r) {
-                    if (r.day == today) {
+                    if (r.day === Number(today)) {
                         self.stats.today.attempts = r.a;
                         self.stats.today.score =    r.score.toFixed(2);
                         self.stats.today.speed =    Math.round(r.speed/1000);
@@ -893,6 +895,7 @@ under the License.
 
                 for (k = 0; k < res.rows.length; k++) {
                     r = res.rows.item(k);
+
                     if (!bDay || (r.score > bScore && r.attempts > bAtt)) {
                         bDay    = r.day;
                         bScore  = r.score;
@@ -900,14 +903,15 @@ under the License.
                     }
                 }
 
-                bDay = bDay.toString().replace(/(\d\d\d\d)(\d\d)(\d\d)/, '$1-$2-$3');
-                self.bestDay = {
-                    date: bDay,
-                    score: bScore.toFixed(2)
-                };
+                if (bDay) {
+                    bDay = bDay.toString().replace(/(\d\d\d\d)(\d\d)(\d\d)/,
+                                                   '$1-$2-$3');
 
-                console.log(self.bestDay);
-                console.log(self.stats);
+                    self.bestDay = {
+                        date: bDay,
+                        score: bScore.toFixed(2)
+                    };
+                }
             }
 
             i++;
@@ -944,7 +948,7 @@ under the License.
             if (res.rows.length) {
                 var r = res.rows.item(0);
                 if (r) {
-                    if (r.day == today) {
+                    if (r.day === Number(today)) {
                         self.stats.today.progress = r.progress;
 
                         r = res.rows.item(1);
@@ -1004,7 +1008,7 @@ under the License.
             return {today: 0, previous: 0};
         }
         return privMakeStatEntry(this.stats.today.progress,
-                                 this.stats.last.progress)
+                                 this.stats.last.progress);
     };
 
     /**
@@ -1017,7 +1021,7 @@ under the License.
             return {today: 0, previous: 0};
         }
         return privMakeStatEntry(this.stats.today.score,
-                                 this.stats.last.score)
+                                 this.stats.last.score);
     };
 
     /**
@@ -1030,7 +1034,7 @@ under the License.
             return {today: 0, previous: 0};
         }
         return privMakeStatEntry(this.stats.today.speed,
-                                 this.stats.last.speed)
+                                 this.stats.last.speed);
     };
 
     /**
@@ -1043,7 +1047,7 @@ under the License.
             return {today: 0, previous: 0};
         }
         return privMakeStatEntry(this.stats.today.attempts,
-                                 this.stats.last.attempts)
+                                 this.stats.last.attempts);
     };
 
     LearningRecordStore.prototype.getBestDay = function () {
