@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -20,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -60,8 +62,6 @@ function NumericQuestionWidget(opts) {
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.update = function() {
-    this.tickedAnswers = this.app.models.answer.getAnswers();
-
     if (this.interactive) {
         this.showAnswer();
     }
@@ -71,37 +71,26 @@ NumericQuestionWidget.prototype.update = function() {
 };
 
 /**
- * Storing the typed number.
- * @prototype
- * @function cleanup
- * @param {NONE}
- */
-NumericQuestionWidget.prototype.cleanup = function () {
-    var numericAnswer = $("#answerinput_answerlistbox_answerbox").val();
-    this.app.models.answer.setAnswers(numericAnswer);
-};
-
-/**
  * Create a numeric input field.
  * @prototype
  * @function showAnswer
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.showAnswer = function () {
-    var self = this;
-    var app = this.app;
+    var tmpl = this.template; // bad!
 
-    var questionpoolModel = app.models.questionpool;
-    var tmpl = app.templates.getTemplate("answerlistbox");
+    var lstAnswers = this.model.getAnswerList(); // don't mix!
+    var correctAnswer = lstAnswers && lstAnswers.length ? lstAnswers[0] : "";
+    var response  = this.model.getResponseList();
 
     // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (questionpoolModel.questionList && 
-        typeof questionpoolModel.getAnswer() !== "undefined" &&
-        questionpoolModel.getAnswer()) {
+    if (correctAnswer && correctAnswer.length)  {
         tmpl.attach("answerbox");
-        tmpl.answerinput.removeClass("inactive");
-        tmpl.answertick.addClass("inactive");
-        tmpl.answertext.addClass("inactive");
+
+        tmpl.answertext.text = "Type Answer: " + (response && response[0] ? response[0] : "");
+        // tmpl.answerinput.removeClass("inactive");
+        // tmpl.answertick.addClass("inactive");
+        // tmpl.answertext.addClass("inactive");
     }
     else {
         this.didApologize = true;
@@ -115,23 +104,27 @@ NumericQuestionWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.showFeedback = function () {
-    var answerModel = this.app.models.answer;
-    var typedAnswer = answerModel.getAnswers();
-    var correctAnswer = this.app.models.questionpool.getAnswer()[0];
-    var tmpl = this.app.templates.getTemplate("feedbacklistbox");
- 
-    tmpl.attach("feedbackbox");
-    tmpl.feedbacktext.text = "Typed Answer: " + (typedAnswer === "" ? "NaN" : typedAnswer);
+//    var lstAnswers = this.model.getAnswerList(); // don't mix!
+    var response  = this.model.getResponseList();
 
-    if (typedAnswer !== correctAnswer) {
-        tmpl.feedbacktickicon.addClass("icon-cross");
-        tmpl.feedbacktickicon.removeClass("glow2");
-        tmpl.feedbacktickicon.addClass("red");
-        // if the typed numeric answer is wrong
-        tmpl.attach("feedbackbox");
-        tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
-    }
-    else {
-        tmpl.feedbacktickicon.addClass("icon-checkmark");
-    }
+//    var correctAnswer = lstAnswers && lstAnswers.length ? lstAnswers[0] : "";
+
+    var tmpl = this.template;
+
+    tmpl.attach("feedbackbox");
+    tmpl.answertext.text = "Typed Answer: " + (response && response[0] ? response[0] : "NAN");
+
+//    if (response &&
+//        response.length &&
+//        response[0] === correctAnswer) {
+//        tmpl.feedbacktickicon.addClass("icon-cross");
+//        tmpl.feedbacktickicon.removeClass("glow2");
+//        tmpl.feedbacktickicon.addClass("red");
+//        // if the typed numeric answer is wrong
+//        tmpl.attach("feedbackbox");
+//        tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
+//    }
+//    else {
+//        tmpl.feedbacktickicon.addClass("icon-checkmark");
+//    }
 };

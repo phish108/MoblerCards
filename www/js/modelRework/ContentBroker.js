@@ -473,7 +473,7 @@
             "type":     aQ.type,
             "question": aQ.question
         };
-    }; // done, not checked
+    };
 
     /**
      * @protoype
@@ -500,7 +500,7 @@
             return this.mixedAnswers;
         }
         return this.activeQuestion.answer;
-    }; // done, not checked
+    };
 
     /**
      * @protoype
@@ -522,7 +522,7 @@
         else {
             this.responseList.splice(index, 1);
         }
-    }; // done, not checked
+    };
 
     ContentBroker.prototype.isResponse = function (response) {
         if (this.responseList.indexOf(response) >= 0) {
@@ -539,7 +539,7 @@
      */
     ContentBroker.prototype.getResponseList = function () {
         return this.responseList;
-    }; // done, not checked
+    };
 
     ContentBroker.prototype.getXAPIResponseList = function () {
         var aR = [];
@@ -690,7 +690,7 @@
         console.log("checkScore? " + this.score);
 
         this.finishAttempt();
-    }; // done, not checked
+    };
 
     /**
      * @protoype
@@ -703,7 +703,7 @@
             return this.activeQuestion.correctFeedback;
         }
         return this.activeQuestion.errorFeedback;
-    }; // done, not checked
+    };
 
     /**
      * instruction - calls the LRS to start the question
@@ -738,7 +738,7 @@
             console.log(err);
         });
 
-    }; // done, not checked
+    };
 
     /**
      * @protoype
@@ -812,6 +812,7 @@
                 case "assOrderingQuestion":
                 case "assOrderingHorizontal":
                 case "assClozeTest":
+                    // cloze questions need preprocessing.
                 case "assNumeric":
                     break;
                 default:
@@ -830,7 +831,7 @@
         }
         console.log("QP validated");
         return true;
-    }; // done, not checked
+    };
 
     /****** Course Management ******/
 
@@ -890,7 +891,7 @@
                 }
             }, this);
         }
-    }; // done, not checked
+    };
 
     /**
      * @prototype
@@ -919,7 +920,7 @@
                 $(document).trigger("MY_SERVER_ERROR");
             });
         }
-    }; // done, not checked
+    };
 
 
     ContentBroker.prototype.verifyCourseData = function (courseList, lmsId) {
@@ -1010,7 +1011,7 @@
      */
     ContentBroker.prototype.fetchCourseList = function (lmsId) {
         return this.fetchService("powertla.content.courselist", lmsId);
-    }; // done, not checked
+    };
 
     /**
      * @protoype
@@ -1027,7 +1028,7 @@
         }
 
         return Promise.reject("ERR_COURSE_CONTENT_NOT_SUPPORTED");
-    }; // done, not checked
+    };
 
     /**
      * @prototype

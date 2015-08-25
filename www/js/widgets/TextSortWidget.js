@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, unparam: true, todo: true */
 /*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -56,9 +56,6 @@ function TextSortWidget(opts) {
 
     // boolean value to check if a drag is taking place.
     self.dragActive = false;
-
-    // Handles the Error messages.
-    self.didApologize = false;
 }
 
 /**
@@ -103,25 +100,6 @@ TextSortWidget.prototype.update = function () {
     }
     else {
         this.showFeedback();
-    }
-};
-
-/**
- * stores the current sorting order in the answer model
- * @prototype
- * @function cleanup
- * @param {NONE}
- */
-TextSortWidget.prototype.cleanup = function () {
-    var answers = [];
-
-    if (!this.didApologize) {
-        $("#answerbox").find("li").each(function (index) {
-            var id = $(this).attr("id").split("_")[2];
-            answers.push(parseInt(id,10));
-        });
-        console.log(answers);
-        this.app.models.answer.setAnswers(answers);
     }
 };
 
@@ -193,6 +171,14 @@ TextSortWidget.prototype.endMove = function (event) {
         window.scrollTo(0, 0);
         this.dragActive = false;
     }
+
+    var model = this.model;
+
+    model.clearResponseList();
+    $("#answerbox").find("li").each(function (index) {
+        var id = $(this).attr("id").split("_").pop();
+        model.addResponse(parseInt(id,10));
+    });
 };
 
 /**
@@ -202,41 +188,17 @@ TextSortWidget.prototype.endMove = function (event) {
  * @param {NONE}
  */
 TextSortWidget.prototype.showAnswer = function () {
-    var self = this;
+    var slist   = this.tickedAnswers;
+    var answers = this.model.getResponseList();
 
-    var app = this.app;
+    var tmpl = this.template;
 
-    var questionpoolModel = app.models.questionpool;
-    var answers = questionpoolModel.getAnswer();
-    var answerModel = app.models.answer;
-    var tmpl = app.templates.getTemplate("answerlistbox");
-    var i;
-
-    if (questionpoolModel.questionList && answers && answers[0].answertext) {
-        var mixedAnswers;
-
-        // if sorting has not started yet, mix the answers
-        if (!questionpoolModel.currAnswersMixed()) {
-            var tmp_answerModel = app.models.answer;
-            do {
-                tmp_answerModel.deleteData();
-                questionpoolModel.mixAnswers();
-                mixedAnswers = questionpoolModel.getMixedAnswersArray();
-
-                //if the order of mixed answers is correct or partially correct, generate a new order
-                tmp_answerModel.setAnswers(mixedAnswers);
-                tmp_answerModel.calculateTextSortScore();
-            } while (tmp_answerModel.getAnswerResults() !== "Wrong");
-        }
-        else {
-            mixedAnswers = this.tickedAnswers;
-        }
-
+    if (slist && answers) {
         // for each possible answer create a list item
-        for (i = 0; i < mixedAnswers.length; i++) {
-            tmpl.attach(mixedAnswers[i].toString());
-            tmpl.answertext.text = answers[mixedAnswers[i]].answertext;
-        }
+        slist.forEach(function (listitem) {
+            tmpl.attach(listitem.order);
+            tmpl.answertext.text = listitem.answertext;
+        });
     }
 
     $("#answerbox").find("li").addClass("untouchable");
@@ -252,27 +214,36 @@ TextSortWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 TextSortWidget.prototype.showFeedback = function () {
-    var answers = this.model.getAnswerList(true);
-    // var scores = this.app.models.answer.getScoreList();
-    var fTmpl = this.app.templates.getTemplate("feedbacklistbox");
-    var i;
+    // Ilias sends mixed lists already. Need to sort.
+    var slist   = this.model.getAnswerList(false);
+    slist.sort(function (a,b) {return a.order - b.order;});
 
-    for (i = 0; i < answers.length; i++) {
-        fTmpl.attach(i.toString());
-        fTmpl.feedbacktext.text = answers[i].answertext;
+    var answers = this.model.getResponseList();
+
+    // var scores = this.app.models.answer.getScoreList();
+    var fTmpl = this.template;
+
+    console.log(slist);
+    slist.forEach(function (aw, i) {
+        fTmpl.attach(aw.order);
+        fTmpl.answertext.text = aw.answertext;
+        if (answers[i] === aw.order) {
+            fTmpl.answerlist.addClass("gradientSelected");
+        }
 //        fTmpl.feedbacktick.addClass("inactive");
 
-        if (scores[i] === 0.5) {
-            fTmpl.feedbacktickicon.addClass("icon-checkmark");
-            fTmpl.feedbacklist.addClass("glow2");
-        }
-        else if (scores[i] === 1) {
-            fTmpl.feedbacklist.addClass("gradientSelected");
-        }
-        else if (scores[i] === 1.5) {
-            fTmpl.feedbacktickicon.addClass("icon-checkmark");
-            fTmpl.feedbacklist.addClass("glow2");
-            fTmpl.feedbacklist.addClass("gradientSelected");
-        }
-    }
+        // TODO - get responses and manage the score
+//        if (scores[i] === 0.5) {
+//            fTmpl.feedbacktickicon.addClass("icon-checkmark");
+//            fTmpl.feedbacklist.addClass("glow2");
+//        }
+//        else if (scores[i] === 1) {
+//            fTmpl.feedbacklist.addClass("gradientSelected");
+//        }
+//        else if (scores[i] === 1.5) {
+//            fTmpl.feedbacktickicon.addClass("icon-checkmark");
+//            fTmpl.feedbacklist.addClass("glow2");
+//            fTmpl.feedbacklist.addClass("gradientSelected");
+//        }
+    });
 };
