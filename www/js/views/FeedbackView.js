@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget, jstap*/
+/*global $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeWidget, ApologizeWidget, jstap*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -56,7 +56,7 @@ function FeedbackView() {
     this.delegate(NumericQuestionWidget,
                   'assNumeric',
                   {interactive: false});
-    this.delegate(ClozeQuestionTypeView,
+    this.delegate(ClozeWidget,
                   'assClozeTest',
                   {interactive: false});
     this.delegate(ApologizeWidget,
@@ -193,7 +193,8 @@ FeedbackView.prototype.tap_feedbackheader = function () {
     this.app.changeView("question");
 };
 FeedbackView.prototype.tap_feedbackcross = function () {
-    this.app.models.answer.deleteData();
+    // reset all content contexts.
+    this.model.deactivateCourse();
     this.app.chooseView("course", "landing");
 };
 
