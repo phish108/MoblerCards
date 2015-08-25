@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global jstap, $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, ClozeQuestionTypeView, ApologizeWidget*/
+/*global jstap, $, jQuery, MultipleChoiceWidget, TextSortWidget, NumericQuestionWidget, Clozewidget, ApologizeWidget*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -21,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -57,7 +58,7 @@ function AnswerView() {
     this.delegate(NumericQuestionWidget,
                   'assNumeric',
                   {interactive: true});
-    this.delegate(ClozeQuestionTypeView,
+    this.delegate(ClozeWidget,
                   'assClozeTest',
                   {interactive: true});
     this.delegate(ApologizeWidget,
@@ -149,10 +150,10 @@ AnswerView.prototype.doScroll = function () {
  * note that the actual view contents is done by the widget delegates.
  **/
 AnswerView.prototype.update = function () {
-    var currentAnswerTitle = "msg_" + this.model.getQuestionInfo().type;
+    var currentAnswerTitle = this.model.getQuestionInfo().type;
 
-    var title = jQuery.i18n.prop(currentAnswerTitle +'_title'),
-        icon  = jQuery.i18n.prop(currentAnswerTitle + '_icon');
+    var title = jQuery.i18n.prop("msg_"+currentAnswerTitle +'_title'),
+        icon  = jQuery.i18n.prop("ico_"+currentAnswerTitle + '_icon');
 
     // fixme use the component style
     $("#answerdynamicicon").removeClass();

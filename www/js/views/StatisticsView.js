@@ -122,12 +122,12 @@ StatisticsView.prototype.setTrendIcon = function (iDiv, trend, score, inverse) {
     iDiv.removeClass([
         "green",
         "red",
-        "icon-neutral",
+        "icon-neutralstat",
         "icon-increase",
         "icon-decrease"
     ]);
 
-    var pc = inverse ? "red" : "green", pi = "icon-neutral";
+    var pc = inverse ? "red" : "green", pi = "icon-neutralstat";
     if (trend < 0) {
         pc = inverse ? "green" : "red";
         pi = "icon-decrease";
