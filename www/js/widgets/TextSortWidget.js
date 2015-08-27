@@ -216,8 +216,6 @@ TextSortWidget.prototype.showAnswer = function () {
 TextSortWidget.prototype.showFeedback = function () {
     // Ilias sends mixed lists already. Need to sort.
     var slist   = this.model.getAnswerList(false);
-    slist.sort(function (a,b) {return a.order - b.order;});
-
     var answers = this.model.getResponseList();
 
     // var scores = this.app.models.answer.getScoreList();

@@ -55,13 +55,15 @@ ClozeWidget.prototype.cleanup = function () {
 };
 
 ClozeWidget.prototype.update = function () {
-    var box = $("#feebackbox");
+    var box = $("#feedbackbox");
     if (this.interactive) {
         box = $("#answerbox");
     }
-    this.answers.forEach(function (a) {
-        this.makeAnswerBody(box, a);
-    }, this);
+    if (this.answers) {
+        this.answers.forEach(function (a) {
+            this.makeAnswerBody(box, a);
+        }, this);
+    }
 };
 
 /**
@@ -104,55 +106,44 @@ ClozeWidget.prototype.makeAnswerBody = function createClozeQuestionBody(domEleme
     // The following code is probably broken
 
     // domElement.html(answertext);
+    if (answertext.length) {
+        // wrap everything into li
+        var li = $('<li class="listbox gradient"/>');
 
-    // wrap everything into li
-    var li = $('<li class="marginClozeLi"/>');
+        domElement.append(li); //the contents returns also the text nodes. the children not
 
-    domElement.append(li); //the contents returns also the text nodes. the children not
+        if (answertext === "[gap]") {
+            // process the gap
+            //var gap = answerBody.gap;
 
-    if (answertext.indexOf("[gap") === 0) {
+            // display a gap
 
-        li.append($("<span/>", {
-            "id": "clozeInputDash",
-            "class": "dashGrey icon-dash"
-        }));
+            var inputtag = '<input type="text" class="loginInputCloze textShadow" required="required" autocorrect="off" autocapitalize="off" width="200px"placeholder="fill in the gap" id="gap_' +        answerBody.identifier + '"/>';
 
-        // process the gap
-        var gap = answerBody.gap;
+            var ldiv = $('<div class="listlabel"/>');
+            ldiv.append(inputtag);
+            li.append(ldiv);
 
-        // display a gap
-        var inputtag = '<input type="text" class="loginInputCloze textShadow" required="required" autocorrect="off" autocapitalize="off" width="200px"placeholder="fill in the gap" id="gap_' +        gap.identifier + '"/>';
-        li.append(inputtag);
+            li.append($("<div/>", {
+                "id": "shadowedClozeAnswerLi",
+                "class": "gradient1 shadowedLi hidden"
+            }));
 
-        li.append($("<div/>", {
-            "id": "shadowedClozeAnswerLi",
-            "class": "gradient1 shadowedLi"
-        }));
+            var rightDiv2 = $("<div/>", {
+                "class": "listimage separator "
+            }).appendTo(li);
 
-        var rightDiv2 = $("<div/>", {
-            "class": "right "
-        }).appendTo(li);
-
-        $("<div/>", {
-            "class": "radialCourses lineContainer separatorContainerCourses marginSeparatorTop"
-        }).appendTo(rightDiv2);
+            $("<span/>", {
+                "class": "tick hidden"
+            }).appendTo(rightDiv2);
 
 
-        var divCorrect = $("<div/>", {
-            "class": "courseListIconFeedback lineContainer background"
-        }).appendTo(rightDiv2);
-
-        var span2 = $("<span/>", {
-            "class": "right glowNone icon-checkmark"
-        }).appendTo(divCorrect);
-
-        if (!this.interactive) {
             // todo show feedback
-            span2.addClass("glow2");
+    //        if (!this.interactive) { }
         }
-    }
-    else {
-        // display plain text
-        li.text(answertext);
+        else {
+            // display plain text
+            li.text(answertext);
+        }
     }
 };

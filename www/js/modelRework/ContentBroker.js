@@ -484,7 +484,9 @@
      * returns the possible answers of the question
      */
     ContentBroker.prototype.getAnswerList = function (mix) {
-        if (mix) {
+        // question types that must remain sorted
+        var sortedQTypes = ["assNumeric", "assClozeTest"];
+        if (mix && sortedQTypes.indexOf(this.activeQuestion.type) < 0) {
             if (!this.mixed) {
                 this.mixedAnswers = [];
 
@@ -803,32 +805,63 @@
             }
         }
 
-        for (i = 0; i < questions.length; i++) {
-            switch (questions[i].type) {
+        function cbSortOrder(a,b) {return a.order - b.order;}
+
+        function cbProcessGaps(txt, gaps) {
+            var retval = [];
+            if (typeof txt === 'string') {
+                var lstGapText = txt.split(/(\[gap\][^\[]*\[\/gap\])/);
+
+                i = 0;
+                lstGapText.forEach(function (gt) {
+                    if (gt.indexOf("[gap]") === 0) {
+                        gaps[i].answertext = "[gap]";
+                        gaps[i].identifier = i;
+                        retval.push(gaps[i]);
+                        i++;
+                    }
+                    else {
+                        retval.push({answertext: gt});
+                    }
+                });
+            }
+            console.log(retval);
+            return retval;
+        }
+
+        questions.forEach(function (question) {
+            switch (question.type) {
                 case "assSingleChoice":
                 case "assMultipleChoice":
-                    questions[i].answer.forEach(checkImage);
+                    question.answer.forEach(checkImage);
                     break;
                 case "assOrderingQuestion":
                 case "assOrderingHorizontal":
+                    // ensure that the remote TLA does not sent mixed answer lists.
+                    question.answer.sort(cbSortOrder);
+                    break;
                 case "assClozeTest":
-                    // cloze questions need preprocessing.
+                    // cloze questions need more preprocessing.
+                    question.answer = cbProcessGaps(question.answer.clozeText,
+                                                    question.answer.correctGaps) || question.answer;
+                    break;
                 case "assNumeric":
                     break;
                 default:
                     // restrict the questionpool
-                    console.log("bad question of type " + questions[i].type);
+                    console.log("bad question of type " + question.type);
                     bad = true;
                     break;
             }
+        });
 
-            // TODO also check for images and other incompatible features.
+        // TODO also check for images and other incompatible features.
 
-            if (bad) {
-                console.log("bad question pool");
-                return false;
-            }
+        if (bad) {
+            console.log("bad question pool");
+            return false;
         }
+
         console.log("QP validated");
         return true;
     };
@@ -915,7 +948,8 @@
             })
             .catch(function (msg){
                 // send apologise signal depending on error
-                console.log("server error 0: " + msg);
+                console.log("server error 0: ");
+                console.log(msg);
                 // TODO: trigger correct event
                 $(document).trigger("MY_SERVER_ERROR");
             });
