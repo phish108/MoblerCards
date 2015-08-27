@@ -235,8 +235,12 @@ MoblerCards.prototype.initBasics = function () {
     this.models.identityprovider.synchronize();
     this.models.learningrecordstore.synchronize();
     this.models.contentbroker.synchronize();
-    // this.models.connection.synchronizeData();
-    // this.models.configuration.loadFromServer();
+};
+
+MoblerCards.prototype.synchronizeAll = function () {
+    this.models.identityprovider.synchronize();
+    this.models.learningrecordstore.synchronize();
+    this.models.contentbroker.synchronizeAll(true);
 };
 
 MoblerCards.prototype.checkVersion = function () {

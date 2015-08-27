@@ -140,6 +140,11 @@ CourseView.prototype.tap = function (event) {
     }
 };
 
+CourseView.prototype.tap_courseheader = function () {
+    console.log("Tap course header - force synchronisation");
+    this.app.synchronizeAll();
+};
+
 CourseView.prototype.tap_coursecross = function () {
     this.app.chooseView("settings", "landing");
 };
