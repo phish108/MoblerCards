@@ -52,7 +52,7 @@ QuestionView.prototype.update = function () {
 
     this.template.questionicon.clearClass();
     this.template.questionicon.addClass(jQuery.i18n.prop('ico_' + this.qInfo.type + '_icon'));
-    this.template.questiontext.text = this.qInfo.question;
+    this.template.questiontext.html = this.qInfo.question;
 };
 
 /**
