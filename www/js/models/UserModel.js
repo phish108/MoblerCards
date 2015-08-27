@@ -51,6 +51,7 @@ function UserModel(idprovider) {
     this.urlToLMS = "";
     this.logoimage = "";
     this.logolabel = "";
+    this.syncFlags = {};
 
     // load data from the local storage if any
     this.loadData();
@@ -518,6 +519,7 @@ UserModel.prototype.sendLogoutToServer = function () {
  */
 UserModel.prototype.loadProfile = function (serverid) {
     var self = this;
+
     if (!serverid) {
         serverid = self.idprovider.getActiveLMSID();
     }
@@ -528,9 +530,12 @@ UserModel.prototype.loadProfile = function (serverid) {
         var configString = JSON.stringify(self.configuration);
 
         localStorage.setItem("configuration", configString);
+
+        delete self.syncFlags[serverid];
     }
 
     function failProfile(request) {
+        delete self.syncFlags[serverid];
         switch (request.status) {
             case 401:
             case 403:
@@ -551,28 +556,32 @@ UserModel.prototype.loadProfile = function (serverid) {
         }
     }
 
-    var serviceName = "org.ieee.papi";
-    var activeURL = self.idprovider.serviceURL(serviceName);
+    if (!self.syncFlags.hasOwnProperty(serverid)) {
+        self.syncFlags[serverid] = true;
 
-    if (self.idprovider.getLMSStatus() && self.isLoggedIn()) {
-        $.ajax({
-            url: activeURL,
-            success: loadProfile,
-            error: failProfile,
-            dataType: "json",
-            beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
-            type: "GET"
-        });
-    }
-    else {
-        $(document).trigger("ID_SERVER_UNAVAILABLE",
-                            [serverid]);
+        var serviceName = "org.ieee.papi";
+        var activeURL = self.idprovider.serviceURL(serviceName);
+
+        if (self.idprovider.getLMSStatus() && self.isLoggedIn()) {
+            $.ajax({
+                url: activeURL,
+                success: loadProfile,
+                error: failProfile,
+                dataType: "json",
+                beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
+                type: "GET"
+            });
+        }
+        else {
+            $(document).trigger("ID_SERVER_UNAVAILABLE",
+                                [serverid]);
+        }
     }
 };
 
 
 UserModel.prototype.synchronize = function () {
-    var self        = this;
+    var self = this;
 
     function loadProfileFromServer(serverid) {
         if (self.idprovider.app.isOnline() &&
