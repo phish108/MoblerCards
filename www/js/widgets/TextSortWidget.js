@@ -224,7 +224,7 @@ TextSortWidget.prototype.showFeedback = function () {
     console.log(slist);
     slist.forEach(function (aw, i) {
         fTmpl.attach(aw.order);
-        fTmpl.answertext.text = aw.answertext;
+        fTmpl.answertext.html = aw.answertext;
         if (answers[i] === aw.order) {
             fTmpl.answerlist.addClass("gradientSelected");
         }

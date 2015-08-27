@@ -123,7 +123,7 @@ MultipleChoiceWidget.prototype.update = function() {
     this.answers.forEach(function (a) {
         var os = a.order.toString();
         aTmpl.attach(os);
-        aTmpl.answertext.text = a.answertext;
+        aTmpl.answertext.html = a.answertext;
 
         if (response.indexOf(os) >= 0) {
             aTmpl.answerlist.addClass("selected");

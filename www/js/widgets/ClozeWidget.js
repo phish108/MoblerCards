@@ -143,7 +143,7 @@ ClozeWidget.prototype.makeAnswerBody = function createClozeQuestionBody(domEleme
         }
         else {
             // display plain text
-            li.text(answertext);
+            li.html(answertext);
         }
     }
 };
