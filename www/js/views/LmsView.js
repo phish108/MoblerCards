@@ -1,4 +1,4 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, todo: true, browser: true */
+/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, todo: true, browser: true, unparam: true */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -220,7 +220,8 @@ LMSView.prototype.tap = function (event) {
 };
 
 LMSView.prototype.tap_lmscross = function () {
-    this.back();
+    this.app.changeView("login");
+    //this.back();
 };
 
 LMSView.prototype.tap_addlmsbox = function () {
@@ -275,10 +276,6 @@ LMSView.prototype.tap_addlmsbox = function () {
  * @function showLMSList
  */
 LMSView.prototype.update = function () {
-    console.log("[LMSView] refresh");
-
-    // console.log("[LMSView] refresh, lmsData: " + lmsData[i]);
-
     this.model.eachLMS(function(entrydata) {
         this.createLMSItem(entrydata);
     }, this);
@@ -310,6 +307,8 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     // lmstmpl.lmslabel.addClass("lightgrey");
 
     lmstmpl.lmslabel.text = lmsData.name;
+    lmstmpl.lmsdefault.removeClass("hidden");
+
     // lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
     if (lmsData.inactive === 1) {
         lmstmpl.lmsimg.addClass("hidden");

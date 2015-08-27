@@ -150,6 +150,8 @@ LoginView.prototype.update = function () {
     $("#loginlmslabel").text(activeLMS.name);
 
     $("#username").focus();
+    this.template.loginlmsico.removeClass("hidden");
+    this.template.loginimg.addClass("hidden");
 
     this.hideMessage();
 
