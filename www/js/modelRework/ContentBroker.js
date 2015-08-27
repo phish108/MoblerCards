@@ -29,6 +29,7 @@
      * The content broker is just the interface to that list.
      */
     var courseList      = {}; // persistent
+    var syncFlags       = {}; // run-time only
 
     /**
      * @private @method loadCourseList()
@@ -941,18 +942,25 @@
                 return;
             }
 
-            this.fetchCourseList(lmsid)
-            .then(function (courseList) {
-                // load one course after the other
-                self.verifyCourseData(courseList, lmsid);
-            })
-            .catch(function (msg){
-                // send apologise signal depending on error
-                console.log("server error 0: ");
-                console.log(msg);
-                // TODO: trigger correct event
-                $(document).trigger("MY_SERVER_ERROR");
-            });
+            // do not synchronize while there is already a sync process for the lms
+            if (!syncFlags.hasOwnProperty(lmsid)) {
+                syncFlags[lmsid] = true;
+
+                this.fetchCourseList(lmsid)
+                .then(function (courseList) {
+                    // load one course after the other
+                    self.verifyCourseData(courseList, lmsid);
+                })
+                .catch(function (msg){
+                    // send apologise signal depending on error
+                    console.log("server error step 1: ");
+                    console.log(msg);
+
+                    delete syncFlags[lmsid];
+                    // TODO: trigger correct event
+                    $(document).trigger("MY_SERVER_ERROR");
+                });
+            }
         }
     };
 
@@ -990,13 +998,15 @@
                 self.fetchQuestionpoolList(course,lmsId)
                     .then(handleCourse)
                     .catch(function (msg) {
-                         console.log("server error " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
+                         console.log("server error step 2: " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
                         // TODO: trigger correct event
-
+                    delete syncFlags[lmsId];
                 });
             }
             else {
+                // there are no more courses to fetch.
                 self.idprovider.setSyncState(lmsId);
+                delete syncFlags[lmsId];
             }
         }
 
