@@ -52,6 +52,12 @@ AboutView.prototype.tap_licenseicon = function (event) {
     window.open("http://www.apache.org/licenses/LICENSE-2.0");
 };
 
+AboutView.prototype.tap_abouttitlelist = function() {
+    // Don't provide access to the testing view in production
+    // this.app.changeView("testing");
+    return;
+};
+
 /**
  * leads to logout confirmation view
  * @prototype
