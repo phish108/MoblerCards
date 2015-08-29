@@ -54,8 +54,9 @@ AboutView.prototype.tap_licenseicon = function (event) {
 
 AboutView.prototype.tap_abouttitlelist = function() {
     // Don't provide access to the testing view in production
-    // this.app.changeView("testing");
-    return;
+    if (this.app.development) {
+        this.app.changeView("testing");
+    }
 };
 
 /**

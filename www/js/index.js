@@ -26,8 +26,12 @@ function MoblerCards() {
 
     self.id = "org.mobinaut.mobler";
 
+    self.development = true;
+    // deactivate for production branches
+    //self.development = false;
+
     self.viewId = "splash";
-    self.MoblerVersion = 2.0;
+    self.MoblerVersion = 3.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
 
