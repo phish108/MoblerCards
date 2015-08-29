@@ -59,6 +59,8 @@ function LoginView() {
 
     function cbLoginFailure(e, errormessage) {
         console.log("authentication failed, reason: " + errormessage);
+        self.unsetWaitingIcon();
+
         switch (errormessage) {
         case "connectionerror":
             self.showErrorMessage('msg_connection_message');
@@ -77,6 +79,8 @@ function LoginView() {
     }
 
     function cbLoginTemporaryFailure() {
+        self.unsetWaitingIcon();
+
         console.log("enter cbLogin tempoerary failure");
         console.log("will show the deactivate message");
         self.showDeactivateMessage('msg_login_deactivate_message');
@@ -102,8 +106,17 @@ function LoginView() {
         self.showErrorMessage('msg_network_message');
     });
 
+    $(document).bind("ID_AUTHENTICATION_OK", cbLoginSuccess);
     $(document).bind("authenticationready", cbLoginSuccess);
+
     $(document).bind("authenticationfailed", cbLoginFailure);
+    $(document).bind("ID_TOKEN_REJECTED", cbLoginFailure);
+    $(document).bind("ID_AUTHENTICATION_FAILED", cbLoginFailure);
+
+    $(document).bind("ID_CONNECTION_FAILURE", cbLoginTemporaryFailure);
+    $(document).bind("ID_SERVER_FAILURE", cbLoginTemporaryFailure);
+    $(document).bind("ID_SERVER_UNAVAILABLE", cbLoginTemporaryFailure);
+
     $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
 }
 
@@ -177,6 +190,8 @@ LoginView.prototype.cleanup = function () {
     this.container.scrollTop(0);
     // console.log("container during cleanup at " + this.container.scrollTop());
     this.container.removeClass("active");
+
+    this.unsetWaitingIcon();
 };
 
 LoginView.prototype.tap_loginnamelabel = function () {
@@ -199,7 +214,8 @@ LoginView.prototype.tap_loginfooter = function () {
     console.log("check logIn data");
     if ($("#username").val() && $("#password").val()) {
         if (!this.app.isOffline()) { // refuse to run while being offline
-            this.app.changeView("landing", "ID_AUTHENTICATION_OK");
+            this.setWaitingIcon();
+
             this.showWarningMessage('msg_warning_message');
             this.model.startSession($("#username").val(),
                                     $("#password").val());
@@ -209,6 +225,26 @@ LoginView.prototype.tap_loginfooter = function () {
     else {
         this.showErrorMessage('msg_authentication_message');
     }};
+
+/**
+ * sets the waiting icon and prevents critical touch events.
+ */
+LoginView.prototype.setWaitingIcon = function () {
+    $("#logincross").removeClass("touchable");
+    $("#loginfooter").removeClass("touchable");
+    $("#loginfootericon").addClass("hidden");
+    $("#loginfooterwait").removeClass("hidden");
+};
+
+/**
+ * Re-Activates the normal touch events
+ */
+LoginView.prototype.unsetWaitingIcon = function () {
+    $("#logincross").addClass("touchable");
+    $("#loginfooter").addClass("touchable");
+    $("#loginfootericon").removeClass("hidden");
+    $("#loginfooterwait").addClass("hidden");
+};
 
 LoginView.prototype.tap_logincross = function () {
     this.clickCloseLoginButton();

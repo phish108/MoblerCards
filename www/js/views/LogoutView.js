@@ -1,4 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -20,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
@@ -40,12 +42,32 @@ function LogoutView() {
     return;
 }
 
+LogoutView.prototype.prepare = function () {
+    this.unsetWaitingIcon();
+};
+
+LogoutView.prototype.setWaitingIcon = function () {
+    $("#logoutcross").removeClass("touchable");
+    $("#logoutfooter").removeClass("touchable");
+    $("#logoutbutton").addClass("hidden");
+    $("#logoutwait").removeClass("hidden");
+};
+LogoutView.prototype.unsetWaitingIcon = function () {
+    $("#logoutcross").addClass("touchable");
+    $("#logoutfooter").addClass("touchable");
+    $("#logoutbutton").removeClass("hidden");
+    $("#logoutwait").addClass("hidden");
+};
+
 LogoutView.prototype.tap_logoutcross = function () {
     this.app.chooseView("settings", "landing");
 };
 
 LogoutView.prototype.tap_logoutfooter = function () {
-    this.app.changeView("landing", "ID_LOGOUT_OK");
-    // TODO visual cues for the logout process.
-    this.model.finishSession();
+    if (!this.app.isOffline()) {
+        this.setWaitingIcon();
+        this.app.changeView("landing", "ID_LOGOUT_OK");
+        // TODO visual cues for the logout process.
+        this.model.finishSession();
+    }
 };

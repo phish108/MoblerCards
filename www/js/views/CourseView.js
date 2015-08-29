@@ -119,26 +119,44 @@ CourseView.prototype.tap = function (event) {
         course = id.split("_");
     var cId, lmsId;
 
-    if (course.length === 4 && course[0] === "courselist") {
-        console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
-
+    if (course.length === 4) {
         cId     = course.pop();
         lmsId   = course.pop();
 
+        // ensure that we activate the correct template item
+        this.template.find(lmsId + "_" + cId);
+    }
+
+    if (course[0] === "courselist") {
+        console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
+
+        this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
+
         this.app.changeView("question", "CONTENT_QUESTION_READY");
         this.models.contentbroker.nextQuestion();
     }
 
     if (course[0] === "courseimage") {
-        cId     = course.pop();
-        lmsId   = course.pop();
-
+        this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
         this.app.changeView("statistics", "LRS_CALCULATION_DONE");
         this.app.models.learningrecordstore.calculateStats(this.app.models.contentbroker.getCourseId());
     }
 };
+
+CourseView.prototype.setLoadingIcon = function () {
+    this.template.courseimg.removeClass("icon-bars");
+    this.template.courseimg.addClass("entypo-spinner");
+    this.template.courserotate.addClass("loadingrotation");
+};
+
+CourseView.prototype.setStatsIcon = function () {
+    this.template.courseimg.removeClass("entypo-spinner");
+    this.template.courserotrate.removeClass("loadingrotation");
+    this.template.courseimg.addClass("icon-bars");
+};
+
 
 CourseView.prototype.tap_courseheader = function () {
     console.log("Tap course header - force synchronisation");
@@ -162,7 +180,7 @@ CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
         ctmpl.courseimg.addClass("icon-bars");
     }
     else {
-        ctmpl.courseimg.addClass("icon-loading");
+        ctmpl.courseimg.addClass("entypo-spinner");
         ctmpl.courserotate.addClass("loadingrotation");
     }
 };

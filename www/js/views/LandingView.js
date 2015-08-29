@@ -58,6 +58,10 @@ LandingView.prototype.prepare = function () {
     if (this.app.getLoginState()) {
         this.app.changeView("course");
     }
+
+    // ensure the correct icons are shown
+    this.template.landingstats.removeClass("hidden");
+    this.template.landingrotate.addClass("hidden");
 };
 
 LandingView.prototype.update = function () {
@@ -84,6 +88,8 @@ LandingView.prototype.update = function () {
 };
 
 LandingView.prototype.tap_landingfeaturedimage = function () {
+    this.template.landingstats.addClass("hidden");
+    this.template.landingrotate.removeClass("hidden");
     this.models.contentbroker.activateCourse(this.pList[0]);
     this.app.changeView("statistics", "LRS_CALCULATION_DONE");
     this.app.models.learningrecordstore.calculateStats(this.models.contentbroker.getCourseId());
@@ -91,6 +97,9 @@ LandingView.prototype.tap_landingfeaturedimage = function () {
 };
 
 LandingView.prototype.tap_landingfeaturedlist = function() {
+    this.template.landingstats.addClass("hidden");
+    this.template.landingrotate.removeClass("hidden");
+
     this.models.contentbroker.activateCourse(this.pList[0]);
 
     this.app.changeView("question", "CONTENT_QUESTION_READY");

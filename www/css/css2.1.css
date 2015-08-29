@@ -196,14 +196,19 @@ input.listlabel {
 /*********************** SplashView ***********************/
 .loading {
     font-size: 100px;
-    height: 200px;
-    width: 200px;
+    text-align: center;
+    height: 100vh;
+    -webkit-animation: spin 4s infinite linear;
+}
+
+.loading span {
     text-align: center;
     vertical-align: middle;
-    margin-left: auto;
-    margin-right: auto;
-    -webkit-animation: spin 4s infinite linear;
-    margin-left: auto;
+}
+
+#splashbox {
+    height: 100vh;
+    line-height: 100vh;
 }
 .centered {
     display: inline-block;
@@ -237,6 +242,13 @@ input.listlabel {
 .loadingrotation {
     -webkit-animation: spin 3s infinite linear;
 }
+
+.loadingrotation span {
+    vertical-align: middle;
+    text-align: center;
+}
+
+
 /****************** About View ******************************/
 #abouttitlelist {
     font-size: 20px;

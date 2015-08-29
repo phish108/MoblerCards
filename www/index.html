@@ -24,10 +24,10 @@
 
 <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED START <<<<<<<<<<<<<<<<<<<<<<<-->
     <div id="splash" class="screen active" data-view="SplashView">
-        <div id="splashbox" class="loading">
-            <div class="centered">
-                <span class="entypo-circle-o-notch"></span>
-            </div>
+        <div id="splashbox">
+                <div class="loading">
+                    <span class="entypo-circle-o-notch"></span>
+                </div>
         </div>
     </div>
 
@@ -45,7 +45,8 @@
                     </div>
                     <div id="landingfeaturedlabel" class="listlabel"></div>
                     <div id="landingfeaturedimage" class="listimage blue touchable">
-                        <span class="icon-bars"></span>
+                        <span id="landingstats" class="icon-bars"></span>
+                        <div id="landingrotate" class="hidden loadingrotate"><span class="entypo-spinner"></span></div>
                     </div>
                 </li>
                 </component>
@@ -121,7 +122,9 @@
         </div>
 
         <div id="loginfooter" class="footerbox touchable">
-            <div class="footerlabel"><span class="icon-enter"></span></div>
+            <div id="loginfootericon" class="footerlabel"><span class="icon-enter"></span></div>
+            <div id="loginfooterwait" class="footerlabel loadingrotation hidden"><span class="entypo-spinner"></span></div>
+
         </div>
     </div>
 
@@ -264,7 +267,7 @@
 
         <div id="aboutcontent" class="contentbox static">
             <ul>
-                <li id="abouttitlelist" class="listbox">
+                <li id="abouttitlelist" class="listbox touchable">
                     <div id="msg_about_name_version" class="listlabel">Mobler Cards</div>
                 </li>
                 <li class="listbox gradient">
@@ -307,6 +310,7 @@
             <div id="logoutbutton" class="footerlabel">
                 <span class="icon-exit"></span>
             </div>
+            <div id="logoutwait" class="footerlabel loadingrotation hidden"><span class="entypo-spinner"></span></div>
         </div>
     </div>
 
@@ -480,6 +484,7 @@
         </component>
     </div>
 
+
     <div id="achievements" class="screen" data-view="AchievementsView" data-model="LearningRecordStore" data-touch="tap swipe pinch">
         <div id="statisticsheader" class="headerbox">
             <div id="achievementsicon"  class="titleicon"><span class="icon-happy"></span></div>
@@ -539,6 +544,40 @@
                 </li>
             </ul>
             <div id="loadingMessageAchievements" class="content">Card Burner and Stack Handler are beeing loaded</div>
+        </div>
+    </div>
+
+    <div id="testing" class="screen" data-view="TestingView">
+        <div class="headerbox">
+            <div class="titleicon">T</div>
+            <div class="headercontent">Testing</div>
+            <div id="achievementscross" class="closeicon touchable">
+                <span class="icon-cross"></span>
+            </div>
+        </div>
+        <div id="testingbox" class="contentbox static">
+            <ul>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_speed_title"></div>
+                        <div><span id="statSpeed"></span> <span id="msg_speed_info"></span></div>
+                    </div>
+                    <div class="listimage separator">
+                        <span class="glow2">X</span>
+                    </div>
+                </li>
+                <li class="listbox gradient">
+                    <div class="listlabel">
+                        <div id="msg_speed_title"></div>
+                        <div><span id="statSpeed"></span> <span id="msg_speed_info"></span></div>
+                    </div>
+                    <div class="listimage separator">
+                        <div class="loadingrotation">
+                            <span class="entypo-spinner"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
 

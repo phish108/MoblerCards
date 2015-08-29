@@ -357,7 +357,8 @@ under the License.
      */
     LearningRecordStore.prototype.setActor = function (actorToken) {
         // requires a idToken
-        this.actor.openid = this.app.serviceURL("org.ieee.papi", ["user", actorToken]);
+        this.actor.openid = this.app.serviceURL("org.ieee.papi",
+                                                ["user", actorToken]);
     };
 
     /**
