@@ -305,10 +305,15 @@
         }
 
         var randomId,
+            activeId,
             qList         = [],
             qSel          = [],
             questions     = [],
             newQuestions  = [];
+
+        if (this.activeQuestion) {
+            activeId = this.activeQuestion.id;
+        }
 
         this.mixed = false;
         this.mixedAnswers = [];
@@ -327,54 +332,48 @@
                 Array.isArray(this.questionPool) &&
                 this.questionPool.length) {
 
+                var tList = [];
+
                 // identify the unanswered questions and weed out the "hot" questions
                 this.questionPool.forEach(function (q) {
-                    if (!questions.length ||
-                        questions.indexOf(q.id) < 0) {
-                        newQuestions.push(q);
+                    // always skip the active question
+                    if (q.id !== activeId) {
+                        if (this.lockoutIds.indexOf(q.id) >= 0) {
+                            tList.push(q);
+                        }
+                        else {
+                            if (!questions.length ||
+                                questions.indexOf(q.id) < 0) {
+                                newQuestions.push(q);
+                            }
+                            else if (qSel &&
+                                     qSel.length &&
+                                     qSel.indexOf(q.id) >= 0) {
+                                qList.push(q);
+                            }
+                        }
                     }
-                    else if (qSel &&
-                             qSel.length &&
-                             qSel.indexOf(q.id) >= 0) {
-                        qList.push(q);
-                    }
-                });
+                }, this);
 
                 // prioritize the unanswered questions
                 if (newQuestions.length) {
                     qList = newQuestions;
                 }
 
-                // ensure that questions are not repeated too fast while skipping
-                if (this.lockoutIds.length === qList.length) {
+                // if all questions are on the lockout list, then reset the lockout
+                if (!qList.length) {
+                    qList = tList;
                     this.lockoutIds = [];
                 }
 
                 // ensure that the active question is locked out
-                if (this.activeQuestion) {
-                    this.lockoutIds.push(this.activeQuestion.id);
-                }
-
-                // avoid deadlock when all items in the qList are locked
-                var bOK = false;
-                qList.some(function (i) {
-                    if (this.lockoutIds.indexOf(i) < 0) {
-                        bOK = true;
-                    }
-                    return bOK;
-                } , this);
-
-                if (!bOK) {
-                    qList = this.questionPool;
+                // Note - the active question is already not in the qList
+                if (activeId) {
+                    this.lockoutIds.push(activeId);
                 }
 
                 // select a random item from the current entropy selection
                 randomId = Math.floor(Math.random() * qList.length);
-
-                // ensure that a different question is selected
-                while (this.lockoutIds.indexOf(qList[randomId].id) >= 0) {
-                    randomId = Math.floor(Math.random() * qList.length);
-                }
 
                 this.lockoutIds.push(qList[randomId].id);
                 this.activeQuestion = qList[randomId];
@@ -441,6 +440,7 @@
     };
 
     ContentBroker.prototype.activateCourse = function (course) {
+        this.lockoutIds = [];
         this.activateCourseById(course.lmsId, course.id);
     };
 
