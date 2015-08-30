@@ -372,9 +372,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         switch (request.status) {
             case 401:
             case 403:
-                //from common.js
-                // console.log("disable after 403 error in sendAuthToServer");
-                // self.idprovider.disableLMS();
                 console.log("Error while authentication to server");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
                                     [serverid]);
