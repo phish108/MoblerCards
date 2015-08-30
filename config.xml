@@ -1,16 +1,23 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="org.mobinaut.moblercards" version="3.0.1">
-    <name>Mobler Cards</name>
+    <name>Mobler</name>
     <description>
 A simple training and practicing app that connects to your LMS
     </description>
     <author email="app@mobinaut.io" href="http://www.mobinaut.io">
-        ISN/CSS?ETH Zürich
+        mobinaut.io
     </author>
     <content src="index.html"/>
     <access origin="*"/>
     <preference name="DisallowOverscroll" value="true"/>
-
+    <platform name="android">
+        <icon density="ldpi" src="icons/ldpi/icon.png" />
+        <icon density="mdpi" src="icons/mdpi/icon.png" />
+        <icon density="hdpi" src="icons/hdpi/icon.png" />
+        <icon density="xhdpi" src="icons/xhdpi/icon.png" />
+        <icon density="xxhdpi" src="icons/xxhdpi/icon.png" />
+        <icon density="xxxhdpi" src="icons/xxxhdpi/icon.png" />
+    </platform>
     <feature name="Network Information">
         <param name="id" value="org.apache.cordova.network-information"/>
     </feature>
