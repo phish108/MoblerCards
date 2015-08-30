@@ -92,20 +92,6 @@ under the License.
             });
     }
 
-    function cbAllDone() {
-        cntActiveTransactions--;
-        if (!cntActiveTransactions) {
-            bSyncFlag = false;
-        }
-    }
-
-    function syncLMS(lmsid) {
-        console.log("sync lms " + lmsid);
-        cntActiveTransactions++;
-
-        cbAllDone();
-    }
-
     function LearningRecordStore (app) {
         this.app = app;
         this.clearContext();
@@ -542,6 +528,11 @@ under the License.
      * @function finishAction
      * @param {STRING} UUID
      * @param {OBJECT} record
+     *
+     * This function is OK, because this acts as an internal function.
+     *
+     * Given that the UUID will not appear for synchronisation BEFORE an action
+     * has been completed, it does not violate the XAPI spec.
      */
     LearningRecordStore.prototype.finishAction = function (UUID, record, ctxt) {
         // sets the duration - now - created
@@ -604,6 +595,7 @@ under the License.
                         from: "actions",
                         where: {"=": {uuid: UUID}}
                     }));
+
                     self.lrscontext.forEach(function (lrsid) {
                         pa.push(DB.insert("syncindex", {
                             "uuid": UUID,
@@ -639,9 +631,11 @@ under the License.
      * @param {OBJECT} record
      * @return {PROMISE} db promise
      *
-     * DONT USE uses the wrong DB schema
+     * DONT USE it uses the wrong DB schema
      */
     LearningRecordStore.prototype.recordAction = function (record) {
+        throw("RECORD ACTION IS CURRENCTLY NOT RECOMMENDED");
+
         if (typeof record === 'object' &&
             record.hasOwnProperty("verb") &&
             record.hasOwnProperty("object")) {
@@ -661,16 +655,16 @@ under the License.
             return new Promise(function(fullfill, reject){
 
                 DB.insert("actions", {
-                "uuid":     UUID,
-                "record":   JSON.stringify(record),
-                "stored":   created,
-                "year":     mom.format("YYYY"),
-                "month":    mom.format("YYYYMM"),
-                "day":      mom.format("YYYYMMDD"),
-                "week":     mom.format("W"),
-                "hour":     mom.format("HH"),
-                "weekday":  mom.format("E"),
-                "verbid":   record.verb.id
+                    "uuid":     UUID,
+                    "record":   JSON.stringify(record),
+                    "stored":   created,
+                    "year":     mom.format("YYYY"),
+                    "month":    mom.format("YYYYMM"),
+                    "day":      mom.format("YYYYMMDD"),
+                    "week":     mom.format("W"),
+                    "hour":     mom.format("HH"),
+                    "weekday":  mom.format("E"),
+                    "verbid":   record.verb.id
                 })
                 .then(function (res) {
                     res.insertID = UUID;
@@ -1093,6 +1087,16 @@ under the License.
         return;
     };
 
+    LearningRecordStore.prototype.synchronizeAll = function () {
+        if (!bSyncFlag) {
+            bSyncFlag = true;
+            this.idp = this.app.models.identityprovider;
+            this.idp.eachLMS(function (lms) {
+                this.synchronize(lms.id, true);
+            }, this);
+        }
+    };
+
     /**
      * @prototype
      * @function synchronise
@@ -1100,16 +1104,215 @@ under the License.
      *
      * synchronises the action statements with the backend LRS.
      */
-    LearningRecordStore.prototype.synchronize = function (lmsid) {
-        if (!bSyncFlag) {
+    LearningRecordStore.prototype.synchronize = function (lmsid, force) {
+        // first register the callbacks
+        if (lmsid === undefined) {
+            this.synchronizeAll();
+            return;
+        }
+
+        this.idp = this.app.models.identityprovider;
+
+        var self          = this,
+            url           = self.idp.serviceURL("gov.adlnet.xapi", lmsid, ["statements"]),
+            sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]);
+
+        function cbAllDone() {
+            console.log("LRS #### all done for " + lmsid);
+            cntActiveTransactions--;
+            if (!cntActiveTransactions) {
+                bSyncFlag = false;
+            }
+
+            //trigger OK signal
+
+            return Promise.resolve();
+        }
+
+        function cbSyncError(err) {
+            console.log("LRS #### sync error: " + JSON.stringify(err));
+            cbAllDone();
+        }
+
+        function cbRequestStream(result) {
+            console.log("LRS #### request stream for " + lmsid);
+            var isoDate, r, since, rurl;
+            if (result && result.rows.length) {
+                r = result.rows.item(0);
+                since = new Date(r.t);
+                isoDate = since.toISOString();
+            }
+
+            rurl = url;
+
+            if (isoDate) {
+                rurl += "?since=" + isoDate;
+            }
+
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: rurl,
+                    dataType: 'json',
+                    beforeSend: sessionHeader,
+                    success: resolve,
+                    error: function (xhr) { resolve([]); }
+                });
+            });
+        }
+
+        function storeSingleAction(action) {
+            // strip our index values
+            var mom = moment(action.timestamp); // input an iso string
+
+            // should be there
+
+            var iData = {
+                "uuid":     action.ID,
+                "record":   JSON.stringify(action),
+                "stored":   mom.valueOf(),
+                "year":     mom.format("YYYY"),
+                "month":    mom.format("YYYYMM"),
+                "day":      mom.format("YYYYMMDD"),
+                "week":     mom.format("W"),
+                "hour":     mom.format("HH"),
+                "weekday":  mom.format("E"),
+                "verbid":   action.verb.id,
+                "objectid": action.object.id
+            };
+
+            if (action.context &&
+                action.context.parent &&
+                action.context.parent.length) {
+                iData.courseid = action.context.parent[0];
+            }
+            if (action.result) {
+                if (action.result.hasOwnProperty("score")) {
+                    iData.score = action.result.score;
+                }
+
+                if (action.result.hasOwnProperty("duration")) {
+                    var dur = moment.duration(action.result.duration);
+                    iData.duration = dur.as("milliseconds");
+                }
+            }
+
+            return DB.insert("actions", iData);
+        }
+
+        function storeStream(data) {
+            console.log("LRS #### store data " + data.length);
+            if (data && data.length) {
+                var pa = [];
+                data.forEach(function (action) {
+                    pa.push(storeSingleAction(action));
+                });
+                return Promise.all(pa);
+            }
+            return Promise.resolve();
+        }
+
+        function cbGetUpstreamActions() {
+            console.log("LRS #### sync lms " + lmsid);
+
+
+            return DB.select({
+                from: {
+                    ta: 'actions',
+                    sa: 'syncindex'
+                },
+                result: ["ta.uuid", "record"],
+                where: {"and": [{"=": ["ta.uuid", "sa.uuid"]},
+                                {"=": "sa.lrsid"},
+                                {"is": ["sa.synchronized", "NULL"]}]},
+                order: {"ta.stored": "d"}
+            }, [lmsid])
+                .then(function (result) {
+
+                var a = [],
+                    lstId = [],
+                    r,
+                    i,
+                    m = result.rows.length;
+
+                for (i = 0; i < m; i++) {
+                    r = result.rows.item(i);
+                    a.push(r.result);
+                    lstId.push(r.uuid);
+                }
+
+                return Promise.resolve({"id": lmsid, "stream": a, "idlist": lstId});
+            });
+        }
+
+        function cbSendStream(stream) {
+            console.log("LRS #### send stream");
+
+            if (stream && stream.stream && stream.stream.length) {
+                console.log("got stream " + stream.stream.length);
+
+                // var data = "[" + stream.stream.join(",") + "]";
+
+                // now we can send the stream to the server
+                return Promise.resolve(stream.idlist);
+            }
+
+            console.log("nothing to update, pass on");
+            return Promise.resolve([]);
+        }
+
+        function cbConfirmStream(result) {
+            console.log("LRS #### got stream confirmation");
+
+            if (result && result.length) {
+                var dt = new Date().getTime();
+                return DB.update({
+                    set: {"synchronized": dt},
+                    from: "syncindex",
+                    where: {"in": {uuid: result}}
+                });
+            }
+
+            console.log("nothing to update, pass on");
+            return Promise.resolve();
+        }
+
+
+        // then run the logic, if the client is logged in
+        if (self.idp.getActorToken(lmsid) !== undefined &&
+            (!bSyncFlag || force)) {
+            cntActiveTransactions++;
             bSyncFlag = true;
 
-            // start the transactions for all registered LMSes in one go
-            this.app.models.identityprovider.eachLMS(function (lms) {
-                if (!lmsid || lmsid === lms.id) {
-                    syncLMS(lms.id);
-                }
-            }, this);
+            /**
+             * The sync process is bi-directional
+             *
+             * 1. get the max synctime.
+             * 2. get all statements that were reported since the last sync
+             * 3. weed out our own sync
+             * 4. insert the new actions
+             * 5. get the unsynced actions
+             * 6. send the unsynced actions
+             * 7. update the sync state.
+             */
+            DB.select({
+                result: ["max(synchronized) t"],
+                from: "syncindex",
+                where: {"=": "lrsid"},
+                group: ["lrsid"]
+            }, [lmsid])
+                .then(cbRequestStream)
+                .then(storeStream)
+                .then(cbGetUpstreamActions)
+                .then(cbSendStream)
+                .then(cbConfirmStream)
+                .then(cbAllDone)
+                .catch(cbSyncError);
+        }
+        else {
+            console.log("skip LMS " + lmsid);
+
+            // send OK signal anyways
         }
     };
 

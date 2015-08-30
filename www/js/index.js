@@ -173,8 +173,9 @@ MoblerCards.prototype.isOffline = function () {
 
 MoblerCards.prototype.initialize = function () {
     // setup the models
-    this.models.contentbroker.idprovider  = this.models.identityprovider;
-    this.models.contentbroker.lrs         = this.models.learningrecordstore;
+    this.models.contentbroker.idprovider         = this.models.identityprovider;
+    this.models.contentbroker.lrs                = this.models.learningrecordstore;
+    console.log("POST INITIALIZATION");
 
     var kList = Object.getOwnPropertyNames(this.models);
     kList.forEach(function(m){
@@ -333,7 +334,7 @@ MoblerCards.prototype.setupLanguage = function () {
             Object.getOwnPropertyNames(jQuery.i18n.map).forEach(function (prop) {
                 var p = prop.split("_"),
                     m = jQuery.i18n.prop(prop),
-                    id, attr;
+                    attr;
 
                 // check for a valid prop message
                 if (m) {
@@ -343,7 +344,7 @@ MoblerCards.prototype.setupLanguage = function () {
                             $('#' + prop).html(m);
                             break;
                         case "attr":
-                            id   = p.pop();
+                            p.pop();
                             attr = p.pop();
                             $('#' + prop).attr(attr, m);
                             break;
