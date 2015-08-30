@@ -21,6 +21,10 @@ specific language governing permissions and limitations
 under the License.
 */
 
+/**
+ * @author Christian Glahn
+ */
+
 function MoblerCards() {
     var self = this;
 

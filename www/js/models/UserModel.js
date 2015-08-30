@@ -1,4 +1,16 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true */
+/*jslint white:true*/      // we have a different indentation style
+/*jslint vars: true*/      // don't complain about multiple variable declarations.
+/*jslint sloppy: true*/    // dont't expect use strict.
+/*jslint plusplus: true*/  // allow the ++ operator
+/*jslint browser: true */  // ignore all browser globals
+/*jslint unparam: true*/   // allow unused parameters in function signatures
+
+/**
+ * Remove the following lines for production
+ */
+/*jslint devel: true*/     // allow console log
+/*jslint todo: true*/      // allow todo comments
+
 /*global $, jQuery, faultylabs*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -21,9 +33,9 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
- * @author Christian Glahn
  */
 
 /**

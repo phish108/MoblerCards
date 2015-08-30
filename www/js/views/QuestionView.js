@@ -21,10 +21,10 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
- * @author Christian Glahn
  */
 
 /**

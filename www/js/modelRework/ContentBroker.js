@@ -1,7 +1,21 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true, unparam: true*/
-/*global $, Promise */
+/*jslint white:true*/      // we have a different indentation style
+/*jslint vars: true*/      // don't complain about multiple variable declarations.
+/*jslint sloppy: true*/    // dont't expect use strict.
+/*jslint plusplus: true*/  // allow the ++ operator
+/*jslint browser: true */  // ignore all browser globals
+/*jslint unparam: true*/   // allow unused parameters in function signatures
 
-/**	THIS COMMENT MUST NOT BE REMOVED  AND REMAIN INTACT
+/**
+ * Remove the following lines for production
+ */
+/*jslint devel: true*/     // allow console log
+/*jslint todo: true*/      // allow todo comments/*jslint white:true*/
+
+/*jslint regexp: true*/    // allow [^\[] for cloze question preprocessing
+
+/*global $ */              // allow jquery for event management.
+
+/** THIS COMMENT MUST NOT BE REMOVED AND REMAIN INTACT
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

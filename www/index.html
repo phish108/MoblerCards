@@ -21,12 +21,10 @@
 </head>
 
 <body id="myDoc">
-
-<!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED START <<<<<<<<<<<<<<<<<<<<<<<-->
     <div id="splash" class="screen active" data-view="SplashView">
         <div id="splashbox">
                 <div class="loading">
-                    <span class="entypo-circle-o-notch"></span>
+                    <span class="entypo-spinner"></span>
                 </div>
         </div>
     </div>
@@ -581,14 +579,9 @@
         </div>
     </div>
 
-    <!--hidden html element that is used for cleaning html-tags for questionpool model -->
-    <div id="modelHelperQuestionpool"></div>
-
     <script type="text/javascript" src="cordova.js"></script>
     <!-- add Promise polyfill for DBHelper -->
     <script type="text/javascript" src="js/contrib/DBHelper/promise.min.js"></script>
-
-    <script type="text/javascript" src="js/common.js"></script>
 
     <script type="text/javascript" src="js/contrib/jstap/jstap.js"></script>
     <script type="text/javascript" src="js/contrib/jquery2.js"></script>
@@ -608,24 +601,11 @@
     <script type="text/javascript" src="js/index.js"></script>
 
     <script type="text/javascript" src="js/models/UserModel.js"></script>
-    <script type="text/javascript" src="js/models/ConnectionModel.js"></script>
-    <script type="text/javascript" src="js/models/FeaturedModel.js"></script>
     <script type="text/javascript" src="js/models/LmsModel.js"></script>
-    <script type="text/javascript" src="js/models/CourseModel.js"></script>
-    <script type="text/javascript" src="js/models/QuestionpoolModel.js"></script>
-    <script type="text/javascript" src="js/models/AnswerModel.js"></script>
-    <script type="text/javascript" src="js/models/StatisticsModel.js"></script>
-
     <script type="text/javascript" src="js/modelRework/LearningRecordStore.js"></script>
     <script type="text/javascript" src="js/modelRework/IdentityProvider.js"></script>
     <script type="text/javascript" src="js/modelRework/ContentBroker.js"></script>
 
-
-    <script type="text/javascript" src="js/models/statistics/BestDayModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/HandledCardsModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/AverageScoreModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/ProgressModel.js"></script>
-    <script type="text/javascript" src="js/models/statistics/AverageSpeedModel.js"></script>
     <script type="text/javascript" src="js/models/statistics/StackHandlerModel.js"></script>
     <script type="text/javascript" src="js/models/statistics/CardBurnerModel.js"></script>
 
@@ -639,7 +619,7 @@
     <script type="text/javascript" src="js/views/QuestionView.js"></script>
     <script type="text/javascript" src="js/views/SettingsView.js"></script>
     <script type="text/javascript" src="js/views/StatisticsView.js"></script>
-    <script type="text/javascript" src="js/views/AchievementsView.js"></script>
+    <!-- script type="text/javascript" src="js/views/AchievementsView.js"></script -->
     <script type="text/javascript" src="js/views/AboutView.js"></script>
     <script type="text/javascript" src="js/views/SplashView.js"></script>
 
@@ -652,8 +632,6 @@
     <script type="text/javascript">
         CoreApplication.start(MoblerCards);
     </script>
-
-<!--    <script type="text/javascript" src="js/testModels.js"></script>-->
 </body>
 
 </html>

@@ -21,6 +21,7 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
  */

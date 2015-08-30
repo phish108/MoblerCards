@@ -1,4 +1,18 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, todo: true, plusplus: true, browser: true, regexp: true, unparam: true */
+/*jslint white:true*/      // we have a different indentation style
+/*jslint vars: true*/      // don't complain about multiple variable declarations.
+/*jslint sloppy: true*/    // dont't expect use strict.
+/*jslint plusplus: true*/  // allow the ++ operator
+/*jslint browser: true */  // ignore all browser globals
+/*jslint unparam: true*/   // allow unused parameters in function signatures
+
+/**
+ * Remove the following lines for production
+ */
+
+/*jslint todo: true*/      // allow todo comments
+
+/*jslint regexp: true*/    // allow [^\[] for cloze question preprocessing
+
 /*global $, device, Promise */
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -19,8 +33,8 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- * @author Evangelia Mitsopoulou
  * @author Christian Glahn
+ * @author Evangelia Mitsopoulou
  */
 
 /**
@@ -1019,7 +1033,6 @@
             serviceid = activeServer;
         }
 
-        console.log("external deactivation of " + serviceid);
         setInactiveFlag(serviceid);
     };
 

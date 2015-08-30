@@ -1,4 +1,18 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true */
+/*jslint white:true*/      // we have a different indentation style
+/*jslint vars: true*/      // don't complain about multiple variable declarations.
+/*jslint sloppy: true*/    // dont't expect use strict.
+/*jslint plusplus: true*/  // allow the ++ operator
+/*jslint browser: true */  // ignore all browser globals
+/*jslint unparam: true*/   // allow unused parameters in function signatures
+
+/**
+ * Remove the following lines for production
+ */
+
+/*jslint devel: true*/      // allow console calls
+/*jslint todo: true*/      // allow todo comments
+
+/*global $*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -20,9 +34,17 @@ under the License.
 */
 
 /**
+ * @author Christian Glahn
  * @author Isabella Nake
  * @author Evangelia Mitsopoulou
  * @author Dijan Helbling
+ */
+
+/**
+ * Development Remarks
+ *
+ * - This view has not been refactored towards the new architecture
+ * - This vuew us presently not linked within the UI
  */
 
 /**
@@ -42,8 +64,6 @@ function AchievementsView() {
     var self = this;
 
     self.tagID = self.app.viewId;
-    self.featuredContentId = FEATURED_CONTENT_ID;
-    var achievementsFlag = true;
 
     /**It is triggered after statistics loaded locally from the server. This happens during the
      * authentication
