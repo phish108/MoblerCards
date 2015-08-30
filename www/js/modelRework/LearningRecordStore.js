@@ -38,8 +38,9 @@ under the License.
  */
 
 (function (w) {
-
-    var DB;
+    var DB,
+        bSyncFlag             = false,
+        cntActiveTransactions = 0;
 
     var tableDef = {
         "actions" : {    // the actual records
@@ -89,6 +90,20 @@ under the License.
             .catch(function() {
                 console.error("database is broken");
             });
+    }
+
+    function cbAllDone() {
+        cntActiveTransactions--;
+        if (!cntActiveTransactions) {
+            bSyncFlag = false;
+        }
+    }
+
+    function syncLMS(lmsid) {
+        console.log("sync lms " + lmsid);
+        cntActiveTransactions++;
+
+        cbAllDone();
     }
 
     function LearningRecordStore (app) {
@@ -380,6 +395,7 @@ under the License.
      *
      */
     LearningRecordStore.prototype.initFilter = function () {
+        return;
     };
 
     /**
@@ -390,7 +406,7 @@ under the License.
      *
      */
     LearningRecordStore.prototype.loadFilter = function () {
-
+        return;
     };
 
     /**
@@ -412,7 +428,7 @@ under the License.
      *
      */
     LearningRecordStore.prototype.indexActions = function (filter) {
-
+        return;
     };
 
     /**
@@ -423,7 +439,7 @@ under the License.
      *
      */
     LearningRecordStore.prototype.indexOneAction = function (filter, action) {
-
+        return;
     };
 
 
@@ -689,7 +705,9 @@ under the License.
      *
      * applies all filter conditions to the record and indecees them.
      */
-    LearningRecordStore.prototype.indexAction = function (record) {};
+    LearningRecordStore.prototype.indexAction = function (record) {
+        return;
+    };
 
     /**
      * @protoype
@@ -702,7 +720,7 @@ under the License.
      * This should get used for badge issuing.
      */
     LearningRecordStore.prototype.trackAction = function (record, callback) {
-
+        return;
     };
 
     /** ***** Activity Analytics ***** */
@@ -1072,7 +1090,7 @@ under the License.
      * @param {NONE}
      */
     LearningRecordStore.prototype.checkBadgeAchievement = function () {
-
+        return;
     };
 
     /**
@@ -1082,8 +1100,17 @@ under the License.
      *
      * synchronises the action statements with the backend LRS.
      */
-    LearningRecordStore.prototype.synchronize = function () {
-        return;
+    LearningRecordStore.prototype.synchronize = function (lmsid) {
+        if (!bSyncFlag) {
+            bSyncFlag = true;
+
+            // start the transactions for all registered LMSes in one go
+            this.app.models.identityprovider.eachLMS(function (lms) {
+                if (!lmsid || lmsid === lms.id) {
+                    syncLMS(lms.id);
+                }
+            }, this);
+        }
     };
 
     /**
@@ -1092,11 +1119,11 @@ under the License.
      * @param {NONE}
      * @return {BOOL}
      *
-     * returns true if the LRS is ready.
-     * This should be always ready.
+     * returns true if the LRS is not actively synchronizing.
+     * This should be always ready if not in sync.
      */
     LearningRecordStore.prototype.ready = function () {
-        return true;
+        return !bSyncFlag;
     };
 
     w.LearningRecordStore = LearningRecordStore;
