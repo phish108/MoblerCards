@@ -116,6 +116,15 @@ AnswerView.prototype.duringMove = function () {
 };
 
 /**
+ * Scroll helper - can be used by the widgets if they want to scroll
+ * TODO: include doScroll() in CoreView, so we don't have to bother here.
+ */
+AnswerView.prototype.doScroll = function () {
+    var dY = jstap().touches(0).delta.y();
+    this.container.scrollTop(this.container.scrollTop() - dY);
+};
+
+/**
  * @prototype
  * @function cleanup
  * @param {NONE}
@@ -130,15 +139,6 @@ AnswerView.prototype.cleanup = function () {
     this.container.scrollTop(0);
     // console.log("container during cleanup at " + this.container.scrollTop());
     this.container.removeClass("active");
-};
-
-/**
- * Scroll helper - can be used by the widgets if they want to scroll
- * TODO: include doScroll() in CoreView, so we don't have to bother here.
- */
-AnswerView.prototype.doScroll = function () {
-    var dY = jstap().touches(0).delta.y();
-    this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
 /**

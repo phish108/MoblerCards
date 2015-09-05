@@ -110,6 +110,26 @@ CourseView.prototype.cleanup = function () {
 };
 
 /**
+ * Scrolling during move events
+ *
+ * We need to manage the scrolling ourselves, because Android refuses to scroll
+ * if preventDefault has been called during move events.
+ */
+CourseView.prototype.duringMove = function () {
+    this.doScroll();
+};
+
+/**
+ * Scroll helper - can be used by the widgets if they want to scroll
+ * TODO: include doScroll() in CoreView, so we don't have to bother here.
+ */
+CourseView.prototype.doScroll = function () {
+    var dY = jstap().touches(0).delta.y();
+    this.container.scrollTop(this.container.scrollTop() - dY);
+};
+
+
+/**
  * Handles action when a tap occurs.
  * @protoype
  * @function tap
