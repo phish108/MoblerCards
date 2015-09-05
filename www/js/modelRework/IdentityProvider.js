@@ -234,11 +234,11 @@ IdentityProvider.prototype.finishSession = function (lmsId) {
 /**
  * @protoype
  * @function sessionState
- * @param {NONE}
+ * @param {string} lmsid
  * @return {BOOL} - true if an active session is set
  */
-IdentityProvider.prototype.sessionState = function () {
-    return this.usrMgr.isLoggedIn();
+IdentityProvider.prototype.sessionState = function (lmsid) {
+    return this.usrMgr.isLoggedIn(lmsid);
 };
 
 /**
