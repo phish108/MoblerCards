@@ -776,8 +776,7 @@
 
         var context = {
             courseId: this.activeQuestion.lmsId + "_" + this.activeQuestion.courseId,
-            objectId: this.activeQuestion.id,
-            score:    this.score
+            objectId: this.activeQuestion.id
         };
 
         this.lrs.finishAction(this.attemptUUID, record, context);
