@@ -307,6 +307,7 @@ under the License.
     LearningRecordStore.prototype.clearContext = function () {
         this.context = {};
         if (w.device && device.uuid) {
+            this.deviceId = device.uuid;
             this.context.extensions = {"http://mobinaut.io/xapi/context/device": device.uuid};
         }
     };
@@ -454,7 +455,7 @@ under the License.
             var mom = moment();
             var created = mom.valueOf();
 
-            record.ID = myUUID;
+            record.id = myUUID;
             record.timestamp = mom.format();
             record.stored = record.timestamp;
 
@@ -656,8 +657,9 @@ under the License.
                 mom = moment(),
                 created = mom.valueOf();
 
-            record.ID = UUID;
+            record.id = UUID;
             record.timestamp = mom.format();
+            record.stored = mom.format();
             record.actor = this.actor;
             if (this.context &&
                 Object.getOwnPropertyNames(this.context).length) {
@@ -1133,7 +1135,8 @@ under the License.
         var self          = this,
             url           = self.idp.serviceURL("gov.adlnet.xapi", lmsid, ["statements"]),
             sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]),
-            actorToken    = self.idp.getActorToken(lmsid);
+            actorToken    = self.idp.getActorToken(lmsid),
+            extDeviceUUID = "http://mobinaut.io/xapi/context/device";
 
         // define the actor for the remote system
         var agent = {
@@ -1195,40 +1198,47 @@ under the License.
         function storeSingleAction(action) {
             // strip our index values
             var mom = moment(action.timestamp); // input an iso string
+            // ALWAYS IGNORE OUR OWN DATA (but thats ok)
+            if (!action.context ||
+                !action.context.extensions ||
+                !action.context.extensions[extDeviceUUID] ||
+                action.context.extensions[extDeviceUUID] !== self.deviceId) {
 
-            // should be there
+                // should be there
 
-            var iData = {
-                "uuid":     action.ID,
-                "record":   JSON.stringify(action),
-                "stored":   mom.valueOf(),
-                "year":     mom.format("YYYY"),
-                "month":    mom.format("YYYYMM"),
-                "day":      mom.format("YYYYMMDD"),
-                "week":     mom.format("W"),
-                "hour":     mom.format("HH"),
-                "weekday":  mom.format("E"),
-                "verbid":   action.verb.id,
-                "objectid": action.object.id
-            };
+                var iData = {
+                    "uuid":     action.id,
+                    "record":   JSON.stringify(action),
+                    "stored":   mom.valueOf(),
+                    "year":     mom.format("YYYY"),
+                    "month":    mom.format("YYYYMM"),
+                    "day":      mom.format("YYYYMMDD"),
+                    "week":     mom.format("W"),
+                    "hour":     mom.format("HH"),
+                    "weekday":  mom.format("E"),
+                    "verbid":   action.verb.id,
+                    "objectid": action.object.id
+                };
 
-            if (action.context &&
-                action.context.parent &&
-                action.context.parent.length) {
-                iData.courseid = action.context.parent[0];
-            }
-            if (action.result) {
-                if (action.result.hasOwnProperty("score")) {
-                    iData.score = action.result.score;
+                if (action.context &&
+                    action.context.parent &&
+                    action.context.parent.length) {
+                    iData.courseid = action.context.parent[0];
+                }
+                if (action.result) {
+                    if (action.result.hasOwnProperty("score")) {
+                        iData.score = action.result.score;
+                    }
+
+                    if (action.result.hasOwnProperty("duration")) {
+                        var dur = moment.duration(action.result.duration);
+                        iData.duration = dur.as("milliseconds");
+                    }
                 }
 
-                if (action.result.hasOwnProperty("duration")) {
-                    var dur = moment.duration(action.result.duration);
-                    iData.duration = dur.as("milliseconds");
-                }
+                return DB.insert("actions", iData);
             }
-
-            return DB.insert("actions", iData);
+            return Promise.resolve();
         }
 
         function storeStream(data) {
