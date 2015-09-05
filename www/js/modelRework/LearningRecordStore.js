@@ -42,6 +42,8 @@ under the License.
         bSyncFlag             = false,
         cntActiveTransactions = 0;
 
+    var pendingSync;
+
     var tableDef = {
         "actions" : {    // the actual records
             "uuid":         "TEXT PRIMARY KEY",
@@ -86,6 +88,10 @@ under the License.
         DB.init(tableDef)
             .then(function() {
                 console.log("database is OK");
+                if (typeof pendingSync === "function") {
+                    pendingSync.call();
+                    pendingSync = null;
+                }
             })
             .catch(function() {
                 console.error("database is broken");
@@ -450,6 +456,8 @@ under the License.
 
             record.ID = myUUID;
             record.timestamp = mom.format();
+            record.stored = record.timestamp;
+
             record.actor = this.actor;
             if (this.context &&
                 Object.getOwnPropertyNames(this.context).length) {
@@ -537,7 +545,9 @@ under the License.
     LearningRecordStore.prototype.finishAction = function (UUID, record, ctxt) {
         // sets the duration - now - created
         if (typeof UUID === "string" && UUID.length && typeof record === "object") {
-            var self = this, end   = moment();
+            var self  = this,
+                end   = moment();
+
             DB.select({
                 'from': 'actions',
                 'result': "record",
@@ -568,9 +578,11 @@ under the License.
                     }
                     tD = tD + duration.seconds() + "S";
 
-                    if (!ar.hasOwnProperty("Result")) {
+                    if (!ar.hasOwnProperty("result")) {
                         ar.result = {};
                     }
+
+                    ar.stored = end.format();
 
                     var iData = {
                         record: JSON.stringify(ar),
@@ -890,20 +902,20 @@ under the License.
         }, [courseId,
             "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"])
         .then(function (res) {
-            var r, k = 0, bDay, bScore = 0, bAtt = 0 ;
+            var r, k = 0, bDay, bScore = 0, bAtt = 0;
             if (res.rows.length) {
                 r = res.rows.item(0);
                 if (r) {
                     if (r.day === Number(today)) {
                         self.stats.today.attempts = r.a;
-                        self.stats.today.score =    r.score.toFixed(2);
+                        self.stats.today.score =    r.score ? r.score.toFixed(2) : 0;
                         self.stats.today.speed =    Math.round(r.speed/1000);
 
                         if (res.rows.length > 1) {
                             r = res.rows.item(1);
                             if (r) {
                                 self.stats.last.attempts = r.a;
-                                self.stats.last.score =    r.score.toFixed(2);
+                                self.stats.last.score =    r.score ? r.score.toFixed(2) : 0;
                                 self.stats.last.speed =    Math.round(r.speed/1000);
                             }
                         }
@@ -1088,6 +1100,7 @@ under the License.
     };
 
     LearningRecordStore.prototype.synchronizeAll = function () {
+        console.log("LRS sync all");
         if (!bSyncFlag) {
             bSyncFlag = true;
             this.idp = this.app.models.identityprovider;
@@ -1110,12 +1123,27 @@ under the License.
             this.synchronizeAll();
             return;
         }
-
-        this.idp = this.app.models.identityprovider;
+        console.log("LRS sync " + lmsid);
+        if (this.app &&
+            this.app.models &&
+            this.app.models.identityprovider) {
+            this.idp = this.app.models.identityprovider;
+        }
 
         var self          = this,
             url           = self.idp.serviceURL("gov.adlnet.xapi", lmsid, ["statements"]),
-            sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]);
+            sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]),
+            actorToken    = self.idp.getActorToken(lmsid);
+
+        // define the actor for the remote system
+        var agent = {
+            objectType: "Agent",
+            openid: this.app.serviceURL("org.ieee.papi",
+                                        ["user", actorToken])
+        };
+
+        // we want only our own data
+        var qsAgent = "agent=" + encodeURIComponent(JSON.stringify(agent));
 
         function cbAllDone() {
             console.log("LRS #### all done for " + lmsid);
@@ -1137,17 +1165,20 @@ under the License.
         function cbRequestStream(result) {
             console.log("LRS #### request stream for " + lmsid);
             var isoDate, r, since, rurl;
+
+            var query = [qsAgent];
+
             if (result && result.rows.length) {
                 r = result.rows.item(0);
                 since = new Date(r.t);
                 isoDate = since.toISOString();
+                query.push("since=" + isoDate);
             }
 
             rurl = url;
+            rurl += "?" + query.join('&');
 
-            if (isoDate) {
-                rurl += "?since=" + isoDate;
-            }
+            console.log("LRS >>> " + rurl);
 
             return new Promise(function (resolve, reject) {
                 $.ajax({
@@ -1207,12 +1238,14 @@ under the License.
                 data.forEach(function (action) {
                     pa.push(storeSingleAction(action));
                 });
-                return Promise.all(pa);
+                if (pa.length) {
+                    return Promise.all(pa);
+                }
             }
             return Promise.resolve();
         }
 
-        function cbGetUpstreamActions() {
+        function cbGetLocalActions() {
             console.log("LRS #### sync lms " + lmsid);
 
 
@@ -1237,7 +1270,7 @@ under the License.
 
                 for (i = 0; i < m; i++) {
                     r = result.rows.item(i);
-                    a.push(r.result);
+                    a.push(JSON.parse(r.record));
                     lstId.push(r.uuid);
                 }
 
@@ -1246,15 +1279,30 @@ under the License.
         }
 
         function cbSendStream(stream) {
-            console.log("LRS #### send stream");
+            console.log("LRS #### send stream " + lmsid);
 
             if (stream && stream.stream && stream.stream.length) {
                 console.log("got stream " + stream.stream.length);
 
+                var rurl = url;
+
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        type: "POST",
+                        url: rurl,
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify(stream.stream),
+                        beforeSend: sessionHeader,
+                        success: resolve,
+                        error: function (xhr) { resolve([]); }
+                    });
+                });
                 // var data = "[" + stream.stream.join(",") + "]";
 
                 // now we can send the stream to the server
-                return Promise.resolve(stream.idlist);
+
+                // return Promise.resolve(stream.idlist);
             }
 
             console.log("nothing to update, pass on");
@@ -1277,9 +1325,8 @@ under the License.
             return Promise.resolve();
         }
 
-
         // then run the logic, if the client is logged in
-        if (self.idp.getActorToken(lmsid) !== undefined &&
+        if (actorToken !== undefined &&
             (!bSyncFlag || force)) {
             cntActiveTransactions++;
             bSyncFlag = true;
@@ -1303,7 +1350,7 @@ under the License.
             }, [lmsid])
                 .then(cbRequestStream)
                 .then(storeStream)
-                .then(cbGetUpstreamActions)
+                .then(cbGetLocalActions)
                 .then(cbSendStream)
                 .then(cbConfirmStream)
                 .then(cbAllDone)
