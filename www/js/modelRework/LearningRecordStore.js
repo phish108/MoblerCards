@@ -42,6 +42,8 @@ under the License.
         bSyncFlag             = false,
         cntActiveTransactions = 0;
 
+    var logoutSync = {};
+
     var pendingSync;
 
     var tableDef = {
@@ -59,13 +61,15 @@ under the License.
             "verbid":       "TEXT",    // partitioning
             "objectid":     "TEXT",    // internal id
             "courseid":     "TEXT",    // partitioning
-            "duration":     "INTEGER"
+            "duration":     "INTEGER",
+            "lrsid":        "TEXT"     // synchronisation; unused.
         },
         "contextindex": {    // the index for the filters
             "uuid":         "TEXT",  // the action UUID
             "type":         "TEXT",
             "contextid":    "TEXT",
-            "stored":       "INTEGER"
+            "stored":       "INTEGER",
+            "lrsid":        "TEXT"
         },
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
@@ -98,7 +102,31 @@ under the License.
             });
     }
 
+    function loadLrsUuidList(lmsid) {
+        var key = "uuidlist_" + lmsid;
+        var val = localStorage.getItem(key);
+
+        if (val && val.length) {
+            return JSON.parse(val);
+        }
+        return [];
+    }
+
+    function storeLrsUuidList(lmsid, list) {
+        var key = "uuidlist_" + lmsid;
+        if (list === undefined) {
+            list = [];
+        }
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function dropLrsUuidList(lmsid) {
+        var key = "uuidlist_" + lmsid;
+        localStorage.removeItem(key);
+    }
+
     function LearningRecordStore (app) {
+        var self = this;
         this.app = app;
         this.clearContext();
         this.clearLRSContext();
@@ -113,7 +141,8 @@ under the License.
 
         $(document).bind("ID_LOGOUT_REQUESTED", function (evt, serverid) {
             // TODO: synchronise the server if possible
-            $(document).trigger("LRS_LOGOUT_READY", [serverid]);
+            logoutSync[serverid] = true;
+            self.synchronizeAll();
         });
     }
 
@@ -445,6 +474,8 @@ under the License.
      * @return {STRING} UUID
      */
     LearningRecordStore.prototype.startAction = function (record, ctxt) {
+        var self = this;
+
         var myUUID;
 
         if (typeof record === 'object' &&
@@ -491,6 +522,13 @@ under the License.
             return DB.insert("actions", iData)
             .then(function (res) {
                 res.insertID = myUUID;
+
+                self.lrscontext.forEach(function (lrsid) {
+                    var lstUUID = loadLrsUuidList(lrsid);
+                    lstUUID.push(myUUID);
+                    storeLrsUuidList(lrsid, lstUUID);
+                });
+
                 return res;
             });
         }
@@ -582,6 +620,7 @@ under the License.
                     if (!ar.hasOwnProperty("result")) {
                         ar.result = {};
                     }
+                    ar.result.duration = tD;
 
                     ar.stored = end.format();
 
@@ -1112,6 +1151,37 @@ under the License.
         }
     };
 
+    LearningRecordStore.prototype.dropLRSDataOnLogout = function (lmsid) {
+        // drop the sync
+        // drop the records
+        var i = 0;
+        // var self = this;
+
+        // all done
+        function cbAllDone() {
+            i++;
+            delete logoutSync[lmsid];
+            if (i > 1) {
+                dropLrsUuidList(lmsid);
+                $(document).trigger("LRS_LOGOUT_READY", [lmsid]);
+            }
+        }
+
+        DB.delete({
+            from: "syncindex",
+            where: {"=": "lrsid"}
+        }, [lmsid])
+            .then(cbAllDone)
+            .catch(function (err) {console.log("cannot delete syncindex " + err);});
+
+        DB.delete({
+            from: "actions",
+            where: {"LIKE": "courseid"}
+        }, [lmsid + "%"])
+            .then(cbAllDone)
+            .catch(function (err) {console.log("cannot delete actions " + err);});
+    };
+
     /**
      * @prototype
      * @function synchronise
@@ -1132,12 +1202,18 @@ under the License.
             this.idp = this.app.models.identityprovider;
         }
 
-        var self          = this,
-            url           = self.idp.serviceURL("gov.adlnet.xapi", lmsid, ["statements"]),
-            sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]),
-            actorToken    = self.idp.getActorToken(lmsid),
-            extDeviceUUID = "http://mobinaut.io/xapi/context/device";
+        if (!this.idp.sessionState(lmsid))
+        {
+            // not logged in, nothin to sync
+            return;
+        }
 
+        var self          = this,
+            url           = self.idp.serviceURL("gov.adlnet.xapi",
+                                                lmsid,
+                                                ["statements"]),
+            sessionHeader = self.idp.sessionHeader(["MAC", "Bearer"]),
+            actorToken    = self.idp.getActorToken(lmsid);
         // define the actor for the remote system
         var agent = {
             objectType: "Agent",
@@ -1147,15 +1223,20 @@ under the License.
 
         // we want only our own data
         var qsAgent = "agent=" + encodeURIComponent(JSON.stringify(agent));
+        var lstUUID = loadLrsUuidList(lmsid);
 
         function cbAllDone() {
             console.log("LRS #### all done for " + lmsid);
             cntActiveTransactions--;
             if (!cntActiveTransactions) {
+                storeLrsUuidList(lmsid, lstUUID);
                 bSyncFlag = false;
             }
 
             //trigger OK signal
+            if (logoutSync[lmsid]) {
+                self.dropLRSDataOnLogout(lmsid);
+            }
 
             return Promise.resolve();
         }
@@ -1199,12 +1280,52 @@ under the License.
             // strip our index values
             var mom = moment(action.timestamp); // input an iso string
             // ALWAYS IGNORE OUR OWN DATA (but thats ok)
-            if (!action.context ||
-                !action.context.extensions ||
-                !action.context.extensions[extDeviceUUID] ||
-                action.context.extensions[extDeviceUUID] !== self.deviceId) {
+            if (lstUUID.indexOf(action.id) < 0) {
+                console.log("load action");
 
-                // should be there
+                var aObject = action.object.id.split("/");
+                var objId = aObject.pop(),
+                    duration = LearningRecordStore.Default_Speed;
+                // skip question pool for now
+                aObject.pop();
+                var courseId = lmsid + "_" + aObject.pop();
+
+                // get duration
+                if (action.result &&
+                    action.result.duration) {
+                    var aDur = action.result.duration.split(/(\D)/);
+                    var mul = 1000;
+                    var facTM = 60;
+                    var facTH = 60;
+                    var n = 0, v;
+                    while (aDur.length) {
+                        v = aDur.pop();
+                        if (v.length) {
+                            if (v === "T") {
+                                break;
+                            }
+                            if (parseInt(v, 10) > 0) {
+                                n += mul * parseInt(v, 10);
+                            }
+                            else {
+                                switch (v) {
+                                    case "M":
+                                        mul = mul * facTM;
+                                        break;
+                                    case "H":
+                                        if (mul === 1000) {
+                                            mul = mul * facTM;
+                                        }
+                                        mul = mul * facTH;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    duration = n;
+                }
+
+                // This won't work for all durations
 
                 var iData = {
                     "uuid":     action.id,
@@ -1217,7 +1338,9 @@ under the License.
                     "hour":     mom.format("HH"),
                     "weekday":  mom.format("E"),
                     "verbid":   action.verb.id,
-                    "objectid": action.object.id
+                    "duration": duration,
+                    "objectid": objId,
+                    "courseid": courseId
                 };
 
                 if (action.context &&
@@ -1236,7 +1359,11 @@ under the License.
                     }
                 }
 
-                return DB.insert("actions", iData);
+                return DB.insert("actions", iData).then(function () {
+                    lstUUID.push(action.id);
+                    return action.id;
+
+                });
             }
             return Promise.resolve();
         }
@@ -1323,9 +1450,7 @@ under the License.
             console.log("LRS #### got stream confirmation");
 
             if (result && result.length) {
-                var dt = new Date().getTime();
-                return DB.update({
-                    set: {"synchronized": dt},
+                return DB.delete({
                     from: "syncindex",
                     where: {"in": {uuid: result}}
                 });
