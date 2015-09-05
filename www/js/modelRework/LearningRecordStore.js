@@ -597,8 +597,8 @@ under the License.
                         if (ctxt.objectId !== undefined) {
                             iData.objectid = ctxt.objectId;
                         }
-                        if (ctxt.score !== undefined) {
-                            iData.score = ctxt.score;
+                        if (ar.result.score !== undefined) {
+                            iData.score = ar.result.score;
                         }
                     }
 
