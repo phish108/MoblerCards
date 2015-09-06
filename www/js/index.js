@@ -172,6 +172,7 @@ MoblerCards.prototype.isOffline = function () {
 };
 
 MoblerCards.prototype.initialize = function () {
+    var self = this;
     // setup the models
     this.models.contentbroker.idprovider         = this.models.identityprovider;
     this.models.contentbroker.lrs                = this.models.learningrecordstore;
@@ -184,10 +185,22 @@ MoblerCards.prototype.initialize = function () {
 
     this.setupLanguage();
 
+    function cbDefaultLMS(evt, id) {
+        if (!self.models.identityprovider.getActiveLMSID()) {
+            self.models.identityprovider.activateLMS(id);
+        }
+        $(document).unbind(cbDefaultLMS);
+    }
+
     // add default LMS
-    console.log("add default LMS " + MoblerCards.DefaultLMS);
-    if (!this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS)) {
+    // console.log("add default LMS " + MoblerCards.DefaultLMS);
+    var rsd = this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS);
+    if (!rsd) {
+        $(document).bind("LMS_AVAILABLE", cbDefaultLMS);
         this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
+    }
+    else if (!self.models.identityprovider.getActiveLMSID()) {
+        this.models.identityprovider.activateLMS(rsd.id);
     }
     $(document).trigger("APP_READY");
 };
