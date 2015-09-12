@@ -144,7 +144,8 @@ function MoblerCards() {
  *
  * points to the predefined LMS of the app.
  */
-MoblerCards.DefaultLMS = "http://beta.mobinaut.org";
+//MoblerCards.DefaultLMS = "https://beta.mobinaut.org";
+MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
 
 /**
  * Returns the present connection state of the app.
