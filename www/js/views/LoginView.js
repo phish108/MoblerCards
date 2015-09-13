@@ -145,7 +145,6 @@ LoginView.prototype.update = function () {
     this.app.models.identityprovider.getActiveLMS(function (data) {
         activeLMS = data;
     });
-    console.dir(this.app.models);
 
     // TODO convert to Template Format
     // clear logo image
