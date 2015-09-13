@@ -66,8 +66,8 @@ LogoutView.prototype.tap_logoutcross = function () {
 LogoutView.prototype.tap_logoutfooter = function () {
     if (!this.app.isOffline()) {
         this.setWaitingIcon();
+
         this.app.changeView("landing", "ID_LOGOUT_OK");
-        // TODO visual cues for the logout process.
         this.model.finishSession();
     }
 };

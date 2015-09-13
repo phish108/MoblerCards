@@ -141,8 +141,10 @@ under the License.
 
         $(document).bind("ID_LOGOUT_REQUESTED", function (evt, serverid) {
             // TODO: synchronise the server if possible
+            console.log("sync LRS before logging out " + serverid);
+            console.log("state of bSync " + bSyncFlag);
             logoutSync[serverid] = true;
-            self.synchronizeAll();
+            self.synchronize(serverid);
         });
     }
 
@@ -1146,7 +1148,7 @@ under the License.
 
     LearningRecordStore.prototype.synchronizeAll = function () {
         if (!bSyncFlag) {
-            bSyncFlag = true;
+//            bSyncFlag = true;
             this.idp = this.app.models.identityprovider;
             this.idp.eachLMS(function (lms) {
                 this.synchronize(lms.id, true);
@@ -1162,11 +1164,17 @@ under the License.
 
         // all done
         function cbAllDone() {
+            console.log("check if we are done.");
             i++;
-            delete logoutSync[lmsid];
             if (i > 1) {
-                dropLrsUuidList(lmsid);
-                $(document).trigger("LRS_LOGOUT_READY", [lmsid]);
+
+                if (logoutSync.hasOwnProperty(lmsid)) {
+                    console.log("drop everything")
+                    delete logoutSync[lmsid];
+
+                    dropLrsUuidList(lmsid);
+                    $(document).trigger("LRS_LOGOUT_READY", [lmsid]);
+                }
             }
         }
 
@@ -1177,6 +1185,7 @@ under the License.
             .then(cbAllDone)
             .catch(function (err) {
                 console.log("cannot delete syncindex " + err);
+                cbAllDone();
             });
 
         DB.delete({
@@ -1186,6 +1195,7 @@ under the License.
             .then(cbAllDone)
             .catch(function (err) {
                 console.log("cannot delete actions " + err);
+                cbAllDone();
             });
     };
 
@@ -1194,7 +1204,7 @@ under the License.
      * @function synchronise
      * @param {NONE}
      *
-     * synchronises the action statements with the backend LRS.
+     * synchronises the action statements with theackend LRS.
      */
     LearningRecordStore.prototype.synchronize = function (lmsid, force) {
         // first register the callbacks
@@ -1235,21 +1245,20 @@ under the License.
         function cbAllDone() {
             // console.log("LRS #### all done for " + lmsid);
             cntActiveTransactions--;
+            console.log("terminate at 0 transactions? " + cntActiveTransactions);
             if (!cntActiveTransactions) {
                 storeLrsUuidList(lmsid, lstUUID);
                 bSyncFlag = false;
             }
 
             //trigger OK signal
-            if (logoutSync[lmsid]) {
+            if (!bSyncFlag && logoutSync[lmsid]) {
                 self.dropLRSDataOnLogout(lmsid);
             }
-
-            return Promise.resolve();
         }
 
         function cbSyncError(err) {
-//            console.log("LRS #### sync error: " + JSON.stringify(err));
+            console.log("LRS #### sync error: " + JSON.stringify(err));
             cbAllDone();
         }
 
@@ -1466,7 +1475,7 @@ under the License.
         if (actorToken !== undefined &&
             (!bSyncFlag || force)) {
             cntActiveTransactions++;
-            bSyncFlag = true;
+//            bSyncFlag = true;
 
             /**
              * The sync process is bi-directional
