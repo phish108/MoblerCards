@@ -1030,9 +1030,11 @@ under the License.
                     if (r.day === Number(today)) {
                         self.stats.today.progress = r.progress;
 
-                        r = res.rows.item(1);
-                        if (r) {
-                            self.stats.last.progress = r.progress;
+                        if (res.rows.length > 1) {
+                            r = res.rows.item(1);
+                            if (r) {
+                                self.stats.last.progress = r.progress;
+                            }
                         }
                     }
                     else {

@@ -76,7 +76,8 @@ function LMSView() {
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
 
-    $("#addlmsform").bind("submit", function (ev) {
+    $("#addlmsform").bind("submit",
+                          function (ev) {
 
         ev.preventDefault(); // prevent reloading before we can have bugs
 
