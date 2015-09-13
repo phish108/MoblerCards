@@ -83,7 +83,7 @@ CourseView.prototype.update = function () {
 
     var cList = courseModel.getCourseList(); // get all courses
 
-    if (cList) {
+    if (cList && cList.length) {
         cList.forEach(function (course) {
             if (course.title && course.id) {
                 ctmpl.attach(course.lmsId + "_" + course.id);
@@ -94,9 +94,14 @@ CourseView.prototype.update = function () {
         });
     }
     else {
-        ctmpl.attach("waiting");
+        ctmpl.attach("warning");
+        ctmpl.courseimage.addClass("hidden");
+        ctmpl.courselist.removeClass("touchable");
         // FIXME: Translatable text!
-        ctmpl.courselabel.text = self.firstLoad ? "Courses are being loaded" : "No Courses";
+        ctmpl.courselabel.text = jQuery.i18n.prop("msg_courses_warning");
+        if (self.firstLoad) {
+            self.firstLoad = false;
+        }
     }};
 
 /**
@@ -148,7 +153,7 @@ CourseView.prototype.tap = function (event) {
         this.template.find(lmsId + "_" + cId);
     }
 
-    if (course[0] === "courselist") {
+    if (course[0] === "courselist" && course[2] !== "warning") {
 
         this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
@@ -164,6 +169,7 @@ CourseView.prototype.tap = function (event) {
         this.app.changeView("statistics", "LRS_CALCULATION_DONE");
         this.app.models.learningrecordstore.calculateStats(this.app.models.contentbroker.getCourseId());
     }
+
 };
 
 CourseView.prototype.setLoadingIcon = function () {

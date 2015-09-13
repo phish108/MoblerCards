@@ -966,11 +966,19 @@
                         self.verifyCourseData(courseList, lmsid);
                     })
                     .catch(function (msg){
-                        // send apologise signal depending on error
 
-                        delete syncFlags[lmsid];
-                        // TODO: trigger correct event
-                        $(document).trigger("MY_SERVER_ERROR");
+                        if (msg.status === 200 ||
+                            msg.status === 204) {
+
+                            // verify an empty course list.
+                            self.verifyCourseData([], lmsid);
+                        }
+                        else {
+
+                            delete syncFlags[lmsid];
+                            // TODO: trigger correct event
+                            $(document).trigger("MY_SERVER_ERROR");
+                        }
                     });
             }
         }
