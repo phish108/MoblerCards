@@ -91,7 +91,7 @@ under the License.
 
         DB.init(tableDef)
             .then(function() {
-                console.log("database is OK");
+//                console.log("database is OK");
                 if (typeof pendingSync === "function") {
                     pendingSync.call();
                     pendingSync = null;
@@ -669,10 +669,12 @@ under the License.
                 'where': {"=": "uuid"}
             }, [uuid])
              .then(function () {
-                 console.log("record cancelled");
+//                 console.log("record cancelled");
+                 return;
              })
              .catch(function (err) {
-                 console.log("cancelling failed: " + JSON.stringify(err));
+//                 console.log("cancelling failed: " + JSON.stringify(err));
+                 return;
              });
          }
     };
@@ -1141,7 +1143,6 @@ under the License.
     };
 
     LearningRecordStore.prototype.synchronizeAll = function () {
-        console.log("LRS sync all");
         if (!bSyncFlag) {
             bSyncFlag = true;
             this.idp = this.app.models.identityprovider;
@@ -1172,14 +1173,18 @@ under the License.
             where: {"=": "lrsid"}
         }, [lmsid])
             .then(cbAllDone)
-            .catch(function (err) {console.log("cannot delete syncindex " + err);});
+            .catch(function (err) {
+                console.log("cannot delete syncindex " + err);
+            });
 
         DB.delete({
             from: "actions",
             where: {"LIKE": "courseid"}
         }, [lmsid + "%"])
             .then(cbAllDone)
-            .catch(function (err) {console.log("cannot delete actions " + err);});
+            .catch(function (err) {
+                console.log("cannot delete actions " + err);
+            });
     };
 
     /**
@@ -1195,7 +1200,7 @@ under the License.
             this.synchronizeAll();
             return;
         }
-        console.log("LRS sync " + lmsid);
+//        console.log("LRS sync " + lmsid);
         if (this.app &&
             this.app.models &&
             this.app.models.identityprovider) {
@@ -1242,12 +1247,12 @@ under the License.
         }
 
         function cbSyncError(err) {
-            console.log("LRS #### sync error: " + JSON.stringify(err));
+//            console.log("LRS #### sync error: " + JSON.stringify(err));
             cbAllDone();
         }
 
         function cbRequestStream(result) {
-            console.log("LRS #### request stream for " + lmsid);
+//            console.log("LRS #### request stream for " + lmsid);
             var isoDate, r, since, rurl;
 
             var query = [qsAgent];
@@ -1261,8 +1266,6 @@ under the License.
 
             rurl = url;
             rurl += "?" + query.join('&');
-
-            console.log("LRS >>> " + rurl);
 
             return new Promise(function (resolve, reject) {
                 $.ajax({
@@ -1281,7 +1284,6 @@ under the License.
             var mom = moment(action.timestamp); // input an iso string
             // ALWAYS IGNORE OUR OWN DATA (but thats ok)
             if (lstUUID.indexOf(action.id) < 0) {
-                console.log("load action");
 
                 var aObject = action.object.id.split("/");
                 var objId = aObject.pop(),
@@ -1369,13 +1371,17 @@ under the License.
         }
 
         function storeStream(data) {
-            console.log("LRS #### store data " + data.length);
+
             if (data && data.length) {
+
                 var pa = [];
                 data.forEach(function (action) {
+
                     pa.push(storeSingleAction(action));
                 });
+
                 if (pa.length) {
+
                     return Promise.all(pa);
                 }
             }
@@ -1383,7 +1389,6 @@ under the License.
         }
 
         function cbGetLocalActions() {
-            console.log("LRS #### sync lms " + lmsid);
 
             return DB.select({
                 from: {
@@ -1415,10 +1420,8 @@ under the License.
         }
 
         function cbSendStream(stream) {
-            console.log("LRS #### send stream " + lmsid);
 
             if (stream && stream.stream && stream.stream.length) {
-                console.log("got stream " + stream.stream.length);
 
                 var rurl = url;
 
@@ -1441,21 +1444,19 @@ under the License.
                 // return Promise.resolve(stream.idlist);
             }
 
-            console.log("nothing to update, pass on");
             return Promise.resolve([]);
         }
 
         function cbConfirmStream(result) {
-            console.log("LRS #### got stream confirmation");
 
             if (result && result.length) {
+
                 return DB.delete({
                     from: "syncindex",
                     where: {"in": {uuid: result}}
                 });
             }
 
-            console.log("nothing to update, pass on");
             return Promise.resolve();
         }
 
@@ -1489,11 +1490,6 @@ under the License.
                 .then(cbConfirmStream)
                 .then(cbAllDone)
                 .catch(cbSyncError);
-        }
-        else {
-            console.log("skip LMS " + lmsid);
-
-            // send OK signal anyways
         }
     };
 

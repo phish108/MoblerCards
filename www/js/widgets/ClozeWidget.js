@@ -83,18 +83,17 @@ ClozeWidget.prototype.blur = function (event) {return;};
  * @function storeAnswers
  **/
 ClozeWidget.prototype.storeAnswers = function () {
-    console.log("store answers in cloze question view");
+
     var gapAnswers = [];
 
     //to get the answers the user typed in the gaps
     //and push the gaped answers in the array
 
     $("#cardAnswerBody li :input").each(function (index) {
-        console.log("collect filled gaps");
         var answer = $(this).val();
         gapAnswers.push(answer);
     });
-    console.log("gapAnswers is " + gapAnswers);
+
     this.app.models.answer.setAnswers(gapAnswers);
 };
 

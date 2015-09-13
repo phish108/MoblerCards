@@ -41,14 +41,17 @@ under the License.
 
 
 function LoginView() {
+
     var self = this;
-    this.tagID = this.app.viewId; // obsolete
-    this.active = false;
+
+    this.tagID        = this.app.viewId; // obsolete
+    this.active       = false;
     this.fixedRemoved = false;
 
     function cbLoginSuccess() {
+
         if (self.active) {
-            console.log("is logIn");
+
             $(document).trigger("trackingEventDetected", ["Login"]);
             if (self.app.getLoginState()) {
                 self.app.changeView("course");
@@ -59,7 +62,6 @@ function LoginView() {
     }
 
     function cbLoginFailure(e, errormessage) {
-        console.log("authentication failed, reason: " + errormessage);
         self.unsetWaitingIcon();
 
         switch (errormessage) {
@@ -67,14 +69,12 @@ function LoginView() {
             self.showErrorMessage('msg_connection_message');
             break;
         case "nouser":
-            console.log("no user error");
             self.showErrorMessage('msg_authenticationFail_message');
             break;
         case "invalidclientkey":
             self.showErrorMessage('msg_connection_message');
             break;
         default:
-            console.log("unknown error " + errormessage);
             break;
         }
     }
@@ -82,8 +82,6 @@ function LoginView() {
     function cbLoginTemporaryFailure() {
         self.unsetWaitingIcon();
 
-        console.log("enter cbLogin tempoerary failure");
-        console.log("will show the deactivate message");
         self.showDeactivateMessage('msg_login_deactivate_message');
     }
 
@@ -95,7 +93,6 @@ function LoginView() {
      * @param: a function that hides the error message from login view
      * **/
     $(document).bind("errormessagehide", function () {
-        console.log(" hide error message loaded ");
         self.hideMessage();
     });
 
@@ -108,17 +105,13 @@ function LoginView() {
     });
 
     $(document).bind("ID_AUTHENTICATION_OK", cbLoginSuccess);
-    $(document).bind("authenticationready", cbLoginSuccess);
 
-    $(document).bind("authenticationfailed", cbLoginFailure);
     $(document).bind("ID_TOKEN_REJECTED", cbLoginFailure);
     $(document).bind("ID_AUTHENTICATION_FAILED", cbLoginFailure);
 
     $(document).bind("ID_CONNECTION_FAILURE", cbLoginTemporaryFailure);
     $(document).bind("ID_SERVER_FAILURE", cbLoginTemporaryFailure);
     $(document).bind("ID_SERVER_UNAVAILABLE", cbLoginTemporaryFailure);
-
-    $(document).bind("authenticationTemporaryfailed", cbLoginTemporaryFailure);
 }
 
 /**
@@ -129,11 +122,13 @@ function LoginView() {
  * @function open
  **/
 LoginView.prototype.prepare = function () {
-    console.log("loginView: open sesame");
+
     if (this.app.getLoginState()) {
+
         this.app.changeView("course");
     }
     else {
+
         // hide unnecessary errors and warnings
         this.hideMessage();
 
@@ -189,7 +184,6 @@ LoginView.prototype.cleanup = function () {
     // hack for scrolling the content box into place.
     this.container.addClass("active");
     this.container.scrollTop(0);
-    // console.log("container during cleanup at " + this.container.scrollTop());
     this.container.removeClass("active");
 
     this.unsetWaitingIcon();
@@ -212,7 +206,7 @@ LoginView.prototype.tap_loginpwlabel = function () {
  * after successful login the course list is displayed
  */
 LoginView.prototype.tap_loginfooter = function () {
-    console.log("check logIn data");
+
     if ($("#username").val() && $("#password").val()) {
         if (!this.app.isOffline()) { // refuse to run while being offline
             this.setWaitingIcon();

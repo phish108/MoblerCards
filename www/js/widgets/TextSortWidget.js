@@ -215,6 +215,7 @@ TextSortWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 TextSortWidget.prototype.showFeedback = function () {
+
     // Ilias sends mixed lists already. Need to sort.
     var slist   = this.model.getAnswerList(false);
     var answers = this.model.getResponseList();
@@ -222,11 +223,12 @@ TextSortWidget.prototype.showFeedback = function () {
     // var scores = this.app.models.answer.getScoreList();
     var fTmpl = this.template;
 
-    console.log(slist);
     slist.forEach(function (aw, i) {
         fTmpl.attach(aw.order);
         fTmpl.answertext.html = aw.answertext;
+
         if (answers[i] === aw.order) {
+
             fTmpl.answerlist.addClass("gradientSelected");
         }
 //        fTmpl.feedbacktick.addClass("inactive");

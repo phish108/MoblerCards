@@ -51,83 +51,6 @@ function MoblerCards() {
         cache: false
     });
 
-
-    // FIXME: REMOVE This should be handled by the Courselist View or the landing view
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("all statistics calculations done is ready");
-        // if the user has clicked anywhere else in the meantime, then the transition to statistics view should not take place
-        if (!self.checkclickOutOfStatisticsIcon()) {
-            console.log("all calculations have been done, change to statistics");
-            self.changeView("statistics");
-        } else {
-            console.log("transition to statistics is not feasible because the user has clicked elsewhere");
-        }
-    });
-
-    /**
-     * This event is triggered  when statistics are sent to the server during
-     * a)loggout b)synchronization.
-     * When are not LOGGED IN (=logged out) and have open the login form and listen to this
-     * event, we want to stay in the login form.
-     * @event statisticssenttoserver
-     * @param a callback function that loads the login form
-     */
-
-    // FIXME: REMOVE This is a background event and should not be handled by the controller!
-    $(document).bind("statisticssenttoserver", function () {
-        if (!self.getLoginState()) {
-            console.log("stays in login view, despite the synchronization of sent statistics");
-            self.changeView("login");
-        }
-    });
-
-    /**
-     * This event is triggered  when questions are loaded from the server. It is
-     * bound also in courses list view and we want to avoid loading that view.
-     * For that reason we check IF WE ARE  not LOGGED IN(=logged out) in order
-     * to show the login form.
-     *
-     * @event questionpoolready
-     * @param a callback function that loads the login form
-     */
-
-    // FIXME: REMOVE The views should handle events ONLY if they are active.
-    $(document).bind("questionpoolready", function () {
-        if (!self.getLoginState()) {
-            console.log("stays in login view, despite the synchronization of questionpool ready");
-            self.changeView("login");
-        }
-    });
-
-    /**
-     * This event is triggered  when courses are loaded from the server. It is
-     * binded also in courses list view and we want to avoid loading of that view.
-     * For that reason we check IF WE ARE not LOGGED IN (=logged out)in order to show the login form.
-     * @event courselistupdate
-     * @param a callback function that loads the login form
-     */
-
-    //FIXME: REMOVE This should be handled by the views.
-    $(document).bind("courselistupdate", function () {
-        if (!self.getLoginState()) {
-            console.log("stays in login view, despite the courses synchronization updates");
-            self.changeView("login");
-        }
-    });
-
-    // FIXME: REMOVE This should be handled by the views.
-    $(document).bind("activeServerReady", function () {
-        if (self.appLoaded && self.activeView === self.views.lms.tagID) {
-            console.log("transition to login view after selecting server in lms view");
-            self.changeView("login");
-        }
-        else if (self.appLoaded && self.activeView === self.views.splash.tagID) {
-            console.log("transition to login view after the default server has been registered");
-            self.changeView("landing");
-        }
-    });
-
-
     /**
      * @EVENT ID_PROFILE_OK
      *
@@ -177,7 +100,6 @@ MoblerCards.prototype.initialize = function () {
     // setup the models
     this.models.contentbroker.idprovider         = this.models.identityprovider;
     this.models.contentbroker.lrs                = this.models.learningrecordstore;
-    console.log("POST INITIALIZATION");
 
     var kList = Object.getOwnPropertyNames(this.models);
     kList.forEach(function(m){
@@ -197,12 +119,16 @@ MoblerCards.prototype.initialize = function () {
     // console.log("add default LMS " + MoblerCards.DefaultLMS);
     var rsd = this.models.identityprovider.hasLMS(MoblerCards.DefaultLMS);
     if (!rsd) {
-        $(document).bind("LMS_AVAILABLE", cbDefaultLMS);
+
+        $(document).bind("LMS_AVAILABLE",
+                         cbDefaultLMS);
         this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
     }
     else if (!self.models.identityprovider.getActiveLMSID()) {
+
         this.models.identityprovider.activateLMS(rsd.id);
     }
+
     $(document).trigger("APP_READY");
 };
 
@@ -273,66 +199,6 @@ MoblerCards.prototype.checkVersion = function () {
     }
 };
 
-MoblerCards.prototype.migrate = function (thisVersion) {
-    var self = this;
-
-    if (!thisVersion) {
-        thisVersion = 1;
-    }
-
-    if (thisVersion < 2) {
-        this.migrateTo2();
-    }
-
-    localStorage.setItem("MoblerVersion", self.MoblerVersion);
-};
-
-MoblerCards.prototype.migrateTo2 = function () {
-    var configuration;
-    var configurationObject;
-    try {
-        //configuration=JSON.parse(localStorage.getItem("configuration"));
-        configurationObject = localStorage.getItem("configuration");
-        if (configurationObject) {
-            configuration = JSON.parse(configurationObject);
-        }
-    } catch (err) {
-        console.log("error! while loading configuration in migration");
-    }
-    var language = navigator.language.split("-");
-    var language_root = (language[0]);
-    if (configuration && configuration.appAuthenticationKey) {
-        console.log("app authentication key exists in configuration object");
-        //create the new structure for the lms object
-        var lmsObject = {
-            "activeServer": "hornet",
-            "ServerData": {
-                "hornet": {
-                    //and store there the authentication key
-                    "requestToken": configuration.appAuthenticationKey,
-                    "defaultLanguage": language_root
-                }
-            }
-        };
-
-        delete configuration.appAuthenticationKey;
-        //var configurationObject=localStorage.getItem("configuration");
-        //localStorage.setItem("configuration", JSON.stringify(localStorage.getItem("configuration")));
-        localStorage.setItem("configuration", JSON.stringify(configuration));
-        console.log("configuration object after delete of appAuthenticationKey " + localStorage.getItem("configuration"));
-        localStorage.setItem("urlsToLMS", JSON.stringify(lmsObject));
-    }
-
-    if (!configuration) {
-        console.log("configuration object didn't exist during the migration");
-        configurationObject = {
-            loginState: "loggedOut",
-            statisticsLoaded: "false"
-        };
-        localStorage.setItem("configuration", JSON.stringify(configurationObject));
-    }
-};
-
 /**
  * Initial Interface logic localization. Sets the correct strings depending on the language that is specified in the configuration model.
  * Make use of i18n jQuery plugin and apply its syntax for localization.
@@ -389,31 +255,6 @@ MoblerCards.prototype.setupLanguage = function () {
 };
 
 /**
- * Transition to statistics view. The user can reach the statistics view in two ways: 1) either by clicking the statistics icon on the course list view or  2) from the achievements view.
- * @prototype
- * @function transitionToStatistics
- **/
-
- // TODO: Refactoring of the function
-
-//MoblerCards.prototype.transitionToStatistics = function (courseID, achievementsFlag) {
-//    //set the statistics waiting flag
-//    this.clickOutOfStatisticsIcon = false;
-//
-//    //The transition to statistics view is done by clicking the statistics icon in any list view.
-//    //In this case a courseID is assigned for the clicked option.
-//
-//    if ((courseID && (courseID > 0 || courseID === "fd")) || !achievementsFlag) {
-//        this.models.statistics.setCurrentCourseId(courseID);
-//        if (!this.models.statistics.dataAvailable()) {
-//            this.changeView("landing");
-//        }
-//    } else if (achievementsFlag) {
-//        this.changeView("statistics", achievementsFlag);
-//    }
-//};
-
-/**
  * @prototype
  * @function getLoginState
  * @return {boolean} true if the user is logged in (he has an authentication key stored in the local storage) and false if not.
@@ -421,32 +262,3 @@ MoblerCards.prototype.setupLanguage = function () {
 MoblerCards.prototype.getLoginState = function () {
     return this.models.identityprovider.sessionState();
 };
-
-
-/**
- * FIXME: Move to ContentBroker Classes
- *
- * Does the aproropriate calculations when we click on a course item
- * either it is featured content or exclusive content.
- * and after loading the data and setting the correct course id we do
- * the transiton to the question view as long as we have valid data.
- * @prototype
- * @function selectCourseItem
- * @param {string or number} courseId, the id of the current course
- */
-
-/*
-MoblerCards.prototype.selectCourseItem = function (courseId) {
-    this.models.questionpool.reset();
-    //add it within the loadData, similar with statistics (setcurrentCourseId function)...
-    this.models.questionpool.loadData(courseId);
-
-    if (this.models.questionpool.dataAvailable()) {
-        this.models.answer.setCurrentCourseId(courseId);
-        console.log("enters clickFeauturedItem");
-        return true;
-    }
-    console.log("[ERROR]@selectCourseItem()");
-    return false;
-};
- */

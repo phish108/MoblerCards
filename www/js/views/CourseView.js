@@ -149,7 +149,6 @@ CourseView.prototype.tap = function (event) {
     }
 
     if (course[0] === "courselist") {
-        console.log(">>>>> [tap registered] ** " + id + " ** <<<<<");
 
         this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
@@ -159,6 +158,7 @@ CourseView.prototype.tap = function (event) {
     }
 
     if (course[0] === "courseimage") {
+
         this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
         this.app.changeView("statistics", "LRS_CALCULATION_DONE");
@@ -167,12 +167,14 @@ CourseView.prototype.tap = function (event) {
 };
 
 CourseView.prototype.setLoadingIcon = function () {
+
     this.template.courseimg.removeClass("icon-bars");
     this.template.courseimg.addClass("entypo-spinner");
     this.template.courserotate.addClass("loadingrotation");
 };
 
 CourseView.prototype.setStatsIcon = function () {
+
     this.template.courseimg.removeClass("entypo-spinner");
     this.template.courserotrate.removeClass("loadingrotation");
     this.template.courseimg.addClass("icon-bars");
@@ -180,11 +182,12 @@ CourseView.prototype.setStatsIcon = function () {
 
 
 CourseView.prototype.tap_courseheader = function () {
-    console.log("Tap course header - force synchronisation");
+
     this.app.synchronizeAll();
 };
 
 CourseView.prototype.tap_coursecross = function () {
+
     this.app.chooseView("settings", "landing");
 };
 
@@ -214,8 +217,7 @@ CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
  * @param {INTEGER} courseId - reference to the current course.
  */
 CourseView.prototype.courseIsLoaded = function (courseId) {
-    console.log("courseIsLoaded: " + courseId);
-    console.log("selector length: " + $("#course" + courseId + " .icon-loading").length);
+
     $("#course" + courseId + " .icon-loading")
         .addClass("icon-bars")
         .removeClass("icon-loading loadingrotation");

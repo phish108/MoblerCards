@@ -64,33 +64,8 @@ function FeedbackView() {
                   'apologize',
                   {interactive: true});
 
-    this.mapDelegate('assOrderingQuestion', 'assOrderingHorizontal');
-
-    /**
-     * It is triggered after statistics are loaded locally from the server. This can happen during the
-     * authentication or if we had clicked on the statistics icon and moved to the questions.
-     * @event loadstatisticsfromserver
-     * @param: a callback function that displays the feedback body and preventing the display of the statistics view
-     */
-    $(document).bind("loadstatisticsfromserver", function () {
-        if (self.app.isActiveView(self.tagID) && self.app.getLoginState) {
-            console.log("enters load statistics from server is done in feedback view 1");
-            self.update();
-        }
-    });
-
-    /**
-     * It is triggered when the calculation of all the statistics metrics is done
-     * @event allstatisticcalculationsdone
-     * @param: a callback function that displays the feeback body and preventing the display of the statistics view
-     */
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("enters in calculations done in question view1 ");
-        if  (self.app.isActiveView(self.tagID) && self.app.getLoginState)  {
-            console.log("enters in calculations done in feedback view 2 ");
-            self.update();
-        }
-    });
+    this.mapDelegate('assOrderingQuestion',
+                     'assOrderingHorizontal');
 }
 
 /**
@@ -100,6 +75,7 @@ function FeedbackView() {
  * @param {NONE}
  */
 FeedbackView.prototype.prepare = function () {
+
     var qt = this.model.getQuestionInfo().type;
 
     $("#feedbacktip").hide();
@@ -148,7 +124,6 @@ FeedbackView.prototype.cleanup = function () {
     // hack for scrolling the content box into place.
     this.container.addClass("active");
     this.container.scrollTop(0);
-    // console.log("container during cleanup at " + this.container.scrollTop());
     this.container.removeClass("active");
 };
 
@@ -218,9 +193,8 @@ FeedbackView.prototype.getFeedbackInfo = function () {
  * @param {NONE}
  */
 FeedbackView.prototype.showFeedbackTitle = function () {
-    var score = this.model.score;
-    console.log("response score = " + score);
-    var currentFeedbackTitle = "Wrong";
+    var score                 = this.model.score,
+        currentFeedbackTitle  = "Wrong";
 
     if (score >= 1) {
         // the score should be max 1, but we never know.

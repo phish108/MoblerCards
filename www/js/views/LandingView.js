@@ -69,7 +69,6 @@ LandingView.prototype.update = function () {
     var courseList = this.models.contentbroker.getCourseList(true);
     this.hideErrorMessage();
 
-    console.log("LV.update! courselist " + courseList.length);
     // FUTURE show ALL featured courses!
     if (courseList.length) {
         this.pList = courseList;

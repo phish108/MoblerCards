@@ -239,16 +239,6 @@
         var APP_ID = "org.mobinaut.mobler";
         var serviceid = serverRSD.id;
 
-        function setHeadersLegacy(xhr) {
-            xhr.setRequestHeader('AppID', APP_ID);
-            xhr.setRequestHeader('UUID', device.uuid);
-        }
-
-        function registerOKLegacy(data) {
-            addToken(serviceid, data.ClientKey);
-            $(document).trigger("LMS_DEVICE_READY");
-        }
-
         function registerOK(data) {
             addToken(serviceid, data);
             $(document).trigger("LMS_DEVICE_READY");
@@ -261,11 +251,6 @@
 
         var serviceName = "powertla.identity.client",
             registerURL = getServiceURL(serverRSD, serviceName);
-
-        if (!registerURL.length) {
-            serviceName = "ch.isn.lms.device";
-            registerURL = getServiceURL(serverRSD, serviceName);
-        }
 
         if (registerURL.length) {
             var rObj = {
@@ -283,9 +268,6 @@
                     rObj.success     = registerOK;
                     break;
                 default:
-                    rObj.type = "GET";
-                    rObj.success = registerOKLegacy;
-                    rObj.beforeSend = setHeadersLegacy;
                     break;
             }
 

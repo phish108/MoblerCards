@@ -67,32 +67,6 @@ function UserModel(idprovider) {
 
     // load data from the local storage if any
     this.loadData();
-
-    /**It is triggered after all statistics data are sent successful to the server. This happens when the user logsout.
-     * @event statisticssenttoserver
-     * @param:a callback function that sends pending data to the server and clears all information from the local storage.
-     * Only the application key remains in the local storage, because it is unique for a specific device for a specific application.
-     *
-     * FIXME:
-     * Take care that the session key and the server are stored with the pending information so we can send the data
-     * with the correct context to the backend i.e. if you have pening information and you login to a different server
-     * then the pending information should be sent to the original server for the original user and not
-     * to the new server and the new user.
-     */
-
-    // FIXME MOVE TO LRS.
-    /*
-    $(document).bind("statisticssenttoserver", function () {
-        console.log("statistics sent to server is bound");
-        console.log("self.app.appLoaded is " + self.app.appLoaded);
-        console.log("self.configuration.loginState is" + self.configuration.loginState);
-        if (self.app.appLoaded && self.configuration.loginState === "loggedOut") {
-            console.log("before call sendLogoutToServer");
-            self.sendLogoutToServer();
-            console.log("user logged out");
-        }
-    });
-    */
 }
 
 /**
@@ -102,12 +76,15 @@ function UserModel(idprovider) {
  * @function storeData
  */
 UserModel.prototype.storeData = function () {
+
     var configString;
+
     try {
         configString = JSON.stringify(this.configuration);
     } catch (err) {
         configString = "";
     }
+
     localStorage.setItem("configuration", configString);
 };
 
@@ -118,19 +95,22 @@ UserModel.prototype.storeData = function () {
  * @function
  */
 UserModel.prototype.loadData = function () {
+
     var configObject;
+
     //if there is an item in the local storage with the name "configuration"
     //then get it by parsing the string and convert it into a json object
     try {
         configObject = JSON.parse(localStorage.getItem("configuration"));
     } catch (err) {
-        console.log("error! while loading");
+        configObject = null;
     }
 
     // when the app is launched and before the user logs in there is no local storage
     // in this case there is no configuration object and it is stated in one of its properties
     // that its login status is set to "loggedOut".
     if (!configObject) {
+
         configObject = {
             loginState: "loggedOut",
             statisticsLoaded: "false"
@@ -138,87 +118,6 @@ UserModel.prototype.loadData = function () {
     }
 
     this.configuration = configObject;
-};
-
-/**
- * Loads the configuration data from the server such as learner information
- * and synchronization state and stores it in the local storage. When all
- * data is loaded, the authenticationready event is triggered
- * If any error occurs during the authentication then an event will be
- * triggered to notify this.
- *
- * LEGACY CODE: new API uses ONLY load Profile!
- *
- * @prototype
- * @function loadFromServer
- */
-UserModel.prototype.loadFromServer = function () {
-    var self = this;
-    var activeURL = self.idprovider.serviceURL("ch.isn.lms.auth"),
-        serverid  = self.idprovider.getActiveLMSID();
-
-    //if the user is not authenticated yet
-    if (activeURL &&
-        activeURL.length) {
-        // authenticate the user by "GETing" his data/learner information from the server
-        $.ajax({
-            url: activeURL,
-            type: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                self.idprovider.enableLMS(); // FROM common.js
-                var authenticationObject;
-                try {
-                    //the authentication data are successfully received
-                    //its object format is assigned to the authentication object variable
-                    authenticationObject = data;
-                } catch (err) {
-                    //the authentication data couln't be parsed properly
-                    authenticationObject = {};
-                }
-                //assign as value to the learner information property of the configuration object
-                //the user authentication data, which were received from server
-                self.configuration.learnerInformation = authenticationObject.learnerInformation;
-                //store in the local storage the synchronization state
-                self.configuration.globalSynchronizationState = authenticationObject.globalSynchronizationState;
-
-                //store in the local storage the above received data
-                self.storeData();
-
-                /**
-                 * When all authentication data are received and stored in the local storage
-                 * the authenticationready event is triggered
-                 * @event authenticationready
-                 * @param the user id
-                 */
-                // TODO: remove legacy event
-                $(document).trigger("authenticationready",
-                                    authenticationObject.learnerInformation.userId);
-                $(document).trigger("ID_AUTHENTICATION_OK",
-                                    [serverid]);
-            },
-            // the receive of authenticated data was failed
-            error: function (request) {
-                // the specific view should decide on the response.
-                switch (request.status) {
-                    case 403:
-                        // TODO: remove legacy event
-                        $(document).trigger("ID_AUTHENTICATION_FAILED",
-                                           [serverid]);
-                        $(document).trigger("authenticationTemporaryfailed"); // TODO: move the listeners to ID_AUTHENTICATION_FAILED
-                        break;
-                    default:
-                        self.idprovider.disableLMS();
-                        $(document).trigger("ID_AUTHENTICATION_REJECTED",
-                                            [serverid]);
-                        break;
-                }
-            },
-            // we send the user authentication key as "sessionkey" via headers
-            // before the autentication takes plae and in order it to be validated or not
-            beforeSend: self.idprovider.sessionHeader(["Request"])
-        });
-    }
 };
 
 UserModel.prototype.setSessionHeader = function (xhr) {
@@ -287,92 +186,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         activeURL   = self.idprovider.serviceURL(serviceName),
         serverid    = self.idprovider.getActiveLMSID();
 
-    if (!activeURL.length) {
-        serviceName = "ch.isn.lms.auth";
-        activeURL = self.idprovider.serviceURL(serviceName);
-    }
-
-    function setHeaderLegacy(xhr) {
-        self.idprovider.setSessionHeader(xhr);
-        xhr.setRequestHeader('authdata', authData.username + ":" + authData.challenge);
-    }
-
-    function authOKLegacy(data) {
-        //if  any data are sent during the authentication but they are wrong and they send back different error messages
-        if (data && data.message) {
-            switch (data.message) {
-                //1. first error message is that the client key is invalid
-            case "invalid client key":
-                console.log("invalid client key - reregister");
-                //if the client key is invalide, register in order to get a new one
-
-                    // FIXME: Move to LMS Model
-                self.idprovider.lmsMgr.register();
-                /**
-                 * The authentication fails if no valid client key is received. An event is triggered
-                 * in order notify about the failure and the reason of failure (invalid key)
-                 * @event authenticationfailed
-                 * @event invalidclientkey
-                 */
-
-                // TODO: remove legacy event
-                $(document).trigger("authenticationfailed",
-                                    "invalidclientkey");
-                $(document).trigger("ID_TOKEN_REJECTED",
-                                    [serverid]);
-
-                break;
-                //2. second error message is that the user name or password were wrong
-            case "wrong user data":
-                console.log("Wrong username or password!");
-                /**
-                 * The authentication fails if wrong user name or password are received. An event is triggered
-                 * in order notify about the failure and the reason of failure (wrong data)
-                 * @event authenticationfailed
-                 * @event nouser
-                 */
-                $(document).trigger("ID_AUTHENTICATION_FAILED",
-                                    [serverid]);
-                break;
-            default:
-                break;
-            }
-            //if data are sent back from the server during the authentication and they dont contain any error messages
-            //and the user has an authenticaiton key
-        } else if (data && data.userAuthenticationKey !== "") {
-            var legacyToken = {
-                type: "user",
-                token: data.userAuthenticationKey
-            };
-
-            self.idprovider.addToken(legacyToken);
-
-            //store the authenticated data (user authentication key, learner information) in the local storage
-            self.configuration.userAuthenticationKey = data.userAuthenticationKey;
-            self.configuration.learnerInformation = data.learnerInformation;
-            self.configuration.loginState = "loggedIn";
-            self.storeData();
-            localStorage.setItem("pendingLogout", "");
-            self.idprovider.enableLMS();
-
-            /**
-             * When all authentication data are received and stored in the local storage
-             * the authenticationready event is triggered
-             * @event authenticationready
-             * @param the user authentication key
-             */
-            $(document).trigger("ID_AUTHENTICATION_OK",
-                                [serverid]);
-        } else {
-            // TODO: remove legacy event
-            //no error messages from the server and no userauthentication(session) key received
-            console.log("no error message from server and no session key received");
-            $(document).trigger("ID_CONNECTION_FAILURE",
-                                [serverid]);
-        }
-    }
-
     function authOK(data) {
+
         self.idprovider.addToken(data);
         $(document).trigger("ID_AUTHENTICATION_OK",
                             [serverid]);
@@ -381,17 +196,15 @@ UserModel.prototype.sendAuthToServer = function (authData) {
     }
 
     function authFail(request) {
+
         switch (request.status) {
             case 401:
             case 403:
-                console.log("Error while authentication to server");
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
                                     [serverid]);
                 break;
             case 500:
             case 404:
-                console.log("disable after server error in sendAuthToServer" +
-                            request.status);
                 self.idprovider.disableLMS();
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
@@ -417,14 +230,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             rObj.beforeSend   = self.idprovider.sessionHeader();
             rObj.data         = JSON.stringify(authData);
             break;
-        case "ch.isn.lms.auth":
-            rObj.success    = authOKLegacy;
-            rObj.type       = "POST";
-            rObj.beforeSend = setHeaderLegacy;
-            break;
         default:
             // should never happen!
-            console.log("// should never happen!");
             rObj = null;
             break;
     }
@@ -437,9 +244,6 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             $(document).trigger("ID_SERVER_UNAVAILABLE",
                                 [serverid]);
         }
-    }
-    else {
-        console.log("no request object " + (rObj ? rObj.url : "??"));
     }
 };
 
@@ -466,35 +270,15 @@ UserModel.prototype.sendLogoutToServer = function () {
 
     function logoutFail(request) {
         if (request.status === 403) {
-            console.log("deactivate after logout failure");
+
             self.idprovider.disableLMS();
         }
-
-        // LEGACY CODE
-        localStorage.setItem("pendingLogout", "1"); // the LMS Model should take case about this
     }
 
     function logoutOK() {
         // remove all access tokens
         self.idprovider.removeToken("MAC");
         self.idprovider.removeToken("Bearer");
-
-        // LEGACY CODE
-        self.idprovider.removeToken("user");
-
-        // LEGACY CODE should go away.
-        self.configuration = {
-            "userAuthenticationKey": "",
-            "learnerInformation": {
-                "userId": 0
-            },
-            "loginState": "loggedOut",
-            //"loginState": this.configuration.loginState;
-            "statisticsLoaded": false
-        };
-
-        var configString = JSON.stringify(self.configuration);
-        localStorage.setItem("configuration", configString);
 
         // KEEP
         $(document).trigger("ID_LOGOUT_OK",
@@ -534,7 +318,7 @@ UserModel.prototype.loadProfile = function (serverid) {
     }
 
     function loadProfile(data) {
-        console.log("profile successfully loaded");
+
         self.configuration = {learnerInformation: data};
         var configString = JSON.stringify(self.configuration);
 
@@ -548,19 +332,16 @@ UserModel.prototype.loadProfile = function (serverid) {
         switch (request.status) {
             case 401:
             case 403:
-                console.log("access token rejected in loadProfile()");
                 $(document).trigger("ID_TOKEN_REJECTED",
                                     [serverid]);
                 break;
             case 404:
             case 500:
-                console.log("disable after server failure in loadProfile() ");
                 self.idprovider.disableLMS();
                 $(document).trigger("ID_SERVER_FAILURE",
                                     [serverid]);
                 break;
             default:
-                console.log("other error in loadProfile() " + request.status);
                 break;
         }
     }

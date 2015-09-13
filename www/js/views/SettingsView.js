@@ -43,17 +43,6 @@ function SettingsView() {
     var self = this;
 
     this.tagID = this.app.viewId;
-
-    /**
-     * When all authentication data are received and stored in the local storage
-     * the authenticationready event is triggered and binded here
-     * @event authenticationready
-     * @param e, userID, the user id
-     */
-    $(document).bind("authenticationready", function (e, userID) {
-        console.log("authentication ready called " + userID);
-        self.loadData();
-    });
 }
 
 SettingsView.prototype.prepare = function () {

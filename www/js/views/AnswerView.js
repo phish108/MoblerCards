@@ -77,10 +77,12 @@ function AnswerView() {
  * @param {NONE}
  */
 AnswerView.prototype.prepare = function () {
+
     this.didApologize = false;
     // TODO: There should be an apologize widget.
 
     var qt = this.model.getQuestionInfo().type;
+
     switch (qt) {
         case 'assSingleChoice':
         case 'assMultipleChoice':
@@ -98,7 +100,6 @@ AnswerView.prototype.prepare = function () {
     this.scroll = true;
 
     this.activeDelegate = qt;
-    console.log("use delegate " + qt);
 
     this.useDelegate(qt);
 };
@@ -110,6 +111,7 @@ AnswerView.prototype.prepare = function () {
  * if preventDefault has been called during move events.
  */
 AnswerView.prototype.duringMove = function () {
+
     if (this.scroll) {
         this.doScroll();
     }
@@ -120,7 +122,9 @@ AnswerView.prototype.duringMove = function () {
  * TODO: include doScroll() in CoreView, so we don't have to bother here.
  */
 AnswerView.prototype.doScroll = function () {
+
     var dY = jstap().touches(0).delta.y();
+
     this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
@@ -132,12 +136,12 @@ AnswerView.prototype.doScroll = function () {
  * scrolls the container to the default position.
  */
 AnswerView.prototype.cleanup = function () {
+
     this.content.html(""); // remove everything from the content
 
     // hack for scrolling the content box into place.
     this.container.addClass("active");
     this.container.scrollTop(0);
-    // console.log("container during cleanup at " + this.container.scrollTop());
     this.container.removeClass("active");
 };
 
@@ -150,6 +154,7 @@ AnswerView.prototype.cleanup = function () {
  * note that the actual view contents is done by the widget delegates.
  **/
 AnswerView.prototype.update = function () {
+
     var currentAnswerTitle = this.model.getQuestionInfo().type;
 
     var title = jQuery.i18n.prop("msg_"+currentAnswerTitle +'_title'),
@@ -168,11 +173,14 @@ AnswerView.prototype.update = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 AnswerView.prototype.tap_answerfooter = function () {
+
     if (this.didApologize) {
+
         this.app.changeView("question", "CONTENT_QUESTION_READY");
         this.model.nextQuestion();
     }
     else {
+
         this.model.checkResponse();
         this.app.changeView("feedback");
     }
@@ -185,6 +193,7 @@ AnswerView.prototype.tap_answerheader = function () {
 };
 
 AnswerView.prototype.tap_answercross = function () {
+
     this.model.finishAttempt(); // avoid cancel here
     this.model.deactivateCourse(); // reset the contexts
     this.app.chooseView("course", "landing");

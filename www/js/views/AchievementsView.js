@@ -64,35 +64,6 @@ function AchievementsView() {
     var self = this;
 
     self.tagID = self.app.viewId;
-
-    /**It is triggered after statistics loaded locally from the server. This happens during the
-     * authentication
-     * @event loadstatisticsfromserver
-     * @param: a callback function that gets the first active day in order to start the calculation
-     *         of all thedifferent statistics metrics.
-     */
-    // TODO make loginState a boolean if possible
-    $(document).bind("loadstatisticsfromserver", function () {
-        if ((self.app.isActiveView(self.tagId)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-            console.log("enters load statistics from server is done");
-            self.app.models.statistics.getFirstActiveDay();
-        }
-    });
-
-    /**It is triggered when the calculation of all the statistics metrics is done
-     * @event allstatisticcalculationsdone
-     * @param: a callback function that loads the body of the achievements view, which are
-     *        the two achievement types (cardBurner, stackHandler) and their values.
-     */
-    $(document).bind("allstatisticcalculationsdone", function () {
-        console.log("enters in calculations done 1 ");
-        if ((self.app.isActiveView(self.tagId)) &&
-            (self.app.models.configuration.configuration.loginState === "loggedIn")) {
-            console.log("enters in calculations done 2 ");
-            self.showAchievementsBody();
-        }
-    });
 }
 
 /**

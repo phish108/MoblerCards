@@ -250,25 +250,19 @@ IdentityProvider.prototype.sessionState = function (lmsid) {
  * via their app property.
  */
 IdentityProvider.prototype.setSessionHeader = function (xhr, url, method, tokenType) {
+
     var token = this.lmsMgr.getActiveToken();
 
     if (token) {
-        console.log("set session header for " + url + " using " + JSON.stringify(token));
-        if (token.type === "device" || token.type === "user") {
-            // legacy headers
-            console.log("set legacy headers");
-            this.usrMgr.setSessionHeader(xhr);
-            this.lmsMgr.setSessionHeader(xhr);
-        }
-        else if (!(tokenType && tokenType.length) ||
+
+       if (!(tokenType &&
+                   tokenType.length) ||
                   tokenType.indexOf(token.type) >= 0) {
-            console.log("set new headers for " + method + " " + url );
 
             var authCode = this.signURL(url, method);
 
-            console.log("auth header: Authorization " + authCode);
-
             if (authCode && authCode.length) {
+
                 xhr.setRequestHeader("Authorization", authCode);
             }
         }
@@ -277,9 +271,12 @@ IdentityProvider.prototype.setSessionHeader = function (xhr, url, method, tokenT
 };
 
 IdentityProvider.prototype.sessionHeader = function (tokenType) {
-    var self = this;
-    var tt   = tokenType;
+
+    var self = this,
+        tt   = tokenType;
+
     return function (xhr, settings) {
+
         var tp = "GET";
         if (settings.type) {
             tp = settings.type;
@@ -304,12 +301,17 @@ IdentityProvider.prototype.sessionHeader = function (tokenType) {
  * The bind parameter is for setting the this variable correctly.
  */
 IdentityProvider.prototype.getUserProfile = function (cbFunc, bind) {
+
     var userInfo = null;
+
     if (typeof cbFunc === "function") {
+
         if (!bind) {
             bind = this;
         }
+
         if (this.usrMgr.isLoggedIn()) {
+
             userInfo = {
                 "displayName": this.usrMgr.getDisplayName(),
                 "userName": this.usrMgr.getUserName(),
@@ -319,7 +321,6 @@ IdentityProvider.prototype.getUserProfile = function (cbFunc, bind) {
             };
         }
 
-        console.log(userInfo);
         cbFunc.call(bind, userInfo);
     }
 };
@@ -341,15 +342,18 @@ IdentityProvider.prototype.getActorToken = function (lmsid) {
  * on the LMS.
  */
 IdentityProvider.prototype.getLanguage =  function () {
+
     var lang = this.language,
         lmsLang = this.lmsMgr.getDefaultLanguage(),
         usrLang = this.usrMgr.getLanguage();
 
     if (lmsLang && lmsLang.length) {
+
         lang = lmsLang;
     }
 
     if (usrLang && usrLang.length) {
+
         lang = usrLang;
     }
 
@@ -366,7 +370,9 @@ IdentityProvider.prototype.getLanguage =  function () {
  * This will also determine whether the backend is online
  */
 IdentityProvider.prototype.synchronize = function() {
+
     if (this.app.isOnline()) {
+
         this.lmsMgr.synchronize();
         this.usrMgr.synchronize();
     }
@@ -421,7 +427,6 @@ IdentityProvider.prototype.signWithToken = function (signString) {
             }
             return hex_sha1(signString + token);
         }
-        console.log("no sign object!");
     }
     return undefined;
 };
@@ -438,13 +443,12 @@ IdentityProvider.prototype.signURL = function (URL, method) {
 
     signObject.nonce = this.nonce(7);
     signObject.url = URL;
+
     if ( window.device && device.uuid) {
         signObject.client = device.uuid;
     }
 
     signObject.id = token.id;
-
-    console.log("sign token type " + token.type);
 
     switch (token.type) {
         case "Bearer":
@@ -495,7 +499,6 @@ IdentityProvider.prototype.signURL = function (URL, method) {
             }
             break;
         default:
-            console.log("invalid token");
             break;
     }
     return resultString;

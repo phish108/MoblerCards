@@ -656,7 +656,7 @@
                     if (tLen > nCorr &&
                         tLen === this.activeQuestion.answer.length) {
                         // if not all answers are correct but the user ticked all we set wrong!
-                        console.log("cheating attempt!");
+
                         this.score = 0;
                     }
                 }
@@ -704,7 +704,6 @@
             default:
                 break;
         }
-        console.log("checkScore? " + this.score);
 
         this.finishAttempt();
     };
@@ -814,7 +813,7 @@
 
         function checkImage(a, j) {
             if (a.hasOwnProperty("image") && a.image && a.image.length) {
-                console.log("bad question with image at pos " + j);
+
                 bad = true;
             }
         }
@@ -839,11 +838,12 @@
                     }
                 });
             }
-            console.log(retval);
+
             return retval;
         }
 
         questions.forEach(function (question) {
+
             switch (question.type) {
                 case "assSingleChoice":
                 case "assMultipleChoice":
@@ -863,7 +863,6 @@
                     break;
                 default:
                     // restrict the questionpool
-                    console.log("bad question of type " + question.type);
                     bad = true;
                     break;
             }
@@ -872,11 +871,10 @@
         // TODO also check for images and other incompatible features.
 
         if (bad) {
-            console.log("bad question pool");
+
             return false;
         }
 
-        console.log("QP validated");
         return true;
     };
 
@@ -951,28 +949,29 @@
         if (this.app.isOnline()) {
             var self = this;
             if (typeof lmsid !== "string") {
+
                 this.synchronizeAll();
                 return;
             }
 
             // do not synchronize while there is already a sync process for the lms
             if (!syncFlags.hasOwnProperty(lmsid)) {
+
                 syncFlags[lmsid] = true;
 
                 this.fetchCourseList(lmsid)
-                .then(function (courseList) {
-                    // load one course after the other
-                    self.verifyCourseData(courseList, lmsid);
-                })
-                .catch(function (msg){
-                    // send apologise signal depending on error
-                    console.log("server error step 1: ");
-                    console.log(msg);
+                    .then(function (courseList) {
 
-                    delete syncFlags[lmsid];
-                    // TODO: trigger correct event
-                    $(document).trigger("MY_SERVER_ERROR");
-                });
+                        // load one course after the other
+                        self.verifyCourseData(courseList, lmsid);
+                    })
+                    .catch(function (msg){
+                        // send apologise signal depending on error
+
+                        delete syncFlags[lmsid];
+                        // TODO: trigger correct event
+                        $(document).trigger("MY_SERVER_ERROR");
+                    });
             }
         }
     };
@@ -984,6 +983,7 @@
 
         courseList.forEach(function (c) {
             if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
+
                 tList.push(c);
             }
         });
@@ -1011,10 +1011,9 @@
                 self.fetchQuestionpoolList(course,lmsId)
                     .then(handleCourse)
                     .catch(function (msg) {
-                         console.log("server error step 2: " + msg  + " on "+ lmsId + " ("+courseList[i]+")");
-                        // TODO: trigger correct event
-                    delete syncFlags[lmsId];
-                });
+                            // TODO: trigger correct event
+                        delete syncFlags[lmsId];
+                    });
             }
             else {
                 // there are no more courses to fetch.
@@ -1041,7 +1040,6 @@
             }
             else {
                 // ignore this course, because it has no or invalid question pools
-                console.log("ignore course " + course.id);
                 ignoreCourseForLMS(lmsId, course.id);
             }
             // the event is always triggerd, because a course update could be

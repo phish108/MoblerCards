@@ -75,10 +75,8 @@ QuestionView.prototype.tap = function () {
 };
 
 QuestionView.prototype.swipe = function (event) {
+
     var id = event.target.id;
-//    var tx = touches.touch(0).total.x(),
-//        ax = Math.abs(tx);
-//    console.log("a swipe event" + id + " distance: " + ax);
 
     if (id !== "questioncross") {
         if (this.model.isAttempt()){

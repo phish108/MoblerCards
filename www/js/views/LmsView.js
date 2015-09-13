@@ -42,6 +42,7 @@ var jQuery = window.jQuery;
  * @param {String} controller
  */
 function LMSView() {
+
     var self = this;
 
     this.tagID = this.app.viewId;
@@ -51,26 +52,6 @@ function LMSView() {
     this.messageShown = false;
     this.preServername = "";
 
-    /**It is triggered when an unregistered lms item is selected and and there is no internet connection
-     * @event lmsOffline
-     * @param: a callback function that displays a message that states that we are offline and no registration can take place
-     * 			for the specific unregistered lms
-     */
-    $(document).bind("lmsOffline", function (e, servername) {
-        console.log("we are offline");
-        self.showLMSConnectionMessage('msg_lms_connection_message', servername);
-    });
-
-    /**It is triggered when an lms is online and failed to register for any reason. More specifically
-     * it is triggered when no more than 24 hours have been passed from the first failed attempt for registration.
-     * @event lmsNotRegistrableYet
-     * @param: a callback function that displays a message to the user that the server is not available and the
-     * 		   registration cannot take place
-     */
-    $(document).bind("lmsNotRegistrableYet", function (e, servername) {
-        self.refresh();
-        self.showLMSRegistrationMessage('msg_lms_registration_message', servername);
-    });
 
     /**It is triggered when the registration of an lms fails because of any reason
      * @event registrationfailed
@@ -81,27 +62,6 @@ function LMSView() {
         // the model must not change the LMS
         self.refresh();
         self.showLMSRegistrationMessage('msg_lms_registration_message', servername);
-    });
-
-    /**It is triggered when the registration of an lms fails because the backend is not activated
-     * @event registrationfailed
-     * @param:a callback function  that displays a message to the user that the server is not available temporarily
-     */
-    $(document).bind("registrationTemporaryfailed", function (e, servername, previousLMS) {
-        self.refresh();
-        console.log("previous lms in temporary failed lms is " + previousLMS);
-        //var previousLMS=self.app.models['lms'].getPreviousServer();
-        self.showLMSTemporaryRegistrationMessage('msg_lms_deactivate_registration_message',
-                                        servername, previousLMS);
-    });
-
-    /**It is triggered when the registration of an lms has just started
-     * @event registrationIsStarted
-     * @param:a callback function  that displays the loading icon in the place of the statistics icon
-     */
-    $(document).bind("registrationIsStarted", function (e, servername) {
-        console.log("server name passed " + servername);
-        self.showLoadingIcon(servername);
     });
 
     function closeAddAndRefresh() {
@@ -116,11 +76,12 @@ function LMSView() {
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
 
-
     $("#addlmsform").bind("submit", function (ev) {
+
         ev.preventDefault(); // prevent reloading before we can have bugs
-        console.log("form submit");
+
         var lmsurl = $("#addlmsinput")[0].value;
+
         $("#addlmsinput")[0].blur();
 
         var turl = lmsurl;
@@ -133,7 +94,6 @@ function LMSView() {
             turl &&
             turl.length > 5) {
 
-            console.log("add a new LMS!");
             self.model.addLMS(lmsurl);
             // display waiting circle
             $("#addlmsbutton").addClass("hidden");
@@ -141,7 +101,6 @@ function LMSView() {
         }
         else {
             // simply close the form
-            console.log("LMSView.closeAddForm " + lmsurl + " :: "+ turl);
             self.closeAddForm();
         }
     });
@@ -167,7 +126,6 @@ LMSView.prototype.closeAddForm = function () {
  * @function open
  **/
 LMSView.prototype.prepare = function () {
-    console.log("[LMSView] preparing");
     this.active = true;
     $("#lmsList").empty();
     this.firstLoad = false;
@@ -185,7 +143,7 @@ LMSView.prototype.prepare = function () {
  * @function close
  **/
 LMSView.prototype.cleanup = function () {
-    console.log("close lms view");
+
     this.active = false;
     $("#lmsbody").empty();
 
@@ -208,8 +166,6 @@ LMSView.prototype.cleanup = function () {
 LMSView.prototype.tap = function (event) {
     var id = event.target.id;
     var sn = id.split("_").pop();
-
-    console.log("[LMSView] tap registered: " + id + " " + sn);
 
     if (id.indexOf("lmslist") === 0)  {
         this.clickLMSItem(sn, $(event.target));
@@ -245,8 +201,6 @@ LMSView.prototype.tap_addlmsbox = function () {
             lmsurl.length &&
             turl &&
             turl.length > 5) {
-
-            console.log("add a new LMS!");
 
             this.model.addLMS(lmsurl);
             // display waiting circle
@@ -291,9 +245,6 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     var sn = lmsData.name;
     var lmstmpl = this.app.templates.getTemplate("lmslistbox");
 
-    console.log("servername " + sn);
-    console.log("logoLabel " + lmsData.logofile);
-    console.log(JSON.stringify(lmsData));
     lmstmpl.attach(lmsData.id);
 
     if (lmsData.selected) {
@@ -356,9 +307,6 @@ LMSView.prototype.deactivateLMS = function (servername) {
 
         $("#lmslabel_lmslistbox_" + servername).addClass("lightgrey");
     }
-    else {
-        console.log("some typo");
-    }
 };
 
 /**when an lms has been temporarily (for one hour) been abanded
@@ -374,9 +322,6 @@ LMSView.prototype.activateLMS = function (servername) {
         $("#lmsimg_lmslistbox_" + servername).removeClass("hidden");
 
         $("#lmslabel_lmslistbox_" + servername).removeClass("lightgrey");
-    }
-    else {
-        console.log("some typo");
     }
 };
 
@@ -403,7 +348,6 @@ LMSView.prototype.hideRotation = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.toggleIconWait = function (servername) {
-    console.log("toggle icon wait");
     if (!($("#lmswait_lmslistbox_" + servername).hasClass("hidden"))) {
         $("#lmswait_lmslistbox_" + servername).addClass("icon-loading loadingRotation");
         $("#lmswait_lmslistbox_" + servername).removeClass("hidden");
@@ -433,7 +377,6 @@ LMSView.prototype.clickLMSItem = function (servername, lmsitem) {
 //        this.preServername = lmsModel.getPreviousServer();
 //        this.selectItemVisuals(servername);
 //        this.deselectItemVisuals(this.preServername);
-        console.log("activate " + servername);
         this.model.activateLMS(servername);
     }
 };
@@ -452,7 +395,6 @@ LMSView.prototype.showLMSConnectionMessage = function (message, servername) {
 
     // to display an error message that we are
     // offline and we cannot register with the server
-    console.log("enter show lms connection message");
 
     self.toggleIconWait(servername);
 
@@ -465,7 +407,6 @@ LMSView.prototype.showLMSConnectionMessage = function (message, servername) {
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
     $("#lmserrormessage" + servername).hide();
     $("#lmserrormessage" + servername).slideDown(600);
-    console.log("lmsmessage for server" + servername);
 
     setTimeout(function () {
         $("#lmserrormessage" + servername).slideUp(600);
@@ -501,12 +442,6 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
     $("#lmsregistrationmessage" + servername).hide();
     $("#lmsregistrationmessage" + servername).slideDown(600);
-    console.log("lmsregistrationmessage for server" + servername);
-
-    // to display an error message that
-    // there is a problem with the specific server
-    // and we cannot register
-    console.log("enter show lms registration message");
 
     setTimeout(function () {
         $("#lmsregistrationmessage" + servername).slideUp(600);
@@ -530,11 +465,13 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
  * a text with containing the warning message, the name of the selected server, thename of the previous selected server
  */
 LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, servername, previousLMS) {
+
     var self = this;
-    console.log("enter temporar");
+
     $("#lmstemporaryregistrationwaitingmessage" + servername).remove();
     self.toggleIconWait(servername);
 
+    // TODO use templated messages
     var warningLi = $('<li/>', {
         "id": "lmstemporaryregistrationwaitingmessage" + servername,
         "class": "gradientMessages lmsmessage",
@@ -555,9 +492,9 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
     //to make visually this lms as inactive
     //and activate the previously selected lms
     setTimeout(function () {
+
         self.deselectItemVisuals(servername);
         self.deactivateLMS(servername);
-        //console.log("previouslms is "+previouslms);
         //var previouslms=this.app.models['lms'].getPreviousServer();
         self.model.activateLMS(previousLMS);
         $("#lmslist_lmslistbox_" + previousLMS).addClass("selected");
@@ -568,9 +505,9 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
     //	if yes activated it
     //	we need firstly to check if the active view is the lms list view
     if (self.active) {
-        console.log("lms is active, try setTimeOut again");
+
         setTimeout(function () {
-            console.log("reactivation?");
+
             self.model.storeActiveServer(servername);
             self.model.register(servername);
         }, 60 * 1000);
@@ -585,6 +522,5 @@ LMSView.prototype.showLMSTemporaryRegistrationMessage = function (message, serve
  * @param {String} servername, the name of the selected server
  */
 LMSView.prototype.showLoadingIcon = function (servername) {
-    var self = this;
-    self.toggleIconWait(servername);
+    this.toggleIconWait(servername);
 };
