@@ -15,7 +15,10 @@
    id="svg4823"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="feature.svg">
+   sodipodi:docname="feature.svg"
+   inkscape:export-filename="/Users/phish/Documents/code/MoblerCardsB/artwork/playstore-feature.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4825" />
   <sodipodi:namedview
@@ -23,7 +26,7 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="0.94"
      inkscape:cx="355.24292"
@@ -36,7 +39,9 @@
      inkscape:window-height="1031"
      inkscape:window-x="1683"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="0"
+     showborder="true"
+     inkscape:showpageshadow="false" />
   <metadata
      id="metadata4828">
     <rdf:RDF>
