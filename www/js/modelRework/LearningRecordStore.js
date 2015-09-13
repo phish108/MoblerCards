@@ -1226,7 +1226,7 @@ under the License.
         var lstUUID = loadLrsUuidList(lmsid);
 
         function cbAllDone() {
-            console.log("LRS #### all done for " + lmsid);
+            // console.log("LRS #### all done for " + lmsid);
             cntActiveTransactions--;
             if (!cntActiveTransactions) {
                 storeLrsUuidList(lmsid, lstUUID);
@@ -1384,7 +1384,6 @@ under the License.
 
         function cbGetLocalActions() {
             console.log("LRS #### sync lms " + lmsid);
-
 
             return DB.select({
                 from: {
