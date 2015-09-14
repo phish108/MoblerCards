@@ -1,7 +1,12 @@
-.contentbox {
-    padding-top: 82px;
-}
+@media
+  (orientation: portrait) {
 
-.headerbox {
-    padding-top: 20px;
+    .contentbox {
+        padding-top: 82px;
+    }
+
+    .headerbox {
+        padding-top: 20px;
+    }
+
 }

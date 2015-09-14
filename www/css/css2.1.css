@@ -5,7 +5,8 @@ body {
     overflow: scroll;
     /*color: #666;*/
     color: #646464;
-    font: 19px HelveticaNeue, Arial, sans-serif;
+    font-family: "SF UI Text", Roboto, HelveticaNeue-Light, HelveticaNeue, Arial, sans-serif;
+    font-size: 19px;
     margin: 0px;
     padding: 0px;
 }
@@ -235,7 +236,7 @@ input.listlabel {
 #landingtitle {
     text-align: center;
     padding-top: 5px;
-    font-weight: bold;
+/*    font-weight: bold;*/
     color: white;
 }
 /****************** Course View ******************************/
