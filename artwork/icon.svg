@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="icon.svg"
-   inkscape:export-filename="/Users/phish/Documents/code/MoblerCardsB/icons/xxxhdpi/icon.png"
-   inkscape:export-xdpi="71.910004"
-   inkscape:export-ydpi="71.910004">
+   inkscape:export-filename="/Users/phish/Documents/code/MoblerCardsB/artwork/LaunchImage_old@3x.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -28,21 +28,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.4708333"
-     inkscape:cx="118.9916"
-     inkscape:cy="124.9602"
+     inkscape:zoom="0.59895052"
+     inkscape:cx="181.78348"
+     inkscape:cy="34.351285"
      inkscape:document-units="px"
-     inkscape:current-layer="layer6"
-     showgrid="true"
+     inkscape:current-layer="layer3"
+     showgrid="false"
      units="px"
      width="200px"
      showguides="false"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1035"
-     inkscape:window-x="1696"
+     inkscape:window-width="1680"
+     inkscape:window-height="1001"
+     inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0">
+     inkscape:window-maximized="1">
     <inkscape:grid
        type="xygrid"
        id="grid5348" />
@@ -83,16 +83,30 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="bg-launch">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4160"
+       width="320"
+       height="568"
+       x="-43.330414"
+       y="-159"
+       rx="0"
+       ry="0" />
+  </g>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-812.3622)"
-     style="display:inline">
+     style="display:none">
     <rect
        style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect5474"
@@ -102,8 +116,8 @@
        y="812.36218"
        ry="30.000017"
        rx="30.288116"
-       inkscape:export-xdpi="23.969999"
-       inkscape:export-ydpi="23.969999" />
+       inkscape:export-xdpi="53.939999"
+       inkscape:export-ydpi="53.939999" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -134,8 +148,8 @@
        width="190"
        id="rect5453"
        style="opacity:1;fill:#7abcd8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       inkscape:export-xdpi="23.969999"
-       inkscape:export-ydpi="23.969999" />
+       inkscape:export-xdpi="53.939999"
+       inkscape:export-ydpi="53.939999" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -151,8 +165,8 @@
        y="80.663948"
        ry="10.042504"
        transform="matrix(0.97897685,-0.2039714,0.2039714,0.97897685,0,0)"
-       inkscape:export-xdpi="23.969999"
-       inkscape:export-ydpi="23.969999" />
+       inkscape:export-xdpi="53.939999"
+       inkscape:export-ydpi="53.939999" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -168,12 +182,12 @@
        y="95.411774"
        ry="9.5882263"
        rx="10.066025"
-       inkscape:export-xdpi="23.969999"
-       inkscape:export-ydpi="23.969999" />
+       inkscape:export-xdpi="53.939999"
+       inkscape:export-ydpi="53.939999" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="Front 1"
-     style="display:inline" />
+     style="display:none" />
 </svg>
