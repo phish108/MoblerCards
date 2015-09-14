@@ -1,6 +1,6 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
-/*global $, jQuery, Connection, jstap*/
+/*global $, jQuery, Connection, jstap, device*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -38,6 +38,10 @@ function MoblerCards() {
     self.MoblerVersion = 3.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
+
+    if (device.platform === "iOS") {
+        var style = $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
+    }
 
    // var featuredContentId = FEATURED_CONTENT_ID;
    // var startTime = new Date().getTime();
