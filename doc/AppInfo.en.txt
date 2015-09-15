@@ -17,8 +17,9 @@ having to check online.
 Features
 * Automatic synchronisation with your courses system
 * Immediate feedback on your responses
-* 5 different performance statistics
+* Performance statistics
 * Learn even if you have only a small bandwidth or no connection
+* Connect to private Learning Management Systems
 * Single choice questions
 * Multiple choice questions
 * Sorting questions

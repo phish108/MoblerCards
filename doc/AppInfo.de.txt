@@ -16,10 +16,11 @@ bekommst du diese auf dein Handy geladen ohne umständlich online nach
 Änderungen zu suchen.
 
 Funktionen
-* Automatische Synchronisierung mit deinem Lernumgebung
+* Automatische Synchronisierung mit deiner Lernumgebung
 * Sofortige Rückmeldung auf deine Leistungen
-* 5 verschiedene Leistungsstatistiken
-* Lerne auf ohne Internetverbindung 
+* verschiedene Leistungsstatistiken
+* Lerne auch ohne Internetverbindung
+* Verbinde dich auf private Lernplattformen
 * Single choice Fragen
 * Multiple choice Fragen
 * Sortierungsfragen
