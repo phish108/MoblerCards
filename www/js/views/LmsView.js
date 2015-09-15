@@ -52,6 +52,8 @@ function LMSView() {
     this.messageShown = false;
     this.preServername = "";
 
+    this.addLMSInputOpen = false;
+
 
     /**It is triggered when the registration of an lms fails because of any reason
      * @event registrationfailed
@@ -75,6 +77,9 @@ function LMSView() {
     $(document).bind("LMS_DEVICE_READY", closeAddAndRefresh);
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
+    $("#addlmsbox").bind("click", function (ev) {
+        $("#addlmsinput").focus();
+    });
 
     $("#addlmsform").bind("submit",
                           function (ev) {
@@ -82,8 +87,6 @@ function LMSView() {
         ev.preventDefault(); // prevent reloading before we can have bugs
 
         var lmsurl = $("#addlmsinput")[0].value;
-
-        $("#addlmsinput")[0].blur();
 
         var turl = lmsurl;
         // keep the http if present
@@ -108,8 +111,8 @@ function LMSView() {
 }
 
 LMSView.prototype.closeAddForm = function () {
-    $("#addlmsplaceholder").toggleClass("hidden");
-    $("#addlmsinputbox").toggleClass("hidden");
+    $("#msg_add_lms_label").removeClass("hidden");
+    $("#addlmsinputbox").addClass("hidden");
     $("#addlmsinput")[0].value = "";
     $("#addlmsinput")[0].blur();
 
@@ -154,7 +157,7 @@ LMSView.prototype.cleanup = function () {
         this.app.changeView("login");
     }
 
-    $("#addlmsplaceholder").removeClass("hidden");
+    $("#msg_add_lms_label").removeClass("hidden");
     $("#addlmsinputbox").addClass("hidden");
     $("#addlmsinput")[0].value = "";
 };
@@ -165,6 +168,7 @@ LMSView.prototype.cleanup = function () {
  * @function handleTap
  **/
 LMSView.prototype.tap = function (event) {
+    console.log("caught tap");
     var id = event.target.id;
     var sn = id.split("_").pop();
 
@@ -174,6 +178,10 @@ LMSView.prototype.tap = function (event) {
             $("#lmslabel_lmslistbox_" + this.preServername).addClass("selected");
         }
     }
+    else if (this.addLMSInputOpen) {
+        console.log("in tap close form");
+        this.closeAddForm();
+    }
 };
 
 LMSView.prototype.tap_lmscross = function () {
@@ -181,17 +189,23 @@ LMSView.prototype.tap_lmscross = function () {
     //this.back();
 };
 
-LMSView.prototype.tap_addlmsbox = function () {
+LMSView.prototype.tap_addlmsbox = function (ev) {
+    console.log("caught tap addlmsbox");
+
     if ($("#addlmsinputbox").hasClass("hidden")) {
         // add a new LMS
         // TODO if we are offline show a message that "we cannot add new lmses while offline"
-        $("#addlmsplaceholder").toggleClass("hidden");
-        $("#addlmsinputbox").toggleClass("hidden");
+        this.addLMSInputOpen = true;
+        ev.preventDefault();
+
+        $("#msg_add_lms_label").addClass("hidden");
         $("#addlmsinput")[0].value = "";
-        $("#addlmsinput")[0].blur();
+        $("#addlmsinputbox").removeClass("hidden");
         $("#addlmsbutton").removeClass("hidden");
+        $("#addlmsinput").focus();
+
     }
-    else {
+    else if (ev.target.id !== "addlmsinputbox") {
         // check if we can connect to a new LMS
         var lmsurl = $("#addlmsinput")[0].value;
         var turl = lmsurl;
@@ -205,17 +219,12 @@ LMSView.prototype.tap_addlmsbox = function () {
 
             this.model.addLMS(lmsurl);
             // display waiting circle
+            this.addLMSInputOpen = false;
             $("#addlmsbutton").addClass("hidden");
             $("#addlmswait").removeClass("hidden");
         }
         else {
-            // simply close the form
-            $("#addlmsplaceholder").toggleClass("hidden");
-            $("#addlmsinputbox").toggleClass("hidden");
-            $("#addlmsinput")[0].value = "";
-            $("#addlmsinput")[0].blur();
-            $("#addlmsbutton").removeClass("hidden");
-            $("#addlmswait").addClass("hidden");
+            this.closeAddForm();
         }
     }
 };

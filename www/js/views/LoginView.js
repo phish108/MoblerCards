@@ -51,8 +51,6 @@ function LoginView() {
     function cbLoginSuccess() {
 
         if (self.active) {
-
-            $(document).trigger("trackingEventDetected", ["Login"]);
             if (self.app.getLoginState()) {
                 self.app.changeView("course");
             } else {
@@ -86,15 +84,6 @@ function LoginView() {
     }
 
     $(document).bind("ID_SERVER_UNAVAILABLE", cbLoginFailure);
-
-    /**
-     * It is triggered when an online connection is detected.
-     * @event errormessagehide
-     * @param: a function that hides the error message from login view
-     * **/
-    $(document).bind("errormessagehide", function () {
-        self.hideMessage();
-    });
 
     $(document).bind("online", function () {
         self.hideMessage();
