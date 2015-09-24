@@ -157,6 +157,10 @@ LoginView.prototype.update = function () {
     }
 };
 
+LoginView.prototype.activateUI = function () {
+    $("#username").focus();
+};
+
 /**
  * closes the view after firstly clearing
  * the input fields of the login form
