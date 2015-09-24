@@ -26,6 +26,7 @@ li, .touchable, .screen {
 /*********************** Header ***********************/
 .headerbox {
     display: table;
+    table-layout: fixed; /* avoid grid violations */
     position: fixed;
     top: 0px;
     left: 0px;
@@ -50,8 +51,12 @@ li, .touchable, .screen {
     height: 50px;
     vertical-align: middle;
     overflow: hidden;
+
+    /* restrict languages to the grid */
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
 .closeicon {
     display: table-cell;
     width: 63px;
