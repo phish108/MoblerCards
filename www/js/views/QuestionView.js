@@ -1,4 +1,10 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
+/*jslint white:true*/      // we have a different indentation style
+/*jslint vars: true*/      // don't complain about multiple variable declarations.
+/*jslint sloppy: true*/    // dont't expect use strict.
+/*jslint plusplus: true*/  // allow the ++ operator
+/*jslint browser: true */  // ignore all browser globals
+/*jslint unparam: true*/   // allow unused parameters in function signatures
+
 /*global $, jQuery*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -62,12 +68,12 @@ QuestionView.prototype.update = function () {
  * @param {object} event - contains all the information for the touch interaction.
  */
 QuestionView.prototype.tap = function () {
-    if (this.model.answerScore >= 0) {
+    if (this.model.score >= 0) {
         this.app.changeView("feedback");
     }
     else {
         if (!this.model.isAttempt()) {
-            this.model.startAttempt(this.qInfo.id);
+            this.model.startAttempt();
         }
         this.app.changeView("answer");
     }

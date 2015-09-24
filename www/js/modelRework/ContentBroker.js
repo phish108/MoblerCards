@@ -325,6 +325,9 @@
             questions     = [],
             newQuestions  = [];
 
+        // remove the score of the previous question
+        this.score = undefined;
+
         if (this.activeQuestion) {
             activeId = this.activeQuestion.id;
         }
@@ -729,6 +732,7 @@
      */
     ContentBroker.prototype.startAttempt = function () {
         var self = this;
+
         var objectId = this.idprovider.serviceURL("powertla.content.imsqti",
                                                   this.activeQuestion.lmsId,
                                                   [this.activeQuestion.courseId,
