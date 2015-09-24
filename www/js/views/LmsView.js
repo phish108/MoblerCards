@@ -67,16 +67,18 @@ function LMSView() {
     });
 
     function closeAddAndRefresh() {
-        if (this.addLMSInputOpen) {
-            // a new LMS has been successfully added
-            // clear the form an show the placeholder
-            self.closeAddForm();
-            self.refresh(); // display the new LMS
-            // hide waiting cycle
-        }
-        else {
-            // a new LMS has been activated, close and switch to login.
-            self.app.changeView("login");
+        if (this.active) {
+            if (this.addLMSInputOpen) {
+                // a new LMS has been successfully added
+                // clear the form an show the placeholder
+                self.closeAddForm();
+                self.refresh(); // display the new LMS
+                // hide waiting cycle
+            }
+            else {
+                // a new LMS has been activated, close and switch to login.
+                self.app.changeView("login");
+            }
         }
     }
 
