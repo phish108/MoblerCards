@@ -454,7 +454,6 @@
 
         $(document).bind("LRS_LOGOUT_READY",     function (evt, serverid) {
             // if this log is not present the logout will fail
-            console.log("LRS READY 4 LOGOUT");
 
             serviceid = serverid;
             lrsLogoutReady = true;
@@ -463,7 +462,6 @@
 
         $(document).bind("CONTENT_LOGOUT_READY", function (evt, serverid) {
             // if this log is not present the logout will fail
-            console.log("CB READY 4 LOGOUT");
 
             serviceid = serverid;
             cbLogoutReady = true;

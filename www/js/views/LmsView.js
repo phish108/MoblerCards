@@ -176,7 +176,6 @@ LMSView.prototype.cleanup = function () {
  * @function handleTap
  **/
 LMSView.prototype.tap = function (event) {
-    console.log("caught tap");
     var id = event.target.id;
     var sn = id.split("_").pop();
 
@@ -184,7 +183,6 @@ LMSView.prototype.tap = function (event) {
     tmpl.find(sn);
 
     if (tmpl.lmswait.hasClass("icon-cross")) {
-        console.log("do fake selection");
         tmpl.lmslist.addClass("selected");
         setTimeout(function () {
             tmpl.lmslist.removeClass("selected");
@@ -197,7 +195,6 @@ LMSView.prototype.tap = function (event) {
         }
     }
     else if (this.addLMSInputOpen) {
-        console.log("in tap close form");
         this.closeAddForm();
     }
 };
@@ -208,8 +205,6 @@ LMSView.prototype.tap_lmscross = function () {
 };
 
 LMSView.prototype.tap_addlmsbox = function (ev) {
-    console.log("caught tap addlmsbox");
-
     if ($("#addlmsinputbox").hasClass("hidden")) {
         // add a new LMS
         // TODO if we are offline show a message that "we cannot add new lmses while offline"
@@ -274,8 +269,6 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     var lmstmpl = this.app.templates.getTemplate("lmslistbox");
 
     lmstmpl.attach(lmsData.id);
-
-    console.log(lmsData);
 
     if (lmsData.selected) {
         lmstmpl.lmslist.addClass("selected");

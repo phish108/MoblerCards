@@ -141,8 +141,8 @@ under the License.
 
         $(document).bind("ID_LOGOUT_REQUESTED", function (evt, serverid) {
             // TODO: synchronise the server if possible
-            console.log("sync LRS before logging out " + serverid);
-            console.log("state of bSync " + bSyncFlag);
+            //console.log("sync LRS before logging out " + serverid);
+            //console.log("state of bSync " + bSyncFlag);
             logoutSync[serverid] = true;
             self.synchronize(serverid);
         });
@@ -1245,7 +1245,7 @@ under the License.
         function cbAllDone() {
             // console.log("LRS #### all done for " + lmsid);
             cntActiveTransactions--;
-            console.log("terminate at 0 transactions? " + cntActiveTransactions);
+            //console.log("terminate at 0 transactions? " + cntActiveTransactions);
             if (!cntActiveTransactions) {
                 storeLrsUuidList(lmsid, lstUUID);
                 bSyncFlag = false;
@@ -1258,7 +1258,7 @@ under the License.
         }
 
         function cbSyncError(err) {
-            console.log("LRS #### sync error: " + JSON.stringify(err));
+            //console.log("LRS #### sync error: " + JSON.stringify(err));
             cbAllDone();
         }
 
