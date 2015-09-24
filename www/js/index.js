@@ -63,6 +63,15 @@ function MoblerCards() {
     $(document).bind("ID_PROFILE_OK", function() {
         self.setupLanguage();
     });
+
+    $("input").bind("click", function (event) {
+        // ignore click events on all static input elements
+        // this will not affect dynamic input elements in the answer view.
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+    });
 }
 
 /**
