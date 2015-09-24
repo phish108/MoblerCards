@@ -15,7 +15,7 @@ body {
 #modelHelperQuestionpool {
     display: none;
 }
-div, span, .untouchable, input {
+div, span, .untouchable {
     pointer-events: none;
 }
 li, .touchable, .screen {

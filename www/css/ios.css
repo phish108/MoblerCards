@@ -1,3 +1,11 @@
+.headercontent {
+    font-size: 22px;
+}
+
+input {
+    pointer-events: none;
+}
+
 @media
   (orientation: portrait) {
 
@@ -7,9 +15,5 @@
 
     .headerbox {
         padding-top: 20px;
-    }
-
-    .headercontent {
-        font-size: 22px;
     }
 }
