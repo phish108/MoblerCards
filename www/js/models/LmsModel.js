@@ -781,6 +781,13 @@
         }
     };
 
+    LMSModel.prototype.getActiveLMSID = function () {
+        if (activeLMS && activeLMS.id) {
+            return activeLMS.id;
+        }
+        return undefined;
+    };
+
     /**
      * @public @method setActiveLMS(serverid)
      * @param serverid - the lms id for the presently active server.

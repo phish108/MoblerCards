@@ -1164,7 +1164,7 @@ under the License.
 
         // all done
         function cbAllDone() {
-            //console.log("check if we are done.");
+            // console.log("check if we are done.");
             i++;
             if (i > 1) {
 
@@ -1212,7 +1212,7 @@ under the License.
             this.synchronizeAll();
             return;
         }
-//        console.log("LRS sync " + lmsid);
+
         if (this.app &&
             this.app.models &&
             this.app.models.identityprovider) {
@@ -1243,16 +1243,17 @@ under the License.
         var lstUUID = loadLrsUuidList(lmsid);
 
         function cbAllDone() {
-            // console.log("LRS #### all done for " + lmsid);
+            //console.log("LRS #### all done for " + lmsid);
             cntActiveTransactions--;
-            //console.log("terminate at 0 transactions? " + cntActiveTransactions);
-            if (!cntActiveTransactions) {
+            // console.log("terminate at 0 transactions? " + cntActiveTransactions);
+            if (cntActiveTransactions === 0) {
                 storeLrsUuidList(lmsid, lstUUID);
                 bSyncFlag = false;
             }
 
             //trigger OK signal
             if (!bSyncFlag && logoutSync[lmsid]) {
+                //console.log("drop LRS database");
                 self.dropLRSDataOnLogout(lmsid);
             }
         }
@@ -1263,7 +1264,7 @@ under the License.
         }
 
         function cbRequestStream(result) {
-//            console.log("LRS #### request stream for " + lmsid);
+            //console.log("LRS #### request stream for " + lmsid);
             var isoDate, r, since, rurl;
 
             var query = [qsAgent];

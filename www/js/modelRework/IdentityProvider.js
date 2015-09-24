@@ -141,9 +141,7 @@ IdentityProvider.prototype.getActiveLMS = function (cbFunc, bind) {
 };
 
 IdentityProvider.prototype.getActiveLMSID = function () {
-    return this.lmsMgr.activeLMS &&
-           this.lmsMgr.activeLMS.hasOwnProperty("id") ?
-               this.lmsMgr.activeLMS.id : undefined;
+    return this.lmsMgr.getActiveLMSID();
 };
 
 /**
