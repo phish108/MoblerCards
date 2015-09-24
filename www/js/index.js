@@ -63,6 +63,17 @@ function MoblerCards() {
     $(document).bind("ID_PROFILE_OK", function() {
         self.setupLanguage();
     });
+
+    // click events select wrong input fields AFTER the correct one has been focused
+    // fixes #130
+    $("input").bind("click", function (event) {
+        // ignore click events on all static input elements
+        // this will not affect dynamic input elements in the answer view.
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+    });
 }
 
 /**
