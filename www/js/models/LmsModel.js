@@ -808,7 +808,7 @@
             storeData();
 
             if (tmpLMS.keys &&
-                tmpLMS.keys.hasOwnProperty("device")) {
+                tmpLMS.keys.hasOwnProperty("Request")) {
                 $(document).trigger("LMS_DEVICE_READY");
                 previousLMS = null;
             }

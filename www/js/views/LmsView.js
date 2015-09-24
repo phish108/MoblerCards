@@ -67,8 +67,8 @@ function LMSView() {
     });
 
     function closeAddAndRefresh() {
-        if (this.active) {
-            if (this.addLMSInputOpen) {
+        if (self.active) {
+            if (self.addLMSInputOpen) {
                 // a new LMS has been successfully added
                 // clear the form an show the placeholder
                 self.closeAddForm();
@@ -130,6 +130,7 @@ LMSView.prototype.closeAddForm = function () {
         $("#addlmsbutton").removeClass("hidden");
         $("#addlmswait").addClass("hidden");
     }
+    this.addLMSInputOpen = false;
 };
 
 /**
@@ -184,7 +185,9 @@ LMSView.prototype.tap = function (event) {
     var tmpl = this.template;
     tmpl.find(sn);
 
-    if (tmpl.lmswait.hasClass("icon-cross")) {
+    if (tmpl.lmswait.hasClass("icon-cross") &&
+        !tmpl.lmswait.hasClass("hidden")) {
+
         tmpl.lmslist.addClass("selected");
         setTimeout(function () {
             tmpl.lmslist.removeClass("selected");
