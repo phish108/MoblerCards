@@ -286,9 +286,9 @@ input.listlabel {
 .gradient1 {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
     /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#dcdcdc, #ffffff));
+    background: -webkit-linear-gradient(#dcdcdc, #ffffff);
     /* Safari 5.1+, Chrome 10+ */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dbdbdb', endColorstr='#ffffff');
+
     /* IE6 & IE7 */
     background: linear-gradient(#dbdbdb, #ffffff);
     /* the standard */
@@ -298,10 +298,8 @@ input.listlabel {
 .gradient2 {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #bebebe));
     /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#dddddd, #bebebe));
+    background: -webkit-linear-gradient(#dddddd, #bebebe);
     /* Safari 5.1+, Chrome 10+ */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#bebebe');
-    /* IE6 & IE7 */
     background: linear-gradient(#dddddd, #bebebe);
     /* the standard */
 }
@@ -366,10 +364,8 @@ input.listlabel {
     z-index: 10;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999999), color-stop(100%, #6a6a6a));
     /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#999999, #6a6a6a));
+    background: -webkit-linear-gradient(#999999, #6a6a6a);
     /* Safari 5.1+, Chrome 10+ */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#999999', endColorstr='#6a6a6a');
-    /*IE6 & IE7 */
     background: linear-gradient(#999999, #6a6a6a);
     /* the standard */
 }
@@ -467,10 +463,6 @@ input.listlabel {
     /* Safari 5.1+, Chrome 10+ */
     background: -o-linear-gradient(#008cc7, #0072a2);
     /* Opera 11.10 */
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#008cc7', endColorstr='#0072a2');
-    /* IE6 & IE7 */
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#008cc7', endColorstr='#0072a2')";
-    /* IE8+ */
     background: linear-gradient(#008cc7, #0072a2);
     /* the standard */
 }
