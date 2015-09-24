@@ -1005,7 +1005,7 @@ under the License.
             if (err && err.message) {
                 console.error(err.message);
             }
-            console.log(err);
+            //console.log(err);
             i++;
             if (i > 1) {
                 $(document).trigger("LRS_CALCULATION_DONE");
@@ -1054,7 +1054,7 @@ under the License.
             if (err && err.message) {
                 console.error(err.message);
             }
-            console.log(err);
+            //console.log(err);
             i++;
             if (i > 1) {
                 $(document).trigger("LRS_CALCULATION_DONE");
@@ -1164,12 +1164,12 @@ under the License.
 
         // all done
         function cbAllDone() {
-            console.log("check if we are done.");
+            //console.log("check if we are done.");
             i++;
             if (i > 1) {
 
                 if (logoutSync.hasOwnProperty(lmsid)) {
-                    console.log("drop everything")
+                    //console.log("drop everything")
                     delete logoutSync[lmsid];
 
                     dropLrsUuidList(lmsid);
@@ -1184,7 +1184,7 @@ under the License.
         }, [lmsid])
             .then(cbAllDone)
             .catch(function (err) {
-                console.log("cannot delete syncindex " + err);
+                //console.log("cannot delete syncindex " + err);
                 cbAllDone();
             });
 
@@ -1194,7 +1194,7 @@ under the License.
         }, [lmsid + "%"])
             .then(cbAllDone)
             .catch(function (err) {
-                console.log("cannot delete actions " + err);
+                //console.log("cannot delete actions " + err);
                 cbAllDone();
             });
     };
