@@ -139,7 +139,9 @@
      * This list is actually an object that refers each serverID to the registered RSD info.
      */
     var lmsData = {},
-        activeServer;
+        activeServer,
+        activeLMS,
+        previousLMS;
 
     /**
      * @private @function loadData()
@@ -229,6 +231,7 @@
             storeData();
         }
     }
+
     /**
      * @private @function registerDevice(rsd)
      * @param {Object} rsd - the service's RSD data object
@@ -242,11 +245,15 @@
         function registerOK(data) {
             addToken(serviceid, data);
             $(document).trigger("LMS_DEVICE_READY");
+            previousLMS = null;
         }
 
         function registerFail(r) {
             setInactiveFlag(serviceid);
-            $(document).trigger("LMS_DEVICE_NOTALLOWED");
+            $(document).trigger("LMS_DEVICE_NOTALLOWED", [serviceid]);
+            activeLMS = previousLMS;
+            activeServer = activeLMS.id;
+            previousLMS = null;
         }
 
         var serviceName = "powertla.identity.client",
@@ -275,7 +282,7 @@
         }
         else {
             $(document).trigger("LMS_UNAVAILABLE");
-            serverRSD.inaccessible = -1;
+            setInactiveFlag(serverRSD.id);
         }
     }
 
@@ -317,14 +324,10 @@
              * validate either against the old or the new API.
              * The validation forbids mixing the APIs!
              */
-            if ((apiOK["powertla.identity.client"] &&
+            if (apiOK["powertla.identity.client"] &&
                  apiOK["org.ieee.papi"] &&
                  apiOK["powertla.content.courselist"] &&
-                 apiOK["powertla.content.imsqti"]) ||
-                (apiOK["ch.isn.lms.statistics"] &&
-                 apiOK["ch.isn.lms.auth"] &&
-                 apiOK["ch.isn.lms.courses"] &&
-                 apiOK["ch.isn.lms.questions"])) {
+                 apiOK["powertla.content.imsqti"]) {
                 return true;
             }
         }
@@ -374,12 +377,11 @@
         this.idp = idp; // the calling identifyprovider
         loadData();
         if (activeServer) {
-            this.activeLMS = lmsData[activeServer];
+            activeLMS = lmsData[activeServer];
         }
         else {
-            this.activeLMS = null;
+            activeLMS = null;
         }
-        this.previousLMS = null;
 
         var self = this;
 
@@ -715,7 +717,7 @@
                     storeData();
                 }
             }
-            var isSelected = (this.activeLMS && this.activeLMS.id === lmsid) ? 1 : 0;
+            var isSelected = (activeLMS && activeLMS.id === lmsid) ? 1 : 0;
 
             if (!authState ||
                 (authState === 1 && self.authState(lmsid)) ||
@@ -723,8 +725,8 @@
                 cbFunc.call(bind, {"id": rsd.id,
                                    "name": rsd.name,
                                    "logofile": rsd.logolink,
-                                   "inactive": ((rsd.inaccessible &&
-                                                rsd.inaccessible > 0) ? 1 : 0),
+                                   "inactive": ((rsd.inactive &&
+                                                rsd.inactive > 0) ? 1 : 0),
                                    "selected": isSelected});
             }
         });
@@ -760,8 +762,8 @@
             bind = this;
         }
 
-        if (this.activeLMS) {
-            var rsd = this.activeLMS,
+        if (activeLMS) {
+            var rsd = activeLMS,
                 ts = (new Date()).getTime();
 
             // clear the inaccessible flag after some time.
@@ -775,8 +777,8 @@
             cbFunc.call(bind, {"id": rsd.id,
                                "name": rsd.name,
                                "logofile": rsd.logolink,
-                               "inactive": ((rsd.inaccessible &&
-                                            rsd.inaccessible > 0) ? 1 : 0),
+                               "inactive": ((rsd.inactive &&
+                                            rsd.inactive > 0) ? 1 : 0),
                                "selected": 1});
         }
     };
@@ -791,16 +793,19 @@
      * Presently, it is used only for authentication and request signing.
      */
     LMSModel.prototype.setActiveLMS = function (serverid) {
-        this.previousLMS = this.activeLMS;
         var tmpLMS = lmsData[serverid];
         if (tmpLMS) {
-            this.activeLMS = tmpLMS;
+            if (!previousLMS) {
+                previousLMS = activeLMS;
+            }
+            activeLMS = tmpLMS;
             activeServer = serverid;
             storeData();
 
             if (tmpLMS.keys &&
                 tmpLMS.keys.hasOwnProperty("device")) {
                 $(document).trigger("LMS_DEVICE_READY");
+                previousLMS = null;
             }
             else {
                 // register the device in a second stage
@@ -858,10 +863,10 @@
      * This information must get extracted from the configuration or the identity model.
      */
     LMSModel.prototype.getDefaultLanguage = function () {
-        if (this.activeLMS &&
-            this.activeLMS.language &&
-            this.activeLMS.language.length) {
-            return this.activeLMS.language;
+        if (activeLMS &&
+            activeLMS.language &&
+            activeLMS.language.length) {
+            return activeLMS.language;
         }
         return undefined;
     };
@@ -877,7 +882,7 @@
      * service is not provided by the LMS, the response will be undefined.
      */
     LMSModel.prototype.getServiceURL = function (serviceName, serverid, path) {
-        var rsd = this.activeLMS;
+        var rsd = activeLMS;
         if (serverid) {
             rsd = lmsData[serverid];
         }
@@ -894,11 +899,11 @@
      * this function switches back to the previous active server.
      */
     LMSModel.prototype.restoreActiveServer = function () {
-        if (this.previousLMS) {
-            this.activeLMS = this.previousLMS;
-            activeServer = this.previousLMS.id;
+        if (previousLMS) {
+            activeLMS = previousLMS;
+            activeServer = previousLMS.id;
             storeData();
-            this.previousLMS = null;
+            previousLMS = null;
         }
     };
 

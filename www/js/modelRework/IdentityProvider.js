@@ -157,6 +157,10 @@ IdentityProvider.prototype.activateLMS = function (LMSId) {
     this.lmsMgr.setActiveLMS(LMSId);
 };
 
+IdentityProvider.prototype.restoreLMS = function() {
+    this.lmsMgr.restoreActiveServer();
+};
+
 /**
  * @protoype
  * @function enableLMS

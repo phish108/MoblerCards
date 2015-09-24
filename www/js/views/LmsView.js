@@ -67,16 +67,24 @@ function LMSView() {
     });
 
     function closeAddAndRefresh() {
-        // a new LMS has been successfully added
-        // clear the form an show the placeholder
-        self.closeAddForm();
-        self.refresh(); // display the new LMS
-        // hide waiting cycle
+        if (this.addLMSInputOpen) {
+            // a new LMS has been successfully added
+            // clear the form an show the placeholder
+            self.closeAddForm();
+            self.refresh(); // display the new LMS
+            // hide waiting cycle
+        }
+        else {
+            // a new LMS has been activated, close and switch to login.
+            self.app.changeView("login");
+        }
     }
 
     $(document).bind("LMS_DEVICE_READY", closeAddAndRefresh);
     $(document).bind("LMS_AVAILABLE", closeAddAndRefresh);
     $(document).bind("LMS_UNAVAILABLE", closeAddAndRefresh);
+
+    // this should never be triggered
     $("#addlmsbox").bind("click", function (ev) {
         $("#addlmsinput").focus();
     });
@@ -172,10 +180,20 @@ LMSView.prototype.tap = function (event) {
     var id = event.target.id;
     var sn = id.split("_").pop();
 
-    if (id.indexOf("lmslist") === 0)  {
+    var tmpl = this.template;
+    tmpl.find(sn);
+
+    if (tmpl.lmswait.hasClass("icon-cross")) {
+        console.log("do fake selection");
+        tmpl.lmslist.addClass("selected");
+        setTimeout(function () {
+            tmpl.lmslist.removeClass("selected");
+        }, 500);
+    }
+    else if (id.indexOf("lmslist") === 0)  {
         this.clickLMSItem(sn, $(event.target));
-        if (!($("#lmswait_lmslistbox_" + sn).hasClass("hidden"))) {
-            $("#lmslabel_lmslistbox_" + this.preServername).addClass("selected");
+        if (!(tmpl.lmswait.hasClass("hidden"))) {
+            $("#lmslist_lmslistbox_" + this.preServername).addClass("selected");
         }
     }
     else if (this.addLMSInputOpen) {
@@ -257,6 +275,8 @@ LMSView.prototype.createLMSItem = function (lmsData) {
 
     lmstmpl.attach(lmsData.id);
 
+    console.log(lmsData);
+
     if (lmsData.selected) {
         lmstmpl.lmslist.addClass("selected");
     }
@@ -273,6 +293,7 @@ LMSView.prototype.createLMSItem = function (lmsData) {
     // lmstmpl.lmsimg.setAttribute("src", lmsData.logofile);
     if (lmsData.inactive === 1) {
         lmstmpl.lmsimg.addClass("hidden");
+        lmstmpl.lmsdefault.addClass("hidden");
         lmstmpl.lmswait.removeClass("hidden");
     }
 };
@@ -285,8 +306,10 @@ LMSView.prototype.createLMSItem = function (lmsData) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.selectItemVisuals = function (servername) {
-    $("#lmslist_lmslistbox_" + servername).addClass("selected");
-    $("#lmslist_lmslistbox_" + servername).removeClass("textShadow");
+    var tmpl = this.template;
+    tmpl.find(servername);
+    tmpl.lmslist.removeClass("selected");
+    tmpl.lmslist.addClass("textShadow");
 };
 
 /**
@@ -297,8 +320,10 @@ LMSView.prototype.selectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deselectItemVisuals = function (servername) {
-    $("#lmslist_lmslistbox_" + servername).removeClass("selected");
-    $("#lmslist_lmslistbox_" + servername).addClass("textShadow");
+    var tmpl = this.template;
+    tmpl.find(servername);
+    tmpl.lmslist.removeClass("selected");
+    tmpl.lmslist.addClass("textShadow");
 };
 
 /**when the attempt of registrating with the selected lms has failed,
@@ -310,12 +335,16 @@ LMSView.prototype.deselectItemVisuals = function (servername) {
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.deactivateLMS = function (servername) {
-    if ($("#lmswait_lmslistbox_" + servername).hasClass("hidden")) {
-        $("#lmswait_lmslistbox_" + servername).removeClass("icon-loading loadingRotation hidden");
-        $("#lmswait_lmslistbox_" + servername).addClass("icon-cross red");
-        $("#lmsimg_lmslistbox_" + servername).addClass("hidden");
+    var tmpl = this.template;
+    tmpl.find(servername);
+    if (tmpl.lmswait.hasClass("hidden")) {
+        this.model.disableLMS(servername);
 
-        $("#lmslabel_lmslistbox_" + servername).addClass("lightgrey");
+        tmpl.lmswait.removeClass("icon-loading loadingRotation hidden");
+        tmpl.lmswait.addClass("icon-cross red");
+        //tmpl.lmsimg.addClass("hidden");
+        tmpl.lmsdefault.addClass("hidden");
+        tmpl.lmslabel.addClass("lightgrey");
     }
 };
 
@@ -323,15 +352,19 @@ LMSView.prototype.deactivateLMS = function (servername) {
  * from trying to be registered due to an 403 server error.
  * the lms is activated when the one hour has passed.
  * @prototype
- * @function deactivateLMS
+ * @function activateLMS
  * @param {String} servername, the name of the selected server
  **/
 LMSView.prototype.activateLMS = function (servername) {
-    if ($("#lmsimg_lmslistbox_" + servername).hasClass("hidden")) {
-        $("#lmswait_lmslistbox_" + servername).addClass("hidden");
-        $("#lmsimg_lmslistbox_" + servername).removeClass("hidden");
+    var tmpl = this.template;
+    tmpl.find(servername);
 
-        $("#lmslabel_lmslistbox_" + servername).removeClass("lightgrey");
+    if (tmpl.lmsimg.hasClass("hidden")) {
+        tmpl.lmswait.addClass("hidden");
+        // tmpl.lmsimg.removeClass("hidden");
+        tmpl.lmsdefault.removeClass("hidden");
+
+        tmpl.lmslabel.removeClass("lightgrey");
     }
 };
 
@@ -449,6 +482,8 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
         "text": jQuery.i18n.prop(message)
     });
 
+    self.deactivateLMS(servername);
+
     $("#lmslist_lmslistbox_" + servername).after(warningLi);
     $("#lmsregistrationmessage" + servername).hide();
     $("#lmsregistrationmessage" + servername).slideDown(600);
@@ -460,11 +495,13 @@ LMSView.prototype.showLMSRegistrationMessage = function (message, servername) {
         //$("#lms"+servername).removeClass("gradientSelected");
         //self.hideRotation(servername);
         self.deselectItemVisuals(servername);
-        self.deactivateLMS(servername);
+
         // activate the previsous LMS before changing the visuals
-        var previouslms = this.model.getPreviousServer();
-        self.model.activateLMS(previouslms);
-        $("#lmslist_lmslistbox_" + previouslms).addClass("selected");
+
+        self.model.restoreLMS();
+        self.model.getActiveLMS(function (rsd) {
+            $("#lmslist_lmslistbox_" + rsd.id).addClass("selected");
+        });
     }, 2800);
 };
 
