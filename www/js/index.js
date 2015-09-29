@@ -38,7 +38,8 @@ function MoblerCards() {
     self.MoblerVersion = 3.0;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-
+    self.backTapOld = new Date().getTime();
+    
     if (device.platform === "iOS") {
         var style = $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
     }
@@ -63,6 +64,20 @@ function MoblerCards() {
     $(document).bind("ID_PROFILE_OK", function() {
         self.setupLanguage();
     });
+
+    // Double click to exit the Application.
+    function onBack() {
+        self.backTap = new Date().getTime();
+        
+        if (self.backTap - self.backTapOld < 1000) {
+            navigator.app.exitApp();
+        }
+        else {
+            self.backTapOld = self.backTap;
+        } 
+    }
+    
+    document.addEventListener("backbutton", onBack, false);
 }
 
 /**
