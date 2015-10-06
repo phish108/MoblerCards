@@ -495,6 +495,7 @@ under the License.
             record.actor = this.actor;
             if (this.context &&
                 Object.getOwnPropertyNames(this.context).length) {
+
                 record.context = this.context;
             }
 
@@ -545,7 +546,10 @@ under the License.
      * @param {OBJECT} record
      */
     LearningRecordStore.prototype.updateAction = function (UUID, record) {
-        if (typeof UUID === "string" && UUID.length && typeof record === "object") {
+        if (typeof UUID === "string" &&
+            UUID.length &&
+            typeof record === "object") {
+
             DB.select({
                 'from': 'actions',
                 'result': "record",
@@ -685,16 +689,15 @@ under the License.
      * @protoype
      * @function recordAction
      * @param {OBJECT} record
+     * @param {OBJECT} db context
      * @return {PROMISE} db promise
-     *
-     * DONT USE it uses the wrong DB schema
      */
-    LearningRecordStore.prototype.recordAction = function (record) {
-        throw("RECORD ACTION IS CURRENCTLY NOT RECOMMENDED");
+    LearningRecordStore.prototype.recordAction = function (record, ctxt) {
 
         if (typeof record === 'object' &&
             record.hasOwnProperty("verb") &&
             record.hasOwnProperty("object")) {
+
             var self = this,
                 UUID = DB.createUUID(),
                 mom = moment(),
@@ -702,16 +705,18 @@ under the License.
 
             record.id = UUID;
             record.timestamp = mom.format();
-            record.stored = mom.format();
+            record.stored = record.timestamp;
             record.actor = this.actor;
+
             if (this.context &&
                 Object.getOwnPropertyNames(this.context).length) {
+
                 record.context = this.context;
             }
 
             return new Promise(function(fullfill, reject){
 
-                DB.insert("actions", {
+                var iData = {
                     "uuid":     UUID,
                     "record":   JSON.stringify(record),
                     "stored":   created,
@@ -722,26 +727,33 @@ under the License.
                     "hour":     mom.format("HH"),
                     "weekday":  mom.format("E"),
                     "verbid":   record.verb.id
-                })
+                };
+
+                if (ctxt) {
+
+                    if (ctxt.courseId) {
+
+                        iData.courseid = ctxt.courseId;
+                    }
+                    if (ctxt.objectId) {
+
+                        iData.objectid = ctxt.objectId;
+                    }
+                }
+
+                return DB.insert("actions", iData)
                 .then(function (res) {
+
                     res.insertID = UUID;
                     var pa = [];
                     self.lrscontext.forEach(function (lrsid) {
-                        pa.push(DB.insert("syncindex", {
-                            "uuid": UUID,
-                            "lrsid": lrsid
-                        }));
+
+                        var lstUUID = loadLrsUuidList(lrsid);
+                        lstUUID.push(myUUID);
+                        storeLrsUuidList(lrsid, lstUUID);
                     });
 
-//                    var appCtxt = JSON.stringify(self.appcontext);
-                    self.context.forEach(function (lrsid) {
-                        pa.push(DB.insert("syncindex", {
-                            "uuid": UUID,
-                            "lrsid": lrsid
-                        }));
-                    });
-
-                    return Promise.all(pa);
+                    return res;
                 });
             });
         }
