@@ -437,12 +437,15 @@
         // getActorToken() returns the LMS identifier token.
         this.lrs.setActor(this.idprovider.getActorToken(lmsId));
 
-        idurl = this.idprovider.serviceURL("powertla.content.imsqti",
+        idurl = this.idprovider.serviceURL("powertla.content.courselist",
                                            this.currentLMSId,
                                            [courseId]);
 
-        // start user context/ note that the LRS syncs only data for the same user.
+        // idurl = this.idprovider.serviceURL("powertla.content.imsqti",
+        //                                    this.currentLMSId,
+        //                                    [courseId, questionpollid]);
 
+        // start user context/ note that the LRS syncs only data for the same user.
         this.currentCourseContext = idurl;
         if (idurl) {
             this.lrs.startContext("contextActivities.parent", idurl);
@@ -739,6 +742,13 @@
                                                    this.activeQuestion.poolId,
                                                    this.activeQuestion.id]);
 
+
+        var poolctxt = this.idprovider.serviceURL("powertla.content.imsqti",
+                                                 this.activeQuestion.lmsId,
+                                                 [this.activeQuestion.courseId,
+                                                  this.activeQuestion.poolId]);
+        this.lrs.startContext("contextActivities.parent", poolctxt);
+
         var record = {
             "verb": {
                 "id": "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"
@@ -783,6 +793,16 @@
         };
 
         this.lrs.finishAction(this.attemptUUID, record, context);
+
+        // wrap up the question pool context for the active question
+        // This is required because the next question might get selected from
+        // a different QP
+        var poolctxt = this.idprovider.serviceURL("powertla.content.imsqti",
+                                                 this.activeQuestion.lmsId,
+                                                 [this.activeQuestion.courseId,
+                                                  this.activeQuestion.poolId]);
+        this.lrs.endContext("contextActivities.parent", poolctxt);
+
         this.attemptUUID = null;
         this.lockoutIds = [];
     };
