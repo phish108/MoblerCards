@@ -496,18 +496,15 @@
         serverURL.trim();
         var serverid;
 
-//        if (serverURL.search(/^https?:\/\//i) !== 0) {
-//             add the protocol to the front. assume https, refuse anything else
-//            serverURL = "https://" + serverURL;
-//        }
-
         for (serverid in lmsData) {
             if (lmsData.hasOwnProperty(serverid) &&
                 lmsData[serverid].engine &&
                 lmsData[serverid].engine.link === serverURL) {
+
                 return lmsData[serverid];
             }
         }
+
         return undefined;
     };
 
@@ -523,12 +520,15 @@
      * call this function only after getServerRSD(serverURL) has succeeded.
      */
     LMSModel.prototype.registerDevice = function(serverid) {
+
         if (!(serverid && serverid.length) &&
             activeServer &&
-            activeServer.length){
+            activeServer.length) {
+
             // register active server
             serverid = activeServer;
         }
+
         registerDevice(this.findServerByID(serverid));
     };
 
@@ -546,6 +546,7 @@
          * The UI needs to provide sufficient information to the user.
          */
         function rsdFail() {
+
             $(document).trigger("LMS_INVALID", [serverURL]);
         }
 
@@ -563,12 +564,15 @@
 
         // first check whether the URL is already registered
         if (this.findServerByURL(serverURL)) {
+
             // nothing has to be done the LMS is already available
             $(document).trigger("LMS_AVAILABLE");
         }
         else {
+
             // check for a trailing slash
             if (serverURL.search(/\/$/) === -1) {
+
                 // add a slash
                 serverURL = serverURL + "/";
             }
@@ -585,12 +589,15 @@
             this.fetchRSD(serverURL + ".json")
                 .then(validateRSD)
                 .catch(function(xhr) {
+
                 if (xhr.status > 0) {
+
                     self.fetchRSD(serverURL + ".php")
                         .then(validateRSD)
                         .catch(rsdFail);
                 }
                 else {
+
                     rsdFail(xhr);
                 }
             });

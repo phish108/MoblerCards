@@ -1000,8 +1000,8 @@
                         else {
 
                             delete syncFlags[lmsid];
-                            // TODO: trigger correct event
-                            $(document).trigger("MY_SERVER_ERROR");
+                            // NOTE This error is not caught anywhere.
+                            $(document).trigger("CONTENT_SERVER_ERROR");
                         }
                     });
             }

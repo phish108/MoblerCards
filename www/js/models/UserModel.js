@@ -101,8 +101,10 @@ UserModel.prototype.loadData = function () {
     //if there is an item in the local storage with the name "configuration"
     //then get it by parsing the string and convert it into a json object
     try {
+
         configObject = JSON.parse(localStorage.getItem("configuration"));
     } catch (err) {
+
         configObject = null;
     }
 
@@ -121,7 +123,9 @@ UserModel.prototype.loadData = function () {
 };
 
 UserModel.prototype.setSessionHeader = function (xhr) {
+
     if (this.configuration.userAuthenticationKey) {
+
         xhr.setRequestHeader('sessionkey',
                              this.configuration.userAuthenticationKey);
     }
@@ -137,7 +141,9 @@ UserModel.prototype.setSessionHeader = function (xhr) {
  * @function login
  */
 UserModel.prototype.login = function (username, password) {
+
     var challenge;
+
     // NOTE: we need to lowercase the password hash.
     challenge = this.idprovider.signWithToken(username +
                                               faultylabs.MD5(password).toLowerCase());
@@ -158,10 +164,11 @@ UserModel.prototype.login = function (username, password) {
  * @function logout
  */
 UserModel.prototype.logout = function () {
+
     //TODO send statistics data to server
     if (this.isLoggedIn())  {
-        this.configuration.loginState = "loggedOut";
 
+        this.configuration.loginState = "loggedOut";
         localStorage.setItem("configuration", JSON.stringify(this.configuration));
 
         $(document).trigger("ID_LOGOUT_REQUESTED", [this.idprovider.getActiveLMSID()]);
@@ -180,6 +187,7 @@ UserModel.prototype.logout = function () {
  * @function sendAuthToServer
  */
 UserModel.prototype.sendAuthToServer = function (authData) {
+    
     var self = this;
 
     var serviceName = "org.ieee.papi",
