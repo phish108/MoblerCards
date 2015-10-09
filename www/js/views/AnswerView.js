@@ -157,8 +157,8 @@ AnswerView.prototype.update = function () {
 
     var currentAnswerTitle = this.model.getQuestionInfo().type;
 
-    var title = jQuery.i18n.prop("msg_"+currentAnswerTitle +'_title'),
-        icon  = jQuery.i18n.prop("ico_"+currentAnswerTitle + '_icon');
+    var title = jQuery.i18n.prop("msg_" + currentAnswerTitle + '_title'),
+        icon  = jQuery.i18n.prop("ico_" + currentAnswerTitle + '_icon');
 
     // fixme use the component style
     $("#answerdynamicicon").removeClass();
