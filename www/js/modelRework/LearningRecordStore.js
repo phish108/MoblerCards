@@ -1263,7 +1263,6 @@ under the License.
                 bSyncFlag = false;
             }
 
-            //trigger OK signal
             if (!bSyncFlag && logoutSync[lmsid]) {
                 //console.log("drop LRS database");
                 self.dropLRSDataOnLogout(lmsid);

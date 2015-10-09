@@ -35,7 +35,7 @@ under the License.
  *    landing form such as featured content, exclusive content (and free content soon)
  *  - it binds synchronization events such as the sending of statistics to the server,
  *    the update of courses and questions. It prevents the display of the appropriate
- *    views that are also binded with the aforementioned events by displaying the
+ *    views that are also bound with the aforementioned events by displaying the
  *    login form itself.(FIX ME:. stay here instead of redirecting to the login view)
  *  @param {String} controller
  **/
