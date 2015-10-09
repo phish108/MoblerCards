@@ -1,4 +1,5 @@
 /*********************** General ***********************/
+/* FIXME: Remove all pt sizes */
 body {
     width: device-width;
     height: device-height;
@@ -7,13 +8,16 @@ body {
     color: #646464;
     font-family: "SF UI Text", Roboto, HelveticaNeue-Light, HelveticaNeue, Arial, sans-serif;
     font-size: 19px;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 /*hidden html element that will be used for cleaning html-tags in questionpool model*/
 
 #modelHelperQuestionpool {
     display: none;
+}
+div, span, p {
+    box-sizing: border-box;
 }
 div, span, .untouchable {
     pointer-events: none;
@@ -28,8 +32,8 @@ li, .touchable, .screen {
     display: table;
     table-layout: fixed; /* avoid grid violations */
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 55px;
     line-height: 55px;
@@ -70,8 +74,8 @@ li, .touchable, .screen {
 .footerbox {
     display: table;
     position: fixed;
-    left: 0px;
-    bottom: 0px;
+    left: 0;
+    bottom: 0;
     width: 100%;
     height: 49px;
     line-height: 49px;
@@ -199,8 +203,8 @@ input.listlabel {
 .screen.active {
     display: block;
     width: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     height: 100vh;
     box-sizing: border-box;
     overflow: hidden;
@@ -318,7 +322,7 @@ input.listlabel {
     color:#33CC33;
 }
 .glowNone {
-    text-shadow: 0px -2px 3px #1b621c, 1px 0px 1px #1b621c, -1px 0px 1px #1b621c;
+    text-shadow: 0 -2px 3px #1b621c, 1px 0 1px #1b621c, -1px 0 1px #1b621c;
     background-color: transparent;
     -webkit-text-stroke-color: #2da42c;
     -webkit-text-stroke-width: 1px;
@@ -326,10 +330,10 @@ input.listlabel {
     padding-left: 15px;
 }
 .textShadow {
-    text-shadow: 0px 1px 1px #898989;
+    text-shadow: 0 1px 1px #898989;
 }
 .lightShadow {
-    text-shadow: 0px 1px 1px #c9c9c9;
+    text-shadow: 0 1px 1px #c9c9c9;
 }
 /* Colors and Gradients END*/
 /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< refactured end >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -343,13 +347,13 @@ input.listlabel {
     padding: 2px;
     border: 1px solid white;
     text-align: center;
-    font-weight: none;
+    font-weight: normal;
     font-size: 28px;
     /*it was 24*/
     color: white;
     position: fixed;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     z-index: 10;
 }
 
@@ -358,7 +362,7 @@ input.listlabel {
     font-size: 22px;
     /*position: fixed;*/
     float: left;
-    bottom: 0px;
+    bottom: 0;
     color: white;
     text-align: center;
     border: 1px solid white;
@@ -380,7 +384,7 @@ input.listlabel {
     vertical-align: middle;
     color: white;
     float: right;
-    right: 0px;
+    right: 0;
     border-left: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid white;
@@ -389,7 +393,7 @@ input.listlabel {
     z-index: 0;
     font-size: 35px;
     text-align: center;
-    bottom: 0px;
+    bottom: 0;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999999), color-stop(100%, #6a6a6a));
 */
     /* Safari 4+, Chrome 2+ */
@@ -408,25 +412,26 @@ input.listlabel {
 }
 .top {
     position: fixed;
-    top: 0px;
+    top: 0;
 }
 .bottom {
     position: fixed;
-    bottom: 0px;
+    bottom: 0;
 }
 .static {
     position: static;
 }
 .title {
     height: 49px;
-    line-height: 52px;
+    /*line-height: 52px;*/
+    line-height: 65px;
     font-size: 22px;
-    padding: 0px 0px 0px 50px;
+    padding: 0 0 0 50px;
     vertical-align: middle;
     color: white;
-    line-height: 65px;
+
     margin-right: 52px;
-    margin-left: 0xpx;
+    margin-left: 0;
     margin-top: -4px;
     overflow: hidden;
     border: none;
@@ -434,30 +439,30 @@ input.listlabel {
 .titleiconOLD {
     height: 50px;
     line-height: 55px;
-    padding: 0px;
+    padding: 0;
     vertical-align: middle;
     font-size: 30px;
     margin-left: 5px;
     margin-right: 5px;
     color: white;
-    top: 0px;
+    top: 0;
     left: 5px;
     position: fixed;
 }
 .headerContainer {
-    box-shadow: 0px 3px 5px -1px #ccc;
-    -webkit-box-shadow: 0px 3px 5px -1px #ccc;
+    -webkit-box-shadow: 0 3px 5px -1px #ccc;
+    box-shadow: 0 3px 5px -1px #ccc;
     /*background-color: #007fb5;*/
     /*height: 52px;*/
     border: 1px solid white;
-    left: 0px;
-    margin-left: 0px;
+    left: 0;
+    margin-left: 0;
     width: 100%;
-    margin: 0px;
+    margin: 0;
     height: 51px;
     display: inline-block;
     position: fixed;
-    top: 0px;
+    top: 0;
     z-index: 8;
     /* FF 3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #008cc7), color-stop(100%, #0072a2));
@@ -471,16 +476,16 @@ input.listlabel {
 /*
 .landingHeader {
     position: absolute;
-    box-shadow: 0px 3px 5px -1px #ccc;
-    -webkit-box-shadow: 0px 3px 5px -1px #ccc;
+    box-shadow: 0 3px 5px -1px #ccc;
+    -webkit-box-shadow: 0 3px 5px -1px #ccc;
     display: inline-block;
     border: 1px solid white;
-    left: 0px;
-    margin-left: 0px;
+    left: 0;
+    margin-left: 0;
     width: 100%;
-    margin: 0px;
+    margin: 0;
     height: 51px;
-    top: 0px;
+    top: 0;
     z-index: 8;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
 */
@@ -522,8 +527,8 @@ input.listlabel {
     background-position: center bottom;
 }
 .cardBody {
-    padding: 0px;
-    padding-right: 0px;
+    padding: 0;
+    padding-right: 0;
     background-color: white;
     display: table-cell;
     vertical-align: top;
@@ -531,7 +536,7 @@ input.listlabel {
 }
 
 ul {
-    border-top: solid 0px red;
+    border-top: solid 0 red;
     /*in order not to have a white line at the beginning in course list view*/
     border-left: solid 1px white;
     border-right: solid 1px white;
@@ -540,20 +545,21 @@ ul {
 	color:#696969;*/
     list-style-type: none;
     text-align: left;
-    padding: 0px;
-    margin: 0px;
-    -webkit-margin-before: 0px;
-    -webkit-margin-after: 0px;
-    -webkit-margin-start: 0px;
-    -webkit-margin-end: 0px;
-    -webkit-padding-start: 0px;
+    padding: 0;
+    margin: 0;
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    -webkit-padding-start: 0;
 }
 .spacerMargin {
     background-color: white;
     height: 100px;
 }
 .borderRemoval {
-    border-bottom: solid 0px white;
+    /*border-bottom: solid 0 white;*/
+    border-bottom: none;
 }
 #landingBody {
     z-index: 10;
@@ -565,13 +571,12 @@ ul {
 li {
     list-style-type: none;
     list-style-position: inside;
-    font-size: 18px;
     font-style: normal;
-    border: 0px solid red;
+    /*border: 0 solid red;*/
     border-bottom: 1px solid white;
     text-align: left;
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     z-index: 1;
 }
 .ulTest {
@@ -595,8 +600,8 @@ li {
     width: 20px;
     display: block;
     height: 20px;
-    padding-left: 0px;
-    margin-left: 0px;
+    padding-left: 0;
+    margin-left: 0;
 }
 .correctAnswer {
     background-color: #33CC33;
@@ -604,15 +609,15 @@ li {
     color: white;
     width: 30px;
     text-align: center;
-    margin: 0px;
+    margin: 0;
 }
 
 .partiallyCorrectAnswer {
     background-color: #EEEEEE;
 }
 .ticked {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     background-color: #29ABE2;
     color: white;
 }
@@ -648,6 +653,7 @@ li {
     border: 1px solid blue;
     float: left;
 }
+/* FIXME Unused? */
 .pfpLabelContainer {
     margin-top: 5px;
     padding-right: 10px;
@@ -689,13 +695,13 @@ li {
     border: 1px solid white;
 }
 .answerLi {
-    padding: 0px;
+    padding: 0;
 }
 .text {
     padding: 15px;
     padding-left: 10px;
-    padding-right: 0px;
-    border: 0px solid red;
+    padding-right: 0;
+    /*border: 0px solid red;*/
 }
 .textBottom {
     padding-bottom: 50px;
@@ -707,7 +713,7 @@ li {
     padding: 7px;
 }
 #shadowedClozeLi {
-    padding: 0px;
+    padding: 0;
 }
 #numberInputContainer,
 #numberInput,
@@ -729,7 +735,7 @@ li {
 /*********************** Statistics View ***********************/
 
 #statisticsBody {
-    font-size: 0px;
+    font-size: 0;
     /*set the font size to 0, in order the children elements that are displayed as inline blocks, not to have any space between them. The space is applied by default when you use inline block*/
 }
 .green {
@@ -761,7 +767,7 @@ li {
 }
 .settingsDeactivate {
     font-size: 14px;
-    font-color: white;
+    color: white;
     display: inline-block;
     width: 100%;
     margin-bottom: 3px;
@@ -774,14 +780,14 @@ li {
     right: 1px;
     z-index: 1;
     border-top: 1px solid white;
-    margin: 0px;
+    margin: 0;
 }
 #lmsLabelSet {
     height: 38px;
     width: 38px;
     float: left;
     margin-top: 7px;
-    margin: auto 10px auto 0px;
+    margin: auto 10px auto 0;
 }
 .lms {
     height: 65px;
@@ -813,8 +819,8 @@ li {
     margin: 80px auto 10px 10px;
 }
 ul#aboutData {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
     font-size: 12px;
     z-index: 10;
 }
@@ -839,32 +845,33 @@ ul#aboutData {
     z-index: 8;
     overflow: hidden;
 }
-#loginElements {} .selectWidget {
-    padding-left: 0px;
+/*#loginElements {} */
+.selectWidget {
+    padding-left: 0;
     border-right: 1px solid white;
     border-left: 1px solid white;
-    margin-right: 0px;
+    margin-right: 0;
     height: 51px;
 }
-li#selectlms {
+/*li#selectlms {
     border-bottom: 0px solid white;
-}
+}*/
 .selectWidget2 {
     border-right: 1px solid white;
     border-left: 1px solid white;
     background-color: #c6c6c6;
-    margin-right: 0px;
+    margin-right: 0;
     height: 80px;
 }
-ul#loginElements {
+/*ul#loginElements {
     border: solid white 0px;
-}
-#separatorFeaturedLanding {
+}*/
+/*#separatorFeaturedLanding {
     border: 0px solid black;
-}
-#selectarrowLanding {
+}*/
+/*#selectarrowLanding {
     border: 0px solid green;
-}
+}*/
 .lmsListItem {
     border-left: 1px solid white;
     height: 65px;
@@ -874,8 +881,8 @@ ul#loginElements {
 .labelContainerOld {
     float: left;
     padding-top: 15px;
-    padding-left: 0px;
-    border: 0px solid orange;
+    padding-left: 0;
+    /*border: 0px solid orange;*/
 }
 .lmslabel {
     font-weight: bold;
@@ -884,14 +891,14 @@ ul#loginElements {
     overflow: hidden;
 }
 #loginLmsLabel {
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
     vertical-align: middle;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 #landingLmsLabel {
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
     vertical-align: middle;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -912,11 +919,11 @@ ul#loginElements {
     height: 49px;
     font-size: 22px;
     font-weight: 900;
-    padding: 0px 0px 0px 10px;
+    padding: 0 0 0 10px;
     color: white;
     line-height: 58px;
     margin-right: 52px;
-    margin-left: 0px;
+    margin-left: 0;
     margin-top: auto;
     overflow: hidden;
 }
@@ -963,7 +970,7 @@ ul#loginElements {
 #popupContact {
     display: none;
     position: fixed;
-    _position: absolute;
+    /*position: absolute;*/
     height: 150px;
     width: 160px;
     background: #FFFFFF;
@@ -984,13 +991,13 @@ ul#loginElements {
     display: inline-block;
     vertical-align: middle;
     text-align: center;
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
 }
 .lineContainerCourses {
     display: inline-block;
     vertical-align: middle;
     text-align: center;
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
     margin-right: 11px;
 }
 /* it is used in lms view for the image container*/
@@ -999,7 +1006,7 @@ ul#loginElements {
     display: inline-block;
     vertical-align: middle;
     text-align: center;
-    border: solid 0px green;
+    /*border: solid 0px green;*/
     margin-right: 5px;
 }
 .imageContainerOld {
@@ -1008,7 +1015,7 @@ ul#loginElements {
     line-height: 47px;
     width: 47px;
     padding-top: 4px;
-    border: solid 0px green;
+    /*border: solid 0px green;*/
 }
 .imageoutline1 {
     height: 39px;
@@ -1028,7 +1035,7 @@ ul#loginElements {
 }
 .selectItemContainer {
     /*display:inline-block;*/
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
     height: 47px;
     line-height: 47px;
     width: 34px;
@@ -1058,15 +1065,15 @@ ul#loginElements {
     display: table-cell;
     vertical-align: middle;
 }
-.labelContainer {
+/*.labelContainer {
     border: 0px solid red;
-}
+}*/
 .labelContainerAchievements {
     width: 175px;
-    border: 0px solid red;
+    /*border: 0px solid red;*/
 }
 .dashContainer {
-    border: 0px solid blue;
+    /*border: 0px solid blue;*/
     width: 34px;
 }
 .white {
@@ -1074,46 +1081,46 @@ ul#loginElements {
 }
 .gridContainer {
     width: 40px;
-    margin-right: 0px;
+    margin-right: 0;
     text-align: center;
-    border: 0px solid green;
+    /*border: 0 solid green;*/
 }
 .gridContainerAchievements {
-    /* margin-right:0px; */
+    /* margin-right:0; */
     text-align: center;
-    border: 0px solid green;
+    /*border: 0px solid green;*/
     width: 50px;
 }
 .statsValueContainer {
     /*padding-right:15px;*/
-    border: 0px solid black;
+    /*border: 0px solid black;*/
     width: 50px;
     text-align: center;
     padding-right: 15px;
 }
 .statsValueContainerAchievements {
     /*padding-right:15px;*/
-    border: 0px solid black;
+    /*border: 0px solid black;*/
     text-align: right;
 }
 .imageContainer {
     width: 47px;
     padding-top: 4px;
-    border: 0px solid green;
+    /*border: 0px solid green;*/
     /*height: 47px;
 	line-height: 47px;*/
 }
 .separatorBlock {
     width: 12px;
-    border: 0px solid black;
+    /*border: 0px solid black;*/
 }
 .separatorBlockAchievements {
     width: 6px;
-    border: 0px solid black;
+    /*border: 0px solid black;*/
 }
 .selectItemContainerCloze {
     /*display:inline-block;*/
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
     height: 37px;
     line-height: 37px;
     width: 30px;
@@ -1127,7 +1134,7 @@ ul#loginElements {
 }
 .selectItemContainer2 {
     /*display:inline-block;*/
-    border: solid 0px red;
+    /*border: solid 0px red;*/
     height: 47px;
     line-height: 47px;
     width: 29px;
@@ -1162,12 +1169,12 @@ img.imageLogoLMS {
     height: 38px;
     padding-right: 7px;
     padding-top: 5px;
-    border: solid 0px blue;
+    /*border: solid 0px blue;*/
 }
 .achievementsImg {
     vertical-align: middle;
     font-size: 38px;
-    border: 0px solid red;
+    /*border: 0px solid red;*/
 }
 
 .feedbackIcon {
@@ -1187,9 +1194,9 @@ img.imageLogo {
     height: 45px;
     line-height: 45px;
 }
-.rightDiv {
+/*.rightDiv {
     border: 0px solid red;
-}
+}*/
 .textDiv {
     border: 1px solid blue;
 }
@@ -1253,9 +1260,9 @@ img.imageLogo {
     color: #838383;
     text-shadow: 1px 1px 3px grey;
 }
-.stats {
+/*.stats {
     font-size: 20px;
-}
+}*/
 /************Statistsics View***************/
 
 .valueContainer {
@@ -1266,9 +1273,10 @@ img.imageLogo {
 .clear {
     clear: both;
 }
-#statsSpeedValue {} .statsLabel {
-    font-size: 22px;
-    font-weight: none;
+/*#statsSpeedValue {} */
+.statsLabel {
+    /*font-size: 22px;*/
+    font-weight: normal;
     padding-top: 15px;
     padding-right: 10px;
 }
@@ -1287,10 +1295,10 @@ img.imageLogo {
 #statsSlot7 {
     border-bottom: solid 1px white;
 }
-#cardBurner {
-    /*padding-bottom:4px;
-	margin-bottom:4px;*/
-}
+/*#cardBurner {
+    padding-bottom:4px;
+	margin-bottom:4px;
+}*/
 .marginSeparatorTop {
     margin-top: 6px;
     margin-bottom: 5px;
