@@ -551,6 +551,13 @@
 
         serverURL.trim(); // trim whitespaces
 
+        // prefix LMS URL with https:// if not already protocol prefixed
+        if (serverURL.indexOf("http://") !== 0 ||
+            serverURL.indexOf("https://") !== 0) {
+
+            serverURL = "https://" + serverURL;
+        }
+
         // strip any "index.*" from the end of the URL
         serverURL = serverURL.replace(/\/index\.[^\/\.]+$/i, "/");
 
