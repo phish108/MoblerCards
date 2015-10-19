@@ -42,7 +42,7 @@
                         <span class="icon-dash"></span>
                     </div>
                     <div id="landingfeaturedlabel" class="listlabel"></div>
-                    <div id="landingfeaturedimage" class="listimage blue touchable">
+                    <div id="landingfeaturedimage" class="listimage blue touchable separator">
                         <span id="landingstats" class="icon-bars"></span>
                         <div id="landingrotate" class="hidden loadingrotate"><span class="entypo-spinner"></span></div>
                     </div>
@@ -53,7 +53,7 @@
                         <span class="icon-dash"></span>
                     </div>
                     <div id="landingexclusivelabel" class="listlabel">Exclusive Content</div>
-                    <div class="listimage blue">
+                    <div class="listimage blue separator">
                         <span id="landingexclusiveimage" class="icon-enter" ></span>
                     </div>
                 </li>
@@ -104,7 +104,7 @@
                 <li id="courselistlms" class="listbox gradient touchable">
                     <div id="loginlmsdash"  class="listdash"></div>
                     <div id="loginlmslabel" class="listlabel"></div>
-                    <div id="loginlmsimage" class="listimage"><img id="loginimg" class="hidden"/><span id="loginlmsico" class="entypo-mortar-board hidden"></span></div>
+                    <div id="loginlmsimage" class="listimage separator"><img id="loginimg" class="hidden"/><span id="loginlmsico" class="entypo-mortar-board hidden"></span></div>
                 </li>
 <!--                Error messages-->
                 <li class="borderRemoval">
@@ -141,7 +141,7 @@
                             <span class="icon-dash"></span>
                         </div>
                         <div id="lmslabel" class="listlabel"></div>
-                        <div id="lmsimage" class="listimage">
+                        <div id="lmsimage" class="listimage separator">
                             <img id="lmsimg"/>
                             <span id="lmswait" class="red icon-cross hidden"></span>
                             <span id="lmsdefault" class="entypo-mortar-board hidden"></span>
@@ -159,7 +159,7 @@
                     <div id="addlmsinputbox" class="listlabel hidden msg_add_lms_label">
                         <input id="addlmsinput" type="text" placeholder="LMS URL">
                     </div>
-                    <div id="addlmsicon" class="listimage">
+                    <div id="addlmsicon" class="listimage separator">
                         <span id="addlmsbutton" class="icon-enter"></span>
                         <span id="addlmsfail" class="red icon-cross hidden"></span>
                         <span id="addlmswait" class="red icon-loading hidden"></span>
@@ -424,8 +424,8 @@
             <ul id="statisticsBody" class="">
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_bestDay_title"></div>
-                        <div><span id="statBestDay"></div>
+                        <div id="msg_bestDay_title">Best Day</div>
+                        <div class="statsvalue"><span id="statBestDay"></span></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statBestDayIcon" class="glow2"></span>
@@ -433,8 +433,8 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_bestScore_title"></div>
-                        <div id="statBestScore"></div>
+                        <div id="msg_bestScore_title">Best Score</div>
+                        <div class="statsvalue" id="statBestScore"></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statBestCoreIcon" class="glow2"></span>
@@ -442,8 +442,8 @@
                 </li>
                 <li class="listbox gradient">
                     <div class="listlabel">
-                        <div id="msg_handledCards_title"></div>
-                        <div><span id="statActions"></span> <span id="msg_handledCards_info"></span></div>
+                        <div id="msg_handledCards_title">Handled Cards</div>
+                        <div class="statsvalue"><span id="statActions"></span> <span id="msg_handledCards_info"></span></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statActionsIcon" class="glow2"></span>
@@ -452,7 +452,7 @@
                 <li class="listbox gradient">
                     <div class="listlabel">
                         <div id="msg_averageScore_title"></div>
-                        <div id="statScore"></div>
+                        <div class="statsvalue" id="statScore"></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statScoreIcon" class="glow2"></span>
@@ -461,7 +461,7 @@
                 <li class="listbox gradient">
                     <div class="listlabel">
                         <div id="msg_progress_title"></div>
-                        <div><span id="statProgress"></span> <span id="msg_progress_info"></span></div>
+                        <div class="statsvalue"><span id="statProgress"></span> <span id="msg_progress_info"></span></div>
                     </div>                    <div class="listimage separator">
                         <span id="statProgressIcon" class="glow2"></span>
                     </div>
@@ -469,7 +469,7 @@
                 <li class="listbox gradient">
                     <div class="listlabel">
                         <div id="msg_speed_title"></div>
-                        <div><span id="statSpeed"></span> <span id="msg_speed_info"></span></div>
+                        <div class="statsvalue"><span id="statSpeed"></span> <span id="msg_speed_info"></span></div>
                     </div>
                     <div class="listimage separator">
                         <span id="statSpeedIcon" class="glow2"></span>
