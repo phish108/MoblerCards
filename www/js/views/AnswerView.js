@@ -113,7 +113,11 @@ AnswerView.prototype.prepare = function () {
 AnswerView.prototype.duringMove = function () {
 
     if (this.scroll) {
-        this.doScroll();
+        console.log("AV: scroll!");
+
+        var dY = jstap().touches(0).delta.y();
+
+        this.container.scrollTop(this.container.scrollTop() - dY);
     }
 };
 
@@ -123,9 +127,7 @@ AnswerView.prototype.duringMove = function () {
  */
 AnswerView.prototype.doScroll = function () {
 
-    var dY = jstap().touches(0).delta.y();
 
-    this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
 /**
