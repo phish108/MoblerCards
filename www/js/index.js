@@ -42,6 +42,21 @@ function MoblerCards() {
     if (device.platform === "iOS") {
         var style = $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
     }
+    if (device.platform === "Android") {
+        console.log("Android device is of version " + device.version);
+        var aV = device.version.split(".");
+        aV.pop();
+
+        switch (aV.join(".")) {
+            case "4.1":
+            case "4.2":
+            case "4.3":
+                 var style = $('<link href="css/fixedScreen.css" rel="stylesheet" type="text/css">').appendTo("head");
+                break;
+            default:
+                break;
+        }
+    }
 
    // var featuredContentId = FEATURED_CONTENT_ID;
    // var startTime = new Date().getTime();

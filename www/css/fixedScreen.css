@@ -1,0 +1,15 @@
+.headerbox, .footerbox {
+    z-index: 10;
+}
+
+.screen {
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    overflow: scroll;
+
+/*    border: 1px solid red;*/
+}
