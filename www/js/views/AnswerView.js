@@ -113,11 +113,10 @@ AnswerView.prototype.prepare = function () {
 AnswerView.prototype.duringMove = function () {
 
     if (this.scroll) {
-        console.log("AV: scroll!");
 
-        var dY = jstap().touches(0).delta.y();
+        //console.log("container is at : " + this.container.scrollTop());
 
-        this.container.scrollTop(this.container.scrollTop() - dY);
+        this.doScroll();
     }
 };
 
@@ -126,8 +125,8 @@ AnswerView.prototype.duringMove = function () {
  * TODO: include doScroll() in CoreView, so we don't have to bother here.
  */
 AnswerView.prototype.doScroll = function () {
-
-
+    var dY = jstap().touches(0).delta.y();
+     this.container.scrollTop(this.container.scrollTop() - dY);
 };
 
 /**
