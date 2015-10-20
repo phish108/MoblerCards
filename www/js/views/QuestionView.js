@@ -80,33 +80,42 @@ QuestionView.prototype.tap = function () {
 
 };
 
+QuestionView.prototype.handleChangeOnSwipe = function (id) {
+    if (id !== "questioncross") {
+
+        // a swipe starting in the cross (close),
+        // means that the user does not want to close.
+
+        if (this.model.isAttempt()){
+
+            // swipe during an attempt means to flip back to the answer
+
+            this.app.changeView("answer");
+        }
+        else {
+
+            // otherwise move on.
+            this.model.nextQuestion();
+        }
+    }
+};
+
 QuestionView.prototype.swipe = function (event, id, data) {
+    var id = event.target.id;
+
+    // we accept only horizontal swipes
 
     if (data &&
         data.hasOwnProperty("direction") &&
         data.direction > 0) {
 
-        // we accept only horizontal swipes
-
-        var id = event.target.id;
-
-        if (id !== "questioncross") {
-
-            // a swipe starting in the cross (close),
-            // means that the user does not want to close.
-            console.log("swipe!");
-
-            if (this.model.isAttempt()){
-
-                // swipe during an attempt means to flip back to the answer
-
-                this.app.changeView("answer");
-            }
-            else {
-
-                // otherwise move on.
-                this.model.nextQuestion();
-            }
+        this.handleChangeOnSwipe(id);
+    }
+    else {
+        // old android version fail to deliver the direction
+        var dir = Math.abs(jstap().touches(0).total.x()) - Math.abs( jstap().touches(0).total.y());
+        if (dir > 0) {
+            this.handleChangeOnSwipe(id);
         }
     }
 };
@@ -114,11 +123,10 @@ QuestionView.prototype.swipe = function (event, id, data) {
 QuestionView.prototype.duringMove = function () {
 
     // only scroll vertically, ignore any x-scrolls
-    console.log("QV: scroll");
 
     var dY = jstap().touches(0).delta.y();
 
-    if(dY) {
+    if(dY !== 0) {
         this.container.scrollTop(this.container.scrollTop() - dY);
     }
 };
