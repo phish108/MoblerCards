@@ -3,7 +3,7 @@
 body {
     width: device-width;
     height: device-height;
-    /*overflow: scroll;*/
+    overflow: hidden;
     /*color: #666;*/
     color: #646464;
     font-family: "SF UI Text", Roboto, HelveticaNeue-Light, HelveticaNeue, Arial, sans-serif;
