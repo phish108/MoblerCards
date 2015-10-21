@@ -10,6 +10,7 @@
  */
 
 /*jslint todo: true*/      // allow todo comments
+/*jslint devel: true*/     // allow console comments
 
 /*jslint regexp: true*/    // allow [^\[] for cloze question preprocessing
 
@@ -553,7 +554,7 @@
         serverURL.trim(); // trim whitespaces
 
         // prefix LMS URL with https:// if not already protocol prefixed
-        if (serverURL.indexOf("http://") !== 0 ||
+        if (serverURL.indexOf("http://") !== 0 &&
             serverURL.indexOf("https://") !== 0) {
 
             serverURL = "https://" + serverURL;
