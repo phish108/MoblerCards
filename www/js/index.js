@@ -1,6 +1,6 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
-/*global $, jQuery, Connection, jstap, device*/
+/*global $, jQuery, Connection, jstap, device, UpdateModel*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -40,18 +40,19 @@ function MoblerCards() {
     self.clickOutOfStatisticsIcon = true;
 
     if (device.platform === "iOS") {
-        var style = $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
+        // the IOS UI is overlaying the app, so extra styles are required
+        $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
     }
     if (device.platform === "Android") {
-        console.log("Android device is of version " + device.version);
         var aV = device.version.split(".");
         aV.pop();
 
+        // Old Android Versions also make trouble
         switch (aV.join(".")) {
             case "4.1":
             case "4.2":
             case "4.3":
-                 var style = $('<link href="css/fixedScreen.css" rel="stylesheet" type="text/css">').appendTo("head");
+                $('<link href="css/fixedScreen.css" rel="stylesheet" type="text/css">').appendTo("head");
                 break;
             default:
                 break;
@@ -192,11 +193,15 @@ MoblerCards.prototype.chooseView = function (authView, unauthView) {
     }
 };
 
-MoblerCards.prototype.openFirstView = function () {
-    this.initBasics();
+MoblerCards.openFirstView = function () {
+    var self = this;
+    $(document).bind("UPDATE_DONE", function () {
+        self.initBasics();
+        self.appLoaded = true;
+        self.chooseView("course", "landing");
+    });
 
-    this.appLoaded = true;
-    this.chooseView("course", "landing");
+    UpdateModel.upgrade(this.MoblerVersion, this);
 };
 
 MoblerCards.prototype.initBasics = function () {
