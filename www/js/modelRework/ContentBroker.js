@@ -419,8 +419,9 @@
         }
 
         if (this.currentCourseId !== courseId) {
-            this.lrs.endContext("contextActivities.parent",
-                                this.currentCourseContext);
+
+            // clear all contexts
+            this.lrs.clearContext();
             this.currentCourseContext = null;
         }
 
@@ -470,8 +471,8 @@
         }
 
         if (this.currentCourseId) {
-            this.lrs.endContext("contextActivities.parent",
-                                this.currentCourseContext);
+
+            this.lrs.clearContext();
             this.currentCourseContext = null;
         }
     };
