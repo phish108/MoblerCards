@@ -37,6 +37,10 @@ under the License.
  * @author Dijan Helbling
  */
 
+/**
+ * Learning Record Store Local Model
+ */
+
 (function (w) {
     var DB,
         bSyncFlag             = false,
@@ -62,14 +66,14 @@ under the License.
             "objectid":     "TEXT",    // internal id
             "courseid":     "TEXT",    // partitioning
             "duration":     "INTEGER",
-            "lrsid":        "TEXT"     // synchronisation; unused.
+            "lrsid":        "TEXT"     // synchronisation; unused -> moved to syncindex table
         },
-        "contextindex": {    // the index for the filters
-            "uuid":         "TEXT",  // the action UUID
+        "contextindex": {              // the index for the filters
+            "uuid":         "TEXT",    // the action UUID
             "type":         "TEXT",
             "contextid":    "TEXT",
-            "stored":       "INTEGER",
-            "lrsid":        "TEXT"
+            "stored":       "INTEGER", // unused
+            "lrsid":        "TEXT"     // unused
         },
         "syncindex": {      // the index for synchronising data to the backends
             "uuid":         "TEXT",
@@ -160,6 +164,10 @@ under the License.
         return DB.createUUID();
     };
 
+    LearningRecordStore.getDb = function () {
+        return DB;
+    };
+
     /**
      * @prototype
      * @function resetDB
@@ -196,6 +204,7 @@ under the License.
             contextType = contextType.trim();
             contextId = contextId.trim();
             if (contextType.length && contextId.length) {
+                // split the context into an array
                 var arContext = contextType.split(".");
                 switch (arContext[0]) {
                     case "registration":
@@ -661,6 +670,9 @@ under the License.
                         }));
                     });
 
+                    // update the context index
+                    self.updateContextIndex(UUID, start.format());
+
                     return Promise.all(pa);
                 }
                 return Promise.resolve();
@@ -745,11 +757,10 @@ under the License.
                 .then(function (res) {
 
                     res.insertID = UUID;
-                    var pa = [];
                     self.lrscontext.forEach(function (lrsid) {
 
                         var lstUUID = loadLrsUuidList(lrsid);
-                        lstUUID.push(myUUID);
+                        lstUUID.push(UUID);
                         storeLrsUuidList(lrsid, lstUUID);
                     });
 
@@ -759,6 +770,87 @@ under the License.
         }
 
         return Promise.reject({"error": {message: "Invalid Record"}});
+    };
+
+    /**
+     * This function iterates over the context list and updates the context index
+     */
+    LearningRecordStore.prototype.updateContextIndex = function (uuid, timestamp, context) {
+
+        var self = this;
+        var ctxtParent, ctxtType;
+
+        function cbInsertComplete() {
+            console.log("insert complete");
+            return;
+        }
+
+        function cbInsertFail(err) {
+            console.log("insert failed " + JSON.stringify(err));
+            return;
+        }
+
+        /**
+         * insert the context into the database.
+         */
+        function fnInsertContextIndex(v) {
+
+
+            var iData = {
+                "type": ctxtType,
+                "uuid": uuid,
+                "contextid": v,
+                "stored": timestamp
+            };
+
+            DB.insert("contextindex", iData).then(cbInsertComplete).catch(cbInsertFail);
+        }
+
+        /**
+         * iterate over the activity context (because it is a nested structure)
+         */
+        function fnHandleContextActivities(name) {
+
+            ctxtType = ctxtParent + name;
+
+            if (Array.isArray(self.context.contextActivities[name])) {
+                self.context.contextActivities[name].forEach(function (val) {fnInsertContextIndex(val.id);});
+            }
+            else {
+                fnInsertContextIndex(self.context.contextActivities[name].id);
+            }
+        }
+
+        function fnInsertContextInfo (ctxt) {
+            Object.getOwnPropertyNames(ctxt).forEach(function (n) {
+
+                ctxtType = n;
+
+                if (n === "contextActivities") {
+
+                    ctxtParent  = n + ".";
+                    Object.getOwnPropertyNames(ctxt.contextActivities).forEach(fnHandleContextActivities);
+
+                }
+                else if (n === "extensions") {
+                    Object.getOwnPropertyNames(ctxt.extensions).forEach(function (ext) {
+                        ctxtType = ext;
+                        fnInsertContextIndex(ctxt.extensions[ext]);
+                    });
+
+                }
+                else {
+                    fnInsertContextIndex(ctxt[n]);
+                }
+            });
+        }
+
+        if (context) {
+            fnInsertContextInfo(context);
+        }
+        else if (self.context) {
+            fnInsertContextInfo(self.context);
+        }
     };
 
     /**
@@ -801,33 +893,49 @@ under the License.
             binder = this;
         }
 
-        var courseid = context.courseId,
+        var ct = "contextActivities.parent",
+            courseid = context.courseId,
             n = Math.pow(context.n, 2),
-            min = LearningRecordStore.Default_Speed, // start with a high value
+            min = LearningRecordStore.Default_Speed, // start with a high value for the entropy
             minE= 0.1,
             totalE= 0;
 
-        DB.select({
+        // fetch the entroy map in one go.
+        var query = {
             from: {
-                ta: 'actions',
+                ta: {
+                    // list of all attempts in a course
+                    from: {
+                        ci: "contextindex"
+                    },
+                    where: {"and": [{"=": "ci.type"},
+                                    {"=": "ci.contextid"}]},
+                    result: ["ci.uuid", "ci.stored"]
+                },
                 sa: {
-                     from: 'actions k',
-                     result: ["k.objectid",
-                              "k.courseid",
-                              "k.score",
-                              ["max(k.stored)", "t"],
-                              ["count(k.objectid)", "a"],
-                              ["total(k.score)", "s"]],
-                     where: {"=": "courseid"},
-                     group: "objectid"
+                    // all attempt stats in a course
+                    from: {
+                        a2: "actions",
+                        cj: "contextindex"
+                    },
+                    where: {"and": [{"=": ["a2.uuid", "cj.uuid"]},
+                                    {"=": "cj.type"},
+                                    {"=": "cj.contextid"}]},
+                    group: "a2.objectid",
+                    result: ["a2.objectid",
+                             "a2.score",
+                             ["max(a2.stored)", "t"],
+                             ["count(a2.objectid)", "a"],
+                             ["total(a2.score)", "s"]]
                 }
             },
-            result: ["count(ta.uuid) p", "sa.objectid", "sa.score", "a", "t", "s"],
-            where: {"and": [{">=": ["ta.stored", "sa.t"]},
-                    {"=": ["ta.courseid", "sa.courseid"]}]},
+            where: {">=": ["ta.stored", "sa.t"]},
+            group: "sa.objectid",
             order: {"sa.t": "d"},
-            group: ["sa.objectid"]
-        }, [courseid])
+            result: ["sa.objectid", "sa.score", "a", "t", "s", "count(ta.uuid) p"]
+        };
+
+        DB.select(query, [ct, courseid, ct, courseid])
             .then(function(res) {
             var p = 0, m = res.rows.length;
             var map = [];
@@ -839,7 +947,7 @@ under the License.
                 d = res.rows.item(p);
                 q.push(d.object);
                 eo = {
-                    id: d.object,
+                    id: d.objectid,
                     pos: d.p,
                     actions: d.a,
                     allscore: d.s,
@@ -945,18 +1053,22 @@ under the License.
 
         // SELECT count(uuid) attempts, avg(score) score, avg(duration) speed
         DB.select({
-            from: "actions",
+            distinct: true,
+            from: ["actions", "contextindex"],
             result: ["day",
-                     "count(uuid) a",
+                     "count(actions.uuid) a",
                      "avg(score) score",
                      "avg(duration) speed"],
             where: {"and": [
-                {"=": "courseid"},
+                {"=": ["actions.uuid", "contextindex.uuid"]},
+                {"=": "contextindex.type"},
+                {"=": "contextid"},
                 {"=": "verbid"}
             ]},
             order: {day: "desc"},
             group: ["day"]
-        }, [courseId,
+        }, ["contextActivities.parent",
+            courseId,
             "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"])
         .then(function (res) {
             var r, k = 0, bDay, bScore = 0, bAtt = 0;
@@ -1384,11 +1496,21 @@ under the License.
                     }
                 }
 
-                return DB.insert("actions", iData).then(function () {
-                    lstUUID.push(action.id);
-                    return action.id;
+                return DB.insert("actions", iData)
+                    .then(function () {
 
-                });
+                        lstUUID.push(action.id);
+                        var momA = moment(action.timestamp);
+
+                        var ctxt = action.context;
+
+                        if (!ctxt) {
+                            ctxt = {};
+                        }
+
+                        self.updateContextIndex(action.uuid, momA.valueOf(), ctxt);
+                        return action;
+                    });
             }
             return Promise.resolve();
         }

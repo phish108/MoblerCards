@@ -1,5 +1,5 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
-/*global $*/
+/*global jQuery, jstap*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
 Licensed to the Apache Software Foundation (ASF) under one
@@ -51,8 +51,8 @@ function CourseView() {
     /**
      * refresh if the content broker reports changes ...
      */
-    $(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
-    $(document).bind("CONTENT_COURSE_UPDATED",     refresh);
+    jQuery(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
+    jQuery(document).bind("CONTENT_COURSE_UPDATED",     refresh);
 }
 
 /**
@@ -143,6 +143,7 @@ CourseView.prototype.doScroll = function () {
 CourseView.prototype.tap = function (event) {
     var id = event.target.id,
         course = id.split("_");
+
     var cId, lmsId;
 
     if (course.length === 4) {
@@ -167,7 +168,12 @@ CourseView.prototype.tap = function (event) {
         this.setLoadingIcon();
         this.model.activateCourseById(lmsId, cId);
         this.app.changeView("statistics", "LRS_CALCULATION_DONE");
-        this.app.models.learningrecordstore.calculateStats(this.app.models.contentbroker.getCourseId());
+
+        var courseid = this.app.models.identityprovider.serviceURL("powertla.content.courselist",
+                                                                   lmsId,
+                                                                   [cId]);
+
+        this.app.models.learningrecordstore.calculateStats(courseid);
     }
 
 };
@@ -224,7 +230,7 @@ CourseView.prototype.setCourseIcon = function (ctmpl, modelId) {
  */
 CourseView.prototype.courseIsLoaded = function (courseId) {
 
-    $("#course" + courseId + " .icon-loading")
+    jQuery("#course" + courseId + " .icon-loading")
         .addClass("icon-bars")
         .removeClass("icon-loading loadingrotation");
 };
