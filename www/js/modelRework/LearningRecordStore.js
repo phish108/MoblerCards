@@ -671,7 +671,7 @@ under the License.
                     });
 
                     // update the context index
-                    self.updateContextIndex(UUID, start.format());
+                    self.updateContextIndex(UUID, start.valueOf());
 
                     return Promise.all(pa);
                 }
