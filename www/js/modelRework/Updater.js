@@ -30,43 +30,25 @@
 
 (function (w) {
 
-    var versionkey;
-    var targetversion;
+    var idp, // helper for url building
+        versionkey,
+        targetversion;
 
-    var idp; // helper for url building
+    // this is an helper array to ensure that we run every update routine only once.
+    var arrUpdate = [],
+        debugFlag = false;
 
-    function cbDbOk(res) {
-        console.log("database action ok");
-    }
+    // add here the hooks for the upgrade functions.
+    var upgradeFunctions = {
+        "3.1": upgrade031
+    };
 
-    function cbDbError(err) {
-        console.log("database error: ");
-        console.log(err);
-    }
-
-    /**
-     * find out which upgrade to process first
-     */
-    function nextUpdate(db, version) {
-        console.log("next update");
-
-        if (targetversion < 3.1) {
-            console.log("production version is not ready for upgrading");
-            $(document).trigger("UPDATE_DONE");
-            return;
-        }
-
-        if (version < 3.1) {
-            console.log("update to 3.1");
-            return upgrade031(db);
-        }
-
-        // add new upgrade function here!
-
-        // last list/ Make certain that this is not accidentally reached.
-        console.log("update done");
-        $(document).trigger("UPDATE_DONE");
-    }
+    /** ******************************************************************** *
+     * Upgrader functions
+     *
+     * Each function here is a self contained upgrade script.
+     * In order to link the script
+     * ********************************************************************* */
 
     /**
      * function upgrade031
@@ -85,18 +67,25 @@
             actions = [],
             contexts = [];
 
-        function cbHandleActionRow31(row) {
+        function cbHandleActionRow31(oAction) {
 
-            console.log("update a single action " + row.uuid);
+            console.log(oAction);
 
-            var newRecord = updgradeAction31(row.record,
-                                             row.courseid);
+            console.log("update a single action " + oAction.uuid);
+
+            var newRecord = updgradeAction31(oAction.record,
+                                             oAction.courseid);
+
+            buildContextIndex31(oAction.uuid,
+                                oAction.stored,
+                                newRecord);
+
             db.update({
                 set: {record: JSON.stringify(newRecord)},
                 from: "actions",
-                where: {"=": {uuid: row.uuid}}
+                where: {"=": {uuid: oAction.uuid}}
             })
-                .then(buildContextIndex31)
+                .then(nextContext31)
                 .catch(cbDbError);
         }
 
@@ -107,7 +96,7 @@
                 cbHandleActionRow31(actions.shift());
             }
             else {
-                console.log("all actions updates to 3.1")
+                console.log("all actions updates to 3.1");
 
                 // done
                 w.localStorage.setItem(versionkey, 3.1);
@@ -140,7 +129,9 @@
         }
 
         function buildContextIndex31(uuid, stored, action) {
-            console.log("build context index from action")
+            console.log("build context index from action");
+            console.log(action);
+
             contexts = [];
 
             var ctxtType, ctxtParent;
@@ -155,26 +146,38 @@
             function handleContextActivities(act) {
                 ctxtType = ctxtParent + act;
                 if (Array.isArray(action.context.contextActivities[act])) {
+
+                    console.log("add context activity list");
+
                     action.context.contextActivities[act].forEach(pushContextId);
                 }
                 else {
+
+                    console.log("add single context activity");
+
                     pushContextId(action.context.contextActivities[act]);
                 }
             }
 
             function handleContextExtensions(ext) {
+                console.log("add context extension");
+
                 contexts.push({uuid: uuid,
                                stored: stored,
                                type: ext,
-                               contextid: action.context.extensions[ext].id});
+                               contextid: action.context.extensions[ext]});
             }
 
-            if (action.context) {
+            if (action &&
+                action.context) {
+
+                console.log("setup contexts");
+
                 Object.getOwnPropertyNames(action.context).forEach(function (n) {
                     ctxtType = n;
 
                     if (n === "contextActivities") {
-                        console.log("nested context objects")
+                        console.log("nested context objects");
                         ctxtParent  = n + ".";
                         Object.getOwnPropertyNames(action.context.contextActivities).forEach(handleContextActivities);
 
@@ -190,13 +193,14 @@
                     }
                 });
             }
-
-            console.log("itegrate through the context list");
-            nextContext31();
         }
 
         function updgradeAction31(action, courseid) {
-            if (action.verb.id === "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt") {
+            if (courseid &&
+                courseid.indexOf('_') > 0 &&
+                action &&
+                action.verb.id === "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt") {
+
                 console.log("update response action");
 
                 // add course context
@@ -208,22 +212,28 @@
                 console.log("got course uri for :" + aCourse[0] + " & " + aCourse[1] + " -> "+ courseURI);
 
                 if (!action.context) {
+
                     action.context = {};
                 }
 
                 if (!action.context.hasOwnProperty("contextActivities")) {
+
                     action.context.contextActivities = {};
                 }
 
                 if (!action.context.contextActivities.hasOwnProperty("parent")) {
+
                     action.context.contextActivities.parent = [];
                 }
 
                 // only upgrade if the action is not already in the correct format
                 var i = 0, use = true;
                 for (i =0; i < action.context.contextActivities.parent.length; i++) {
+
                     if (action.context.contextActivities.parent[i].id === courseURI) {
+
                         console.log("actions is already in the correct format.");
+
                         use = false;
                     }
                 }
@@ -239,14 +249,21 @@
         function cbAllActions31(res) {
             actions = [];
 
-            console.log("update all " + res.rows.length + "actions");
+            var i = 0,
+                len = res.rows.length,
+                oRecord,
+                row;
 
-            var i = 0, len = res.rows.length, oRecord, row;
+            console.log("update all " + res.rows.length + " actions");
+
             for (i = 0; i < len; i++) {
+
                 row = res.rows.item(i);
+
                 oRecord = JSON.parse(row.record);
 
                 if (oRecord) {
+
                     actions.push({uuid: row.uuid,
                                   record: oRecord,
                                   stored: row.stored,
@@ -255,33 +272,90 @@
             }
 
             // next action
-            console.log("iterate through the actions")
+            console.log("iterate through the actions " +  JSON.stringify(actions));
             nextAction31();
         }
 
         dbversion = w.localStorage.getItem(versionkey);
 
+        var q1 = {
+            from: "actions",
+            result: ["uuid", "record", "stored", "courseid"]
+        };
 
+        db.select(q1)
+            .then(cbAllActions31)
+            .catch(cbDbError);
+    } // END upgrader 3.1
 
-        // as long no version key is set,
-        if (dbversion < 3.1) {
+    /** ******************************************************************** *
+     * Upgrader Interface functions
+     *
+     * Do not touch the functions beyond this point.
+     * ********************************************************************* */
 
-            console.log("need update to version 3.1");
+    function cbDbOk(res) {
+        console.log("database action ok");
+    }
 
-            var q1 = {
-                from: "actions",
-                result: ["uuid", "record", "stored", "courseid"]
-            };
+    function cbDbError(err) {
+        console.log("database error: ");
+        console.log(err);
+    }
 
-            db.select(q1)
-                .then(cbAllActions31)
-                .catch(cbDbError);
+    /**
+     * checkUpdateRequierment()
+     *
+     * helper funtion to test whether to run an update or not. If the update
+     * should get executed, it returns true.
+     *
+     * Per startup this version can only run ONCE, because the function
+     * also handles some sanity checks to avoid infinite loops.
+     */
+    function checkUpdateRequirement(targetVersion, currentVersion) {
+
+        if (((!debugFlag && currentVersion < targetVersion) || // production
+            (debugFlag && currentVersion <= targetVersion)) && // development
+            arrUpdate.indexOf(targetVersion) < 0) {
+
+            console.log("update to " + targetVersion);
+            arrUpdate.push(3.1);
+
+            return true;
         }
-        else {
-            console.log("no update needed, move on to the next update");
-            nextUpdate();
-        }
 
+        return false;
+    }
+
+    /**
+     * find out which upgrade to process first
+     *
+     * nextUpdate() is the place to locate the update logic.
+     *
+     */
+    function nextUpdate(db, version) {
+        console.log("next update");
+
+        // unfinished will be true if the some function executes a upgrader
+        var unfinished = Object.getOwnPropertyNames(upgradeFunctions)
+            .sort(function (a,b) {
+
+                 return parseFloat(a) - parseFloat(b);
+            })
+            .some(function (tVersion) {
+                if (checkUpdateRequirement(parseFloat(tVersion),
+                                           parseFloat(version))) {
+
+                    upgradeFunctions[tVersion](db);
+                    return true;
+                }
+            });
+
+        if (!unfinished) {
+            // last list/ Make certain that this is not accidentally reached.
+            console.log("update done");
+            $(document).trigger("UPDATE_DONE");
+        }
     }
 
     function upgradeDB(appVersion, app) {
@@ -314,11 +388,26 @@
     }
 
     /**
+     * set the debug flag true to invoke the upgrader up until the current
+     * app version
+     *
+     * use the following code:
+     *
+     *     UpdateModel.debug(1);
+     *
+     * you can deactivte the flag by setting it back to 0
+     */
+    function setDebugFlag(flag) {
+        debugFlag = flag ? true : false;
+    }
+
+    /**
      * expose the update function
      */
-    console.log("expose update model");
 
     w.UpdateModel = {
-        upgrade: upgradeDB
+        upgrade: upgradeDB,
+        debug: setDebugFlag
     };
+
 } (window));

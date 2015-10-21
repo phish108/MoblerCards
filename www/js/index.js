@@ -35,7 +35,10 @@ function MoblerCards() {
     //self.development = false;
 
     self.viewId = "splash";
-    self.MoblerVersion = 3.0;
+
+    // TODO Get the version information from the manifest files for the
+    //      platforms
+    self.MoblerVersion = 3.1;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
 
@@ -203,6 +206,8 @@ MoblerCards.prototype.openFirstView = function () {
         self.chooseView("course", "landing");
     });
 
+    // set to 1 for testing the latest upgrading function, use 0 for app store versions
+    UpdateModel.debug(1);
     UpdateModel.upgrade(this.MoblerVersion, this);
 };
 
