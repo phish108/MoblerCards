@@ -131,6 +131,7 @@ MoblerCards.prototype.isOffline = function () {
 };
 
 MoblerCards.prototype.initialize = function () {
+
     var self = this;
     // setup the models
     this.models.contentbroker.idprovider    = this.models.identityprovider;
@@ -208,8 +209,9 @@ MoblerCards.prototype.chooseView = function (authView, unauthView) {
     }
 };
 
-MoblerCards.openFirstView = function () {
+MoblerCards.prototype.openFirstView = function () {
     var self = this;
+
     $(document).bind("UPDATE_DONE", function () {
         self.initBasics();
         self.appLoaded = true;
