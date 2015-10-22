@@ -41,7 +41,7 @@ function MoblerCards() {
     self.MoblerVersion = 3.1;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    self.backTapOld = new Date().getTime();
+    self.backTap = 0;
     
     if (device.platform === "iOS") {
         // the IOS UI is overlaying the app, so extra styles are required
@@ -86,13 +86,14 @@ function MoblerCards() {
 
     // Double click to exit the Application.
     function onBack() {
-        self.backTap = new Date().getTime();
+        var date = new Date().getTime();
         
-        if (self.backTap - self.backTapOld < 350) {
+        if (date - self.backTap < 350) {
             navigator.app.exitApp();
         }
         else {
-            self.backTapOld = self.backTap;
+            self.backTap = date;
+            self.rollbackView();
         } 
     }
     
