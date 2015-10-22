@@ -900,6 +900,11 @@ under the License.
             minE= 0.1,
             totalE= 0;
 
+        var aCI = courseid.split("_");
+        courseid = this.idp.serviceURL("powertla.content.courselist",
+                                       aCI[0],
+                                       [aCI[1]]);
+
         // fetch the entroy map in one go.
         var query = {
             from: {
@@ -932,7 +937,7 @@ under the License.
             where: {">=": ["ta.stored", "sa.t"]},
             group: "sa.objectid",
             order: {"sa.t": "d"},
-            result: ["sa.objectid", "sa.score", "a", "t", "s", "count(ta.uuid) p"]
+            result: ["objectid", "score", "a", "t", "s", "count(ta.uuid) p"]
         };
 
         DB.select(query, [ct, courseid, ct, courseid])
@@ -945,7 +950,13 @@ under the License.
             // skip the position 0 as it is out present element
             for (p = 0; p < m; p++) {
                 d = res.rows.item(p);
-                q.push(d.object);
+
+                if (!d.objectid) {
+                    // skip unidentifiable questions.
+                    continue;
+                }
+
+                q.push(d.objectid);
                 eo = {
                     id: d.objectid,
                     pos: d.p,

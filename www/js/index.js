@@ -207,7 +207,7 @@ MoblerCards.prototype.openFirstView = function () {
     });
 
     // set to 1 for testing the latest upgrading function, use 0 for app store versions
-    UpdateModel.debug(1);
+    UpdateModel.debug(0);
     UpdateModel.upgrade(this.MoblerVersion, this);
 };
 
