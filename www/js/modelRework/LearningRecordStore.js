@@ -1082,7 +1082,14 @@ under the License.
             courseId,
             "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt"])
         .then(function (res) {
-            var r, k = 0, bDay, bScore = 0, bAtt = 0;
+            var r,
+                k = 0,
+                bDay,
+                bScore = 0,
+                bAtt = 0,
+                bPerformance = 0,
+                performance;
+
             if (res.rows.length) {
                 r = res.rows.item(0);
                 if (r) {
@@ -1106,16 +1113,22 @@ under the License.
                         self.stats.last.speed =    Math.round(r.speed/ 1000);
                     }
                 }
+
                 // find the best day
-                // best day == day with the highest score
+                // best day == day with the highest performance (avg score X n attempts)
+                // finding the best day must reverse from the start
 
                 for (k = 0; k < res.rows.length; k++) {
                     r = res.rows.item(k);
 
-                    if (!bDay || (r.score > bScore && r.attempts > bAtt)) {
+                    //console.log(r.day + " :: " + tScore + " :: " + r.a);
+                    performance = r.score * r.a;
+
+                    if (performance && performance > bPerformance) {
                         bDay    = r.day;
-                        bScore  = r.score;
-                        bAtt    = r.attempts;
+                        bScore  = r.score ? r.score.toFixed(2) : 0;
+                        bAtt    = r.a;
+                        bPerformance = performance;
                     }
                 }
 
@@ -1125,7 +1138,7 @@ under the License.
 
                     self.bestDay = {
                         date: bDay,
-                        score: bScore.toFixed(2)
+                        score: bScore
                     };
                 }
             }
@@ -1146,18 +1159,22 @@ under the License.
                 $(document).trigger("LRS_CALCULATION_DONE");
             }
         });
+
         DB.select({
-            from: "actions",
+            from: ["actions", "contextindex"],
             result: ["day",
-                     "count(uuid) progress"],
+                     "count(actions.uuid) progress"],
             where: {"and": [
-                {"=": "courseid"},
+                {"=": ["actions.uuid", "contextindex.uuid"]},
+                {"=": "type"},
+                {"=": "contextid"},
                 {"=": "verbid"},
                 {"=": "score"}
             ]},
             order: {day: "desc"},
             group: ["day"]
-        }, [courseId,
+        }, ["contextActivities.parent",
+            courseId,
             "http://www.mobinaut.io/mobler/verbs/IMSQTIAttempt",
             "1"])
         .then(function (res) {
