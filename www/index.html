@@ -407,8 +407,6 @@
         </div>
     </div>
 
-    <!--   >>>>>>>>>>>>>>>>>>>>>>>> BEAUTIFIED END <<<<<<<<<<<<<<<<<<<<<<<-->
-
     <div id="statistics" class="screen" data-view="StatisticsView" data-model="LearningRecordStore" data-touch="tap">
         <component id="statisticsboxc">
 
@@ -422,22 +420,26 @@
 
         <div id="statisticsbox" class="contentbox static">
             <ul id="statisticsBody" class="">
+
+                <li id="statsSelectQuestionPool" class="listbox gradient touchable">
+                    <div class="listlabel">
+                        <div id="msg_questionpool_title">Question Pool</div>
+                    </div>
+                    <div class="listimage">
+                        <span class="icon-enter"></span>
+                    </div>
+                </li>
+
                 <li class="listbox gradient">
                     <div class="listlabel">
                         <div id="msg_bestDay_title">Best Day</div>
-                        <div class="statsvalue"><span id="statBestDay"></span></div>
+                        <div class="statsvalue">
+                            <span id="statBestDay"></span>
+                            (<span class="statsvalue" id="statBestScore"></span>)
+                        </div>
                     </div>
                     <div class="listimage separator">
                         <span id="statBestDayIcon" class="glow2"></span>
-                    </div>
-                </li>
-                <li class="listbox gradient">
-                    <div class="listlabel">
-                        <div id="msg_bestScore_title">Best Score</div>
-                        <div class="statsvalue" id="statBestScore"></div>
-                    </div>
-                    <div class="listimage separator">
-                        <span id="statBestCoreIcon" class="glow2"></span>
                     </div>
                 </li>
                 <li class="listbox gradient">
@@ -482,9 +484,30 @@
         </component>
     </div>
 
+    <div id="questionpools" class="screen" data-view="QuestionPoolView" data-model="ContentBroker" data-touch="tap move">
+        <div id="questionpoolsheader" class="headerbox">
+            <div id="questionpoolsicon"  class="titleicon"><span class="icon-happy"></span></div>
+            <div id="msg_questionpools_title" class="headercontent">Topics</div>
+            <div id="questionpoolscross" class="closeicon touchable">
+                <span class="icon-cross"></span>
+            </div>
+        </div>
+        <div id="questionpoolscontent" class="contentbox touchable">
+            <ul id="questionpoolsbox">
+                <template id="questionpoollistbox">
+                    <li id="questionpool" class="listbox gradient">
+                        <div id="questionpoolname" class="listlabel"></div>
+                        <div class="listimage separator">
+                            <!-- <span id="questionpooltickicon" class="glow2"></span> -->
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
 
     <div id="achievements" class="screen" data-view="AchievementsView" data-model="LearningRecordStore" data-touch="tap swipe pinch">
-        <div id="statisticsheader" class="headerbox">
+        <div id="achievementsheader" class="headerbox">
             <div id="achievementsicon"  class="titleicon"><span class="icon-happy"></span></div>
             <div id="msg_achievements_title" class="headercontent">Achievements</div>
             <div id="achievementscross" class="closeicon touchable">
@@ -623,6 +646,7 @@
     <!-- script type="text/javascript" src="js/views/AchievementsView.js"></script -->
     <script type="text/javascript" src="js/views/AboutView.js"></script>
     <script type="text/javascript" src="js/views/SplashView.js"></script>
+    <script type="text/javascript" src="js/views/QuestionPoolView.js"></script>
 
     <script type="text/javascript" src="js/widgets/ApologizeWidget.js"></script>
     <script type="text/javascript" src="js/widgets/MultipleChoiceWidget.js"></script>

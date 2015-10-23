@@ -202,6 +202,7 @@
      * returns an array with all questions for the course
      */
     function getCourseForLMS(lmsId, courseId, arrayIncludePools) {
+
         if (!courseList) {
             courseList = {};
         }
@@ -263,6 +264,68 @@
         }
 
         return questionPool;
+    }
+
+    function getQuestionPools(lmsId, courseId, bForceAll) {
+        if (!courseList) {
+            courseList = {};
+        }
+
+        var lstQuestionPool = [];
+
+        if (courseList[lmsId] &&
+            Array.isArray(courseList[lmsId])) {
+
+            var qpList;
+            courseList[lmsId].some(function (c) {
+                if (c.id === courseId) {
+                    var bQuestionPoolSelection = false;
+                    var courseJson = localStorage.getItem("course_" + lmsId + "_" + courseId);
+
+                    if (courseJson) {
+                        // now fetch the questions
+                        try {
+                            qpList = JSON.parse(courseJson);
+                        }
+                        catch (err) {
+                            qpList = [];
+                        }
+                    }
+                    else {
+                        // course is not loaded
+                        qpList = [];
+                    }
+
+                    if (qpList &&
+                        Array.isArray(qpList) &&
+                        qpList.length) {
+                        qpList.forEach(function (qp) {
+                            if (qp.active &&
+                                !bForceAll &&
+                                !bQuestionPoolSelection) {
+
+                                bQuestionPoolSelection = true;
+                                lstQuestionPool = [];
+                            }
+
+                            if (!bQuestionPoolSelection ||
+                                (bQuestionPoolSelection && qp.active)) {
+
+                                lstQuestionPool.push({
+                                    id: qp.id,
+                                    title: qp.title,
+                                    description: qp.description
+                                });
+                            }
+                        });
+                    }
+
+                    return true;
+                }
+            });
+        }
+
+        return lstQuestionPool;
     }
 
     /**
@@ -525,6 +588,12 @@
             this.lrs.startContext("contextActivities.parent", idurl);
         }
     };
+
+    ContentBroker.prototype.getCourseUrl = function () {
+        return this.idprovider.serviceURL("powertla.content.courselist",
+                                           this.currentLMSId,
+                                           [this.currentCourseId]);
+    }
 
     ContentBroker.prototype.getCourseId = function () {
         if (this.currentCourseId && this.currentLMSId) {
@@ -1013,6 +1082,10 @@
 
         return getCourseList(lmsList);
     };
+
+    ContentBroker.prototype.getQuestionPools = function (forceAll) {
+        return getQuestionPools(this.currentLMSId, this.currentCourseId, forceAll);
+    }
 
 
     /****** Synchronize Management ******/

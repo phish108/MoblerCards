@@ -53,9 +53,10 @@ StatisticsView.prototype.tap_statisticscross = function() {
     this.app.chooseView("course", "landing");
 };
 
-StatisticsView.prototype.tap_statsSlot3 = function() {
+StatisticsView.prototype.tap_statsSelectQuestionPool = function() {
 //    this.app.changeView("achievements");
-    return;
+    console.log("switch to question pool list");
+    this.app.changeView("questionpools");
 };
 
 /**show loading message when statistics have not been fully loaded from the server
@@ -73,6 +74,14 @@ StatisticsView.prototype.update = function () {
     var t = this.template,
         m = this.model,
         pv;
+
+    var tQP = this.app.models.contentbroker.getQuestionPools(1);
+    if (tQP.length <= 1) {
+        t.statsSelectQuestionPool.addClass("hidden");
+    }
+    else {
+        t.statsSelectQuestionPool.removeClass("hidden");
+    }
 
     // TODO: Best day stats etc.
     pv                   = m.getBestDay();

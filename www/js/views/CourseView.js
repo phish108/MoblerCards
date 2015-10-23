@@ -194,10 +194,7 @@ CourseView.prototype.tap = function (event) {
             this.model.activateCourseById(lmsId, cId);
             this.app.changeView("statistics", "LRS_CALCULATION_DONE");
 
-            var courseid = this.app.models.identityprovider.serviceURL("powertla.content.courselist",
-                                                                       lmsId,
-                                                                       [cId]);
-
+            var courseid = this.model.getCourseUrl();
             this.app.models.learningrecordstore.calculateStats(courseid);
         }
     }
