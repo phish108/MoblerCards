@@ -451,8 +451,8 @@
         this.app.trueAnswer   = false;
         this.app.trueFeedback = false;
 
-        var randomId,
-            activeId,
+        var randomId      =  0,
+            activeId      = -1,
             qList         = [],
             qSel          = [],
             questions     = [],
@@ -488,6 +488,7 @@
                 this.questionPool.forEach(function (q) {
                     // always skip the active question
                     if (q.id !== activeId) {
+
                         if (this.lockoutIds.indexOf(q.id) >= 0) {
                             tList.push(q);
                         }
@@ -522,8 +523,10 @@
                     this.lockoutIds.push(activeId);
                 }
 
-                // select a random item from the current entropy selection
-                randomId = Math.floor(Math.random() * qList.length);
+                if (qList.length > 1) {
+                    // select a random item from the current entropy selection
+                    randomId = Math.floor(Math.random() * qList.length);
+                }
 
                 this.lockoutIds.push(qList[randomId].id);
                 this.activeQuestion = qList[randomId];
@@ -589,6 +592,53 @@
         if (idurl) {
             this.lrs.startContext("contextActivities.parent", idurl);
         }
+    };
+
+    /**
+     * @prototype
+     * @public @method clearActiveCourse()
+     *
+     * resets the all member variables that refer to an active course.
+     * This is used by the course and landing view in order to ensure that
+     * the nextQuestion() function does not fail if the previous active question
+     * it the only question with enough entropy for getting selected.
+     */
+    ContentBroker.prototype.clearActiveCourse = function () {
+        this.lockoutIds = [];
+        this.activeQuestion  = undefined;
+        this.currentCourseId = undefined;
+        this.currentLMSId    = undefined;
+
+        // this.questionPool contains all ACTIVE questions
+        this.questionPool    = [];
+        this.context         = {};
+    };
+
+    /**
+     * returns a hash object of lsm_courseids with the number of questions per
+     * course
+     */
+    ContentBroker.prototype.getCourseMetrices = function () {
+        var qpMetr = {};
+
+        var lmsId, courseId, lst;
+
+        // load the number of question pools for all courses
+        Object.getOwnPropertyNames(courseList).forEach(function (lid) {
+            lmsId = lid;
+
+            courseList[lmsId].forEach(function (cid) {
+                lst = getCourseForLMS(lmsId, cid.id);
+                courseId = lmsId + "_"+ cid.id;
+                qpMetr[courseId] = {
+                    id: cid.id,
+                    lms: lmsId,
+                    count: Array.isArray(lst) ? lst.length : 0
+                };
+            });
+        });
+
+        return qpMetr;
     };
 
     ContentBroker.prototype.getCourseUrl = function () {

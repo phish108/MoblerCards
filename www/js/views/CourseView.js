@@ -58,6 +58,7 @@ function CourseView() {
      */
     jQuery(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
     jQuery(document).bind("CONTENT_COURSE_UPDATED",     refresh);
+    jQuery(document).bind("LRS_CALCULATION_DONE",       refresh);
 }
 
 /**
@@ -69,6 +70,10 @@ function CourseView() {
 CourseView.prototype.prepare = function () {
     if (!this.app.getLoginState()) {
         this.app.changeView("landing");
+    }
+    else {
+        this.app.models.learningrecordstore.calculateOverviewStats();
+        this.model.clearActiveCourse();
     }
     this.app.trueAnswer   = false;
     this.app.trueFeedback = false;
@@ -84,6 +89,8 @@ CourseView.prototype.prepare = function () {
 CourseView.prototype.update = function () {
     var self = this;
 
+    var cstats = this.app.models.learningrecordstore.getOverviewStats();
+
     var courseModel = self.model;
     var ctmpl = this.app.templates.getTemplate("courselistbox");
 
@@ -93,8 +100,30 @@ CourseView.prototype.update = function () {
         cList.forEach(function (course) {
             if (course.title && course.id) {
 
-                ctmpl.attach(course.lmsId + "_" + course.id);
+                var courseid = course.lmsId + "_" + course.id;
+
+                ctmpl.attach(courseid);
                 ctmpl.courselabel.text = course.title;
+
+                if (cstats[courseid] &&
+                    typeof cstats[courseid].avg !== "undefined") {
+
+                    var cls = "blue",
+                        avg = cstats[courseid].avg;
+
+                    if (avg >= 0) {
+
+                        cls = "red plain";
+
+                        if (avg >= 0.5) {
+                            cls = "yellow";
+                        }
+                        if (avg >= 0.75) {
+                            cls = "green"
+                        }
+                    }
+                    ctmpl.coursedash.addClass(cls);
+                }
 
                 // the default button icon is the loading icon, therefore
                 // it is necessary to set the stats icon if the course is

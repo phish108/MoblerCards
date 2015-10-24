@@ -283,6 +283,16 @@ input.listlabel {
 .green {
     color: #33CC33;
 }
+.red.plain {
+    color: #bf1010;
+}
+.yellow {
+    color: #F0C000;
+}
+.blue {
+    color: #008CC7;
+}
+
 .glow2.red,
 .red {
     text-shadow: 0 0 4px #DF1010;
@@ -753,9 +763,6 @@ li {
 
 #achievementsView {
     display: none;
-}
-.blue {
-    color: #008CC7;
 }
 /*********************** Settings View ***********************/
 .settingsLi {
