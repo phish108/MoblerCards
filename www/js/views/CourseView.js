@@ -50,6 +50,11 @@ function CourseView() {
     }
     /**
      * refresh if the content broker reports changes ...
+     *
+     * NOTE This view does not respond to a specific course id whenever
+     * NOTE the content broker signals an updated course.
+     * NOTE Instead it refreshes completely and checks the internal course
+     * NOTE state. This minimizes the logic of this view.
      */
     jQuery(document).bind("CONTENT_COURSELIST_UPDATED", refresh);
     jQuery(document).bind("CONTENT_COURSE_UPDATED",     refresh);
@@ -69,8 +74,7 @@ CourseView.prototype.prepare = function () {
 
 /**
  * call the functions to set up the course list.
- * FIXME The default course needs to be removed.
- * FIXME If no courses are being loaded, there is no update when there are actually courses!
+ *
  * @protoype
  * @function update
  * @param {NONE}
@@ -86,20 +90,38 @@ CourseView.prototype.update = function () {
     if (cList && cList.length) {
         cList.forEach(function (course) {
             if (course.title && course.id) {
+
                 ctmpl.attach(course.lmsId + "_" + course.id);
                 ctmpl.courselabel.text = course.title;
-                // TODO add course status
-                ctmpl.courseimg.addClass("icon-bars");
+
+                // the default button icon is the loading icon, therefore
+                // it is necessary to set the stats icon if the course is
+                // ready
+                if (!course.activeSync && !course.activeLoad) {
+
+                    // if we are waiting to move into the question view
+                    // and a refresh occurs, we MUST not change the
+                    // loading icon.
+
+                    self.setStatsIcon();
+                }
             }
         });
     }
     else {
+        // TODO: use warning templates in the HTML instead of updating dynamically
+        // TODO: remove the warning from the list template and make it a static part of the view
+        // NOTE: This requires CoreView changes to allow co-existing dynamic and static components
+        // NOTE: Widgets might be an alternative.
+
         ctmpl.attach("warning");
         ctmpl.courseimage.addClass("hidden");
         ctmpl.courselist.removeClass("touchable");
-        // FIXME: Translatable text!
+
         ctmpl.courselabel.text = jQuery.i18n.prop("msg_courses_warning");
+
         if (self.firstLoad) {
+
             self.firstLoad = false;
         }
     }};
@@ -154,28 +176,27 @@ CourseView.prototype.tap = function (event) {
         this.template.find(lmsId + "_" + cId);
     }
 
-    if (course[0] === "courselist" && course[2] !== "warning") {
+    // only respond to tap if not loading.
+    if (this.template.courseimg.hasClass("icon-bars")) {
 
-        this.setLoadingIcon();
-        this.model.activateCourseById(lmsId, cId);
+        if (course[0] === "courselist" && course[2] !== "warning") {
 
-        this.app.changeView("question", "CONTENT_QUESTION_READY");
-        this.models.contentbroker.nextQuestion();
+            this.setLoadingIcon();
+            this.model.activateCourseById(lmsId, cId);
+
+            this.app.changeView("question", "CONTENT_QUESTION_READY");
+            this.models.contentbroker.nextQuestion();
+        }
+
+        if (course[0] === "courseimage") {
+            this.setLoadingIcon();
+            this.model.activateCourseById(lmsId, cId);
+            this.app.changeView("statistics", "LRS_CALCULATION_DONE");
+
+            var courseid = this.model.getCourseUrl();
+            this.app.models.learningrecordstore.calculateStats(courseid);
+        }
     }
-
-    if (course[0] === "courseimage") {
-
-        this.setLoadingIcon();
-        this.model.activateCourseById(lmsId, cId);
-        this.app.changeView("statistics", "LRS_CALCULATION_DONE");
-
-        var courseid = this.app.models.identityprovider.serviceURL("powertla.content.courselist",
-                                                                   lmsId,
-                                                                   [cId]);
-
-        this.app.models.learningrecordstore.calculateStats(courseid);
-    }
-
 };
 
 CourseView.prototype.setLoadingIcon = function () {
@@ -188,7 +209,7 @@ CourseView.prototype.setLoadingIcon = function () {
 CourseView.prototype.setStatsIcon = function () {
 
     this.template.courseimg.removeClass("entypo-spinner");
-    this.template.courserotrate.removeClass("loadingrotation");
+    this.template.courserotate.removeClass("loadingrotation");
     this.template.courseimg.addClass("icon-bars");
 };
 
