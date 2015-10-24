@@ -589,6 +589,33 @@
         }
     };
 
+    /**
+     * returns a hash object of lsm_courseids with the number of questions per
+     * course
+     */
+    ContentBroker.prototype.getCourseMetrices = function () {
+        var qpMetr = {};
+
+        var lmsId, courseId, lst;
+
+        // load the number of question pools for all courses
+        Object.getOwnPropertyNames(courseList).forEach(function (lid) {
+            lmsId = lid;
+
+            courseList[lmsId].forEach(function (cid) {
+                lst = getCourseForLMS(lmsId, cid.id);
+                courseId = lmsId + "_"+ cid.id;
+                qpMetr[courseId] = {
+                    id: cid.id,
+                    lms: lmsId,
+                    count: Array.isArray(lst) ? lst.length : 0
+                };
+            });
+        });
+
+        return qpMetr;
+    };
+
     ContentBroker.prototype.getCourseUrl = function () {
         return this.idprovider.serviceURL("powertla.content.courselist",
                                            this.currentLMSId,

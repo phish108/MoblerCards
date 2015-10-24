@@ -129,11 +129,36 @@ under the License.
         localStorage.removeItem(key);
     }
 
+    /**
+     * @private @method privMakeStatEntry
+     *
+     * small helper function for the statistics accessors
+     */
+    function privMakeStatEntry(today, last) {
+        var change = today -  last;
+
+        var cTrend = 0;
+        if (change > 0) {
+            cTrend = 1;
+        }
+        if (change < 0) {
+            cTrend = -1;
+        }
+
+        return {
+            today:    today,
+            previous: last,
+            trend: cTrend
+        };
+    }
+
     function LearningRecordStore (app) {
         var self = this;
         this.app = app;
         this.clearContext();
         this.clearLRSContext();
+
+        this.courseStats = {};
 
         this.loadFilter();
 
@@ -1036,7 +1061,7 @@ under the License.
      * @prototype
      * @function calculateStats()
      *
-     * loads the statistics for a course.
+     * loads the main statistics for a course.
      *
      * emits LRS_CALCULATION_DONE when all stats arrived.
      */
@@ -1215,23 +1240,96 @@ under the License.
 
     };
 
-    function privMakeStatEntry(today, last) {
-        var change = today -  last;
-
-        var cTrend = 0;
-        if (change > 0) {
-            cTrend = 1;
-        }
-        if (change < 0) {
-            cTrend = -1;
-        }
-
-        return {
-            today:    today,
-            previous: last,
-            trend: cTrend
-        };
+    LearningRecordStore.prototype.getOverviewStats = function () {
+        return this.courseStats;
     }
+
+    /**
+     * @prototype
+     * @function calculateOverviewStats(courseid)
+     *
+     * calculates the trafic light stats values
+     */
+    LearningRecordStore.prototype.calculateOverviewStats = function() {
+        var self = this;
+
+        // the course stats provide the avg score value for the courses.
+        // the values are:
+        // negative values: there are unanswered questions (abs(avg_score) is the actual value
+        // 0 <= x < 0.5: insufficient
+        // 0.5 <= x < 0.75: weak
+        // 0.75 <= x <= 1: ok
+        self.courseStats = {};
+
+        // the course stats are calculated sum of all score/n questions per course
+
+        // load the question pools
+        var qpinfo = self.cbroker.getCourseMetrices();
+
+        Object.getOwnPropertyNames(qpinfo).forEach(function (qp) {
+            qpinfo[qp].score = -1;
+            qpinfo[qp].avg   = undefined;
+        });
+
+        // load the database values
+        DB.select({
+            result: ["courseid",
+                     "sum(s) score",          // total score
+                     "count(objectid) count", // number if distinct questions
+                     "sum(a) attempts"],      // total attempts
+            from: { ac: {
+                result: ["courseid",
+                         "objectid",
+                         "avg(score) s",
+                         "count(uuid) a"],
+                from: "actions",
+                group: "objectid"
+            }},
+            group: "courseid"
+        })
+            .then(function (res) {
+
+                var len = res.rows.length,
+                    i = 0,
+                    cs,
+                    cid;
+
+                for (i; i < len; i++) {
+
+                    cs = res.rows.item(i);
+                    cid = cs.courseid;
+
+                    if (typeof cid === "string" &&
+                        cid.length) {
+                        qpinfo[cid].score = cs.score;
+
+                        // FIXME Wrong calculation
+                        qpinfo[cid].avg   = qpinfo[cid].score / qpinfo[cid].count;
+
+                        if (cs.count < qpinfo[cid].count) {
+
+                            qpinfo[cid].avg   = -1 * qpinfo[cid].avg;
+                        }
+                    }
+                }
+
+                self.courseStats = qpinfo;
+                $(document).trigger("LRS_CALCULATION_DONE");
+            })
+            .catch(function(err) {
+                console.log(err);
+                $(document).trigger("LRS_CALCULATION_DONE");
+            });
+    };
+
+    /**
+     * @prototype
+     * @function calculateOverviewStatsQuestionPool(courseid)
+     *
+     * similar to calculateOverviewStats() but groups the results by questionpool.
+     * This allows question pool level stats.
+     */
+    LearningRecordStore.prototype.calculateOverviewStatsQuestionPool = function (courseid) {};
 
     /**
      * @protoype
