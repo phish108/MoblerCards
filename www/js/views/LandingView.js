@@ -63,6 +63,8 @@ LandingView.prototype.prepare = function () {
     // ensure the correct icons are shown
     this.template.landingstats.removeClass("hidden");
     this.template.landingrotate.addClass("hidden");
+
+    this.app.models.contentbroker.clearActiveCourse();
 };
 
 LandingView.prototype.update = function () {

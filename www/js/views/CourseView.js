@@ -73,6 +73,7 @@ CourseView.prototype.prepare = function () {
     }
     else {
         this.app.models.learningrecordstore.calculateOverviewStats();
+        this.model.clearActiveCourse();
     }
 };
 
