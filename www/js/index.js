@@ -109,6 +109,28 @@ function MoblerCards() {
 //MoblerCards.DefaultLMS = "https://beta.mobinaut.org";
 MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
 
+MoblerCards.prototype.previousView = function () {
+    var view = this.sourceTrace.pop();
+
+    if (this.viewId === "course") {view = null;}
+    else if (this.viewId === "settings") {view = "course";}
+    
+    switch (view) {
+        case "splash":
+        case "statistics":
+            view = null;
+            break;
+        case "answer":
+            if (this.viewId === "feedback") {view = "question";}
+            break;
+        case "feedback":
+            
+            break;
+    }
+    
+    return view;
+};
+
 /**
  * Returns the present connection state of the app.
  * @prototype
