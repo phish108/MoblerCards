@@ -70,6 +70,8 @@ CourseView.prototype.prepare = function () {
     if (!this.app.getLoginState()) {
         this.app.changeView("landing");
     }
+    this.app.trueAnswer   = false;
+    this.app.trueFeedback = false;
 };
 
 /**

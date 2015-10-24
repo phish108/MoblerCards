@@ -443,11 +443,13 @@
      */
     ContentBroker.prototype.nextQuestion = function () {
         // if there is an attempt, then cancel it.
-
-
         if (this.isAttempt()) {
             this.cancelAttempt();
         }
+        
+        // set booleans for back button.
+        this.app.trueAnswer   = false;
+        this.app.trueFeedback = false;
 
         var randomId,
             activeId,

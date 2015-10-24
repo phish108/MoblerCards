@@ -35,13 +35,16 @@ function MoblerCards() {
     //self.development = false;
 
     self.viewId = "splash";
-
+    self.lastView = null;
+    
     // TODO Get the version information from the manifest files for the
     //      platforms
     self.MoblerVersion = 3.1;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
     self.backTap = 0;
+    self.trueFeedback = false;
+    self.trueAnswer   = false;
     
     if (device.platform === "iOS") {
         // the IOS UI is overlaying the app, so extra styles are required
@@ -117,17 +120,39 @@ MoblerCards.prototype.previousView = function () {
     
     switch (view) {
         case "splash":
+        case "undefined":
         case "statistics":
+            this.sourceTrace.push(view);
             view = null;
             break;
         case "answer":
-            if (this.viewId === "feedback") {view = "question";}
+            if (this.viewId === "feedback") {
+                this.sourceTrace.push(view);
+                view = "question";
+                this.trueFeedback = true; // I am able to switch back to Feedback.
+            } 
+            else if (!this.trueAnswer) { // Only switch back to Answer when I enabled it.
+                this.sourceTrace.push(view);
+                view = "question";
+            }
             break;
         case "feedback":
-            
+            if (!this.trueFeedback) { // Only switch to Feedback, when I enabled it.
+                this.sourceTrace.push(view);
+                view = "question";
+            }
             break;
-    }
-    
+        case "question":
+            if (this.viewId === "answer") {
+                this.trueAnswer = true; // I am able to switch back to the Answer.
+            }
+            break;
+        case "course":
+            if (this.viewId === "answer" || "feedback") {
+                view === "question";
+            }
+            break;
+    }    
     return view;
 };
 
