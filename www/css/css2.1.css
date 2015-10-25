@@ -279,12 +279,13 @@ input.listlabel {
 #questiontext {
     font-size: 20px;
 }
-/* <<<<<<<<<<<<<<<<< Colors and Gradients START <<<<<<<<<<<<<<<<<<<< */
+/* *************** Colors and Gradients START **************** */
 .green {
     color: #33CC33;
 }
 .red.plain {
     color: #bf1010;
+    text-shadow: none;
 }
 .yellow {
     color: #F0C000;
@@ -350,7 +351,12 @@ input.listlabel {
     text-shadow: 0 1px 1px #c9c9c9;
 }
 /* Colors and Gradients END*/
-/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< refactured end >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+/** OLD CSS **/
+/**
+ * FIXME remove the old css
+ */
+
 /*********************** Header old ***********************/
 .closeButton {
     width: 49px;
