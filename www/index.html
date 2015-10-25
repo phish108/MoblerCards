@@ -346,7 +346,6 @@
             <div id="answericon"  class="titleicon"><span id="answerdynamicicon"></span></div>
             <div id="answertitle" class="headercontent"></div>
             <div id="answercross" class="closeicon touchable">
-<!--                <input id="answerinput"></input>-->
                 <span class="icon-cross"></span>
             </div>
         </div>
@@ -358,9 +357,35 @@
                         <div id="answertext" class="listlabel"></div>
                         <div class="listimage separator">
                             <span id="answertickicon" class="tick"></span>
-                            <span id="answerdragicon" class="dragicon icon-drag hidden"></span>
                         </div>
-                        <input id="answerinput" class="listlabel inactive" placeholder="##" type="number" required="required"/>
+                    </li>
+                </template>
+
+                <template id="answersortlist">
+                    <li id="answerlist" class="listbox gradient untouchable">
+                        <div id="answertext" class="listlabel"></div>
+                        <div class="listimage separator touchable">
+                            <span id="answertickicon" class="dragicon icon-drag"></span>
+                        </div>
+                    </li>
+                </template>
+
+                <template id="answerinputbox">
+                    <li id="answerlist" class="listbox gradient">
+                        <div id="answertext" class="listlabel">
+                            <input id="answerinput" class="listlabel inactive" placeholder="##" type="number" required="required"/>
+                        </div>
+                        <div class="listimage separator">
+                            <!-- we probably want to display a pen -->
+                            <span id="answertickicon" class="tick"></span>
+                        </div>
+                    </li>
+                </template>
+
+                <!-- helper template for non-interactive parts of an answer -->
+                <template id="answertextbox">
+                    <li id="answerlist" class="listbox gradient">
+                        <div id="answertext" class="listlabel"></div>
                     </li>
                 </template>
             </ul>
@@ -389,8 +414,34 @@
                     <li id="answerlist" class="listbox gradient">
                         <div id="answertext" class="listlabel"></div>
                         <div class="listimage separator">
-                            <span id="answertickicon" class="glow2"></span>
+                            <span id="answertickicon" class="tick glow2"></span>
                         </div>
+                    </li>
+                </template>
+
+                <template id="feedbacksortlist">
+                    <li id="answerlist" class="listbox gradient">
+                        <div id="answertext" class="listlabel"></div>
+                        <div class="listimage separator">
+                            <span id="answertickicon" class="tick glow2"></span>
+                        </div>
+                    </li>
+                </template>
+
+                <template id="feedbackinputbox">
+                    <li id="answerlist" class="listbox gradient">
+                        <div id="answertext" class="listlabel">
+                            <span id="answerinput"></span>
+                        </div>
+                        <div class="listimage separator">
+                            <span id="answertickicon" class="tick glow2"></span>
+                        </div>
+                    </li>
+                </template>
+
+                <template id="feedbacktextbox">
+                    <li id="answerlist" class="listbox gradient">
+                        <div id="answertext" class="listlabel"></div>
                     </li>
                 </template>
             </ul>
