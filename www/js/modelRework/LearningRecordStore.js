@@ -1300,7 +1300,8 @@ under the License.
                     cid = cs.courseid;
 
                     if (typeof cid === "string" &&
-                        cid.length) {
+                        cid.length &&
+                        qpinfo[cid]) {
                         qpinfo[cid].score = cs.score;
 
                         // FIXME Wrong calculation
