@@ -35,13 +35,17 @@ function MoblerCards() {
     //self.development = false;
 
     self.viewId = "splash";
-
+    self.lastView = null;
+    
     // TODO Get the version information from the manifest files for the
     //      platforms
     self.MoblerVersion = 3.1;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-
+    self.backTap = 0;
+    self.trueFeedback = false;
+    self.trueAnswer   = false;
+    
     if (device.platform === "iOS") {
         // the IOS UI is overlaying the app, so extra styles are required
         $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
@@ -82,6 +86,21 @@ function MoblerCards() {
     $(document).bind("ID_PROFILE_OK", function() {
         self.setupLanguage();
     });
+
+    // Double click to exit the Application.
+    function onBack() {
+        var date = new Date().getTime();
+        
+        if (date - self.backTap < 350) {
+            navigator.app.exitApp();
+        }
+        else {
+            self.backTap = date;
+            self.rollbackView();
+        } 
+    }
+    
+    document.addEventListener("backbutton", onBack, false);
 }
 
 /**
@@ -92,6 +111,50 @@ function MoblerCards() {
  */
 //MoblerCards.DefaultLMS = "https://beta.mobinaut.org";
 MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
+
+MoblerCards.prototype.previousView = function () {
+    var view = this.sourceTrace.pop();
+
+    if (this.viewId === "course") {view = null;}
+    else if (this.viewId === "settings") {view = "course";}
+    
+    switch (view) {
+        case "splash":
+        case "undefined":
+        case "statistics":
+            this.sourceTrace.push(view);
+            view = null;
+            break;
+        case "answer":
+            if (this.viewId === "feedback") {
+                this.sourceTrace.push(view);
+                view = "question";
+                this.trueFeedback = true; // I am able to switch back to Feedback.
+            } 
+            else if (!this.trueAnswer) { // Only switch back to Answer when I enabled it.
+                this.sourceTrace.push(view);
+                view = "question";
+            }
+            break;
+        case "feedback":
+            if (!this.trueFeedback) { // Only switch to Feedback, when I enabled it.
+                this.sourceTrace.push(view);
+                view = "question";
+            }
+            break;
+        case "question":
+            if (this.viewId === "answer") {
+                this.trueAnswer = true; // I am able to switch back to the Answer.
+            }
+            break;
+        case "course":
+            if (this.viewId === "answer" || "feedback") {
+                view === "question";
+            }
+            break;
+    }    
+    return view;
+};
 
 /**
  * Returns the present connection state of the app.
@@ -123,8 +186,8 @@ MoblerCards.prototype.initialize = function () {
     var self = this;
 
     // setup the models
-    this.models.contentbroker.idprovider         = this.models.identityprovider;
-    this.models.contentbroker.lrs                = this.models.learningrecordstore;
+    this.models.contentbroker.idprovider    = this.models.identityprovider;
+    this.models.contentbroker.lrs           = this.models.learningrecordstore;
 
     this.models.learningrecordstore.cbroker      = this.models.contentbroker;
 

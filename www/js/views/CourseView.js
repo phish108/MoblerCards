@@ -75,6 +75,8 @@ CourseView.prototype.prepare = function () {
         this.app.models.learningrecordstore.calculateOverviewStats();
         this.model.clearActiveCourse();
     }
+    this.app.trueAnswer   = false;
+    this.app.trueFeedback = false;
 };
 
 /**
@@ -218,7 +220,6 @@ CourseView.prototype.tap = function (event) {
         }
 
         if (course[0] === "courseimage") {
-
             this.setLoadingIcon();
             this.model.activateCourseById(lmsId, cId);
             this.app.changeView("statistics", "LRS_CALCULATION_DONE");
