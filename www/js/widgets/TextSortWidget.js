@@ -55,6 +55,14 @@ function TextSortWidget(opts) {
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = true;
 
+    var templateType = this.interactive ? "answer" : "feedback";
+
+    if (typeof opts === "object" &&
+        opts.hasOwnProperty("template")) {
+
+        self.widgetTemplate = templateType + opts.template;
+    }
+
     // boolean value to check if a drag is taking place.
     self.dragActive = false;
 }
@@ -68,6 +76,7 @@ function TextSortWidget(opts) {
 TextSortWidget.prototype.prepare = function () {
     // inform the master view that we do the scrolling.
     this.master.scroll = false;
+    this.useTemplate(this.widgetTemplate);
 };
 
 /**
@@ -83,19 +92,9 @@ TextSortWidget.prototype.update = function () {
 
     if (this.interactive) {
         // make the list sortable using JQuery UI's function
-        $("#answerbox").sortable({
-            axis: "y",
-            scroll: true,
-            scrollSensitivity: 60,
-            scrollSpeed: 10,
-            disabled: false,
-            start: function (event, ui) {
-                $(ui.item).addClass("currentSortedItem");
-            },
-            stop: function (event, ui) {
-                $(ui.item).removeClass("currentSortedItem");
-            }
-        });
+
+        // FIXME: write native sort function that includes scrolling, too
+        // TODO Do not update while drag and drop.
 
         this.showAnswer();
     }
@@ -201,11 +200,6 @@ TextSortWidget.prototype.showAnswer = function () {
             tmpl.answertext.text = listitem.answertext;
         });
     }
-
-    $("#answerbox").find("li").addClass("untouchable");
-    $(".dragicon").show();
-    $(".listimage").addClass("touchable");
-    $(".tick").hide();
 };
 
 /**
@@ -231,6 +225,7 @@ TextSortWidget.prototype.showFeedback = function () {
 
             fTmpl.answerlist.addClass("gradientSelected");
         }
+
 //        fTmpl.feedbacktick.addClass("inactive");
 
         // TODO - get responses and manage the score
