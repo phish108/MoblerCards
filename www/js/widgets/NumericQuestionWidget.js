@@ -45,14 +45,38 @@ under the License.
 function NumericQuestionWidget(opts) {
     var self = this;
 
+    function cbCatchBlur(ev) {
+        var resval = ev.target.value;
+
+        // FIXME process the event ONLY if active
+
+        console.log("user entered a value in the field: '" + resval + "'");
+
+        // TODO check for numberic values
+
+        // this.model.clearResponseList();
+        // this.model.addResponse(resval);
+    }
+
     self.interactive = typeof opts === "object" ? opts.interactive : false;
 
     // stating whether the widget allows moving, this object is used by the AnswerView.
     self.moveEnabled = false;
 
-    // a flag tracking when questions with no data are loaded and an error message is displayed on the screen
-    self.didApologize = false;
+    var templateType = this.interactive ? "answer" : "feedback";
+
+    if (typeof opts === "object" &&
+        opts.hasOwnProperty("template")) {
+
+        self.widgetTemplate = templateType + opts.template;
+    }
+
+    this.container.bind("blur", cbCatchBlur);
 }
+
+NumericQuestionWidget.prototype.prepare = function () {
+    this.useTemplate(this.widgetTemplate);
+};
 
 /**
  * Decide whether to show the widget for the answer or feedback view.
@@ -62,38 +86,27 @@ function NumericQuestionWidget(opts) {
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.update = function() {
-    if (this.interactive) {
-        this.showAnswer();
-    }
-    else {
-        this.showFeedback();
-    }
-};
-
-/**
- * Create a numeric input field.
- * @prototype
- * @function showAnswer
- * @param {NONE}
- */
-NumericQuestionWidget.prototype.showAnswer = function () {
-    var tmpl = this.template; // bad!
+    this.template.attach('answerbox');
 
     var lstAnswers = this.model.getAnswerList(); // don't mix!
-    var correctAnswer = lstAnswers && lstAnswers.length ? lstAnswers[0] : "";
-    var response  = this.model.getResponseList();
+    var response   = this.model.getResponseList(); // there is only one response
 
-    // Check if there is a question pool and if there are answers for a specific question in order to display the answer body
-    if (correctAnswer && correctAnswer.length)  {
-        tmpl.attach("answerbox");
+    var resText;
+    if (response &&
+        response.length &&
+        typeof response[0] !== "undefined") {
 
-        tmpl.answertext.text = "Type Answer: " + (response && response[0] ? response[0] : "");
-        // tmpl.answerinput.removeClass("inactive");
-        // tmpl.answertick.addClass("inactive");
-        // tmpl.answertext.addClass("inactive");
+        resText = response[0];
     }
-    else {
-        this.didApologize = true;
+
+    if (typeof resText !== 'undefined') {
+        this.template.answerinput.text = resText;
+    }
+
+    if (!this.interactive) {
+
+        // in feedback mode we want to display the correct values, too
+        this.showFeedback();
     }
 };
 
@@ -104,27 +117,6 @@ NumericQuestionWidget.prototype.showAnswer = function () {
  * @param {NONE}
  */
 NumericQuestionWidget.prototype.showFeedback = function () {
-//    var lstAnswers = this.model.getAnswerList(); // don't mix!
-    var response  = this.model.getResponseList();
 
-//    var correctAnswer = lstAnswers && lstAnswers.length ? lstAnswers[0] : "";
-
-    var tmpl = this.template;
-
-    tmpl.attach("feedbackbox");
-    tmpl.answertext.text = "Typed Answer: " + (response && response[0] ? response[0] : "NAN");
-
-//    if (response &&
-//        response.length &&
-//        response[0] === correctAnswer) {
-//        tmpl.feedbacktickicon.addClass("icon-cross");
-//        tmpl.feedbacktickicon.removeClass("glow2");
-//        tmpl.feedbacktickicon.addClass("red");
-//        // if the typed numeric answer is wrong
-//        tmpl.attach("feedbackbox");
-//        tmpl.feedbacktext.text = "Correct Answer: " + correctAnswer;
-//    }
-//    else {
-//        tmpl.feedbacktickicon.addClass("icon-checkmark");
-//    }
+    // TODO display the possible responses
 };

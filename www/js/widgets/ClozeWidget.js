@@ -42,12 +42,23 @@ function ClozeWidget(opts) {
     // manage answer or feedback mode
     this.interactive = typeof opts === "object" ? opts.interactive : false;
 
+    var templateType = this.interactive ? "answer" : "feedback";
+
+    if (typeof opts === "object" &&
+        opts.hasOwnProperty("template")) {
+
+        this.widgetTemplate = templateType + opts.template;
+    }
+
+    // FIXME: remove did apologize
+
     // this widget does not handle move events
     this.moveEnabled = false;
 }
 
 ClozeWidget.prototype.prepare = function () {
     this.answers = this.model.getAnswerList(); // don't mix the answers
+    this.useTemplate(this.widgetTemplate);
 };
 
 ClozeWidget.prototype.cleanup = function () {
@@ -55,13 +66,34 @@ ClozeWidget.prototype.cleanup = function () {
 };
 
 ClozeWidget.prototype.update = function () {
-    var box = $("#feedbackbox");
-    if (this.interactive) {
-        box = $("#answerbox");
-    }
+    var templateType = this.interactive ? "answer" : "feedback";
+
+    var gaptpl = this.template;
+    var txttpl = this.app.templates.getTemplate(templateType + "textbox")
+    var lsttpl = this.app.templates.getTemplate(templateType + "listbox")
+
+    var gapid = 0;
+
     if (this.answers) {
-        this.answers.forEach(function (a) {
-            this.makeAnswerBody(box, a);
+        this.answers.forEach(function (aw, id) {
+            if (aw.answertext === "[gap]") {
+                gaptpl.attach(id);
+                if (this.answers &&
+                    this.answers[gapid].length) {
+                    gaptpl.answerinput.text = this.answers[gapid];
+                }
+                gapid++;
+
+                if (!this.interactive) {
+                    // attach all answers as listbox entries
+                    // ensure that if a correct entry is present that it is
+                    // selected
+                }
+            }
+            else if (aw.answertext.length) {
+                txttpl.attach(id);
+                txttpl.answertext.text = aw.answertext;
+            }
         }, this);
     }
 };
@@ -89,60 +121,10 @@ ClozeWidget.prototype.storeAnswers = function () {
     //to get the answers the user typed in the gaps
     //and push the gaped answers in the array
 
-    $("#cardAnswerBody li :input").each(function (index) {
-        var answer = $(this).val();
-        gapAnswers.push(answer);
-    });
+//    $("#cardAnswerBody li :input").each(function (index) {
+//        var answer = $(this).val();
+//        gapAnswers.push(answer);
+//    });
 
     this.app.models.answer.setAnswers(gapAnswers);
-};
-
-ClozeWidget.prototype.makeAnswerBody = function createClozeQuestionBody(domElement, answerBody, interactive) {
-    // fixme - move to content broker cloze question text handling to content broker
-    var answertext = answerBody.answertext;
-
-    // FIXME USE TEMPLATE
-    // The following code is probably broken
-
-    // domElement.html(answertext);
-    if (answertext.length) {
-        // wrap everything into li
-        var li = $('<li class="listbox gradient"/>');
-
-        domElement.append(li); //the contents returns also the text nodes. the children not
-
-        if (answertext === "[gap]") {
-            // process the gap
-            //var gap = answerBody.gap;
-
-            // display a gap
-
-            var inputtag = '<input type="text" class="loginInputCloze textShadow" required="required" autocorrect="off" autocapitalize="off" width="200px"placeholder="fill in the gap" id="gap_' +        answerBody.identifier + '"/>';
-
-            var ldiv = $('<div class="listlabel"/>');
-            ldiv.append(inputtag);
-            li.append(ldiv);
-
-            li.append($("<div/>", {
-                "id": "shadowedClozeAnswerLi",
-                "class": "gradient1 shadowedLi hidden"
-            }));
-
-            var rightDiv2 = $("<div/>", {
-                "class": "listimage separator "
-            }).appendTo(li);
-
-            $("<span/>", {
-                "class": "tick hidden"
-            }).appendTo(rightDiv2);
-
-
-            // todo show feedback
-    //        if (!this.interactive) { }
-        }
-        else {
-            // display plain text
-            li.html(answertext);
-        }
-    }
 };

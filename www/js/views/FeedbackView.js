@@ -71,13 +71,13 @@ function FeedbackView() {
                   'assNumeric',
                   {
         interactive: bActive,
-        template: "numeric"
+        template: "inputbox"
     });
     this.delegate(ClozeWidget,
                   'assClozeTest',
                   {
         interactive: bActive,
-        template: "clozebox"
+        template: "inputbox"
     });
     this.delegate(ApologizeWidget,
                   'apologize',
