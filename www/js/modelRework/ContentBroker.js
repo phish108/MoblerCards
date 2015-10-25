@@ -446,10 +446,6 @@
         if (this.isAttempt()) {
             this.cancelAttempt();
         }
-        
-        // set booleans for back button.
-        this.app.trueAnswer   = false;
-        this.app.trueFeedback = false;
 
         var randomId      =  0,
             activeId      = -1,

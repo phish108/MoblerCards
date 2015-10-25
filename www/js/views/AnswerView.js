@@ -204,6 +204,7 @@ AnswerView.prototype.tap_answerfooter = function () {
 
         this.model.checkResponse();
         this.app.changeView("feedback");
+        this.app.resetSourceTrace(1); // remove myself from the trace.
     }
 };
 

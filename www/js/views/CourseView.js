@@ -75,8 +75,8 @@ CourseView.prototype.prepare = function () {
         this.app.models.learningrecordstore.calculateOverviewStats();
         this.model.clearActiveCourse();
     }
-    this.app.trueAnswer   = false;
-    this.app.trueFeedback = false;
+
+    this.app.resetSourceTrace(1); // strip the source trace.
 };
 
 /**

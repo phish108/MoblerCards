@@ -36,16 +36,15 @@ function MoblerCards() {
 
     self.viewId = "splash";
     self.lastView = null;
-    
+
     // TODO Get the version information from the manifest files for the
     //      platforms
     self.MoblerVersion = 3.1;
     self.appLoaded = false;
     self.clickOutOfStatisticsIcon = true;
-    self.backTap = 0;
-    self.trueFeedback = false;
-    self.trueAnswer   = false;
-    
+
+    self.backTap = 0; // needed for double tap
+
     if (device.platform === "iOS") {
         // the IOS UI is overlaying the app, so extra styles are required
         $('<link href="css/ios.css" rel="stylesheet" type="text/css">').appendTo("head");
@@ -90,16 +89,16 @@ function MoblerCards() {
     // Double click to exit the Application.
     function onBack() {
         var date = new Date().getTime();
-        
+
         if (date - self.backTap < 350) {
             navigator.app.exitApp();
         }
         else {
             self.backTap = date;
             self.rollbackView();
-        } 
+        }
     }
-    
+
     document.addEventListener("backbutton", onBack, false);
 }
 
@@ -112,47 +111,34 @@ function MoblerCards() {
 //MoblerCards.DefaultLMS = "https://beta.mobinaut.org";
 MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
 
-MoblerCards.prototype.previousView = function () {
-    var view = this.sourceTrace.pop();
+MoblerCards.prototype.resetSourceTrace = function (n) {
+    // pop one item from the stacktrace
+    // this function is used by the feedback view
+    for (var i = 0; i < n; i++) {
+        this.sourceTrace.pop();
+    }
+};
 
-    if (this.viewId === "course") {view = null;}
-    else if (this.viewId === "settings") {view = "course";}
-    
-    switch (view) {
+MoblerCards.prototype.previousView = function () {
+    var view;
+
+    // assess the active view
+    switch (this.viewId) {
+        case "landing":
         case "splash":
-        case "undefined":
-        case "statistics":
-            this.sourceTrace.push(view);
-            view = null;
+            // there is no exit from the landing and the splash screen
             break;
-        case "answer":
-            if (this.viewId === "feedback") {
-                this.sourceTrace.push(view);
-                view = "question";
-                this.trueFeedback = true; // I am able to switch back to Feedback.
-            } 
-            else if (!this.trueAnswer) { // Only switch back to Answer when I enabled it.
-                this.sourceTrace.push(view);
-                view = "question";
-            }
-            break;
-        case "feedback":
-            if (!this.trueFeedback) { // Only switch to Feedback, when I enabled it.
-                this.sourceTrace.push(view);
-                view = "question";
-            }
-            break;
-        case "question":
-            if (this.viewId === "answer") {
-                this.trueAnswer = true; // I am able to switch back to the Answer.
-            }
+        case "settings":
+            view = "course";
             break;
         case "course":
-            if (this.viewId === "answer" || "feedback") {
-                view === "question";
-            }
+            view = "settings";
             break;
-    }    
+        default:
+            view = this.sourceTrace.pop();
+            break;
+    }
+
     return view;
 };
 
