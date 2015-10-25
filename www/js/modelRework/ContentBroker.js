@@ -1247,6 +1247,7 @@
                         $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);
 
                         // try next pool
+                        i++;
                         loadPool();
                     });
             }
