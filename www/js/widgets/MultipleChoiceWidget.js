@@ -49,10 +49,16 @@ function MultipleChoiceWidget (opts) {
     // stating whether the widget allows moving, used by parent view
     this.moveEnabled = false;
 
+    var templateType = this.interactive ? "answer" : "feedback";
+
+    if (typeof opts === "object" &&
+        opts.hasOwnProperty("template")) {
+
+        this.widgetTemplate = templateType + opts.template;
+    }
+
     // Single choice or Multiple Choice?
     this.single = typeof opts === "object" ? opts.single : false;
-
-    // TODO: setup local widget template as soon the other widgets get their own templates.
 }
 
 /**
@@ -63,6 +69,7 @@ function MultipleChoiceWidget (opts) {
  */
 MultipleChoiceWidget.prototype.prepare = function () {
     this.answers = this.model.getAnswerList(true); // mix answers
+    this.useTemplate(this.widgetTemplate);
 };
 
 /**
@@ -83,29 +90,32 @@ MultipleChoiceWidget.prototype.cleanup = function () {
  */
 MultipleChoiceWidget.prototype.tap = function (event) {
     if (this.interactive) {
-        var id = event.target.id;
+        var id = event.target.id,
+            realId    = id.split("_")[2];
 
         if (this.single) {
-            var tag       = event.target,
-                realId    = id.split("_")[2],
-                answerId  = this.model.getResponseList()[0];
+            var answerId  = this.model.getResponseList()[0];
 
-            if (answerId) {
-                $("#answerlist_answerlistbox_" + answerId)
-                    .removeClass("selected");
-                this.model.clearResponseList();
+            if (answerId &&
+                this.template.find(answerId)) {
+                this.template.answerlist.removeClass("selected");
             }
+
+            this.model.clearResponseList();
 
             // now add the new answer if we really want to add it
-            if (realId !== answerId) {
+            if (realId !== answerId &&
+                this.template.find(realId)) {
+
                 this.model.addResponse(realId);
-                $(tag).addClass("selected");
+                this.template.answerlist.addClass("selected");
             }
         }
-        else {
+        else if (this.template.find(realId)) {
             // automatically toggles the response
-            this.model.addResponse(id.split('_')[2]);
-            $(event.target).toggleClass("selected");
+
+            this.model.addResponse(realId);
+            this.template.answerlist.toggleClass("selected");
         }
     }
 };
