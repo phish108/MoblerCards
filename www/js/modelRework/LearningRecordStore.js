@@ -1308,7 +1308,12 @@ under the License.
 
                         if (cs.count < qpinfo[cid].count) {
 
-                            qpinfo[cid].avg   = -1 * qpinfo[cid].avg;
+                            if (qpinfo[cid].avg) {
+                                qpinfo[cid].avg   = -1 * qpinfo[cid].avg;
+                            }
+                            else {
+                                qpinfo[cid].avg = -0.1;
+                            }
                         }
                     }
                 }
