@@ -44,25 +44,46 @@ function FeedbackView() {
 
     this.tagID = this.app.viewId;
 
+    var bActive = false;
+
+    // init widget delegates
     this.delegate(MultipleChoiceWidget,
                   'assSingleChoice',
-                  {single: true, interactive: false});
+                  {
+        single: true,
+        interactive: bActive,
+        template: "listbox"
+    });
     this.delegate(MultipleChoiceWidget,
                   'assMultipleChoice',
-                  {single: true, interactive: false});
+                  {
+        single: false,
+        interactive: bActive,
+        template: "listbox"
+    });
     this.delegate(TextSortWidget,
                   'assOrderingQuestion',
-                  {interactive: false});
-
+                  {
+        interactive: bActive,
+        template: "sortlist"
+    });
     this.delegate(NumericQuestionWidget,
                   'assNumeric',
-                  {interactive: false});
+                  {
+        interactive: bActive,
+        template: "numeric"
+    });
     this.delegate(ClozeWidget,
                   'assClozeTest',
-                  {interactive: false});
+                  {
+        interactive: bActive,
+        template: "clozebox"
+    });
     this.delegate(ApologizeWidget,
                   'apologize',
-                  {interactive: true});
+                  {
+        interactive: bActive
+    });
 
     this.mapDelegate('assOrderingQuestion',
                      'assOrderingHorizontal');

@@ -45,25 +45,45 @@ under the License.
 function AnswerView() {
     this.widget = null;
 
+    var bActive = true;
     // init widget delegates
     this.delegate(MultipleChoiceWidget,
                   'assSingleChoice',
-                  {single: true, interactive: true});
+                  {
+        single: true,
+        interactive: bActive,
+        template: "listbox"
+    });
     this.delegate(MultipleChoiceWidget,
                   'assMultipleChoice',
-                  {single: false, interactive: true});
+                  {
+        single: false,
+        interactive: bActive,
+        template: "listbox"
+    });
     this.delegate(TextSortWidget,
                   'assOrderingQuestion',
-                  {interactive: true});
+                  {
+        interactive: bActive,
+        template: "sortlist"
+    });
     this.delegate(NumericQuestionWidget,
                   'assNumeric',
-                  {interactive: true});
+                  {
+        interactive: bActive,
+        template: "inputbox"
+    });
     this.delegate(ClozeWidget,
                   'assClozeTest',
-                  {interactive: true});
+                  {
+        interactive: bActive,
+        template: "inputbox"
+    });
     this.delegate(ApologizeWidget,
                   'apologize',
-                  {interactive: true});
+                  {
+        interactive: bActive
+    });
 
     this.mapDelegate('assOrderingQuestion',
                      'assOrderingHorizontal');
