@@ -11,6 +11,7 @@ A simple training and practicing app that connects to your LMS
     <access origin="*"/>
     <preference name="DisallowOverscroll" value="true"/>
     <platform name="android">
+        <preference name="android-minSdkVersion" value="15" />
         <icon density="ldpi" src="icons/ldpi/icon.png" />
         <icon density="mdpi" src="icons/mdpi/icon.png" />
         <icon density="hdpi" src="icons/hdpi/icon.png" />
