@@ -44,6 +44,7 @@
      */
     var courseList      = {}; // persistent
     var syncFlags       = {}; // run-time only
+    var syncQPSelection = {}; // run-time only
 
     /**
      * @private @method loadCourseList()
@@ -145,14 +146,26 @@
 
         courseList[lmsId] = lmsCourseList;
 
-        storeCourseList();
-
-        // remove those question pools that continue to exit
+        // remove those question pools that continue to exist
         courseList[lmsId].forEach(function (ncl) {
             ncl.lmsId = lmsId; // we need this for setting the LRS context
             ncl.activeSync = 1; // flag need for the course view markers
+
+            // restore the previously selected question pools
+            if (syncQPSelection[lmsId] &&
+                syncQPSelection[lmsId][ncl.id] &&
+                syncQPSelection[lmsId][ncl.id].length) {
+
+                ncl.activeQuestionPools = syncQPSelection[lmsId][ncl.id];
+            }
+
             delete idList[ncl.id];
         });
+
+        storeCourseList();
+
+        // done with the question pool selection for this lms
+        syncQPSelection[lmsId] = {};
 
         // remove the remaining items in the idList
         Object.getOwnPropertyNames(idList).forEach(function (id) {
@@ -201,13 +214,14 @@
      *
      * returns an array with all questions for the course
      */
-    function getCourseForLMS(lmsId, courseId, arrayIncludePools) {
+    function getCourseForLMS(lmsId, courseId) {
 
         if (!courseList) {
             courseList = {};
         }
 
-        var incl = true, questionPool = [];
+        var incl = true,
+            questionPool = [];
 
         if (courseList[lmsId] &&
             Array.isArray(courseList[lmsId])) {
@@ -217,6 +231,9 @@
 
                 if (c.id === courseId) {
                     var courseJson = localStorage.getItem("course_" + lmsId + "_" + courseId);
+
+                    var arrayIncludePools = c.activeQuestionPools;
+
 
                     if (courseJson) {
                         // now fetch the questions
@@ -241,7 +258,8 @@
                                 Array.isArray(arrayIncludePools) &&
                                 arrayIncludePools.length) {
 
-                                if (arrayIncludePools.indexOf(qp.id) >= 0) {
+                                if (arrayIncludePools.indexOf(qp.id) < 0) {
+                                    // if the question pool is not in the list exclude!
                                     incl = false;
                                 }
                             }
@@ -311,11 +329,18 @@
                             if (!bQuestionPoolSelection ||
                                 (bQuestionPoolSelection && qp.active)) {
 
-                                lstQuestionPool.push({
+                                var qpInfo = {
                                     id: qp.id,
                                     title: qp.title,
                                     description: qp.description
-                                });
+                                };
+
+                                if (c.activeQuestionPools &&
+                                    c.activeQuestionPools.indexOf(qp.id) >= 0) {
+                                    qpInfo.active = true;
+                                }
+
+                                lstQuestionPool.push(qpInfo);
                             }
                         });
                     }
@@ -326,6 +351,41 @@
         }
 
         return lstQuestionPool;
+    }
+
+
+    function activateQuestionPool(lmsId, courseId, qpoolid) {
+        if (!courseList) {
+            courseList = {};
+        }
+
+        if (courseList[lmsId] &&
+            Array.isArray(courseList[lmsId])) {
+
+            courseList[lmsId].some(function (c, i) {
+                if (c.id === courseId) {
+                    // stash the course id onto the active question pools
+                    if (!c.activeQuestionPools) {
+                        c.activeQuestionPools = [];
+                    }
+
+                    var qpid = c.activeQuestionPools.indexOf(qpoolid);
+
+                    if (qpid < 0) {
+                        c.activeQuestionPools.push(qpoolid);
+                    }
+                    else {
+                        // splice the qpoolid from the list
+                        c.activeQuestionPools.splice(qpid, 1); // drop the question pool
+                    }
+
+                    return true;
+                }
+            }, this);
+
+            // store course list
+            storeCourseList();
+        }
     }
 
     /**
@@ -341,7 +401,6 @@
         if (courseList[lmsId] &&
             Array.isArray(courseList[lmsId])) {
 
-            var qpList;
             courseList[lmsId].some(function (c) {
                 if (c.id === courseId) {
                     c.activeLoad = 1;
@@ -364,7 +423,6 @@
         if (courseList[lmsId] &&
             Array.isArray(courseList[lmsId])) {
 
-            var qpList;
             courseList[lmsId].some(function (c) {
                 if (c.id === courseId) {
                     delete c.activeLoad;
@@ -641,7 +699,7 @@
         return this.idprovider.serviceURL("powertla.content.courselist",
                                            this.currentLMSId,
                                            [this.currentCourseId]);
-    }
+    };
 
     ContentBroker.prototype.getCourseId = function () {
         if (this.currentCourseId && this.currentLMSId) {
@@ -665,6 +723,12 @@
             this.lrs.clearContext();
             this.currentCourseContext = null;
         }
+    };
+
+    ContentBroker.prototype.activateQuestionPool = function (qpoolid) {
+        activateQuestionPool(this.currentLMSId,
+                             this.currentCourseId,
+                             qpoolid);
     };
 
     /**
@@ -1133,7 +1197,7 @@
 
     ContentBroker.prototype.getQuestionPools = function (forceAll) {
         return getQuestionPools(this.currentLMSId, this.currentCourseId, forceAll);
-    }
+    };
 
 
     /****** Synchronize Management ******/
@@ -1147,6 +1211,9 @@
      */
     ContentBroker.prototype.synchronizeAll = function (force) {
         var now = (new Date()).getTime();
+
+        syncQPSelection = {};
+
         if (this.app.isOnline()) {
             this.idprovider.eachLMS(function(lms) {
                 if (force || !lms.lastSyncTime ||
@@ -1182,6 +1249,13 @@
         }
 
         if (this.app.isOnline()) {
+            // recover the question pool selection
+            Object.getOwnPropertyNames(courseList).forEach(function (lId) {
+                syncQPSelection[lId] = {};
+                courseList[lId].forEach(function (crs) {
+                    syncQPSelection[lId][crs.id] = crs.activeQuestionPools;
+                });
+            });
 
             var self = this;
 
@@ -1218,7 +1292,8 @@
             getCourseList([lmsid]).forEach(function (course) {
 
                 delete course.activeSync;
-                $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId, course.id]);
+                $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId,
+                                                               course.id]);
 
             });
 
@@ -1303,7 +1378,7 @@
 
             // the event is always triggerd, because a course update could be
             // that the course is removed.
-            delete course.activeSync
+            delete course.activeSync;
             $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);
 
             // fetch the next course

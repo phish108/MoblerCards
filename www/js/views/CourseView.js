@@ -220,6 +220,7 @@ CourseView.prototype.tap = function (event) {
         }
 
         if (course[0] === "courseimage") {
+
             this.setLoadingIcon();
             this.model.activateCourseById(lmsId, cId);
             this.app.changeView("statistics", "LRS_CALCULATION_DONE");

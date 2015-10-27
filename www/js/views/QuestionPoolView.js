@@ -49,6 +49,7 @@ function QuestionPoolView() {
 }
 
 QuestionPoolView.prototype.tap_questionpoolscross = function () {
+
     // return to statistics view
     this.app.changeView("statistics", "LRS_CALCULATION_DONE");
 
@@ -61,8 +62,8 @@ QuestionPoolView.prototype.tap = function (event) {
         qp = id.split("_"),
         qpid = qp.pop();
 
-    console.log("tap on question pool " + qpid);
-    // TODO #143 select question pools to focus learning
+    this.model.activateQuestionPool(qpid);
+    this.refresh();
 };
 
 QuestionPoolView.prototype.duringMove = function () {
@@ -87,6 +88,11 @@ QuestionPoolView.prototype.update = function () {
     function renderQuestionPool(qp) {
 
         self.template.attach(qp.id);
+
+        if (qp.active) {
+            self.template.questionpool.addClass("selected");
+        }
+
         self.template.questionpoolname.text = qp.title;
 
         // TODO #145 question pool level traffic light stats
