@@ -1,5 +1,6 @@
 /*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, todo: true */
 
+/*jslint unparam: true*/   // allow unused parameters in function signatures
 /*global $, jQuery, Connection, jstap, device, UpdateModel*/
 
 /**	THIS COMMENT MUST NOT BE REMOVED
@@ -112,9 +113,10 @@ function MoblerCards() {
 MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
 
 MoblerCards.prototype.resetSourceTrace = function (n) {
+    var i;
     // pop one item from the stacktrace
     // this function is used by the feedback view
-    for (var i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         this.sourceTrace.pop();
     }
 };
@@ -131,11 +133,22 @@ MoblerCards.prototype.previousView = function () {
         case "settings":
             view = "course";
             break;
+        case "question":
+            if (this.models.contentbroker.isAttempt()) {
+                view = "answer";
+            }
+            else if (this.models.contentbroker.score >= 0) {
+                view = "feedback";
+            }
+            else {
+                view = this.sourceTrace[this.sourceTrace.length - 1];
+            }
+            break;
         case "course":
             view = "settings";
             break;
         default:
-            view = this.sourceTrace.pop();
+            view = this.sourceTrace[this.sourceTrace.length - 1];
             break;
     }
 
