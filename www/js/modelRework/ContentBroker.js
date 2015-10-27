@@ -1155,6 +1155,16 @@
                 }
             }, this);
         }
+        else {
+            // if we are offline simulate the ready event
+            getCourseList().forEach(function (course) {
+
+                delete course.activeSync;
+                $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId, course.id]);
+
+            });
+
+        }
     };
 
     /**
@@ -1165,13 +1175,15 @@
      * synchronizes the data with the backend content broker.
      */
     ContentBroker.prototype.synchronize = function (lmsid) {
-        if (this.app.isOnline()) {
-            var self = this;
-            if (typeof lmsid !== "string") {
+        if (typeof lmsid !== "string") {
 
-                this.synchronizeAll();
-                return;
-            }
+            this.synchronizeAll();
+            return;
+        }
+
+        if (this.app.isOnline()) {
+
+            var self = this;
 
             // do not synchronize while there is already a sync process for the lms
             if (!syncFlags.hasOwnProperty(lmsid)) {
@@ -1200,6 +1212,16 @@
                         }
                     });
             }
+        }
+        else {
+            // if we are offline simulate the ready event
+            getCourseList([lmsid]).forEach(function (course) {
+
+                delete course.activeSync;
+                $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId, course.id]);
+
+            });
+
         }
     };
 

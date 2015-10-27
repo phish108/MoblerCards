@@ -1481,6 +1481,11 @@ under the License.
             return;
         }
 
+        if (!this.app.isOnline()) {
+            // should we trigger a ready event?
+            return;
+        }
+
         var self          = this,
             url           = self.idp.serviceURL("gov.adlnet.xapi",
                                                 lmsid,
