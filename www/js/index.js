@@ -36,7 +36,6 @@ function MoblerCards() {
     //self.development = false;
 
     self.viewId = "splash";
-    self.lastView = null;
 
     // TODO Get the version information from the manifest files for the
     //      platforms
