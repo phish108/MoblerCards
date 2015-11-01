@@ -701,7 +701,10 @@ li {
     height: 53px;
 }
 .currentSortedItem {
-    border: 1px solid white;
+    position: fixed;
+    box-shadow: 3px 15px 15px #909090;
+    width: 100%;
+/*    border: 1px solid red;*/
 }
 .placeholder {
     height: 1.5em;

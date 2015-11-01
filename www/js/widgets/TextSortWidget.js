@@ -123,23 +123,6 @@ TextSortWidget.prototype.update = function () {
 };
 
 /**
- * Creates a new mouse event of the specified type
- * @event
- * @function createEvent
- * @param {String} type - describes the type of the mouse event.
- * @param {OBJECT} event - contains all the information for the touch interaction.
- */
-function createEvent(type, event) {
-    var first = event.changedTouches[0];
-    var simulatedEvent = document.createEvent("MouseEvent");
-    simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX,
-        first.screenY, first.clientX, first.clientY, false, false, false,
-        false, 0, null);
-
-    first.target.dispatchEvent(simulatedEvent);
-}
-
-/**
  * If a move gesture is detected on the 'answertick' element in the list, the move is set in motion calling createEvent with argument "mousedown".
  * @prototype
  * @function startMove
@@ -157,7 +140,7 @@ TextSortWidget.prototype.startMove = function (event) {
         this.master.scroll = false;
         this.dragActive = true;
 
-        this.initDrag(targetItem);
+        this.initDrag(targetItem, $(event.target).parent());
     }
 };
 
@@ -168,9 +151,6 @@ TextSortWidget.prototype.startMove = function (event) {
  * @param {OBJECT} event - contains all the information for the touch interaction.
  */
 TextSortWidget.prototype.duringMove = function (event) {
-    // event.preventDefault();
-    // createEvent("mousemove", event);
-
     // move or scroll
     if (this.dragActive) {
         this.performDrag();
@@ -184,8 +164,6 @@ TextSortWidget.prototype.duringMove = function (event) {
  * @param {OBJECT} event - contains all the information for the touch interaction.
  */
 TextSortWidget.prototype.endMove = function (event) {
-    createEvent("mouseup", event);
-
     if (this.dragActive) {
         this.performDrag(); // just in case the user moved a bit further
         this.dropElement();
@@ -193,17 +171,6 @@ TextSortWidget.prototype.endMove = function (event) {
         this.dragActive = false;
         this.master.scroll = true;
     }
-
-//    var model = this.model;
-//
-//    model.clearResponseList();
-//    $("#answerbox").find("li").each(function (index) {
-//        var id = $(this).attr("id").split("_").pop();
-//        model.addResponse(parseInt(id,10));
-//    });
-
-    // finally reset the scroll flag for the master view
-
 };
 
 /**
@@ -219,7 +186,13 @@ TextSortWidget.prototype.showAnswer = function () {
     var tmpl = this.template;
 
     if (slist && answers) {
-        // for each possible answer create a list item
+
+        // create a dummy element as a drag placeholder
+        tmpl.attach("dummy");
+        tmpl.answerlist.addClass("hidden");
+        tmpl.answertickicon.addClass("hidden");
+
+        // for each possible answer create a list item.
         slist.forEach(function (listitem) {
             tmpl.attach(listitem.order);
             tmpl.answertext.text = listitem.answertext;
@@ -248,7 +221,7 @@ TextSortWidget.prototype.showFeedback = function () {
 
         if (answers[i] === aw.order) {
 
-            fTmpl.answerlist.addClass("gradientSelected");
+            fTmpl.answerlist.addClass("selected");
         }
 
 //        fTmpl.feedbacktick.addClass("inactive");
@@ -273,9 +246,42 @@ TextSortWidget.prototype.showFeedback = function () {
  * helper function that creates a dummy element
  * and sets the active element as dragged.
  */
-TextSortWidget.prototype.initDrag = function (id) {
+TextSortWidget.prototype.initDrag = function (id, element) {
     console.log("init drag");
     this.dragTarget = id;
+
+    var eT = element.position().top;
+    var jT = jstap().touches(0).previous.y();
+
+    this.deltaTop = jT - eT;
+    this.elemHeight = element.height();
+    this.topFlip = eT;
+    this.bottomFlip = eT + this.elemHeight;
+
+
+    var prev = element.prev(),
+        next = element.next();
+
+    this.nextFlip = next.height() - this.elemHeight;
+    this.prevFlip = prev.height() - this.elemHeight;
+
+    // place the dummy element behind the current element;
+    this.template.find("dummy");
+    this.dummyE = $(this.template.answerlist.target);
+
+    element.addClass("currentSortedItem");
+    element.css("top", eT + "px");
+    element.css("left", 0);
+
+    // place the dummy element below the selected element
+    this.dummyE.insertAfter(element);
+
+    this.dummyE.removeClass("hidden");
+
+    // adjust the dummy height to the element's height
+    this.dummyE.height(this.elemHeight);
+
+    this.dragTargetE = element;
 };
 
 /**
@@ -285,7 +291,24 @@ TextSortWidget.prototype.initDrag = function (id) {
 TextSortWidget.prototype.dropElement = function () {
     console.log("drop " + this.dragTarget);
 
+    this.dragTargetE.insertBefore(this.dummyE);
+    this.dragTargetE.removeClass("currentSortedItem");
+
+    this.dragTargetE.css("top", "auto");
     this.dragTarget = null;
+    this.dragTargetE = null;
+
+    this.dummyE.addClass("hidden");
+
+    // Now update the result list.
+    this.model.clearResponseList();
+    var self = this;
+    $("#answerbox li").each(function (index) {
+        var id = $(this).attr("id").split("_").pop();
+        if (id !== "dummy") {
+            self.model.addResponse(parseInt(id,10));
+        }
+    });
 };
 
 /**
@@ -309,8 +332,59 @@ TextSortWidget.prototype.performDrag = function () {
         this.performScroll();
     }
     else {
-        console.log("move to y = " + y);
+        this.dragTargetE.css("top", y - this.deltaTop);
+        this.flipElements(y);
     }
+};
+
+TextSortWidget.prototype.flipElements = function (y) {
+
+        var flipUp   = this.topFlip - (this.prevFlip > 0 ? this.prevFlip : 0);
+        var flipDown = this.bottomFlip + (this.nextFlip > 0? this.nextFlip : 0);
+
+        var next;
+
+        if (y > flipDown) {
+            // exchange the dummy with the following element
+            next = this.dummyE.next();
+
+            if (next.is(this.dragTargetE)) {
+                next = this.dragTargetE.next();
+            }
+            this.dummyE.insertAfter(next);
+
+            this.prevFlip = this.nextFlip;
+
+            next = this.dummyE.next();
+            if (next.is(this.dragTargetE)) {
+                next = this.dragTargetE.next();
+            }
+            this.nextFlip = next.height() - this.elemHeight;
+
+            this.topFlip = this.dummyE.position().top;
+            this.bottomFlip = this.topFlip + this.elemHeight;
+
+        }
+        else if (y < flipUp) {
+            // exchange the dummy with the previous element
+            next = this.dummyE.prev();
+
+            if (next.is(this.dragTargetE)) {
+                next = this.dragTargetE.prev();
+            }
+            this.dummyE.insertBefore(next);
+
+            this.nextFlip = this.prevFlip;
+
+            next = this.dummyE.prev();
+            if (next.is(this.dragTargetE)) {
+                next = this.dragTargetE.prev();
+            }
+            this.prevFlip = next.height() - this.elemHeight;
+
+            this.topFlip = this.dummyE.position().top;
+            this.bottomFlip = this.topFlip + this.elemHeight;
+        }
 };
 
 /**
@@ -340,6 +414,9 @@ TextSortWidget.prototype.performScroll = function () {
             var dir = y < 68 ? -10 : 10;
 
             self.container.scrollTop(self.container.scrollTop() + dir);
+            self.bottomFlip = self.bottomFlip + dir;
+            self.topFlip  = self.topFlip + dir;
+            self.flipElements(y);
 
             if (self.container.scrollTop() > 0) {
                 setTimeout(cbScroll10, tScroll);
