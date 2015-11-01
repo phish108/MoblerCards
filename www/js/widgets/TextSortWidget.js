@@ -48,9 +48,10 @@
 /**
  * @Class TextSortWidget
  * The text sort widget has two views, an answer and a feedback view.
- * The answer view contains a randomly mixed list with the answer items that need to be sorted out.
- * The feedback view contains the correct sorting order of the answer items. If more than half of
- * the answer items were sorted correctly then a blue background color is assigned to the.
+ * The answer view contains a randomly mixed list with the answer items that
+ * need to be sorted out. The feedback view contains the correct sorting order
+ * of the answer items.
+ *
  * @constructor
  * - it gets the selected answers of the users and assign them to a variable
  * - it activates either answer or feedback view based on the passed value of
@@ -89,6 +90,9 @@ TextSortWidget.prototype.prepare = function () {
     // inform the master view that we do the scrolling.
     // this.master.scroll = false;
     this.useTemplate(this.widgetTemplate);
+
+    // footerY is screen size - 52;
+    this.footerY = $(window).height() - 52;
 };
 
 /**
@@ -99,6 +103,9 @@ TextSortWidget.prototype.prepare = function () {
  * @param {NONE}
  */
 TextSortWidget.prototype.update = function () {
+    // find out footerY
+    this.footerY = $(window).height() - 52;
+
     // loads answers from model for displaying already by the user ordered elements
     this.tickedAnswers = this.model.getAnswerList(true); // get mixed answers
 
@@ -139,16 +146,18 @@ function createEvent(type, event) {
  * @param {OBJECT} event - contains all the information for the touch interaction.
  */
 TextSortWidget.prototype.startMove = function (event) {
-    var id = event.target.id;
+    var id          = event.target.id,
+        aId         = id.split("_"),
+        targetItem  = aId[aId.length - 1];
 
-    if (id.split("_")[0] === "answerdrag") {
+    if (aId[0] === "answerdrag") {
 
-        console.log("start drag on " + id);
-
-        this.dragActive = true;
-        this.initDrag();
+        console.log("start drag on " + targetItem);
 
         this.master.scroll = false;
+        this.dragActive = true;
+
+        this.initDrag(targetItem);
     }
 };
 
@@ -162,14 +171,9 @@ TextSortWidget.prototype.duringMove = function (event) {
     // event.preventDefault();
     // createEvent("mousemove", event);
 
-    // if an element is dragged on the header, scroll the list down
-    var y = event.changedTouches[0].screenY;
-
-    if (this.dragActive && y < 60) {
-        if (window.pageYOffset > y) {
-            var scroll = y > 20 ? y - 20 : 0;
-            window.scrollTo(0, scroll);
-        }
+    // move or scroll
+    if (this.dragActive) {
+        this.performDrag();
     }
 };
 
@@ -181,23 +185,25 @@ TextSortWidget.prototype.duringMove = function (event) {
  */
 TextSortWidget.prototype.endMove = function (event) {
     createEvent("mouseup", event);
-    var y = event.changedTouches[0].screenY;
 
-    if (this.dragActive && y < 60) {
-        window.scrollTo(0, 0);
+    if (this.dragActive) {
+        this.performDrag(); // just in case the user moved a bit further
+        this.dropElement();
+
         this.dragActive = false;
+        this.master.scroll = true;
     }
 
-    var model = this.model;
-
-    model.clearResponseList();
-    $("#answerbox").find("li").each(function (index) {
-        var id = $(this).attr("id").split("_").pop();
-        model.addResponse(parseInt(id,10));
-    });
+//    var model = this.model;
+//
+//    model.clearResponseList();
+//    $("#answerbox").find("li").each(function (index) {
+//        var id = $(this).attr("id").split("_").pop();
+//        model.addResponse(parseInt(id,10));
+//    });
 
     // finally reset the scroll flag for the master view
-    this.master.scroll = true;
+
 };
 
 /**
@@ -267,13 +273,20 @@ TextSortWidget.prototype.showFeedback = function () {
  * helper function that creates a dummy element
  * and sets the active element as dragged.
  */
-TextSortWidget.prototype.initDrag = function (id) {};
+TextSortWidget.prototype.initDrag = function (id) {
+    console.log("init drag");
+    this.dragTarget = id;
+};
 
 /**
  * helper function that places the active element to the
  * position of the dummy element
  */
-TextSortWidget.prototype.dropElement = function () {};
+TextSortWidget.prototype.dropElement = function () {
+    console.log("drop " + this.dragTarget);
+
+    this.dragTarget = null;
+};
 
 /**
  * helper function that places the active element under the
@@ -288,7 +301,17 @@ TextSortWidget.prototype.dropElement = function () {};
  * the screen scrolls up/down as long as the finger is within
  * the range.
  */
-TextSortWidget.prototype.performDrag = function () {};
+TextSortWidget.prototype.performDrag = function () {
+
+    var y = jstap().touches(0).previous.y();
+
+    if (y < 68 || y > this.footerY) {
+        this.performScroll();
+    }
+    else {
+        console.log("move to y = " + y);
+    }
+};
 
 /**
  * helper function that scrolls as long as the finger is within the
@@ -299,12 +322,41 @@ TextSortWidget.prototype.performDrag = function () {};
  * the range
  */
 TextSortWidget.prototype.performScroll = function () {
-    if (this.dragActive) {
-        var y = jstap().touches(0).previous.y;
-        if (y < 68 || y > this.footerY) {
-            // 1 sleep a tad bit
-            // 2 scroll a bit
-            // 3 goto 1
+
+    var self= this;
+
+    var tInitScroll = 1000; // 1 sec.
+    var tScroll     = 50; // 0.05 sec.
+    var y;
+
+    function cbScroll10() {
+
+        y = jstap().touches(0).previous.y();
+
+        if (self.scrollActive &&
+            self.dragActive &&
+            (y < 68 || y > self.footerY)) {
+
+            var dir = y < 68 ? -10 : 10;
+
+            self.container.scrollTop(self.container.scrollTop() + dir);
+
+            if (self.container.scrollTop() > 0) {
+                setTimeout(cbScroll10, tScroll);
+            }
+            else {
+                self.scrollActive = false;
+            }
         }
+        else {
+            self.scrollActive = false;
+        }
+    }
+
+    if (!this.scrollActive) {
+
+        // scrollActive avoids setting multiple timeouts
+        self.scrollActive = true;
+        setTimeout(cbScroll10, tInitScroll);
     }
 };
