@@ -298,13 +298,13 @@ LoginView.prototype.displayMessage = function (target, i18nMsg) {
  * clears and hides all messages.
  */
 LoginView.prototype.hideMessage = function () {
-    var atargets = [
+    var aTargets = [
         "warningmessage",
         "deactivatemessage",
         "errormessage"
     ];
 
-    atargets.forEach(function (t) {
+    aTargets.forEach(function (t) {
         $("#" + t).text("").hide();
     });
 
