@@ -1,24 +1,36 @@
-/*jslint white: true, vars: true, sloppy: true, devel: true, plusplus: true, browser: true, unparam: true, todo: true */
-/*global $*/
+/**
+ * THIS COMMENT MUST NOT REMAIN INTACT
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * Copyright: 2012-2014 ETH Zurich, 2015 Mobinaut
+ */
 
-/**	THIS COMMENT MUST NOT BE REMOVED
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+/*jslint white: true*/
+/*jslint vars: true */
+/*jslint sloppy: true */
+/*jslint devel: true */
+/*jslint plusplus: true */
+/*jslint browser: true */
+/*jslint unparam: true */
+/*jslint todo: true */
 
-http://www.apache.org/licenses/LICENSE-2.0  or see LICENSE.txt
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
-*/
+/*global $, jstap*/
 
 /**
  * @author Christian Glahn
@@ -75,7 +87,7 @@ function TextSortWidget(opts) {
  */
 TextSortWidget.prototype.prepare = function () {
     // inform the master view that we do the scrolling.
-    this.master.scroll = false;
+    // this.master.scroll = false;
     this.useTemplate(this.widgetTemplate);
 };
 
@@ -128,11 +140,15 @@ function createEvent(type, event) {
  */
 TextSortWidget.prototype.startMove = function (event) {
     var id = event.target.id;
-    console.log("[TextSortWidget] startMove detected: " + id);
 
-    if (id.split("_")[0] === "answertick") {
-        createEvent("mousedown", event);
+    if (id.split("_")[0] === "answerdrag") {
+
+        console.log("start drag on " + id);
+
         this.dragActive = true;
+        this.initDrag();
+
+        this.master.scroll = false;
     }
 };
 
@@ -143,8 +159,8 @@ TextSortWidget.prototype.startMove = function (event) {
  * @param {OBJECT} event - contains all the information for the touch interaction.
  */
 TextSortWidget.prototype.duringMove = function (event) {
-    event.preventDefault();
-    createEvent("mousemove", event);
+    // event.preventDefault();
+    // createEvent("mousemove", event);
 
     // if an element is dragged on the header, scroll the list down
     var y = event.changedTouches[0].screenY;
@@ -179,6 +195,9 @@ TextSortWidget.prototype.endMove = function (event) {
         var id = $(this).attr("id").split("_").pop();
         model.addResponse(parseInt(id,10));
     });
+
+    // finally reset the scroll flag for the master view
+    this.master.scroll = true;
 };
 
 /**
@@ -242,4 +261,50 @@ TextSortWidget.prototype.showFeedback = function () {
 //            fTmpl.feedbacklist.addClass("gradientSelected");
 //        }
     });
+};
+
+/**
+ * helper function that creates a dummy element
+ * and sets the active element as dragged.
+ */
+TextSortWidget.prototype.initDrag = function (id) {};
+
+/**
+ * helper function that places the active element to the
+ * position of the dummy element
+ */
+TextSortWidget.prototype.dropElement = function () {};
+
+/**
+ * helper function that places the active element under the
+ * user's finger. If the finger moves into a new element the
+ * dummy element flips the position of the dummy element.
+ *
+ * Two cases:
+ * 1. if the user moves down the dummy flips AFTER
+ * 2. if the user moves up the dummy flips BEFORE
+ *
+ * if the finger is within the top/bottom range of the screen,
+ * the screen scrolls up/down as long as the finger is within
+ * the range.
+ */
+TextSortWidget.prototype.performDrag = function () {};
+
+/**
+ * helper function that scrolls as long as the finger is within the
+ * top/bottom range.
+ *
+ * The function MUST NOT scroll if no drag is active
+ * The function MUST NOT scroll if the finger is no longer in
+ * the range
+ */
+TextSortWidget.prototype.performScroll = function () {
+    if (this.dragActive) {
+        var y = jstap().touches(0).previous.y;
+        if (y < 68 || y > this.footerY) {
+            // 1 sleep a tad bit
+            // 2 scroll a bit
+            // 3 goto 1
+        }
+    }
 };
