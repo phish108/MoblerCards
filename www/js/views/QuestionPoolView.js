@@ -71,17 +71,7 @@ QuestionPoolView.prototype.tap = function (event) {
 };
 
 QuestionPoolView.prototype.duringMove = function () {
-    if (this.scroll) {
-        this.doScroll();
-    }
-};
 
-/**
- * Scroll helper - can be used by the widgets if they want to scroll
- *
- * TODO: include doScroll() in CoreView, so we don't have to bother here.
- */
-QuestionPoolView.prototype.doScroll = function () {
     var dY = jstap().touches(0).delta.y();
     this.container.scrollTop(this.container.scrollTop() - dY);
 };
