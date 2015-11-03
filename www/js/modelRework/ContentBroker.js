@@ -752,7 +752,8 @@
         return {
             "id":       aQ.id,
             "type":     aQ.type,
-            "question": aQ.question
+            "question": aQ.question,
+            "title":    aQ.title
         };
     };
 
