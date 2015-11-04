@@ -26,6 +26,18 @@ li, .touchable, .screen {
     pointer-events: all;
 }
 
+/* disable text selection for all UI */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+/* enable text selection for input fields */
+input {
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+}
+
 /* refactured  start */
 /*********************** Header ***********************/
 .headerbox {
