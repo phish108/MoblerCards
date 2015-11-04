@@ -339,8 +339,8 @@ TextSortWidget.prototype.performDrag = function () {
 
 TextSortWidget.prototype.flipElements = function (y) {
 
-        var flipUp   = this.topFlip - (this.prevFlip > 0 ? this.prevFlip : 0);
-        var flipDown = this.bottomFlip + (this.nextFlip > 0? this.nextFlip : 0);
+        var flipUp   = this.topFlip - (this.prevFlip > 0 ? this.prevFlip : 0) - 5;
+        var flipDown = this.bottomFlip + (this.nextFlip > 0? this.nextFlip : 0) + 5;
 
         var next;
 
