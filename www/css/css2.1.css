@@ -226,24 +226,10 @@ input.listlabel {
 }
 /*********************** SplashView ***********************/
 #splashbox {
-    background-color: #0072a2;
-    animation: splashAnimation 0.8s ease infinite;
     height: 100vh;
-    line-height: 100vh;
-    text-align: center;
-    vertical-align: middle;
+    background-image: url(../img/LaunchImage_old@2x.png);
+    background-size: contain;
 }
-
-.splashicon {
-    height: 100px;
-}
-
-@keyframes splashAnimation { 
-    0%   {background-color: #008cc7; background-position:   0%  50%}
-    50%  {background-color: #0072a2; background-position: 100%  50%}
-    100% {background-color: #008cc7; background-position:   0%  50%}
-}
-
 /*
 .loading {
     font-size: 100px;
