@@ -51,6 +51,47 @@
  *  including the LMS Connection, Service Authentication, User
  *  Authentication, and User Preferences.
  */
+(function (w) {
+    var settings = {};
+
+    function loadSettings () {
+        var so = {},
+            s = localStorage.getItem("appSettings");
+
+        if (s) {
+            try {
+                so = JSON.parse(s);
+            }
+            catch (err) {
+                localStorage.setItem("appSettings", "{}");
+                so = {};
+            }
+        }
+        settings = so;
+    }
+
+    function storeSettings() {
+        localStorage.setItem("appSettings",
+                             JSON.stringify(settings));
+    }
+
+    function setItem(vName, vValue) {
+        settings[vName] = vValue;
+        storeSettings();
+    }
+
+    function removeItem(vName) {
+        delete settings[vName];
+        storeSettings();
+    }
+
+    function getItem(vName) {
+        return settings[vName];
+    }
+
+    function hasItem(vName) {
+        return settings.hasOwnProperty(vName);
+    }
 
 function IdentityProvider () {
     var language  = navigator.language.split("-");
@@ -58,7 +99,16 @@ function IdentityProvider () {
 
     this.lmsMgr = new LMSModel(this);
     this.usrMgr = new UserModel(this);
+
+    loadSettings();
 }
+
+/****** Settings Management ******/
+
+IdentityProvider.prototype.getSetting = getItem;
+IdentityProvider.prototype.setSetting = setItem;
+IdentityProvider.prototype.hasSetting = hasItem;
+IdentityProvider.prototype.removeSetting = removeItem;
 
 /****** LMS Management ******/
 /**
@@ -520,3 +570,7 @@ IdentityProvider.prototype.nonce = function nonce(length) {
         }
         return result;
 };
+
+
+    w.IdentityProvider = IdentityProvider;
+}(window));

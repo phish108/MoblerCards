@@ -66,15 +66,19 @@ SettingsView.prototype.prepare = function () {
 SettingsView.prototype.update = function () {
     // display the user information for the first LMS
     if (this.lms.length) {
-        $("#settingslmslabel").text(this.lms[0].name);
+        this.template.settingslmslabel.text = this.lms[0].name;
 
         this.model.getUserProfile(function (user) {
-            $("#nameItemSet").text(user.displayName);
-            $("#usernameItemSet").text(user.userName);
-            $("#emailItemSet").text(user.email);
+            this.template.nameItemSet.text = user.displayName;
+            this.template.usernameItemSet.text = user.userName;
+            this.template.emailItemSet.text = user.email;
         }, this);
 
-        $("#languageItemSet").text(jQuery.i18n.prop('msg_' + this.model.getLanguage() + '_title'));
+        this.template.languageItemSet.text = jQuery.i18n.prop('msg_' + this.model.getLanguage() + '_title');
+
+        if (this.model.getSetting("teacherdebug")) {
+            this.template.settingstickicon.addClass("icon-checkmark");
+        }
     }
 };
 
@@ -86,4 +90,15 @@ SettingsView.prototype.tap_settingslogout = function (event) {
 };
 SettingsView.prototype.tap_settingsabout = function (event) {
     this.app.chooseView("about", "landing");
+};
+SettingsView.prototype.tap_settingsteacherdebug = function (event) {
+    // toggle selection tap
+    if (this.template.settingstickicon.hasClass("icon-checkmark")) {
+        this.model.removeSetting("teacherdebug");
+        this.template.settingstickicon.removeClass("icon-checkmark");
+    }
+    else {
+        this.template.settingstickicon.addClass("icon-checkmark");
+        this.model.setSetting("teacherdebug", true);
+    }
 };

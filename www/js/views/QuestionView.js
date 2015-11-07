@@ -57,12 +57,23 @@ function QuestionView() {
     });
 }
 
+QuestionView.prototype.prepare = function () {
+
+    if (this.app.models.identityprovider.getSetting("teacherdebug")) {
+        this.template.questionteachermode.removeClass("hidden");
+    }
+    else if (!this.template.questionteachermode.hasClass("hidden")) {
+        this.template.questionteachermode.addClass("hidden");
+    }
+};
+
 QuestionView.prototype.update = function () {
     this.qInfo = this.model.getQuestionInfo();
 
     this.template.questionicon.clearClass();
     this.template.questionicon.addClass(jQuery.i18n.prop('ico_' + this.qInfo.type + '_icon'));
     this.template.questiontext.html = this.qInfo.question;
+    this.template.questiontitle.text = this.qInfo.title;
 };
 
 /**

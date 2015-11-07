@@ -26,6 +26,18 @@ li, .touchable, .screen {
     pointer-events: all;
 }
 
+/* disable text selection for all UI */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+/* enable text selection for input fields */
+input {
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+}
+
 /* refactured  start */
 /*********************** Header ***********************/
 .headerbox {
@@ -701,7 +713,10 @@ li {
     height: 53px;
 }
 .currentSortedItem {
-    border: 1px solid white;
+    position: fixed;
+    box-shadow: 3px 15px 15px #909090;
+    width: 100%;
+/*    border: 1px solid red;*/
 }
 .placeholder {
     height: 1.5em;
