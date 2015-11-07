@@ -227,23 +227,25 @@ input.listlabel {
 }
 /*********************** SplashView ***********************/
 #splashbox {
-    background: -webkit-linear-gradient(#008cc7, #0072a2);
     height: 100vh;
     line-height: 100vh;
     text-align: center;
     vertical-align: middle;
+    background-image: url(../img/LaunchImage_old@2x.png);
+    background-size: contain;
 }
 
 /*
 #splashicon {
     height: 100vh;
-    
+
 }
 */
 
-.splashicon {
+/* .splashicon {
     height: 100px;
-}
+}*/
+
 /*
 .loading {
     font-size: 100px;
