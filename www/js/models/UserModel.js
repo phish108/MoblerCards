@@ -213,7 +213,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
             case 401:
             case 403:
                 $(document).trigger("ID_AUTHENTICATION_FAILED",
-                                    [serverid]);
+                                    [serverid, "nouser"]);
                 break;
             case 500:
             case 404:
@@ -254,7 +254,7 @@ UserModel.prototype.sendAuthToServer = function (authData) {
         }
         else {
             $(document).trigger("ID_SERVER_UNAVAILABLE",
-                                [serverid]);
+                                [serverid, "connectionerror"]);
         }
     }
 };
@@ -311,7 +311,7 @@ UserModel.prototype.sendLogoutToServer = function () {
     }
     else {
         $(document).trigger("ID_SERVER_UNAVAILABLE",
-                            [serverid]);
+                            [serverid, "connectionerror"]);
     }
 };
 
@@ -345,7 +345,7 @@ UserModel.prototype.loadProfile = function (serverid) {
             case 401:
             case 403:
                 $(document).trigger("ID_TOKEN_REJECTED",
-                                    [serverid]);
+                                    [serverid, "nouser"]);
                 break;
             case 404:
             case 500:
@@ -376,7 +376,7 @@ UserModel.prototype.loadProfile = function (serverid) {
         }
         else {
             $(document).trigger("ID_SERVER_UNAVAILABLE",
-                                [serverid]);
+                                [serverid, "connectionerror"]);
         }
     }
 };
