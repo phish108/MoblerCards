@@ -226,6 +226,25 @@ input.listlabel {
     overflow: hidden;
 }
 /*********************** SplashView ***********************/
+#splashbox {
+    background: -webkit-linear-gradient(#008cc7, #0072a2);
+    height: 100vh;
+    line-height: 100vh;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/*
+#splashicon {
+    height: 100vh;
+    
+}
+*/
+
+.splashicon {
+    height: 100px;
+}
+/*
 .loading {
     font-size: 100px;
     text-align: center;
@@ -263,6 +282,8 @@ input.listlabel {
         -webkit-transform: rotate(-360deg);
     }
 }
+
+*/
 /****************** Landing View ******************************/
 #landingtitle {
     text-align: center;
