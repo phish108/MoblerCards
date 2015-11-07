@@ -55,7 +55,6 @@ function LoginView() {
 
     var self = this;
 
-    this.tagID        = this.app.viewId; // obsolete
     this.active       = false;
     this.fixedRemoved = false;
 
@@ -64,24 +63,23 @@ function LoginView() {
         if (self.active) {
             if (self.app.getLoginState()) {
                 self.app.changeView("course");
-            } else {
+            } 
+            else {
                 self.app.changeView("landing");
             }
         }
     }
 
-    function cbLoginFailure(e, errormessage) {
+    function cbLoginFailure(e, serverId, errorOrigin) {
         self.unsetWaitingIcon();
-
-        switch (errormessage) {
+        
+        switch (errorOrigin) {
         case "connectionerror":
+        case "invalidclientkey":
             self.showErrorMessage('msg_connection_message');
             break;
         case "nouser":
             self.showErrorMessage('msg_authenticationFail_message');
-            break;
-        case "invalidclientkey":
-            self.showErrorMessage('msg_connection_message');
             break;
         default:
             break;
@@ -124,11 +122,9 @@ function LoginView() {
 LoginView.prototype.prepare = function () {
 
     if (this.app.getLoginState()) {
-
         this.app.changeView("course");
     }
     else {
-
         // hide unnecessary errors and warnings
         this.hideMessage();
 
