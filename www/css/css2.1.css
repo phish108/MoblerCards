@@ -302,6 +302,7 @@ input.listlabel {
     color: #33CC33;
 }
 .red.plain {
+    text-shadow: none;
     color: #bf1010;
 }
 .yellow {
@@ -312,7 +313,11 @@ input.listlabel {
 }
 .glow2.red,
 .red {
+    text-shadow: 0 0 4px #DF1010;
     color: #bf1010;
+}
+.glowRed {
+    text-shadow: -1px -1px 1px #682627, 1px 1px 2px #C04A4A;
 }
 .lightgrey {
     color: #BEBEBE;
@@ -346,9 +351,11 @@ input.listlabel {
     z-index: 10;
 }
 .glow2 {
+    text-shadow: 0 0 4px  #59fa56;
     color:#33CC33;
 }
 .glowNone {
+    text-shadow: 0 -2px 3px #1b621c, 1px 0 1px #1b621c, -1px 0 1px #1b621c;
     background-color: transparent;
     -webkit-text-stroke-color: #2da42c;
     -webkit-text-stroke-width: 1px;
@@ -1110,16 +1117,19 @@ img.imageLogo {
     border: solid 1px white;
 }
 .dashBlue {
+    text-shadow: 1px 1px 3px grey;
     color: #0081b8;
     font-size: 26px;
 }
 /*select is similar with dashBlue*/
 
 .select {
+    text-shadow: 1px 1px 3px grey;
     color: #0081b8;
     /*font-size:26px;*/
 }
 .dashGrey {
+    text-shadow: 1px 1px 3px grey;
     color: #838383;
 }
 /*.stats {
