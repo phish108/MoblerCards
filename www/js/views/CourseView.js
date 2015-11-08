@@ -107,9 +107,14 @@ CourseView.prototype.update = function () {
 
     var cList = courseModel.getCourseList(); // get all courses
 
-    if (cList && cList.length) {
+    if (cList &&
+        cList.length) {
+
         cList.forEach(function (course) {
-            if (course.title && course.id) {
+
+            if (course.title &&
+                course.id &&
+                course.nQuestions) {
 
                 var courseid = course.lmsId + "_" + course.id;
 
@@ -117,7 +122,7 @@ CourseView.prototype.update = function () {
                 ctmpl.courselabel.text = course.title;
 
                 if (cstats[courseid] &&
-                    typeof cstats[courseid].avg !== "undefined") {
+                     cstats[courseid].avg !== undefined) {
 
                     var cls = "blue",
                         avg = cstats[courseid].avg;
@@ -130,16 +135,18 @@ CourseView.prototype.update = function () {
                             cls = "yellow";
                         }
                         if (avg >= 0.75) {
-                            cls = "green"
+                            cls = "green";
                         }
                     }
+
                     ctmpl.coursedash.addClass(cls);
                 }
 
                 // the default button icon is the loading icon, therefore
                 // it is necessary to set the stats icon if the course is
                 // ready
-                if (!course.activeSync && !course.activeLoad) {
+                if (!course.activeSync &&
+                    !course.activeLoad) {
 
                     // if we are waiting to move into the question view
                     // and a refresh occurs, we MUST not change the
@@ -185,14 +192,7 @@ CourseView.prototype.cleanup = function () {
  * if preventDefault has been called during move events.
  */
 CourseView.prototype.duringMove = function () {
-    this.doScroll();
-};
 
-/**
- * Scroll helper - can be used by the widgets if they want to scroll
- * TODO: include doScroll() in CoreView, so we don't have to bother here.
- */
-CourseView.prototype.doScroll = function () {
     var dY = jstap().touches(0).delta.y();
     this.container.scrollTop(this.container.scrollTop() - dY);
 };
@@ -221,7 +221,8 @@ CourseView.prototype.tap = function (event) {
     // only respond to tap if not loading.
     if (this.template.courseimg.hasClass("icon-bars")) {
 
-        if (course[0] === "courselist" && course[2] !== "warning") {
+        if (course[0] === "courselist" &&
+            course[2] !== "warning") {
 
             this.setLoadingIcon();
             this.model.activateCourseById(lmsId, cId);
