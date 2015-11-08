@@ -1,46 +1,100 @@
 /*********************** General ***********************/
 /* FIXME: Remove all pt sizes */
-body {
+body
+{
     width: device-width;
     height: device-height;
     overflow: hidden;
-    /*color: #666;*/
     color: #646464;
+    /* color: #003b54; */
     font-family: "SF UI Text", Roboto, HelveticaNeue-Light, HelveticaNeue, Arial, sans-serif;
     font-size: 19px;
     margin: 0;
     padding: 0;
 }
-/*hidden html element that will be used for cleaning html-tags in questionpool model*/
 
-#modelHelperQuestionpool {
-    display: none;
-}
-div, span, p {
+div,
+span,
+p
+{
     box-sizing: border-box;
 }
-div, span, .untouchable {
+
+div,
+span,
+.untouchable {
     pointer-events: none;
 }
-li, .touchable, .screen {
+
+li,
+.touchable,
+.screen
+{
     pointer-events: all;
 }
 
 /* disable text selection for all UI */
-* {
+*
+{
     -webkit-touch-callout: none;
     -webkit-user-select: none;
 }
 
 /* enable text selection for input fields */
-input {
+input
+{
     -webkit-touch-callout: default;
     -webkit-user-select: text;
 }
+/**
+ * HELPER CLASSES
+ */
+.fixed
+{
+    position: fixed;
+}
 
-/* refactured  start */
+.static
+{
+    position: static;
+}
+
+.foreground
+{
+    z-index: 10;
+}
+
+.background
+{
+    z-index: 0;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar,
+.hidden
+{
+    display: none !important;
+}
+
+.clear
+{
+    clear: both;
+}
+
+.bold
+{
+    font-weight: bold;
+}
+
+.textSmall
+{
+    font-size: 15px;
+    font-style: italic;
+}
+
 /*********************** Header ***********************/
-.headerbox {
+.headerbox
+{
     display: table;
     table-layout: fixed; /* avoid grid violations */
     position: fixed;
@@ -53,14 +107,18 @@ input {
     background: -webkit-linear-gradient(#008cc7, #0072a2);
     background: linear-gradient(#008cc7, #0072a2);
 }
-.titleicon {
+
+.titleicon
+{
     display: table-cell;
     width: 58px;
     padding-top: 5px;
     text-align: center;
     font-size: 30px;
 }
-.headercontent {
+
+.headercontent
+{
     display: table-cell;
     font-size: 26px;
     padding-top: 5px;
@@ -74,7 +132,8 @@ input {
     white-space: nowrap;
 }
 
-.closeicon {
+.closeicon
+{
     display: table-cell;
     width: 63px;
     padding-top: 5px;
@@ -82,8 +141,10 @@ input {
     font-size: 30px;
     border-left: 1px solid white;
 }
+
 /****************** Footer ******************************/
-.footerbox {
+.footerbox
+{
     display: table;
     position: fixed;
     left: 0;
@@ -97,26 +158,34 @@ input {
     background: -webkit-linear-gradient(#999999, #6a6a6a);
     background: linear-gradient(#999999, #6a6a6a);
 }
-.footerleft {
+
+.footerleft
+{
     display: table-cell;
     text-align: center;
     padding-top: 5px;
 }
-.footerlabel {
+
+.footerlabel
+{
     display: table-cell;
     text-align: center;
     vertical-align: middle;
     padding-top: 5px;
 }
-.footerright {
+
+.footerright
+{
     display: table-cell;
     width: 63px;
     text-align: center;
     padding-top: 5px;
     border-left: 1px solid white;
 }
+
 /*********************** Content ***********************/
-.contentbox {
+.contentbox
+{
     display: block;
     min-height: 100vh;
 
@@ -125,15 +194,14 @@ input {
     width: 100%;
 }
 
-.contentbox.withfooter {
+.contentbox.withfooter
+{
     padding-bottom: 62px;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
 /*********************** List templates *************************/
-.listbox {
+.listbox
+{
     display: table;
     height: 50px;
     line-height: 150%;
@@ -141,7 +209,9 @@ input {
     width: 100%;
     z-index: 1;
 }
-.listdash {
+
+.listdash
+{
     display: table-cell;
     width: 34px;
     padding-top: 3px;
@@ -149,14 +219,18 @@ input {
     vertical-align: middle;
     font-size: 22px;
 }
-.listlabel {
+
+.listlabel
+{
     display: table-cell;
     padding-left: 10px;
     padding-right: 5px;
     vertical-align: middle;
     font-size: 19px;
 }
-.listimage {
+
+.listimage
+{
     display: table-cell;
     width: 62px;
     padding-left: 5px;
@@ -164,16 +238,24 @@ input {
     vertical-align: middle;
     font-size: 35px;
 }
-.selected .separator {
+
+.selected .separator
+{
     border-left-color: #ffffff;
 }
-.separator {
-    border-left: 1px solid #646464;
+
+.separator
+{
+    border-left: 1px solid #00283D;
 }
-.separator2 {
+
+.separator2
+{
     padding-left: 14px;
 }
-input {
+
+input
+{
     height: 59px;
     line-height: 59px;
     width: 100%;
@@ -182,41 +264,23 @@ input {
     outline: none;
     font-size: 20px;
 }
-input.listlabel {
+
+input.listlabel
+{
     width: 90%;
     padding-left: 5%;
     padding-right: 5%;
     text-align: center;
 }
-/*********************** Scrollbutton ***********************/
-#scrolltop {
-    position: fixed;
-    top: 75px;
-    right: 13px;
-    line-height: 39px;
-}
-#scrollbot {
-    position: fixed;
-    bottom: 65px;
-    right: 13px;
-    line-height: 39px;
-}
-.scrollbutton {
-    width: 38px;
-    height: 38px;
-    text-align: center;
-    border-radius: 50%;
-    font-size: 24px;
-    color: white;
-    background: -webkit-linear-gradient(#008cc7, #0072a2);
-    background: linear-gradient(#008cc7, #0072a2);
-    z-index: 99;
-}
+
 /*********************** Views ***********************/
-.screen {
+.screen
+{
     display: none;
 }
-.screen.active {
+
+.screen.active
+{
     display: block;
     width: 100%;
     margin: 0;
@@ -225,122 +289,108 @@ input.listlabel {
     box-sizing: border-box;
     overflow: hidden;
 }
+
 /*********************** SplashView ***********************/
-#splashbox {
+#splashbox
+{
     height: 100vh;
     line-height: 100vh;
     text-align: center;
     vertical-align: middle;
+    background-color: #ffffff;
     background-image: url(../img/LaunchImage_old@2x.png);
     background-size: contain;
 }
 
-/*
-#splashicon {
-    height: 100vh;
-
-}
-*/
-
-/* .splashicon {
-    height: 100px;
-}*/
-
-/*
-.loading {
-    font-size: 100px;
-    text-align: center;
-    height: 100vh;
-    -webkit-animation: spin 4s infinite linear;
-}
-
-.loading span {
-    text-align: center;
-    vertical-align: middle;
-}
-
-#splashbox {
-    height: 100vh;
-    line-height: 100vh;
-}
-.centered {
-    display: inline-block;
-    text-align: center;
-    line-height: 200px;
-}
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-@-webkit-keyframes spinoff {
-    0% {
-        -webkit-transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(-360deg);
-    }
-}
-
-*/
 /****************** Landing View ******************************/
-#landingtitle {
+#landingtitle
+{
     text-align: center;
     padding-top: 5px;
-/*    font-weight: bold;*/
-    color: white;
+    color: #ffffff;
 }
+
 /****************** Course View ******************************/
-.loadingrotation {
+.loadingrotation
+{
     -webkit-animation: spin 3s infinite linear;
 }
 
-.loadingrotation span {
+.loadingrotation span
+{
     vertical-align: middle;
     text-align: center;
 }
 
-
 /****************** About View ******************************/
-#abouttitlelist {
+/* FIXME: make a class */
+#abouttitlelist
+{
     font-size: 20px;
     font-weight: bold;
     color: black;
 }
+
 /****************** Question View ******************************/
-#questiontext {
+/*
+#questiontext
+{
     font-size: 20px;
 }
+*/
+
 /* *************** Colors and Gradients START **************** */
-.green {
+.white
+{
+    color: #ffffff;
+}
+
+.green
+{
     color: #33CC33;
 }
-.red.plain {
+
+.red.plain
+{
     color: #bf1010;
     text-shadow: none;
 }
-.yellow {
+
+.yellow
+{
     color: #F0C000;
 }
-.blue {
+
+.blue
+{
     color: #008CC7;
 }
 
 .glow2.red,
-.red {
+.red
+{
     text-shadow: 0 0 4px #DF1010;
     color: #bf1010;
 }
-.lightgrey {
+
+.lightgrey
+{
     color: #BEBEBE;
 }
-.glowRed {
+
+.glowRed
+{
     text-shadow: -1px -1px 1px #682627, 1px 1px 2px #C04A4A;
 }
-.gradient1 {
+
+.dashGrey
+{
+    color: #838383;
+    text-shadow: 1px 1px 3px grey;
+}
+
+.gradient1
+{
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
     /* Safari 4+, Chrome 2+ */
     background: -webkit-linear-gradient(#dcdcdc, #ffffff);
@@ -351,9 +401,11 @@ input.listlabel {
     background: linear-gradient(#dbdbdb, #ffffff);
     /* the standard */
 }
+
 /*selected item before being selected*/
 .listbox.gradient,
-.gradient2 {
+.gradient2
+{
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #bebebe));
     /* Safari 4+, Chrome 2+ */
     background: -webkit-linear-gradient(#dddddd, #bebebe);
@@ -361,17 +413,23 @@ input.listlabel {
     background: linear-gradient(#dddddd, #bebebe);
     /* the standard */
 }
+
 .listbox.gradient.selected,
-.gradientSelected {
+.gradientSelected
+{
     color: white;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e5e5e), color-stop(100%, #8c8c8c));
     z-index: 10;
 }
-.glow2 {
+
+.glow2
+{
     text-shadow: 0 0 4px  #59fa56;
     color:#33CC33;
 }
-.glowNone {
+
+.glowNone
+{
     text-shadow: 0 -2px 3px #1b621c, 1px 0 1px #1b621c, -1px 0 1px #1b621c;
     background-color: transparent;
     -webkit-text-stroke-color: #2da42c;
@@ -379,12 +437,17 @@ input.listlabel {
     -webkit-text-fill-color: #21ae24;
     padding-left: 15px;
 }
-.textShadow {
+
+.textShadow
+{
     text-shadow: 0 1px 1px #898989;
 }
-.lightShadow {
+
+.lightShadow
+{
     text-shadow: 0 1px 1px #c9c9c9;
 }
+
 /* Colors and Gradients END*/
 
 /** OLD CSS **/
@@ -393,167 +456,8 @@ input.listlabel {
  */
 
 /*********************** Header old ***********************/
-.closeButton {
-    width: 49px;
-    height: 47px;
-    /*it was 47*/
-    line-height: 54px;
-    /*it was 47*/
-    padding: 2px;
-    border: 1px solid white;
-    text-align: center;
-    font-weight: normal;
-    font-size: 28px;
-    /*it was 24*/
-    color: white;
-    position: fixed;
-    right: 0;
-    top: 0;
-    z-index: 10;
-}
-
-.forwardButton {
-    vertical-align: bottom;
-    font-size: 22px;
-    /*position: fixed;*/
-    float: left;
-    bottom: 0;
-    color: white;
-    text-align: center;
-    border: 1px solid white;
-    line-height: 49px;
-    height: 49px;
-    width: 100%;
-    z-index: 10;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999999), color-stop(100%, #6a6a6a));
-    /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#999999, #6a6a6a);
-    /* Safari 5.1+, Chrome 10+ */
-    background: linear-gradient(#999999, #6a6a6a);
-    /* the standard */
-}
-/*
-.feedbackMore {
-    position: fixed;
-    width: 53px;
-    vertical-align: middle;
-    color: white;
-    float: right;
-    right: 0;
-    border-left: 1px solid white;
-    border-right: 1px solid white;
-    border-bottom: 1px solid white;
-    height: 49px;
-    line-height: 49px;
-    z-index: 0;
-    font-size: 35px;
-    text-align: center;
-    bottom: 0;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #999999), color-stop(100%, #6a6a6a));
-*/
-    /* Safari 4+, Chrome 2+ */
-/*    background: -webkit-linear-gradient(#999999, #6a6a6a));*/
-    /* Safari 5.1+, Chrome 10+ */
-/*    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#999999', endColorstr='#6a6a6a');*/
-    /*IE6 & IE7 */
-/*    background: linear-gradient(#999999, #6a6a6a);*/
-    /* the standard */
-/*}*/
-.left {
-    float: left;
-}
-.right {
-    float: right;
-}
-.top {
-    position: fixed;
-    top: 0;
-}
-.bottom {
-    position: fixed;
-    bottom: 0;
-}
-.static {
-    position: static;
-}
-.title {
-    height: 49px;
-    /*line-height: 52px;*/
-    line-height: 65px;
-    font-size: 22px;
-    padding: 0 0 0 50px;
-    vertical-align: middle;
-    color: white;
-
-    margin-right: 52px;
-    margin-left: 0;
-    margin-top: -4px;
-    overflow: hidden;
-    border: none;
-}
-.titleiconOLD {
-    height: 50px;
-    line-height: 55px;
-    padding: 0;
-    vertical-align: middle;
-    font-size: 30px;
-    margin-left: 5px;
-    margin-right: 5px;
-    color: white;
-    top: 0;
-    left: 5px;
-    position: fixed;
-}
-.headerContainer {
-    -webkit-box-shadow: 0 3px 5px -1px #ccc;
-    box-shadow: 0 3px 5px -1px #ccc;
-    /*background-color: #007fb5;*/
-    /*height: 52px;*/
-    border: 1px solid white;
-    left: 0;
-    margin-left: 0;
-    width: 100%;
-    margin: 0;
-    height: 51px;
-    display: inline-block;
-    position: fixed;
-    top: 0;
-    z-index: 8;
-    /* FF 3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #008cc7), color-stop(100%, #0072a2));
-    /* Safari 4+, Chrome 2+ */
-    background: -webkit-linear-gradient(#008cc7, #0072a2);
-    /* Safari 5.1+, Chrome 10+ */
-    /* Opera 11.10 */
-    background: linear-gradient(#008cc7, #0072a2);
-    /* the standard */
-}
-/*
-.landingHeader {
-    position: absolute;
-    box-shadow: 0 3px 5px -1px #ccc;
-    -webkit-box-shadow: 0 3px 5px -1px #ccc;
-    display: inline-block;
-    border: 1px solid white;
-    left: 0;
-    margin-left: 0;
-    width: 100%;
-    margin: 0;
-    height: 51px;
-    top: 0;
-    z-index: 8;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
-*/
-    /* Safari 4+, Chrome 2+ */
-/*    background: -webkit-linear-gradient(#dcdcdc, #ffffff));*/
-    /* Safari 5.1+, Chrome 10+ */
-/*    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#dbdbdb', endColorstr='#ffffff');*/
-    /* IE6 & IE7 */
-/*    background: linear-gradient(#dbdbdb, #ffffff);*/
-    /* the standard */
-/*    overflow: hidden;*/
-/*}*/
-.loginMessage {
+.loginMessage
+{
     display: none;
     border: 1px solid white;
     color: white;
@@ -561,36 +465,27 @@ input.listlabel {
     padding-bottom: 10px;
     padding-left: 15px;
 }
-.gradientMessages {
+
+.gradientMessages
+{
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #454545), color-stop(100%, #8b8b8b));
     background: -webkit-linear-gradient(#454545, #8b8b8b);
     background: linear-gradient(#454545, #8b8b8b);
     color: white;
 }
-.content {
-    /*background-color:blue;
-	border: 1px solid red;*/
+
+.content
+{
     margin-top: 55px;
     width: 100%;
     background-size: 100% auto;
-    /*background-size: 946px auto;
-    background-size:100% 15%;
-    background-size: 100% 5%;*/
     background-repeat: no-repeat;
-    /* background-attachement: fixed; is not working on iOS */
     background-attachment: absolute;
     background-position: center bottom;
 }
-.cardBody {
-    padding: 0;
-    padding-right: 0;
-    background-color: white;
-    display: table-cell;
-    vertical-align: top;
-    border: none;
-}
 
-ul {
+ul
+{
     border-top: solid 0 red;
     /*in order not to have a white line at the beginning in course list view*/
     border-left: solid 1px white;
@@ -608,22 +503,14 @@ ul {
     -webkit-margin-end: 0;
     -webkit-padding-start: 0;
 }
-.spacerMargin {
-    background-color: white;
-    height: 100px;
-}
-.borderRemoval {
-    /*border-bottom: solid 0 white;*/
+
+.borderRemoval
+{
     border-bottom: none;
 }
-#landingBody {
-    z-index: 10;
-}
-#loginBody {
-    display: none;
-    /*z-index:10;*/
-}
-li {
+
+li
+{
     list-style-type: none;
     list-style-position: inside;
     font-style: normal;
@@ -634,186 +521,78 @@ li {
     margin: 0;
     z-index: 1;
 }
-.ulTest {
-    border: none;
-}
-.defaultHeight {
-    height: 47px;
-    border: none;
-}
+
 /*********************** Login View ***********************/
-*[placeholder] {
-    color: #666;
-}
-#warningMessageContainer {
-    display: none;
-}
-#errorMessageContainer {
-    display: none;
-}
-.listicon {
-    width: 20px;
-    display: block;
-    height: 20px;
-    padding-left: 0;
-    margin-left: 0;
-}
-.correctAnswer {
-    background-color: #33CC33;
-    border-left: 1px solid white;
-    color: white;
-    width: 30px;
-    text-align: center;
-    margin: 0;
+::-webkit-input-placeholder,
+*[placeholder]
+{
+    color: #21576e;
 }
 
-.partiallyCorrectAnswer {
-    background-color: #EEEEEE;
-}
-.ticked {
+
+.ticked
+{
     padding: 0;
     margin: 0;
     background-color: #29ABE2;
     color: white;
 }
-.control {
-    font-size: 28pt;
-    border-radius: 3px;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 10px;
-    margin-right: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-/*
-#feedbackTipBody {
-    display: none;
-}
-#FeedbackMore {
-    display: none;
-}
-#feedbackTip {
-    padding: 20px;
-}
-*/
-.pfp {
-    vertical-align: bottom;
-    margin-top: 10px;
-    margin-left: 20px;
-    margin-right: 10px;
-    clear: both;
-    height: 53px;
-    background-color: white;
-    border: 1px solid blue;
-    float: left;
-}
-/* FIXME Unused? */
-.pfpLabelContainer {
-    margin-top: 5px;
-    padding-right: 10px;
-    font-size: 15pt;
-    border: 1px solid white;
-}
-#logos {
-    vertical-align: bottom;
-    margin-top: 10px;
-    clear: both;
-    width: 100%;
-    height: 53px;
-    background-color: white;
-}
-#ISNlogo {
-    float: left;
-    content: url(../resources/isn_css.png);
-    width: 142px;
-    height: 53px;
-}
-#ETHZlogo {
-    float: right;
-    content: url(../resources/ethz.png);
-    width: 142px;
-    height: 53px;
-}
-.currentSortedItem {
+
+.currentSortedItem
+{
     position: fixed;
     box-shadow: 3px 15px 15px #909090;
     width: 100%;
-/*    border: 1px solid red;*/
 }
-.placeholder {
+
+.placeholder
+{
     height: 1.5em;
     line-height: 1.2em;
     color: #ccc;
     background: #ccc;
 }
+
 /*********************** Answer View ***********************/
-.marginForButtons {
-    margin-right: 52px;
-    border: 1px solid white;
-}
-.answerLi {
-    padding: 0;
-}
-.text {
+.text
+{
     padding: 15px;
     padding-left: 10px;
     padding-right: 0;
     /*border: 0px solid red;*/
 }
-.textBottom {
-    padding-bottom: 50px;
-}
-.marginClozeLi {
-    padding: 9px 9px 9px 20px;
-}
-.internalPadding {
-    padding: 7px;
-}
-#shadowedClozeLi {
-    padding: 0;
-}
-#numberInputContainer,
-#numberInput,
-#typedAnswer,
-#numericFeedback,
-#correctNumericFeedback {
-    width: 100%;
-}
-#typedAnswer,
-#correctNumericFeedback {
-    text-align: left;
-}
-#dataErrorMessage {
-    display: none;
-}
-.inactive {
-    display: none;
-}
-/*********************** Statistics View ***********************/
 
-.statsvalue {
+/* FIXME: this should be localized text and use default messaging classes */
+#dataErrorMessage
+{
+    display: none;
+}
+
+.inactive
+{
+    display: none;
+}
+
+/*********************** Statistics View ***********************/
+.statsvalue
+{
     font-size: 14px;
 }
 
-#statisticsBody {
-/*    font-size: 0;*/
-    /*set the font size to 0, in order the children elements that are displayed as inline blocks, not to have any space between them. The space is applied by default when you use inline block*/
-}
-.green {
+.green
+{
     color: #33CC33;
 }
-/*********************** Achievements View ***********************/
 
-#achievementsView {
-    display: none;
-}
 /*********************** Settings View ***********************/
-.settingsLi {
+.settingsLi
+{
     padding-bottom: 5px;
     padding-left: 7px;
 }
-.settingslabel {
+
+.settingslabel
+{
     line-height: 100%;
     width: 100%;
     padding: 0 10px;
@@ -821,269 +600,136 @@ li {
     color: #999;
     display: inline-block;
 }
-.settingsitem {
+
+.settingsitem
+{
     padding: 0 10px;
 }
-.settingsDeactivate {
+
+.settingsDeactivate
+{
     font-size: 14px;
     color: white;
     display: inline-block;
     width: 100%;
     margin-bottom: 3px;
 }
-.More {
-    height: 49px;
-    line-height: 49px;
-    position: fixed;
-    bottom: 1px;
-    right: 1px;
-    z-index: 1;
-    border-top: 1px solid white;
-    margin: 0;
-}
-#lmsLabelSet {
-    height: 38px;
-    width: 38px;
-    float: left;
-    margin-top: 7px;
-    margin: auto 10px auto 0;
-}
-.lms {
-    height: 65px;
-    margin-top: 7px;
-}
-.pfpItemSet {
-    margin-top: 20px;
-    padding-left: 5px;
-}
-/*********************** About View ***********************/
-#cardsTitle {
-    color: #008CC7;
-    font-weight: bold;
-}
-#aboutView {
-    display: none;
-}
-#cardsAbout {
-    color: white;
-    position: absolute;
-    top: 88px;
-    right: 90px;
-    font-size: 15px;
-    font-weight: bold;
-    z-index: -1;
-}
-#aboutMainTitle {
-    font-size: 20pt;
-    margin: 80px auto 10px 10px;
-}
-ul#aboutData {
-    margin-left: 0;
-    margin-right: 0;
-    font-size: 12px;
-    z-index: 10;
-}
-.aboutLabel {
-    font-size: 18px;
-    color: #999;
-    margin-bottom: 3px;
-}
-.settingsLi.about {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-/******NEW CLASSES********/
 
-.fixed {
-    position: fixed;
-}
-.foreground {
-    z-index: 10;
-}
-.background {
-    z-index: 8;
-    overflow: hidden;
-}
-/*#loginElements {} */
-.selectWidget {
+
+/******NEW CLASSES********/
+.selectWidget
+{
     padding-left: 0;
     border-right: 1px solid white;
     border-left: 1px solid white;
     margin-right: 0;
     height: 51px;
 }
-/*li#selectlms {
-    border-bottom: 0px solid white;
-}*/
-.selectWidget2 {
+
+.selectWidget2
+{
     border-right: 1px solid white;
     border-left: 1px solid white;
     background-color: #c6c6c6;
     margin-right: 0;
     height: 80px;
 }
-/*ul#loginElements {
-    border: solid white 0px;
-}*/
-/*#separatorFeaturedLanding {
-    border: 0px solid black;
-}*/
-/*#selectarrowLanding {
-    border: 0px solid green;
-}*/
-.lmsListItem {
+
+.lmsListItem
+{
     border-left: 1px solid white;
     height: 65px;
     text-align: left;
     clear: both;
 }
-.labelContainerOld {
+
+.labelContainerOld
+{
     float: left;
     padding-top: 15px;
     padding-left: 0;
-    /*border: 0px solid orange;*/
 }
-.lmslabel {
+
+.lmslabel
+{
     font-weight: bold;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
-#loginLmsLabel {
-    /*border: solid 0px blue;*/
+
+#loginLmsLabel
+{
     vertical-align: middle;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
-#landingLmsLabel {
-    /*border: solid 0px blue;*/
-    vertical-align: middle;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-.pfp {
-    vertical-align: middle;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 20px;
-    margin-right: 10px;
-    clear: both;
-    background-color: white;
-    border: 1px solid white;
-    float: left;
-}
-.titleNew {
-    height: 49px;
-    font-size: 22px;
-    font-weight: 900;
-    padding: 0 0 0 10px;
-    color: white;
-    line-height: 58px;
-    margin-right: 52px;
-    margin-left: 0;
-    margin-top: auto;
-    overflow: hidden;
-}
-.notClickable {
-    color: red;
-}
-.message {
+
+.message
+{
     background-color: #a52a2a;
     color: white;
 }
 
-
-.lmsmessage {
+.lmsmessage
+{
     display: none;
     color: white;
     padding: 10px;
 }
-.hidden {
-    display: none;
-}
-#lmsregistrationmessage {
-    display: none;
-    margin-right: 50px;
-    margin-left: 50px;
-    padding: 10px;
-}
-#lmsregistrationwaitingmessage {
+
+#lmsregistrationwaitingmessage
+{
     display: none;
     margin-top: -70px;
     margin-right: 50px;
     margin-left: 50px;
     padding: 10px;
 }
-#backgroundPopup {
-    display: none;
-    position: fixed;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 0;
-    background: #000000;
-    border: 1px solid #cecece;
-}
-#popupContact {
-    display: none;
-    position: fixed;
-    /*position: absolute;*/
-    height: 150px;
-    width: 160px;
-    background: #FFFFFF;
-    border: 2px solid #cecece;
-    z-index: 2;
-    padding: 12px;
-    font-size: 13px;
+
+.lineContainer
+{
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
 }
 
-.bold {
-    font-weight: bold;
-}
-.textSmall {
-    font-size: 15px;
-    font-style: italic;
-}
-.lineContainer {
+.lineContainerCourses
+{
     display: inline-block;
     vertical-align: middle;
     text-align: center;
-    /*border: solid 0px blue;*/
-}
-.lineContainerCourses {
-    display: inline-block;
-    vertical-align: middle;
-    text-align: center;
-    /*border: solid 0px blue;*/
     margin-right: 11px;
 }
-/* it is used in lms view for the image container*/
 
-.lmsIcon {
+.lmsIcon
+{
     display: inline-block;
     vertical-align: middle;
     text-align: center;
-    /*border: solid 0px green;*/
     margin-right: 5px;
 }
-.imageContainerOld {
-    /*display:inline-block*/
+
+.imageContainerOld
+{
     height: 47px;
     line-height: 47px;
     width: 47px;
     padding-top: 4px;
-    /*border: solid 0px green;*/
 }
-.imageoutline1 {
+
+.imageoutline1
+{
     height: 39px;
     line-height: 39px;
     width: 37px;
     border-left: solid 1px #8b8b8b;
     border-top: solid 1px #8b8b8b;
 }
-.imageoutline2 {
+
+.imageoutline2
+{
     height: 38px;
     line-height: 38px;
     width: 36px;
@@ -1092,7 +738,9 @@ ul#aboutData {
     /*border-top: solid 1px #b8b8b8;*/
     border-top: solid 1px #c1c1c1;
 }
-.selectItemContainer {
+
+.selectItemContainer
+{
     /*display:inline-block;*/
     /*border: solid 0px blue;*/
     height: 47px;
@@ -1106,11 +754,14 @@ ul#aboutData {
     font-size: 25px;
     /*it was 32*/
 }
-.courseLiContainer {
+
+.courseLiContainer
+{
     display: table;
     table-layout: fixed;
     width: 100%;
 }
+
 .dashContainer,
 .labelContainer,
 .labelContainerAchievements,
@@ -1120,150 +771,74 @@ ul#aboutData {
 .gridContainerAchievements,
 .statsValueContainer,
 .statsValueContainerAchievements,
-.imageContainer {
+.imageContainer
+{
     display: table-cell;
     vertical-align: middle;
 }
-/*.labelContainer {
-    border: 0px solid red;
-}*/
-.labelContainerAchievements {
+
+.labelContainerAchievements
+{
     width: 175px;
     /*border: 0px solid red;*/
 }
-.dashContainer {
+
+.dashContainer
+{
     /*border: 0px solid blue;*/
     width: 34px;
 }
-.white {
-    color: white;
-}
-.gridContainer {
-    width: 40px;
-    margin-right: 0;
-    text-align: center;
-    /*border: 0 solid green;*/
-}
-.gridContainerAchievements {
+
+.gridContainerAchievements
+{
     /* margin-right:0; */
     text-align: center;
     /*border: 0px solid green;*/
     width: 50px;
 }
-.statsValueContainer {
+
+.statsValueContainer
+{
     /*padding-right:15px;*/
     /*border: 0px solid black;*/
     width: 50px;
     text-align: center;
     padding-right: 15px;
 }
-.statsValueContainerAchievements {
-    /*padding-right:15px;*/
-    /*border: 0px solid black;*/
-    text-align: right;
-}
-.imageContainer {
-    width: 47px;
-    padding-top: 4px;
-    /*border: 0px solid green;*/
-    /*height: 47px;
-	line-height: 47px;*/
-}
-.separatorBlock {
-    width: 12px;
-    /*border: 0px solid black;*/
-}
-.separatorBlockAchievements {
+
+.separatorBlockAchievements
+{
     width: 6px;
     /*border: 0px solid black;*/
 }
-.selectItemContainerCloze {
-    /*display:inline-block;*/
-    /*border: solid 0px blue;*/
-    height: 37px;
-    line-height: 37px;
-    width: 30px;
-    /*it was 34*/
-    text-align: center;
-    padding-right: 7px;
-    /*there was no padding right it was just added*/
-    font-size: 30px;
-    /*it was 32*/
-    padding-bottom: 9px;
-}
-.selectItemContainer2 {
-    /*display:inline-block;*/
-    /*border: solid 0px red;*/
-    height: 47px;
-    line-height: 47px;
-    width: 29px;
-    text-align: center;
-    padding-top: 5px;
-    padding-right: 5px;
-    font-size: 25px;
-}
-.separatorContainer {
-    /*display:inline-block;*/
-    border-left: solid 1px #b3b2b2;
-    height: 48px;
-    line-height: 48px;
-    width: 12px;
-    text-align: center;
-    padding-top: 5px;
-    background-color: transparent;
-}
-.separatorContainerAchievements {
-    border-left: solid 1px #b3b2b2;
-    height: 50px;
-    line-height: 50px;
-    width: 12px;
-    text-align: center;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    background-color: transparent;
-}
-img.imageLogoLMS {
-/*    display: inline;*/
-    width: 38px;
-    height: 38px;
-    padding-right: 7px;
-    padding-top: 5px;
-    /*border: solid 0px blue;*/
-}
-.achievementsImg {
+
+.achievementsImg
+{
     vertical-align: middle;
     font-size: 38px;
     /*border: 0px solid red;*/
 }
 
-.feedbackIcon {
+.feedbackIcon
+{
     padding: 8px;
 }
-img.imageLogo {
-    width: 36px;
-    height: 38px;
-}
-.radial {
-    background: -webkit-radial-gradient(-93px 30px, circle closest-corner, #bbbbbb, #c8c8c8 20px, #e6e6e6 50px, transparent 100px);
-}
-.radialCourses {
+
+/*
+.radialCourses
+{
     background: -webkit-radial-gradient(-94px 25px, circle closest-corner, #ba996e, transparent 100px);
 }
-.courseContainer {
+*/
+
+.courseContainer
+{
     height: 45px;
     line-height: 45px;
 }
-/*.rightDiv {
-    border: 0px solid red;
-}*/
-.textDiv {
-    border: 1px solid blue;
-}
-.liBorder {
-    border: 1px solid green;
-}
-.separatorContainerCourses {
-    /*display:inline-block;	*/
+
+.separatorContainerCourses
+{
     margin-top: 4px;
     margin-bottom: 4px;
     border-left: solid 1px #b3b2b2;
@@ -1272,7 +847,9 @@ img.imageLogo {
     width: 12px;
     text-align: right;
 }
-.separatorContainerLMS {
+
+.separatorContainerLMS
+{
     /*display:inline-block;*/
     border-left: solid 1px #b3b2b2;
     height: 20px;
@@ -1282,89 +859,8 @@ img.imageLogo {
     margin-top: 4px;
     margin-bottom: 4px;
 }
-#shadowedLi {
-    height: 20px;
-}
-.shadowedLi {
-    height: 20px;
-}
-/*** Logout View ***/
 
-/* this is for the shadowed div in login view*/
-
-#shadow {
+.shadowedLi
+{
     height: 20px;
-}
-#shadowFeedbackMoreView {
-    height: 20px;
-    border: solid 1px white;
-}
-#shadowFView {
-    height: 20px;
-    border: solid 1px white;
-}
-.dashBlue {
-    color: #0081b8;
-    font-size: 26px;
-    text-shadow: 1px 1px 3px grey;
-}
-/*select is similar with dashBlue*/
-
-.select {
-    color: #0081b8;
-    /*font-size:26px;*/
-    text-shadow: 1px 1px 3px grey;
-}
-.dashGrey {
-    color: #838383;
-    text-shadow: 1px 1px 3px grey;
-}
-/*.stats {
-    font-size: 20px;
-}*/
-/************Statistsics View***************/
-
-.valueContainer {
-    display: table-cell;
-    margin-right: 20px;
-    /*vertical-align:middle;*/
-}
-.clear {
-    clear: both;
-}
-/*#statsSpeedValue {} */
-.statsLabel {
-    /*font-size: 22px;*/
-    font-weight: normal;
-    padding-top: 15px;
-    padding-right: 10px;
-}
-#statsSlot3 {
-    border-bottom: solid 1px white;
-}
-#statsSlot4 {
-    border-bottom: solid 1px white;
-}
-#statsSlot5 {
-    border-bottom: solid 1px white;
-}
-#statsSlot6 {
-    border-bottom: solid 1px white;
-}
-#statsSlot7 {
-    border-bottom: solid 1px white;
-}
-/*#cardBurner {
-    padding-bottom:4px;
-	margin-bottom:4px;
-}*/
-.marginSeparatorTop {
-    margin-top: 6px;
-    margin-bottom: 5px;
-}
-.border {
-    border: solid 1px white;
-}
-#clozeInputDashFeedback {
-    line-height: 50px;
 }
