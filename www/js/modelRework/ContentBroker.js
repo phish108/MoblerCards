@@ -49,7 +49,6 @@
      */
     var courseList      = {}; // persistent
     var syncFlags       = {}; // run-time only
-    var syncQPSelection = {}; // run-time only
 
     /**
      * @private @method loadCourseList()
@@ -140,13 +139,20 @@
         }
 
         if (!courseList[lmsId]) {
-            // cleanup the existing questionpools
+            // initialize the question pools if none exist
             courseList[lmsId] = [];
         }
 
-        // update the course list
+        // keep information for restoring device level information
         courseList[lmsId].forEach(function (ocl) {
-            idList[ocl.id] = 1;
+            idList[ocl.id] = {
+                activePools: ocl.activateQuestionPools,
+                nQuestions: ocl.nQuestions,
+            };
+
+            if (ocl.activeSync) {
+                idList[ocl.id].activeSync = ocl.activeSync;
+            }
         });
 
         courseList[lmsId] = lmsCourseList;
@@ -154,23 +160,26 @@
         // remove those question pools that continue to exist
         courseList[lmsId].forEach(function (ncl) {
             ncl.lmsId = lmsId; // we need this for setting the LRS context
-            ncl.activeSync = 1; // flag need for the course view markers
 
-            // restore the previously selected question pools
-            if (syncQPSelection[lmsId] &&
-                syncQPSelection[lmsId][ncl.id] &&
-                syncQPSelection[lmsId][ncl.id].length) {
+            if (idList[ncl.id]) {
+                if (idList[ncl.id].activePools) {
+                    ncl.activeQuestionPools = idList[ncl.id].activePools;
+                }
 
-                ncl.activeQuestionPools = syncQPSelection[lmsId][ncl.id];
+                if (idList[ncl.id].nQuestions &&
+                    !ncl.nQuestions) {
+                    ncl.nQuestions = idList[ncl.id].nQuestions;
+                }
+
+                if (idList[ncl.id].hasOwnProperty("activeSync")) {
+                    ncl.activeSync = idList[ncl.id].activeSync;
+                }
+
+                delete idList[ncl.id];
             }
-
-            delete idList[ncl.id];
         });
 
         storeCourseList();
-
-        // done with the question pool selection for this lms
-        syncQPSelection[lmsId] = {};
 
         // remove the remaining items in the idList
         Object.getOwnPropertyNames(idList).forEach(function (id) {
@@ -204,6 +213,7 @@
                  lmsList.indexOf(cl) >= 0 &&
                  cl &&
                  Array.isArray(courseList[cl]))) {
+
                 courseList[cl].forEach(function (c) {
                     c.lmsId = cl;
                     courses.push(c);
@@ -1127,6 +1137,11 @@
             return retval;
         }
 
+        if (!questions.length) {
+            // empty question pools are bad
+            return 0;
+        }
+
         questions.forEach(function (question) {
 
             switch (question.type) {
@@ -1157,10 +1172,10 @@
 
         if (bad) {
 
-            return false;
+            return 0;
         }
 
-        return true;
+        return questions.length;
     };
 
     /****** Course Management ******/
@@ -1216,9 +1231,8 @@
      * loops through the lms list and synchronises them.
      */
     ContentBroker.prototype.synchronizeAll = function (force) {
-        var now = (new Date()).getTime();
-
-        syncQPSelection = {};
+        var now   = (new Date()).getTime(),
+            tList = [];
 
         if (this.app.isOnline()) {
             this.idprovider.eachLMS(function(lms) {
@@ -1254,15 +1268,17 @@
             return;
         }
 
-        if (this.app.isOnline()) {
-            // recover the question pool selection
-            Object.getOwnPropertyNames(courseList).forEach(function (lId) {
-                syncQPSelection[lId] = {};
-                courseList[lId].forEach(function (crs) {
-                    syncQPSelection[lId][crs.id] = crs.activeQuestionPools;
-                });
-            });
+        // mark all courses as in sync
+        courseList[lmsid].forEach(function (c) {
+            if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
 
+                c.activeSync = 1; // flag need for the course view markers
+            }
+        });
+
+        $(document).trigger("CONTENT_COURSELIST_UPDATED", [lmsid]);
+
+        if (this.app.isOnline()) {
             var self = this;
 
             // do not synchronize while there is already a sync process for the lms
@@ -1271,10 +1287,10 @@
                 syncFlags[lmsid] = true;
 
                 this.fetchCourseList(lmsid)
-                    .then(function (courseList) {
+                    .then(function (nCourseList) {
 
                         // load one course after the other
-                        self.verifyCourseData(courseList, lmsid);
+                        self.verifyCourseData(nCourseList, lmsid);
                     })
                     .catch(function (msg){
 
@@ -1307,20 +1323,22 @@
     };
 
 
-    ContentBroker.prototype.verifyCourseData = function (courseList, lmsId) {
+    ContentBroker.prototype.verifyCourseData = function (nCourseList, lmsId) {
         var self = this,
             tList = [];
 
-        courseList.forEach(function (c) {
+        // we need the old course list
+
+        nCourseList.forEach(function (c) {
             if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
 
                 tList.push(c);
             }
         });
 
-        courseList = tList;
+        nCourseList = tList;
 
-        setCourseListForLMS(lmsId, courseList);
+        setCourseListForLMS(lmsId, nCourseList);
         $(document).trigger("CONTENT_COURSELIST_UPDATED", [lmsId]);
 
         // load the question pools for the courses
@@ -1337,8 +1355,8 @@
             course;
 
         function loadPool() {
-            if (i < courseList.length) {
-                course = courseList[i];
+            if (i < nCourseList.length) {
+                course = nCourseList[i];
                 self.fetchQuestionpoolList(course,lmsId)
                     .then(handleCourse)
                     .catch(function (msg) {
@@ -1357,16 +1375,20 @@
             else {
                 // there are no more courses to fetch.
                 self.idprovider.setSyncState(lmsId);
+
+                // update the local storage
+                setCourseListForLMS(lmsId, nCourseList);
                 delete syncFlags[lmsId];
             }
         }
 
         function handleCourse(qpools) {
-            var k = 0;
+            var k = 0, qLen = 0, qp;
 
             qpools.forEach(function (questionPool, id) {
-                if (self.checkQuestionpool(questionPool)) {
+                if (qp = self.checkQuestionpool(questionPool)) {
                     k++;
+                    qLen += qp;
                 }
                 else {
                     // remove the question pool from the pool list
@@ -1376,13 +1398,15 @@
 
             if (k) {
                 setCourseForLMS(lmsId, course.id, qpools);
+                course.nQuestions = qLen;
+                console.log(courseList);
             }
             else {
                 // ignore this course, because it has no or invalid question pools
                 ignoreCourseForLMS(lmsId, course.id);
             }
 
-            // the event is always triggerd, because a course update could be
+            // the event is always triggered, because a course update could be
             // that the course is removed.
             delete course.activeSync;
             $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);

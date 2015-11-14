@@ -8,12 +8,6 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
 
-   <!-- meta name="app:models" content="ConnectionModel, LMSModel, FeaturedModel, ConfigurationModel, CourseModel, QuestionPoolModel, AnswerModel, StatisticsModel " / -->
-    <!-- trackingModel -->
-
-    <!--<link href="css/test.css" rel="stylesheet" type="text/css">-->
-    <!-- <link href="css/font-awesome.css" rel="stylesheet" type="text/css"> -->
-
     <link href="css/css2.1.css" rel="stylesheet" type="text/css">
     <link href="libs/icomoon/style.css" rel="stylesheet" type="text/css">
     <link href="libs/icomoonNewTab/style.css" rel="stylesheet" type="text/css">
@@ -170,7 +164,7 @@
 
     </div>
 
-    <div id="course" class="screen" data-view="CourseView" data-model="ContentBroker" data-touch="tap">
+    <div id="course" class="screen" data-view="CourseView" data-model="ContentBroker" data-touch="tap move">
         <div id="courseheader" class="headerbox touchable">
             <div id="courseicon"  class="titleicon"><span class="icon-courses"></span></div>
             <div id="msg_courses_list_title" class="headercontent">Courses</div>
@@ -320,8 +314,6 @@
     </div>
 
     <div id="question" class="screen" data-view="QuestionView" data-model="ContentBroker" data-touch="tap swipe move">
-        <component id="wQuestionView">
-
         <div class="headerbox">
             <div class="titleicon">
                 <span id="questionicon"></span>
@@ -342,8 +334,6 @@
                 </li>
             </ul>
         </div>
-        </component>
-
         <div id="questionfooter" class="footerbox touchable">
             <div id="questionbutton" class="footerlabel">
                 <span id="questionbuttonenter" class="icon-enter"></span>
@@ -399,7 +389,8 @@
                     </li>
                 </template>
             </ul>
-            <div id="dataErrorMessage" class="cardBody hidden">Apologize, no data are loaded</div>
+            <!-- FIXME replace with localizable text related to the apologize widget -->
+            <div id="dataErrorMessage" class="content hidden">Apologize, no data are loaded</div>
         </div>
 
         <div id="answerfooter" class="footerbox touchable">
@@ -540,6 +531,7 @@
                 </li>
             </ul>
 
+            <!-- FIXME make proper message style -->
             <div id="msg_loading_message" class="content hidden">statistics are beeing loaded</div>
         </div>
         </component>
@@ -625,6 +617,7 @@
                     <div id="shadowAchievements" class="gradient1 shadowedLi"></div>
                 </li>
             </ul>
+            <!-- fixme make proper message style -->
             <div id="loadingMessageAchievements" class="content">Card Burner and Stack Handler are beeing loaded</div>
         </div>
     </div>
