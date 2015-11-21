@@ -122,6 +122,11 @@ function MoblerCards() {
 //MoblerCards.DefaultLMS = "https://beta.mobinaut.org";
 MoblerCards.DefaultLMS = "https://mobler.mobinaut.io";
 
+/**
+ * @public @method resetSourceTrace
+ *
+ * removes all views from the interaction trajectory
+ */
 MoblerCards.prototype.resetSourceTrace = function (n) {
     var i;
     // pop one item from the stacktrace
@@ -131,6 +136,13 @@ MoblerCards.prototype.resetSourceTrace = function (n) {
     }
 };
 
+/**
+ * @public @method previousView()
+ *
+ * returns the return view for the active view.
+ *
+ * This method is used by CoreApplication's back() method.
+ */
 MoblerCards.prototype.previousView = function () {
     var view;
 
@@ -194,7 +206,7 @@ MoblerCards.prototype.initialize = function () {
 
     var self = this;
 
-    // setup the models
+    // setup helper references for the models
     this.models.contentbroker.idprovider    = this.models.identityprovider;
     this.models.contentbroker.lrs           = this.models.learningrecordstore;
 
@@ -207,6 +219,8 @@ MoblerCards.prototype.initialize = function () {
     }, this);
 
     this.setupLanguage();
+
+    // setup the default LMS if not done so already (needed for initial launch)
 
     function cbDefaultLMS(evt, id) {
         if (!self.models.identityprovider.getActiveLMSID()) {
@@ -222,6 +236,7 @@ MoblerCards.prototype.initialize = function () {
 
         $(document).bind("LMS_AVAILABLE",
                          cbDefaultLMS);
+
         this.models.identityprovider.addLMS(MoblerCards.DefaultLMS);
     }
     else if (!self.models.identityprovider.getActiveLMSID()) {
@@ -241,6 +256,7 @@ MoblerCards.prototype.initialize = function () {
  * so the backend can authorize the client request.
  */
 MoblerCards.prototype.sessionHeader = function (xhr) {
+
     this.models.identityprovider.sessionHeader(xhr);
 };
 
@@ -254,7 +270,10 @@ MoblerCards.prototype.sessionHeader = function (xhr) {
  * LMS. This function is a proxy to the identityprovider function
  */
 MoblerCards.prototype.serviceURL = function (servicename, aPath) {
-    return this.models.identityprovider.serviceURL(servicename, null, aPath);
+
+    return this.models.identityprovider.serviceURL(servicename,
+                                                   null,
+                                                   aPath);
 };
 
 /**
@@ -265,50 +284,57 @@ MoblerCards.prototype.serviceURL = function (servicename, aPath) {
  * @param {STRING} unauthorizedViewName
  */
 MoblerCards.prototype.chooseView = function (authView, unauthView) {
+
     if (this.models.identityprovider.sessionState()) {
+
         this.changeView(authView);
     }
     else {
+
         this.changeView(unauthView);
     }
 };
 
-MoblerCards.prototype.openFirstView = function () {
-    var self = this;
 
-    $(document).bind("UPDATE_DONE", function () {
-        self.initBasics();
-        self.appLoaded = true;
-        self.chooseView("course", "landing");
-    });
+MoblerCards.prototype.openFirstView = function () {
+
+    this.synchronizeAll(true);
+    this.appLoaded = true;
+    this.chooseView("course", "landing");
+
+};
+
+/**
+ * @public @method synchronizeAll(bInit)
+ *
+ * triggers the data synchronization process during.
+ *
+ * bInit is set true only during the first tearup and should not be set for normal uses.
+ */
+MoblerCards.prototype.synchronizeAll = function (bInit) {
+
+    this.models.identityprovider.synchronize();
+    this.models.learningrecordstore.synchronize();
+    this.models.contentbroker.synchronizeAll(!bInit);
+};
+
+/**
+ * @public @method updateVersion()
+ *
+ * implements our own updateVersion.
+ * The UpdateModel signals the UPDATE_DONE
+ */
+MoblerCards.prototype.updateVersion = function () {
 
     // set to 1 for testing the latest upgrading function, use 0 for app store versions
     UpdateModel.debug(0);
     UpdateModel.upgrade(this.MoblerVersion, this);
 };
 
-MoblerCards.prototype.initBasics = function () {
-    this.models.identityprovider.synchronize();
-    this.models.learningrecordstore.synchronize();
-    this.models.contentbroker.synchronize();
-};
-
-MoblerCards.prototype.synchronizeAll = function () {
-    this.models.identityprovider.synchronize();
-    this.models.learningrecordstore.synchronize();
-    this.models.contentbroker.synchronizeAll(true);
-};
-
-MoblerCards.prototype.checkVersion = function () {
-    var presentVersion = localStorage.getItem("MoblerVersion");
-    if (!presentVersion || presentVersion !== this.MoblerVersion) {
-        this.migrate(presentVersion); //upgrade to the latest version
-    }
-};
-
 /**
  * Initial Interface logic localization. Sets the correct strings depending on the language that is specified in the configuration model.
  * Make use of i18n jQuery plugin and apply its syntax for localization.
+ *
  * @prototype setupLanguage
  * */
 MoblerCards.prototype.setupLanguage = function () {
