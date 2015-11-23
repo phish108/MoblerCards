@@ -5,6 +5,7 @@ body
     width: device-width;
     height: device-height;
     overflow: hidden;
+
     color: #646464;
     /* color: #003b54; */
     font-family: "SF UI Text", Roboto, HelveticaNeue-Light, HelveticaNeue, Arial, sans-serif;
@@ -271,7 +272,6 @@ input
 {
     padding-left: 14px;
 }
-
 input
 {
     height: 59px;
@@ -282,7 +282,6 @@ input
     outline: none;
     font-size: 20px;
 }
-
 input.listlabel
 {
     width: 90%;
@@ -367,11 +366,11 @@ input.listlabel
 {
     color: #33CC33;
 }
-
 .red.plain
 {
     color: #bf1010;
     text-shadow: none;
+    color: #bf1010;
 }
 
 .yellow
@@ -383,14 +382,12 @@ input.listlabel
 {
     color: #008CC7;
 }
-
 .glow2.red,
 .red
 {
     text-shadow: 0 0 4px #DF1010;
     color: #bf1010;
 }
-
 .lightgrey
 {
     color: #BEBEBE;
@@ -406,7 +403,6 @@ input.listlabel
     color: #838383;
     text-shadow: 1px 1px 3px grey;
 }
-
 .gradient1
 {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dbdbdb), color-stop(100%, #ffffff));
@@ -455,7 +451,6 @@ input.listlabel
     -webkit-text-fill-color: #21ae24;
     padding-left: 15px;
 }
-
 .textShadow
 {
     text-shadow: 0 1px 1px #898989;
@@ -521,7 +516,6 @@ ul
     -webkit-margin-end: 0;
     -webkit-padding-start: 0;
 }
-
 .borderRemoval
 {
     border-bottom: none;
@@ -532,7 +526,6 @@ li
     list-style-type: none;
     list-style-position: inside;
     font-style: normal;
-    /*border: 0 solid red;*/
     border-bottom: 1px solid white;
     text-align: left;
     padding: 0;
@@ -555,11 +548,9 @@ li
     background-color: #29ABE2;
     color: white;
 }
-
 .currentSortedItem
 {
     position: fixed;
-    box-shadow: 3px 15px 15px #909090;
     width: 100%;
 }
 
@@ -577,7 +568,6 @@ li
     padding: 15px;
     padding-left: 10px;
     padding-right: 0;
-    /*border: 0px solid red;*/
 }
 
 /* FIXME: this should be localized text and use default messaging classes */
@@ -615,10 +605,9 @@ li
     width: 100%;
     padding: 0 10px;
     font-size: 14px;
-    color: #999;
+    color: #0A0032;
     display: inline-block;
 }
-
 .settingsitem
 {
     padding: 0 10px;
@@ -689,7 +678,6 @@ li
     background-color: #a52a2a;
     color: white;
 }
-
 .lmsmessage
 {
     display: none;
@@ -877,7 +865,6 @@ li
     margin-top: 4px;
     margin-bottom: 4px;
 }
-
 .shadowedLi
 {
     height: 20px;
