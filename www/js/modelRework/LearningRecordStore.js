@@ -27,6 +27,7 @@
 /*jslint plusplus: true*/  // allow the ++ operator
 /*jslint browser: true */  // ignore all browser globals
 /*jslint unparam: true*/   // allow unused parameters in function signatures
+/*jslint continue: true*/   // allow unused parameters in function signatures
 
 /**
  * Remove the following lines for production
@@ -1246,7 +1247,7 @@
 
     LearningRecordStore.prototype.getOverviewStats = function () {
         return this.courseStats;
-    }
+    };
 
     /**
      * @prototype

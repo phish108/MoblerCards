@@ -145,7 +145,7 @@ CourseView.prototype.update = function () {
                 // the default button icon is the loading icon, therefore
                 // it is necessary to set the stats icon if the course is
                 // ready
-                if (!course.activeSync &&
+                if (!course.lmsSyncActive &&
                     !course.activeLoad) {
 
                     // if we are waiting to move into the question view

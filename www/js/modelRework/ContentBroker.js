@@ -36,7 +36,7 @@
 
 /*jslint regexp: true*/    // allow [^\[] for cloze question preprocessing
 
-/*global $ */              // allow jquery for event management.
+/*global $, Promise*/              // allow jquery for event management.
 
 /**
  * @author Christian Glahn
@@ -147,11 +147,11 @@
         courseList[lmsId].forEach(function (ocl) {
             idList[ocl.id] = {
                 activePools: ocl.activateQuestionPools,
-                nQuestions: ocl.nQuestions,
+                nQuestions: ocl.nQuestions
             };
 
-            if (ocl.activeSync) {
-                idList[ocl.id].activeSync = ocl.activeSync;
+            if (ocl.lmsSyncActive) {
+                idList[ocl.id].lmsSyncActive = ocl.lmsSyncActive;
             }
         });
 
@@ -171,8 +171,8 @@
                     ncl.nQuestions = idList[ncl.id].nQuestions;
                 }
 
-                if (idList[ncl.id].hasOwnProperty("activeSync")) {
-                    ncl.activeSync = idList[ncl.id].activeSync;
+                if (idList[ncl.id].hasOwnProperty("lmsSyncActive")) {
+                    ncl.lmsSyncActive = idList[ncl.id].lmsSyncActive;
                 }
 
                 delete idList[ncl.id];
@@ -1231,8 +1231,7 @@
      * loops through the lms list and synchronises them.
      */
     ContentBroker.prototype.synchronizeAll = function (force) {
-        var now   = (new Date()).getTime(),
-            tList = [];
+        var now   = (new Date()).getTime();
 
         if (this.app.isOnline()) {
             this.idprovider.eachLMS(function(lms) {
@@ -1246,7 +1245,7 @@
             // if we are offline simulate the ready event
             getCourseList().forEach(function (course) {
 
-                delete course.activeSync;
+                delete course.lmsSyncActive;
                 $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId, course.id]);
 
             });
@@ -1272,7 +1271,7 @@
         courseList[lmsid].forEach(function (c) {
             if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
 
-                c.activeSync = 1; // flag need for the course view markers
+                c.lmsSyncActive = 1; // flag need for the course view markers
             }
         });
 
@@ -1313,7 +1312,7 @@
             // if we are offline simulate the ready event
             getCourseList([lmsid]).forEach(function (course) {
 
-                delete course.activeSync;
+                delete course.lmsSyncActive;
                 $(document).trigger("CONTENT_COURSE_UPDATED", [course.lmsId,
                                                                course.id]);
 
@@ -1364,7 +1363,7 @@
                         // This can have many reasons (e.g., connectivity loss)
                         // ignore and inform the view not to wait for updates
 
-                        delete course.activeSync;
+                        delete course.lmsSyncActive;
                         $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);
 
                         // try next pool
@@ -1386,7 +1385,8 @@
             var k = 0, qLen = 0, qp;
 
             qpools.forEach(function (questionPool, id) {
-                if (qp = self.checkQuestionpool(questionPool)) {
+                qp = self.checkQuestionpool(questionPool);
+                if (qp) {
                     k++;
                     qLen += qp;
                 }
@@ -1408,7 +1408,7 @@
 
             // the event is always triggered, because a course update could be
             // that the course is removed.
-            delete course.activeSync;
+            delete course.lmsSyncActive;
             $(document).trigger("CONTENT_COURSE_UPDATED", [lmsId, course.id]);
 
             // fetch the next course
