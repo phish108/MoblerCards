@@ -404,7 +404,7 @@
         var db = w.LearningRecordStore.getDb();
 
         if (db) {
-            console.log("db lookes ok");
+            console.log("db looks ok");
         }
 
         nextUpdate(db, dbversion);
