@@ -1549,6 +1549,7 @@
                     type: "GET",
                     url: rurl,
                     dataType: 'json',
+                    async: true,
                     beforeSend: sessionHeader,
                     success: resolve,
                     error: function (xhr) { resolve([]); }
@@ -1718,6 +1719,7 @@
                         url: rurl,
                         dataType: 'json',
                         contentType: 'application/json',
+                        async: true,
                         data: JSON.stringify(stream.stream),
                         beforeSend: sessionHeader,
                         success: resolve,

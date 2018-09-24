@@ -230,7 +230,8 @@ UserModel.prototype.sendAuthToServer = function (authData) {
 
     var rObj = {
         url: activeURL,
-        error: authFail
+        error: authFail,
+        async: true
     };
 
     switch(serviceName) {
@@ -301,6 +302,7 @@ UserModel.prototype.sendLogoutToServer = function () {
         "url": activeURL,
         "type": 'DELETE',
         "dataType": 'json',
+        "async": true,
         "success": logoutOK,
         "error": logoutFail,
         "beforeSend": self.idprovider.sessionHeader()
@@ -370,6 +372,7 @@ UserModel.prototype.loadProfile = function (serverid) {
                 success: loadProfile,
                 error: failProfile,
                 dataType: "json",
+                async: true,
                 beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
                 type: "GET"
             });

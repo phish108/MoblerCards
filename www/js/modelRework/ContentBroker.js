@@ -1262,18 +1262,19 @@
      */
     ContentBroker.prototype.synchronize = function (lmsid) {
         if (typeof lmsid !== "string") {
-
             this.synchronizeAll();
             return;
         }
 
         // mark all courses as in sync
-        courseList[lmsid].forEach(function (c) {
-            if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
+        if (courseList) {
+          courseList[lmsid].forEach(function (c) {
+              if (c["content-type"].indexOf("x-application/imsqti") >= 0) {
 
-                c.lmsSyncActive = 1; // flag need for the course view markers
-            }
-        });
+                  c.lmsSyncActive = 1; // flag need for the course view markers
+              }
+          });
+        }
 
         $(document).trigger("CONTENT_COURSELIST_UPDATED", [lmsid]);
 
@@ -1470,6 +1471,7 @@
                         type: "GET",
                         url: serviceURL,
                         dataType: 'json',
+                        async: true,
                         beforeSend: self.idprovider.sessionHeader(["MAC", "Bearer"]),
                         success: resolve,
                         error:   reject

@@ -671,7 +671,8 @@
                     "url": url,
                     "dataType": "json",
                     "success": resolve,
-                    "error": reject
+                    "error": reject,
+                    "async": true
                 });
         });
     };
