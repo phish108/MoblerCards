@@ -1,5 +1,6 @@
 platforms/*
 platforms/ios/*
+plugins/*
 node_modules/*
 *~
 

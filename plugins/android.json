@@ -1,54 +1,21 @@
 {
-    "prepare_queue": {
-        "installed": [],
-        "uninstalled": []
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {},
+  "dependent_plugins": {
+    "org.apache.cordova.device": {
+      "PACKAGE_NAME": "org.mobinaut.moblercards"
     },
-    "config_munge": {
-        "files": {
-            "res/xml/config.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<feature name=\"NetworkStatus\"><param name=\"android-package\" value=\"org.apache.cordova.networkinformation.NetworkManager\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"File\"><param name=\"android-package\" value=\"org.apache.cordova.file.FileUtils\" /><param name=\"onload\" value=\"true\" /></feature>",
-                            "count": 1
-                        }
-                    ]
-                }
-            },
-            "AndroidManifest.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
-                            "count": 1
-                        }
-                    ]
-                }
-            }
-        }
+    "org.apache.cordova.file": {
+      "PACKAGE_NAME": "org.mobinaut.moblercards"
     },
-    "installed_plugins": {
-        "org.apache.cordova.network-information": {
-            "PACKAGE_NAME": "ch.ethz.isn.moblercards"
-        },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "ch.ethz.isn.moblercards"
-        },
-        "org.apache.cordova.file": {
-            "PACKAGE_NAME": "ch.ethz.isn.moblercards"
-        }
-    },
-    "dependent_plugins": {}
+    "org.apache.cordova.network-information": {
+      "PACKAGE_NAME": "org.mobinaut.moblercards"
+    }
+  }
 }

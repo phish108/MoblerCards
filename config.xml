@@ -7,9 +7,9 @@ A simple training and practicing app that connects to your LMS
     <author email="app@mobinaut.io" href="http://www.mobinaut.io">
         mobinaut.io
     </author>
-    <content src="index.html"/>
-    <access origin="*"/>
-    <preference name="DisallowOverscroll" value="true"/>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="DisallowOverscroll" value="true" />
     <platform name="android">
         <preference name="android-minSdkVersion" value="15" />
         <icon density="ldpi" src="icons/ldpi/icon.png" />
@@ -19,13 +19,9 @@ A simple training and practicing app that connects to your LMS
         <icon density="xxhdpi" src="icons/xxhdpi/icon.png" />
         <icon density="xxxhdpi" src="icons/xxxhdpi/icon.png" />
     </platform>
-    <feature name="Network Information">
-        <param name="id" value="org.apache.cordova.network-information"/>
-    </feature>
-    <feature name="Device">
-        <param name="id" value="org.apache.cordova.device"/>
-    </feature>
-    <feature name="File">
-        <param name="id" value="org.apache.cordova.file"/>
-    </feature>
+    <engine name="android" spec="~7.0.0" />
+    <engine name="ios" spec="~4.5.5" />
+    <plugin name="cordova-plugin-device" spec="^2.0.2" />
+    <plugin name="cordova-plugin-file" spec="^6.0.1" />
+    <plugin name="cordova-plugin-network-information" spec="^2.0.1" />
 </widget>
