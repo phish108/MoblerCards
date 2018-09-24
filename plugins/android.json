@@ -6,7 +6,11 @@
   "config_munge": {
     "files": {}
   },
-  "installed_plugins": {},
+  "installed_plugins": {
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "org.mobinaut.moblercards"
+    }
+  },
   "dependent_plugins": {
     "org.apache.cordova.device": {
       "PACKAGE_NAME": "org.mobinaut.moblercards"
