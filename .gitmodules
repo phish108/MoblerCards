@@ -9,4 +9,4 @@
 	url = https://github.com/phish108/jstap.git
 [submodule "www/js/contrib/i18n"]
 	path = www/js/contrib/i18n
-	url = https://github.com/Maroben/jquery-i18n-properties.git
+	url = https://github.com/jquery-i18n-properties/jquery-i18n-properties.git
